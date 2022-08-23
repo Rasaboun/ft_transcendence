@@ -1,4 +1,4 @@
-import react from "React"
+import react from "react"
 import "../Components/Pong/pong.css"
 
 type propsType = {
