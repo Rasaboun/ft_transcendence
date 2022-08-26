@@ -3,11 +3,12 @@ import React from 'react';
 import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
+import { Routes, Route, Link } from "react-router-dom";
 
-const navigation = [
-  { name: 'Dashboard', href: '#', current: true },
-  { name: 'Chat', href: '#', current: false },
-  { name: 'Pong', href: '#', current: false },
+let navigation = [
+  { name: 'Dashboard', href: '#'},
+  { name: 'Chat', href: '#'},
+  { name: 'Pong', href: '#'},
 ]
 
 function classNames(...classes: any) {
@@ -17,7 +18,7 @@ function classNames(...classes: any) {
 export default function NavBar() {
   return (
     <>
-    <div className="min-h-full">
+    <div className="flex-none">
     <Disclosure as="nav" className="bg-blue-800">
       {({ open} : {open: any}) => (
         <>
@@ -25,7 +26,7 @@ export default function NavBar() {
             <div className="relative flex items-center justify-between h-16">
               <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
                 {/* Mobile menu button*/}
-                <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-brown-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
                   <span className="sr-only">Open main menu</span>
                   {open ? (
                     <XIcon className="block h-6 w-6" aria-hidden="true" />
@@ -50,23 +51,37 @@ export default function NavBar() {
                 <div className="hidden sm:block sm:ml-6">
                   <div className="flex space-x-4">
                     {navigation.map((item) => (
-                      <a
+                      <Link
+                        onClick={() => {
+                        let idcurrent = document.getElementById(item.name);
+                        idcurrent?.classList.add("bg-gray-500");
+                        for (let other of navigation){
+                          if (other.name != item.name)
+                          {
+                            let idother = document.getElementById(other.name);
+                            idother?.classList.remove("bg-gray-500");
+                          }
+                        }
+                        }}
+                        to={item.name}
                         key={item.name}
-                        href={item.href}
                         className={classNames(
-                          item.current ? 'bg-gray-500 text-white' : 'text-gray-300 hover:bg-gray-400 hover:text-white',
+                        
+                          'text-white hover:bg-gray-400 ',
                           'px-3 py-2 rounded-md text-sm font-medium'
                         )}
-                        aria-current={item.current ? 'page' : undefined}
+                        
+                        id={item.name}
                       >
                         {item.name}
-                      </a>
+                      </Link>
+                    
                     ))}
                   </div>
                 </div>
                 
               </div>
-              <p className="text-line text-white">ft_transcendance</p>
+              <p className="text-line invisible sm:visible text-white">ft_transcendance</p>
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                 {/* Profile dropdown */}
                 <Menu as="div" className="ml-3 relative">
@@ -136,10 +151,9 @@ export default function NavBar() {
                   as="a"
                   href={item.href}
                   className={classNames(
-                    item.current ? 'bg-brown-900 text-white' : 'text-gray-300 hover:bg-brown-800 hover:text-white',
+                    'text-white hover:bg-gray-400 hover:text-white',
                     'block px-3 py-2 rounded-md text-base font-medium'
                   )}
-                  aria-current={item.current ? 'page' : undefined}
                 >
                   {item.name}
                 </Disclosure.Button>
@@ -150,20 +164,7 @@ export default function NavBar() {
       )}
     </Disclosure>
     
-    <header className="bg-white shadow">
-          <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <h1 className="text-3xl tracking-tight font-bold text-gray-900">Dashboard</h1>
-          </div>
-        </header>
-        <main>
-          <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-            {/* Replace with your content */}
-            <div className="px-4 py-6 sm:px-0">
-              <div className="border-4 border-dashed border-gray-200 rounded-lg h-96" />
-            </div>
-            {/* /End replace */}
-          </div>
-        </main>
+
       
         
         </div>
