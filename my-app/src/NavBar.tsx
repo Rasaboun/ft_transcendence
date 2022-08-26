@@ -18,7 +18,7 @@ export default function NavBar() {
   return (
     <>
     <div className="min-h-full">
-    <Disclosure as="nav" className="bg-brown-700">
+    <Disclosure as="nav" className="bg-blue-800">
       {({ open} : {open: any}) => (
         <>
           <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
@@ -54,7 +54,7 @@ export default function NavBar() {
                         key={item.name}
                         href={item.href}
                         className={classNames(
-                          item.current ? 'bg-brown-900 text-white' : 'text-gray-300 hover:bg-brown-800 hover:text-white',
+                          item.current ? 'bg-gray-500 text-white' : 'text-gray-300 hover:bg-gray-400 hover:text-white',
                           'px-3 py-2 rounded-md text-sm font-medium'
                         )}
                         aria-current={item.current ? 'page' : undefined}
@@ -66,12 +66,12 @@ export default function NavBar() {
                 </div>
                 
               </div>
-              <p className="text-line">ft_transcendance</p>
+              <p className="text-line text-white">ft_transcendance</p>
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                 {/* Profile dropdown */}
                 <Menu as="div" className="ml-3 relative">
                   <div>
-                    <Menu.Button className="bg-gray-800 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                    <Menu.Button className="bg-sky-600 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                       <span className="sr-only">Open user menu</span>
                       <img
                         className="h-8 w-8 rounded-full"
@@ -90,12 +90,12 @@ export default function NavBar() {
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                   >
-                    <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-brown-500 ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-blue-500 ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <Menu.Item>
                         {({ active }: {active: any}) => (
                           <a
                             href="#"
-                            className={classNames(active ? 'bg-brown-600' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                            className={classNames(active ? 'bg-blue-600' : '', 'block px-4 py-2 text-sm text-white')}
                           >
                             Your Profile
                           </a>
@@ -105,7 +105,7 @@ export default function NavBar() {
                         {({ active }: {active: any}) => (
                           <a
                             href="#"
-                            className={classNames(active ? 'bg-brown-600' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                            className={classNames(active ? 'bg-blue-600' : '', 'block px-4 py-2 text-sm text-white')}
                           >
                             Settings
                           </a>
@@ -115,7 +115,7 @@ export default function NavBar() {
                         {({ active }: {active: any}) => (
                           <a
                             href="#"
-                            className={classNames(active ? 'bg-brown-600' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                            className={classNames(active ? 'bg-blue-600' : '', 'block px-4 py-2 text-sm text-white')}
                           >
                             Sign out
                           </a>

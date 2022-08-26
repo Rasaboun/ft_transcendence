@@ -592,10 +592,6 @@ video {
   margin-right: auto;
 }
 
-.mt-auto {
-  margin-top: auto;
-}
-
 .mt-3 {
   margin-top: 0.75rem;
 }
@@ -642,10 +638,6 @@ video {
 
 .h-96 {
   height: 24rem;
-}
-
-.h-10 {
-  height: 2.5rem;
 }
 
 .min-h-full {
@@ -762,9 +754,34 @@ video {
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
-.bg-brown-700 {
+.bg-blue-800 {
   --tw-bg-opacity: 1;
-  background-color: rgb(112 79 79 / var(--tw-bg-opacity));
+  background-color: rgb(30 64 175 / var(--tw-bg-opacity));
+}
+
+.bg-gray-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(156 163 175 / var(--tw-bg-opacity));
+}
+
+.bg-sky-600 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(2 132 199 / var(--tw-bg-opacity));
+}
+
+.bg-blue-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(59 130 246 / var(--tw-bg-opacity));
+}
+
+.bg-blue-600 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(37 99 235 / var(--tw-bg-opacity));
+}
+
+.bg-sky-700 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(3 105 161 / var(--tw-bg-opacity));
 }
 
 .bg-brown-900 {
@@ -772,19 +789,9 @@ video {
   background-color: rgb(71 45 45 / var(--tw-bg-opacity));
 }
 
-.bg-gray-800 {
+.bg-gray-500 {
   --tw-bg-opacity: 1;
-  background-color: rgb(31 41 55 / var(--tw-bg-opacity));
-}
-
-.bg-brown-500 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(191 160 148 / var(--tw-bg-opacity));
-}
-
-.bg-brown-600 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(167 121 121 / var(--tw-bg-opacity));
+  background-color: rgb(107 114 128 / var(--tw-bg-opacity));
 }
 
 .p-4 {
@@ -967,9 +974,19 @@ video {
   background-color: rgb(71 45 45 / var(--tw-bg-opacity));
 }
 
+.hover\:bg-gray-500:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(107 114 128 / var(--tw-bg-opacity));
+}
+
 .hover\:bg-brown-800:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(85 57 57 / var(--tw-bg-opacity));
+}
+
+.hover\:bg-gray-400:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(156 163 175 / var(--tw-bg-opacity));
 }
 
 .hover\:text-white:hover {
@@ -1014,6 +1031,11 @@ video {
   .dark\:bg-brown-700 {
     --tw-bg-opacity: 1;
     background-color: rgb(112 79 79 / var(--tw-bg-opacity));
+  }
+
+  .dark\:bg-blue-800 {
+    --tw-bg-opacity: 1;
+    background-color: rgb(30 64 175 / var(--tw-bg-opacity));
   }
 
   .dark\:text-gray-400 {
