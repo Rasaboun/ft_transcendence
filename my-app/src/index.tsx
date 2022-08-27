@@ -31,6 +31,7 @@ root.render(
     <Route path="Chat" element={<Chat/>}/>
     <Route path="Pong" element={<Pong/>}/>
     </Routes>
+    <Footer/>
     </BrowserRouter>
 );
 

@@ -6,9 +6,9 @@ import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
 import { Routes, Route, Link } from "react-router-dom";
 
 let navigation = [
-  { name: 'Dashboard', href: '#'},
-  { name: 'Chat', href: '#'},
-  { name: 'Pong', href: '#'},
+  { name: 'Dashboard', href: '#', current: false},
+  { name: 'Chat', href: '#', current: false},
+  { name: 'Pong', href: '#', current: false},
 ]
 
 function classNames(...classes: any) {
