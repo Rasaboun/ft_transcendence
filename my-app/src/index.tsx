@@ -6,6 +6,8 @@ import Footer from './Footer';
 import Dashboard from './Dashboard';
 import Pong from './Pong';
 import Chat from './Chat';
+import Home from './Home';
+import Settings from './Settings';
 
 import {
   BrowserRouter,
@@ -27,9 +29,11 @@ root.render(
 
     <NavBar />
     <Routes>
+    <Route path="/" element={<Home/> }/>
     <Route path="Dashboard" element={<Dashboard/> }/>
     <Route path="Chat" element={<Chat/>}/>
     <Route path="Pong" element={<Pong/>}/>
+    <Route path="Settings" element={<Settings/>}/>
     </Routes>
     <Footer/>
     </BrowserRouter>
