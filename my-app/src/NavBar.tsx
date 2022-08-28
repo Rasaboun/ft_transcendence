@@ -19,40 +19,24 @@ function classNames(...classes: string[] ) {
   return classes.filter(Boolean).join(' ')
 }
 
-function useHoverNavBar(){
-  const location = useLocation();
+function HoverNavBar(location :String){
+ 
 
   for (let other of navigation){
       document.getElementById(other.name)?.classList.remove("bg-gray-500");
       document.getElementById(other.name + "burger")?.classList.remove("bg-gray-500");
   }
 
-  document.getElementById(location.pathname.replace('/',""))?.classList.add("bg-gray-500");
-  document.getElementById(location.pathname.replace('/',"") + "burger")?.classList.add("bg-gray-500");
+  document.getElementById(location.replace('/',""))?.classList.add("bg-gray-500");
+  document.getElementById(location.replace('/',"") + "burger")?.classList.add("bg-gray-500");
 }
-
-function useHoverNavBarBurger(){
-  const location = useLocation();
-
-  let idcurrent = document.getElementById(location.pathname.replace('/',""));
-  idcurrent?.classList.add("bg-gray-500");
-  for (let other of navigation){
-    if (other.name != location.pathname.replace('/',""))
-    {
-      let idother = document.getElementById(other.name);
-      idother?.classList.remove("bg-gray-500");
-    }
-  }
-}
-
-
 
 export default function NavBar() {
-
-  useHoverNavBar();
+  const location = useLocation();
+  
   useEffect(() => {    // Mettre à jour le titre du document en utilisant l'API du navigateur    
     document.getElementById("notification")?.classList.add(profileColor[1]);
-  
+    HoverNavBar(location.pathname);
   });
   
   return (
