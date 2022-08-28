@@ -1,9 +1,9 @@
 /* This example requires Tailwind CSS v2.0+ */
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useLocation } from "react-router-dom";
 import logo from './42-logo.png';
 import profile from './profile.png';
 
@@ -12,12 +12,49 @@ let navigation = [
   { name: 'Chat', href: '#', current: false},
   { name: 'Pong', href: '#', current: false},
 ]
+let profileColor = ["bg-green-400", "bg-red-400", "bg-gray-400"]
+let index = 0;
 
-function classNames(...classes: any) {
+function classNames(...classes: string[] ) {
   return classes.filter(Boolean).join(' ')
 }
 
+function useHoverNavBar(){
+  const location = useLocation();
+
+  for (let other of navigation){
+      document.getElementById(other.name)?.classList.remove("bg-gray-500");
+      document.getElementById(other.name + "burger")?.classList.remove("bg-gray-500");
+  }
+
+  document.getElementById(location.pathname.replace('/',""))?.classList.add("bg-gray-500");
+  document.getElementById(location.pathname.replace('/',"") + "burger")?.classList.add("bg-gray-500");
+}
+
+function useHoverNavBarBurger(){
+  const location = useLocation();
+
+  let idcurrent = document.getElementById(location.pathname.replace('/',""));
+  idcurrent?.classList.add("bg-gray-500");
+  for (let other of navigation){
+    if (other.name != location.pathname.replace('/',""))
+    {
+      let idother = document.getElementById(other.name);
+      idother?.classList.remove("bg-gray-500");
+    }
+  }
+}
+
+
+
 export default function NavBar() {
+
+  useHoverNavBar();
+  useEffect(() => {    // Mettre à jour le titre du document en utilisant l'API du navigateur    
+    document.getElementById("notification")?.classList.add(profileColor[1]);
+  
+  });
+  
   return (
     <>
     <div className="flex-none">
@@ -74,17 +111,7 @@ export default function NavBar() {
                   <div className="flex space-x-4">
                     {navigation.map((item) => (
                       <Link
-                        onClick={() => {
-                        let idcurrent = document.getElementById(item.name);
-                        idcurrent?.classList.add("bg-gray-500");
-                        for (let other of navigation){
-                          if (other.name != item.name)
-                          {
-                            let idother = document.getElementById(other.name);
-                            idother?.classList.remove("bg-gray-500");
-                          }
-                        }
-                        }}
+                      
                         to={item.name}
                         key={item.name}
                         className={classNames(
@@ -117,7 +144,19 @@ export default function NavBar() {
                         alt=""
                        
                       />
-                      <span className="top-0 left-7 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white dark:border-gray-800 rounded-full"></span>
+                      <span id="notification"
+                      className="top-0 left-7 absolute  w-3.5 h-3.5 border-2 border-gray rounded-full"
+                      onClick={() => {
+                        for (let i of profileColor){
+                          let notif = document.getElementById("notification");
+                          notif?.classList.remove(i);
+                        }
+                        let notif = document.getElementById("notification");
+                        notif?.classList.add(profileColor[index]);
+                        index = index >= profileColor.length - 1 ? 0 : index + 1;
+                      }}
+                      >
+                      </span>
                       </div>
                     </Menu.Button>
                   </div>
@@ -171,17 +210,28 @@ export default function NavBar() {
           <Disclosure.Panel className="sm:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navigation.map((item) => (
-                <Disclosure.Button
-                  key={item.name}
-                  as="a"
-                  href={item.href}
+                  <Link
+                  id={item.name + "burger"}
+                  to={item.name}
                   className={classNames(
                     'text-white hover:bg-gray-400 hover:text-white',
                     'block px-3 py-2 rounded-md text-base font-medium'
                   )}
-                >
-                  {item.name}
-                </Disclosure.Button>
+                  key={item.name}
+                  
+                  onClick={() => {
+                    
+                    for (let other of navigation){
+                        let idother = document.getElementById(other.name + "burger");
+                        idother?.classList.remove("bg-gray-500");
+                    }
+                    let idcurrent = document.getElementById(item.name + "burger");
+                    idcurrent?.classList.add("bg-gray-500");
+                    }}
+                  >
+                    {item.name}
+                  </Link>
+                  
               ))}
             </div>
           </Disclosure.Panel>
