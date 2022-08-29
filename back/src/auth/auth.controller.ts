@@ -9,19 +9,19 @@ import { AuthFilter } from './utils/auth.filter';
 export class AuthController {
     constructor(private authService: AuthService) {}
    
-    @UseGuards(IntraAuthGuard)
+    //@UseGuards(IntraAuthGuard)
     @Get('login')
     login() { 
         return ;
     } 
 
     @Get('redirect')
-    @UseGuards(IntraAuthGuard)
+    //@UseGuards(IntraAuthGuard)
     @Redirect('http://localhost:3001/')   // End of authentication, redirects to main page
     redirect(@Res() res) {   }
 
     @Get('status')
-    @UseGuards(AuthenticatedGuard)
+    //@UseGuards(AuthenticatedGuard)
     @UseFilters(AuthFilter)
     status() { return 'ok'; } //returns ok if logged in
 

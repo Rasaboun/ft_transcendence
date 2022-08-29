@@ -5,8 +5,8 @@ import { Match } from 'src/typeorm';
 import { matchDto } from './dto/match.dto';
 import { MatchService } from './match.service';
 
-@UseGuards(AuthenticatedGuard)
-@UseFilters(AuthFilter)
+//@UseGuards(AuthenticatedGuard)
+//@UseFilters(AuthFilter)
 @Controller('match')
 export class MatchController {
     constructor(private readonly matchService: MatchService) {}

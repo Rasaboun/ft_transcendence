@@ -5,8 +5,8 @@ import { User } from 'src/typeorm';
 import { createUserDto } from './dto/createUser.dto';
 import { UsersService } from './users.service';
 
-@UseGuards(AuthenticatedGuard)
-@UseFilters(AuthFilter)
+//@UseGuards(AuthenticatedGuard)
+//@UseFilters(AuthFilter)
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
