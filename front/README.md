@@ -1,6 +1,6 @@
-# Getting Started with Create React App
+# Compile css
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+npx tailwindcss -c ./tailwindcss-config.ts -i src/index.css -o src/output.css --watch
 
 ## Available Scripts
 
