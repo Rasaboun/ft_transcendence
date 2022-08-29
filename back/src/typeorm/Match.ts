@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class Game {
+export class Match {
     @PrimaryGeneratedColumn('increment')
     id: number;
 

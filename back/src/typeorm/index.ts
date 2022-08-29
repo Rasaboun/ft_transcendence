@@ -1,9 +1,9 @@
-import { Game } from "./Game";
+import { Match } from "./Match";
 import { User } from "./User";
 import { TypeORMSession } from "./Session";
 
-const entities = [User, Game, TypeORMSession];
+const entities = [User, Match, TypeORMSession];
 
-export { User, Game, TypeORMSession };
+export { User, Match, TypeORMSession };
 
 export default entities;

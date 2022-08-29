@@ -1,6 +1,6 @@
 import { IsDate, IsDateString, IsNotEmpty, IsNumber, isNumberString, IsNumberString, IsString } from "class-validator";
 
-export class gameResultDto {
+export class matchDto {
     @IsNotEmpty()
     @IsDateString()
     date: Date;
