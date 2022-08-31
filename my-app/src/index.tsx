@@ -22,7 +22,8 @@ const root = ReactDOM.createRoot(
 let rootdiv = document.getElementById("root");
 rootdiv?.classList.add("flex");
 rootdiv?.classList.add("flex-col"); 
-rootdiv?.classList.add("min-h-screen"); 
+rootdiv?.classList.add("min-h-screen");
+rootdiv?.classList.add("bg-indigo-50"); 
 root.render(
   <BrowserRouter>
     
