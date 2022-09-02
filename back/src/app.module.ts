@@ -11,12 +11,12 @@ import { DataSource } from "typeorm"
 import { MatchModule } from './match/match.module';
 
 @Module({
-  imports: [
+ /* imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
     UsersModule,
-    TypeOrmModule.forRoot({
+   /* TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
       port: Number(process.env.DB_PORT),
@@ -26,17 +26,18 @@ import { MatchModule } from './match/match.module';
       entities: entities,
       synchronize: true,
   }),
-  PassportModule.register({ session: true }),
-  MatchModule,
+  //PassportModule.register({ session: true }),
+  //MatchModule,
   AuthModule,
-  ],
+  ],*/
   controllers: [AppController],
   providers: [AppService],
   exports: [AppService]
 })
 export class AppModule {
-  constructor(private dataSource: DataSource) {}
-
+  constructor(/*private dataSource: DataSource*/) {}
+/*
   getDataSource() {
     return this.dataSource;
-  }}
+  }}*/
+}

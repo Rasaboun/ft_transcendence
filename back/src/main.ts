@@ -10,11 +10,11 @@ import { AuthFilter } from './auth/utils/auth.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const sessionRepo = app
+ /* const sessionRepo = app
     .get(AppModule)
     .getDataSource()
     .getRepository(TypeORMSession);
-
+*/
   app.useGlobalPipes(new ValidationPipe()) //Don't need to use validation in controller
 /*
   app.use(session({
