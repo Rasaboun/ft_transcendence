@@ -39,7 +39,7 @@ export default function Game()
 			delta: {x: 0, y: 0},
 			radius: 10,
 		},
-		state: GameState.Spectacte,
+		state: GameState.Waiting,
 		winnerId: ""
 	});
 
@@ -61,6 +61,39 @@ export default function Game()
 		)
 	}
 
+	function initializeGame()
+	{
+		setGameData({
+			players: [{
+				id: "",
+				pos: canvas.height / 2,
+				score: 0,
+			}, 
+			{
+				id: "",
+				pos: canvas.height / 2,
+				score: 0,
+	
+			}],
+			ball : {
+				x: canvas.width / 2,
+				y: canvas.height / 2,
+				speed: 0.01,
+				delta: {x: 0, y: 0},
+				radius: 10,
+			},
+			state: GameState.Spectacte,
+			winnerId: ""
+		})
+		setGameSettings({
+			scoreToWin: 5,
+			paddleWidth: canvas.width / 100,
+			paddleHeight: canvas.height / 10,
+			width: 1920,
+			height: 1080,
+		})
+	}
+
 	useEffect(() => {
 		canvas = canvasRef.current!;
 		console.log(canvas)
@@ -78,10 +111,12 @@ export default function Game()
 			return ;
 
 		const handleResize = () => {
-			canvas.height = window.innerHeight;
-			canvas.width = window.innerWidth;
+			console.log(canvas.height, canvas.width)
+			canvas.height = utils.getCanvasDiv().height
+			canvas.width = utils.getCanvasDiv().width;
 		}	
 		handleResize();
+		initializeGame()
 		window.addEventListener('resize', handleResize);
 
 		socket = value?.socket!
@@ -176,8 +211,8 @@ export default function Game()
 		{
 			let value: number = event.clientY;
 
-			if (value + gameSettings.paddleHeight / 2 >= gameSettings.height)
-				value = gameSettings.height - gameSettings.paddleHeight / 2;
+			if (value + gameSettings.paddleHeight / 2 >= canvas.height)
+				value = canvas.height - gameSettings.paddleHeight / 2;
 			else if (value - gameSettings.paddleHeight / 2 <= 0)
 				value = gameSettings.paddleHeight / 2;
 			socket.emit("playerMoved", value);
@@ -209,7 +244,7 @@ export default function Game()
 			gameSettings.paddleWidth,
 			gameSettings.paddleHeight);
 
-		context.fillRect(gameSettings.width - gameSettings.paddleWidth - 40, // ?????
+		context.fillRect(canvas.width - gameSettings.paddleWidth, // ?????
 			gameData.players[1].pos - gameSettings.paddleHeight / 2,
 			gameSettings.paddleWidth,
 			gameSettings.paddleHeight);
