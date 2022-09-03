@@ -32,7 +32,7 @@ class GameInstance {
         console.log(this.gameData.players[winner].score, this.settings.scoreToWin);
         if (this.gameData.players[winner].score === this.settings.scoreToWin) {
             this.gameData.state = game_type_1.GameState.Stopped;
-            this.lobby.sendToUsers('Result', this.gameData.players[winner].id);
+            this.lobby.sendToUsers('gameOver', this.gameData.players[winner].id);
         }
     }
     checkGoals(nextPos) {
@@ -102,10 +102,6 @@ class GameInstance {
         this.updateBall(this.settings.width / 2, this.settings.height / 2, radian);
         this.gameData.state = game_type_1.GameState.Started;
     }
-    start(data) {
-        this.gameData.state = game_type_1.GameState.Started;
-        this.gameLoop();
-    }
     stop() {
         this.gameData.players = [];
         this.gameData.state = game_type_1.GameState.Stopped;
@@ -118,9 +114,7 @@ class GameInstance {
         };
         this.gameData.players.push(newPlayer);
     }
-    sendReady() {
-        this.lobby.sendToUsers("gameReady", this.gameData);
-    }
+    sendReady() { this.lobby.sendToUsers("gameReady", this.gameData); }
     isPlayer(clientId) {
         for (let i = 0; i < this.gameData.players.length; i++) {
             if (this.gameData.players[i].id == clientId)

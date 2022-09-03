@@ -19,14 +19,6 @@ export interface Ball {
     };
     radius: number;
 }
-export interface gameCollionInfoT {
-    player1PaddleZone: DOMRect;
-    player2PaddleZone: DOMRect;
-    ballZone: DOMRect;
-    borderZone: DOMRect;
-    innerHeight: number;
-    innerWidth: number;
-}
 export interface GameData {
     players: Player[];
     ball: Ball;

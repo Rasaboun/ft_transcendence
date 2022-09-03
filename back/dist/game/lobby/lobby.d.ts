@@ -13,6 +13,7 @@ export declare class Lobby {
     addClient(client: AuthenticatedSocket): void;
     startGame(): void;
     removeClient(client: AuthenticatedSocket): void;
+    clear(): void;
     playersId(): string[];
     sendUpdate(event: string, data: any): void;
     needUpdate(event: string, data: GameData): void;

@@ -25,6 +25,7 @@ class LobbyManager {
     }
     terminateSocket(client) {
         var _a;
+        console.log("Leaving socket");
         (_a = client.data.lobby) === null || _a === void 0 ? void 0 : _a.removeClient(client);
     }
     createLobby() {
@@ -41,6 +42,13 @@ class LobbyManager {
             this.avalaibleLobbies.push(lobby);
         }
         lobby.addClient(client);
+    }
+    destroyLobby(lobbyId) {
+        const lobby = this.lobbies.get(lobbyId);
+        if (lobby == null)
+            return;
+        lobby.clear();
+        this.lobbies.delete(lobbyId);
     }
     joinLobby(lobbyId, client) {
         console.log(`Spectacte lobby ${lobbyId}`);

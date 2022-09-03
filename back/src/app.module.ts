@@ -9,10 +9,11 @@ import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { DataSource } from "typeorm"
 import { MatchModule } from './match/match.module';
+import { GameModule } from './game/game.module';
 
 @Module({
- /* imports: [
-    ConfigModule.forRoot({
+ imports: [
+ /*   ConfigModule.forRoot({
       isGlobal: true,
     }),
     UsersModule,
@@ -29,7 +30,8 @@ import { MatchModule } from './match/match.module';
   //PassportModule.register({ session: true }),
   //MatchModule,
   AuthModule,
-  ],*/
+*/
+  GameModule],
   controllers: [AppController],
   providers: [AppService],
   exports: [AppService]

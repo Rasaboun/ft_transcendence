@@ -22,6 +22,7 @@ class Lobby {
             this.gameInstance.addPlayer(client.id);
             this.nbPlayers++;
             if (this.nbPlayers == 1) {
+                console.log("je suis la", this.nbPlayers);
                 client.emit("waitingForOpponent");
             }
             else {
@@ -43,14 +44,23 @@ class Lobby {
         client.leave(this.id);
         this.clients.delete(client.id);
         if (this.gameInstance.isPlayer(client.id)) {
+            this.gameInstance.stop();
             this.clients.forEach((user, id) => {
                 this.clients.delete(id);
             });
-            this.gameInstance.stop();
             this.nbPlayers = 0;
             this.state = game_type_1.GameState.Stopped;
             this.sendToUsers('gameStopped', "");
         }
+    }
+    clear() {
+        if (this.clients.size == 0)
+            return;
+        console.log('Clear lobby');
+        this.clients.forEach((user, id) => {
+            this.clients.delete(id);
+            user.data.lobby = null;
+        });
     }
     playersId() { return this.gameInstance.playersId(); }
     sendUpdate(event, data) { this.server.to(this.id).emit(event, data); }

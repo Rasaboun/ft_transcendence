@@ -1,4 +1,9 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Menu from './game/Components/menu';
+import Game from './game/Components/Pong/Game';
+import { GameContextProvider } from "./game/gameContext"
+
 import './output.css';
 
 
@@ -13,6 +18,16 @@ export default function Pong() {
 	<main>
 	<div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
 	{/* Replace with your Chat */}
+	<GameContextProvider>
+		<div className="App">
+			<div>
+				<Routes>
+					<Route path="/" element={<Menu/>}/>
+					<Route path="/game" element={<Game/>}/>
+				</Routes>
+			</div>
+		</div>
+	</GameContextProvider>
 	<div className=" px-4 py-6 sm:px-0">
 		<div className="border-4 border-dashed border-gray-200 rounded-lg h-96" />
 	</div>

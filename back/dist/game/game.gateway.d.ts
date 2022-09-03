@@ -12,6 +12,7 @@ export declare class GameGateway implements OnGatewayInit, OnGatewayConnection, 
     createLobby(client: AuthenticatedSocket): void;
     joiningQueue(client: AuthenticatedSocket, player: Player): void;
     spectateGame(client: AuthenticatedSocket, lobbyId: string): void;
+    destroyLobby(client: AuthenticatedSocket): void;
     getActiveGames(client: AuthenticatedSocket): void;
     launchGame(client: AuthenticatedSocket): void;
     handlePlayerPosition(client: AuthenticatedSocket, newPos: number): void;

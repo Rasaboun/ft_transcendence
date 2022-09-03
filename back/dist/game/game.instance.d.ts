@@ -1,5 +1,5 @@
 import { Lobby } from "./lobby/lobby";
-import { gameCollionInfoT, Player } from "./game.type";
+import { Player } from "./game.type";
 export declare class GameInstance {
     lobby: Lobby;
     private gameData;
@@ -26,7 +26,6 @@ export declare class GameInstance {
     };
     updateBall(x: number, y: number, radian: number): void;
     resetRound(): void;
-    start(data: gameCollionInfoT): void;
     stop(): void;
     addPlayer(clientId: string): void;
     sendReady(): void;

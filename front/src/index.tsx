@@ -32,7 +32,7 @@ root.render(
     <Route path="/" element={<Home/> }/>
     <Route path="Dashboard" element={<Dashboard/> }/>
     <Route path="Chat" element={<Chat/>}/>
-    <Route path="Pong" element={<Pong/>}/>
+    <Route path="Pong/*" element={<Pong/>}/>
     <Route path="Settings" element={<Settings/>}/>
     </Routes>
     <Footer/>

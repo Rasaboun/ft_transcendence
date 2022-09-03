@@ -40,10 +40,14 @@ let GameGateway = class GameGateway {
         try {
             this.lobbyManager.joinLobby(lobbyId, client);
             console.log('Joined lobby');
+            client.emit('spectate');
         }
         catch (error) {
             client.emit('lobbyNotFound', error.message);
         }
+    }
+    destroyLobby(client) {
+        this.lobbyManager.destroyLobby(client.data.lobby.id);
     }
     getActiveGames(client) {
         console.log(this.lobbyManager.getActiveLobbies());
@@ -83,6 +87,12 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], GameGateway.prototype, "spectateGame", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('destroyLobby'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], GameGateway.prototype, "destroyLobby", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('getActiveGames'),
     __metadata("design:type", Function),
