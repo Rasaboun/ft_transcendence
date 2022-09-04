@@ -15,6 +15,7 @@ import {
   Route,
 } from "react-router-dom";
 import reportWebVitals from './reportWebVitals';
+import { GameContextProvider } from './game/GameContext/gameContext';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -29,11 +30,14 @@ root.render(
 
     <NavBar />
     <Routes>
-    <Route path="/" element={<Home/> }/>
-    <Route path="Dashboard" element={<Dashboard/> }/>
-    <Route path="Chat" element={<Chat/>}/>
-    <Route path="Pong/*" element={<Pong/>}/>
-    <Route path="Settings" element={<Settings/>}/>
+      <Route path="/" element={<Home/> }/>
+      <Route path="Dashboard" element={<Dashboard/> }/>
+      <Route path="Chat" element={<Chat/>}/>
+    	<Route path="Pong/*" element={
+		<GameContextProvider>
+			<Pong/>
+		</GameContextProvider>}/>
+      <Route path="Settings" element={<Settings/>}/>
     </Routes>
     <Footer/>
     </BrowserRouter>

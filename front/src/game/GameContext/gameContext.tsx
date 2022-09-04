@@ -1,9 +1,13 @@
 import React from "react"
 import { io, Socket } from 'socket.io-client'
+import { GameInfoT } from "../GameUtils/type"
 
 type gameContextType = {
-	setSocket:(socket:Socket) => void
     socket:Socket|undefined
+	gameInfo:GameInfoT|undefined
+	setSocket:(socket:Socket) => void
+	setGameInfo:(gameInfo:GameInfoT) => void
+	
 }
 
 type propsType = {
@@ -11,16 +15,19 @@ type propsType = {
 }
 
 const GameContext = React.createContext<gameContextType>({
+	socket: undefined,
+	gameInfo: undefined,
 	setSocket: () => {},
-	socket: undefined
+	setGameInfo: () => {}
 })
 
 function GameContextProvider (props:propsType)
 {
 	const [socket, setSocket] = React.useState<Socket>()
+	const [gameInfo, setGameInfo] = React.useState<GameInfoT>()
 
 	return (
-		<GameContext.Provider value={{setSocket, socket}}>
+		<GameContext.Provider value={{socket, gameInfo, setSocket, setGameInfo}}>
 			{props.children}
 		</GameContext.Provider>
 	)
