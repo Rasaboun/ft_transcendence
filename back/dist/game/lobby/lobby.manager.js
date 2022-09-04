@@ -44,6 +44,8 @@ class LobbyManager {
         lobby.addClient(client);
     }
     destroyLobby(lobbyId) {
+        if (lobbyId == null)
+            return;
         const lobby = this.lobbies.get(lobbyId);
         if (lobby == null)
             return;
@@ -55,12 +57,9 @@ class LobbyManager {
         const lobby = this.lobbies.get(lobbyId);
         if ((lobby === null || lobby === void 0 ? void 0 : lobby.addClient(client)) == undefined)
             throw new common_1.NotFoundException("This lobby does not exist anymore");
-        else
-            console.log('Spectacte success');
     }
     getActiveLobbies() {
         let res = [];
-        console.log(this.lobbies);
         this.lobbies.forEach((lobby, id) => {
             if (lobby.state == game_type_1.GameState.Started && lobby.nbPlayers == 2) {
                 res.push({

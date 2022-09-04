@@ -58,6 +58,8 @@ export class LobbyManager
 
     public destroyLobby(lobbyId: string)
     {
+        if (lobbyId == null)
+            return ;
         const lobby = this.lobbies.get(lobbyId);
         if (lobby == null)
             return ;
@@ -72,8 +74,7 @@ export class LobbyManager
         const lobby: Lobby = this.lobbies.get(lobbyId);
         if (lobby?.addClient(client) == undefined)
             throw new NotFoundException("This lobby does not exist anymore");
-        else
-            console.log('Spectacte success');
+
     }
     /*
     * Retourne l'id de tous les lobbies en game et l'id des 2 joueurs
@@ -81,12 +82,10 @@ export class LobbyManager
     * Gerer le cas ou il n'y a pas de parties en cours
     */
    
-     
 
     public getActiveLobbies()
     {
         let res:{lobbyId: string, playersId: string[]}[] = [];
-        console.log(this.lobbies)
         this.lobbies.forEach((lobby, id) => {
             if (lobby.state == GameState.Started && lobby.nbPlayers == 2)
             {

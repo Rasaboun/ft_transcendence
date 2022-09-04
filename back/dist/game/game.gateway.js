@@ -47,10 +47,10 @@ let GameGateway = class GameGateway {
         }
     }
     destroyLobby(client) {
-        this.lobbyManager.destroyLobby(client.data.lobby.id);
+        var _a;
+        this.lobbyManager.destroyLobby((_a = client.data.lobby) === null || _a === void 0 ? void 0 : _a.id);
     }
     getActiveGames(client) {
-        console.log(this.lobbyManager.getActiveLobbies());
         client.emit('activeGames', this.lobbyManager.getActiveLobbies());
     }
     launchGame(client) {

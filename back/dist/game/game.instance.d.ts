@@ -7,11 +7,11 @@ export declare class GameInstance {
     constructor(lobby: Lobby);
     handleGoal(nextPos: any): void;
     checkGoals(nextPos: any): boolean;
-    ballHitsLeftPaddel(nextPos: {
+    ballHitsLeftPaddle(nextPos: {
         x: number;
         y: number;
     }): boolean;
-    ballHitsRightPaddel(nextPos: {
+    ballHitsRightPaddle(nextPos: {
         x: number;
         y: number;
     }): boolean;

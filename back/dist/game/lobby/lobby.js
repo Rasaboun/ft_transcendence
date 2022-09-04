@@ -17,25 +17,21 @@ class Lobby {
         this.clients.set(client.id, client);
         client.join(this.id);
         client.data.lobby = this;
-        console.log(this.id);
         if (this.nbPlayers < 2) {
             this.gameInstance.addPlayer(client.id);
             this.nbPlayers++;
             if (this.nbPlayers == 1) {
-                console.log("je suis la", this.nbPlayers);
                 client.emit("waitingForOpponent");
             }
             else {
                 this.gameInstance.sendReady();
             }
         }
-        console.log("lobby client ", this.clients.size);
     }
     startGame() {
         if (this.state == game_type_1.GameState.Started)
             return;
         this.state = game_type_1.GameState.Started;
-        console.log('In startGame');
         this.gameInstance.resetRound();
         this.gameInstance.gameLoop();
     }
@@ -56,7 +52,6 @@ class Lobby {
     clear() {
         if (this.clients.size == 0)
             return;
-        console.log('Clear lobby');
         this.clients.forEach((user, id) => {
             this.clients.delete(id);
             user.data.lobby = null;
