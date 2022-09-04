@@ -19,7 +19,7 @@ class GameInstance {
         this.settings = {
             scoreToWin: 5,
             paddleHeight: 200,
-            paddleWidth: 50,
+            paddleWidth: 20,
             width: 1920,
             height: 1080,
         };
@@ -100,7 +100,12 @@ class GameInstance {
         if (Math.random() < 0.5)
             radian += Math.PI;
         this.updateBall(this.settings.width / 2, this.settings.height / 2, radian);
+        this.resetPaddle();
         this.gameData.state = game_type_1.GameState.Started;
+    }
+    resetPaddle() {
+        this.lobby.sendToUsers('updatePaddle', { playerId: this.gameData.players[0].id, newPos: this.settings.height / 2 });
+        this.lobby.sendToUsers('updatePaddle', { playerId: this.gameData.players[1].id, newPos: this.settings.height / 2 });
     }
     stop() {
         this.gameData.players = [];
@@ -130,6 +135,7 @@ class GameInstance {
         });
         return res;
     }
+    getPlayers() { return this.gameData.players; }
     playersId() {
         let res = [];
         this.gameData.players.forEach((player) => {

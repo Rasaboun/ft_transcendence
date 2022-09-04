@@ -7,6 +7,7 @@ import {  GameSettings, GameData, GameState, Player} from "../../type"
 import * as socketManager from "../../socketManager"
 import { io, Socket } from 'socket.io-client'
 import { GameContext } from "../../gameContext"
+import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript"
 
 let socket:Socket
 let canvas:HTMLCanvasElement
@@ -80,13 +81,13 @@ export default function Game()
 				delta: {x: 0, y: 0},
 				radius: 10,
 			},
-			state: GameState.Spectacte,
+			state: GameState.Waiting,
 			winnerId: ""
 		})
 		setGameSettings({
 			scoreToWin: 5,
-			paddleWidth: 50,
-			paddleHeight: 200,
+			paddleWidth: 20,
+			paddleHeight: utils.toScale(200, canvas.height / 1080),
 			width: 1920,
 			height: 1080,
 		})
@@ -148,10 +149,11 @@ export default function Game()
 			}));
 		})
 
-		socket.on('spectate', () => {
+		socket.on('spectateSuccess', (players) => {
 			setGameData((oldGameData) => ({
 				...oldGameData,
-				state: GameState.Started
+				players: players,
+				state: GameState.Spectacte
 			}))
 		})
 		socket.on('gameOver', (winnerId: string) => {
@@ -234,7 +236,7 @@ export default function Game()
 		context.beginPath();
 
 		context.fillRect(0,
-			gameData.players[0].pos - gameSettings.paddleHeight / 2,
+			gameData.players[0].pos -  gameSettings.paddleHeight / 2,
 			gameSettings.paddleWidth,
 			gameSettings.paddleHeight);
 
@@ -251,6 +253,22 @@ export default function Game()
 
 	}
 
+	function clearCanvas(): boolean
+	{
+
+		const context  = canvas.getContext("2d")!;
+
+		if (!context)
+		return false;
+		context.clearRect(
+			0,
+			0,
+			1920,
+			1080,
+			);
+		return true;
+	}
+
 	return (
 		<div id="canvasDiv">
 			{
@@ -263,7 +281,7 @@ export default function Game()
 					
 			}
 			{
-					gameData.state == GameState.Stopped &&
+					gameData.state == GameState.Stopped && clearCanvas() &&
 					<div className="game-display">
 						{(socket?.id === gameData.winnerId) ? "YOU WIN" : 
 						(((gameData.players[0].id == socket.id || gameData.players[0].id == socket.id)) ?
@@ -274,8 +292,6 @@ export default function Game()
 			}
 		<canvas
 		className="pong"
-		width="1920"
-		height="1080"
 		ref={canvasRef}
 		onMouseMove={handleMouseMove}
 		/>

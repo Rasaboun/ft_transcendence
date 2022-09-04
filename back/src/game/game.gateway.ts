@@ -54,8 +54,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try {
 			this.lobbyManager.joinLobby(lobbyId, client);
-			console.log('Joined lobby');
-			client.emit('spectate');
+			client.emit('spectateSuccess', client.data.lobby.gameInstance.getPlayers());
 		}
 		catch (error) { client.emit('lobbyNotFound', error.message ) }
 	}

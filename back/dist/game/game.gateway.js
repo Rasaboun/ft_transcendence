@@ -39,8 +39,7 @@ let GameGateway = class GameGateway {
     spectateGame(client, lobbyId) {
         try {
             this.lobbyManager.joinLobby(lobbyId, client);
-            console.log('Joined lobby');
-            client.emit('spectate');
+            client.emit('spectateSuccess', client.data.lobby.gameInstance.getPlayers());
         }
         catch (error) {
             client.emit('lobbyNotFound', error.message);

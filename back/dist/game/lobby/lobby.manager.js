@@ -55,8 +55,9 @@ class LobbyManager {
     joinLobby(lobbyId, client) {
         console.log(`Spectacte lobby ${lobbyId}`);
         const lobby = this.lobbies.get(lobbyId);
-        if ((lobby === null || lobby === void 0 ? void 0 : lobby.addClient(client)) == undefined)
+        if (lobby == undefined)
             throw new common_1.NotFoundException("This lobby does not exist anymore");
+        lobby === null || lobby === void 0 ? void 0 : lobby.addClient(client);
     }
     getActiveLobbies() {
         let res = [];

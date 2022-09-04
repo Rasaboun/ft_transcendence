@@ -30,7 +30,7 @@ export default function Menu()
 	}
 
     React.useEffect(() => {
-        socketManager.initiateSocket("http://localhost:8002")
+        socketManager.initiateSocket("http://10.11.13.1:8002")
         socketManager.getActiveGames()
 		socketManager.GameMenuHandler(handleAvailableLobbies)
 		socket = socketManager.getSocket()

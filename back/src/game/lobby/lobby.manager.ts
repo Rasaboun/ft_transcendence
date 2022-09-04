@@ -72,8 +72,9 @@ export class LobbyManager
         console.log(`Spectacte lobby ${lobbyId}`);
         
         const lobby: Lobby = this.lobbies.get(lobbyId);
-        if (lobby?.addClient(client) == undefined)
+        if (lobby == undefined)
             throw new NotFoundException("This lobby does not exist anymore");
+        lobby?.addClient(client)
 
     }
     /*

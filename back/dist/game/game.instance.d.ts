@@ -26,10 +26,12 @@ export declare class GameInstance {
     };
     updateBall(x: number, y: number, radian: number): void;
     resetRound(): void;
+    resetPaddle(): void;
     stop(): void;
     addPlayer(clientId: string): void;
     sendReady(): void;
     isPlayer(clientId: string): boolean;
     getPlayer(playerId: string): Player;
+    getPlayers(): Player[];
     playersId(): string[];
 }
