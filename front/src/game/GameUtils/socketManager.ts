@@ -1,6 +1,5 @@
 import { io, Socket } from 'socket.io-client'
-import * as utils from "./GameUtils"
-import {updateInfoT, playerT, gameCollionInfoT, availableLobbiesT} from "./type"
+import {playerT, gameCollionInfoT, availableLobbiesT} from "./type"
 
 let socket:Socket
 
@@ -30,6 +29,7 @@ export function startGame(gameCollisionInfo:gameCollionInfoT)
 
 export function spectacteGame(id:string)
 {
+	console.log('Emit spectacte');
 	socket?.emit("spectacteGame", id);
 }
 

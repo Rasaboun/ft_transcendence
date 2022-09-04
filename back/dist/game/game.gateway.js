@@ -39,18 +39,17 @@ let GameGateway = class GameGateway {
     spectateGame(client, lobbyId) {
         try {
             this.lobbyManager.joinLobby(lobbyId, client);
-            console.log('Joined lobby');
-            client.emit('spectate');
+            client.emit('spectateSuccess', client.data.lobby.gameInstance.getPlayers());
         }
         catch (error) {
             client.emit('lobbyNotFound', error.message);
         }
     }
     destroyLobby(client) {
-        this.lobbyManager.destroyLobby(client.data.lobby.id);
+        var _a;
+        this.lobbyManager.destroyLobby((_a = client.data.lobby) === null || _a === void 0 ? void 0 : _a.id);
     }
     getActiveGames(client) {
-        console.log(this.lobbyManager.getActiveLobbies());
         client.emit('activeGames', this.lobbyManager.getActiveLobbies());
     }
     launchGame(client) {

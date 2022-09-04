@@ -10,16 +10,16 @@ class GameInstance {
             ball: {
                 x: 50,
                 y: 50,
-                speed: 10,
+                speed: 20,
                 radius: 20,
                 delta: { x: 0, y: 0 },
             },
             state: game_type_1.GameState.Waiting,
         };
         this.settings = {
-            scoreToWin: 3,
+            scoreToWin: 5,
             paddleHeight: 200,
-            paddleWidth: 50,
+            paddleWidth: 20,
             width: 1920,
             height: 1080,
         };
@@ -29,7 +29,6 @@ class GameInstance {
         const winner = nextPos.x - this.gameData.ball.radius < 0 ? 1 : 0;
         this.gameData.players[winner].score += 1;
         this.lobby.sendToUsers("goalScored", this.gameData.players);
-        console.log(this.gameData.players[winner].score, this.settings.scoreToWin);
         if (this.gameData.players[winner].score === this.settings.scoreToWin) {
             this.gameData.state = game_type_1.GameState.Stopped;
             this.lobby.sendToUsers('gameOver', this.gameData.players[winner].id);
@@ -41,7 +40,7 @@ class GameInstance {
             return true;
         return false;
     }
-    ballHitsLeftPaddel(nextPos) {
+    ballHitsLeftPaddle(nextPos) {
         if (nextPos.y <= this.gameData.players[0].pos + this.settings.paddleHeight / 2 &&
             nextPos.y >= this.gameData.players[0].pos - this.settings.paddleHeight / 2) {
             if (nextPos.x - this.gameData.ball.radius < this.settings.paddleWidth) {
@@ -50,7 +49,7 @@ class GameInstance {
         }
         return false;
     }
-    ballHitsRightPaddel(nextPos) {
+    ballHitsRightPaddle(nextPos) {
         if (nextPos.y <= this.gameData.players[1].pos + this.settings.paddleHeight / 2 &&
             nextPos.y >= this.gameData.players[1].pos - this.settings.paddleHeight / 2) {
             if (nextPos.x + this.gameData.ball.radius > this.settings.width - this.settings.paddleWidth) {
@@ -73,8 +72,9 @@ class GameInstance {
                 this.resetRound();
             }
             else {
-                if (this.ballHitsLeftPaddel(nextPos) || this.ballHitsRightPaddel(nextPos))
+                if (this.ballHitsLeftPaddle(nextPos) || this.ballHitsRightPaddle(nextPos)) {
                     this.gameData.ball.delta.x *= -1;
+                }
                 else if (this.ballHitsTopOrBottom(nextPos))
                     this.gameData.ball.delta.y *= -1;
                 this.gameData.ball.x += this.gameData.ball.delta.x;
@@ -100,7 +100,12 @@ class GameInstance {
         if (Math.random() < 0.5)
             radian += Math.PI;
         this.updateBall(this.settings.width / 2, this.settings.height / 2, radian);
+        this.resetPaddle();
         this.gameData.state = game_type_1.GameState.Started;
+    }
+    resetPaddle() {
+        this.lobby.sendToUsers('updatePaddle', { playerId: this.gameData.players[0].id, newPos: this.settings.height / 2 });
+        this.lobby.sendToUsers('updatePaddle', { playerId: this.gameData.players[1].id, newPos: this.settings.height / 2 });
     }
     stop() {
         this.gameData.players = [];
@@ -130,6 +135,7 @@ class GameInstance {
         });
         return res;
     }
+    getPlayers() { return this.gameData.players; }
     playersId() {
         let res = [];
         this.gameData.players.forEach((player) => {
