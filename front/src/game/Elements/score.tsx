@@ -1,5 +1,5 @@
 import react from "react"
-import "../Components/Pong/pong.css"
+import "../game.css"
 
 type propsType = {
     player1Score:number,

@@ -1,18 +1,16 @@
 import React, {useState, useEffect, useRef} from "react"
-import Ball from "../../Elements/ball"
-import Paddle from "../../Elements/paddle"
-import Score from "../../Elements/score"
-import * as utils from "../../GameUtils/GameUtils"
-import "./pong.css"
-import { playerT, playersT, ballInfoT, gameCollionInfoT, updateInfoT, gameDataT, GameSettings, GameData, GameState, Player} from "../../type"
+import Score from "../Elements/score"
+import * as utils from "../GameUtils/GameUtils"
+import "../game.css"
+import { playerT, playersT, ballInfoT, gameCollionInfoT, updateInfoT, gameDataT, GameSettings, GameData, GameState, Player} from "../GameUtils/type"
 // import {ThreeDots} from "react-loader-spinner";
-import * as socketManager from "../../socketManager"
+import * as socketManager from "../GameUtils/socketManager"
 import { io, Socket } from 'socket.io-client'
-import { GameContext } from "../../gameContext"
+import { GameContext } from "../GameContext/gameContext"
+import { send } from "process"
 
 let socket:Socket
 let canvas:HTMLCanvasElement
-let context:CanvasRenderingContext2D
 
 export default function Game()
 {
@@ -61,6 +59,30 @@ export default function Game()
 		)
 	}
 
+	// async function sendData ()
+	// {
+	// 	//INFO SUR LA PARTIE A ENVOYER A LA BASE DE DONNÉE
+	// 	//DES INFO PEUVENT MANQUÉ
+	// 	const gameInfoToSend:any = {
+	// 		scoreToWin: gameSettings.scoreToWin,
+	// 		player1id: gameData.players[0].id,
+	// 		player2id: gameData.players[0].id,
+	// 		player1score: gameData.players[0].score,
+	// 		player2score: gameData.players[1].score,
+	// 		winnerId: gameData.winnerId
+	// 	}
+	// 	console.log(JSON.stringify(gameData))
+		//EXEMPLE D'ENVOIE EN COMMENTAIRE A TESTER
+	// 	const url:string = "http://localhost:3000/game"
+	// 	await fetch(url, {
+    //     method: 'POST',
+    //     body: JSON.stringify(gameData)
+    //   }).then(function(response) {
+    //     console.log(response)
+    //     return response.json();
+    //   });
+ 
+	// }
 	function initializeGame()
 	{
 		setGameData({
@@ -164,6 +186,13 @@ export default function Game()
 	useEffect(() => {
 		if (gameData.state == GameState.Started || gameData.state == GameState.Spectacte)
 			draw(0, 0)
+		value.setGameInfo({
+			players: [
+				{id: gameData.players[0].id, score: gameData.players[0].score},
+				{id: gameData.players[1].id, score: gameData.players[1].score}
+			],
+			isPlaying: (GameState.Started || GameState.Spectacte) ? true : false
+		})
 	}, [gameData])
 
 	function handleGameOver(winnerId: string)

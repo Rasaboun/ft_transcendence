@@ -92,3 +92,11 @@ export type LobbiesInfoT = {
 }
 
 export type availableLobbiesT = [LobbiesInfoT]
+
+export type GameInfoT = {
+	players: [
+		{ id:string, score:number},
+		{ id:string, score:number}
+	],
+	isPlaying: boolean
+}

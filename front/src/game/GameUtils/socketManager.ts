@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client'
-import * as utils from "./GameUtils/GameUtils"
+import * as utils from "./GameUtils"
 import {updateInfoT, playerT, gameCollionInfoT, availableLobbiesT} from "./type"
 
 let socket:Socket
@@ -58,13 +58,15 @@ export function spectacteGame(id:string)
 // 	})
 // }
 
-export function GameMenuHandler(handleAvailableLobbies:any)
+export function GameMenuHandler(handleAvailableLobbies:any, handleGoalScored:any)
 {
 	socket.on("connect", () => {
 		socket.on('activeGames',(availableLobbies:availableLobbiesT) => handleAvailableLobbies(availableLobbies))
-	})
+		})
+		socket.on('goalScored', (players: any) => handleGoalScored(players));
 
 }
+
 
 export function getActiveGames()
 {

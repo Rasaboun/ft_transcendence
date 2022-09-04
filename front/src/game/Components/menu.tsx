@@ -1,10 +1,10 @@
 import React from 'react'
-import * as socketManager from "../socketManager"
+import * as socketManager from "../GameUtils/socketManager"
 import { io, Socket } from 'socket.io-client'
-import { playerT, availableLobbiesT } from "../type"
+import { playerT, availableLobbiesT } from "../GameUtils/type"
 import LobbyItem from '../Elements/lobbyItem'
 import { Link } from "react-router-dom";
-import { GameContext } from "../gameContext"
+import { GameContext } from "../GameContext/gameContext"
 
 let socket:Socket
 
@@ -12,6 +12,7 @@ export default function Menu()
 {
     const value = React.useContext(GameContext)
     const [availableLobbies, setAvailableLobbies] = React.useState<availableLobbiesT>()
+
 
     function newGame(player:playerT)
 	{
@@ -23,6 +24,12 @@ export default function Menu()
         console.log(availableLobbies)
         setAvailableLobbies(availableLobbies)
     }
+    
+    function handleGoalScored(players: any)
+    {
+
+       console.log(value.gameInfo)
+    }
 
     function spectateMode(id:string)
 	{		
@@ -32,7 +39,7 @@ export default function Menu()
     React.useEffect(() => {
         socketManager.initiateSocket("http://localhost:8002")
         socketManager.getActiveGames()
-		socketManager.GameMenuHandler(handleAvailableLobbies)
+		socketManager.GameMenuHandler(handleAvailableLobbies, handleGoalScored)
 		socket = socketManager.getSocket()
         console.log(socket)
         value?.setSocket(socket)
@@ -41,7 +48,12 @@ export default function Menu()
     console.log(value)
 
     const lobbiesElements:any = availableLobbies?.map((elem) => 
-    <LobbyItem key={elem.lobbyId} lobbyId={elem.lobbyId} playersId={elem.playersId} spectateMode={spectateMode}/>)
+    <LobbyItem key={elem.lobbyId} 
+        lobbyId={elem.lobbyId} 
+        playersId={elem.playersId}
+        spectateMode={spectateMode}
+        />)
+
     return (
         <div>
             <Link to="game" state={{socket : "socket"}}>
