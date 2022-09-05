@@ -21,7 +21,6 @@ export default function ChatElem()
         }
     }
 
-    useEffect = 
 
     const messageElem = messagesList?.map((elem, index) => (
         <Message key={index} 
