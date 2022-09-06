@@ -9,15 +9,15 @@ import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { DataSource } from "typeorm"
 import { MatchModule } from './match/match.module';
-import { GameModule } from './game/game.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
- imports: [
- /*   ConfigModule.forRoot({
+  imports: [
+    ConfigModule.forRoot({
       isGlobal: true,
     }),
     UsersModule,
-   /* TypeOrmModule.forRoot({
+    TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
       port: Number(process.env.DB_PORT),
@@ -27,19 +27,18 @@ import { GameModule } from './game/game.module';
       entities: entities,
       synchronize: true,
   }),
-  //PassportModule.register({ session: true }),
-  //MatchModule,
+  PassportModule.register({ session: true }),
+  MatchModule,
   AuthModule,
-*/
-  GameModule],
+  ChatModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
   exports: [AppService]
 })
 export class AppModule {
-  constructor(/*private dataSource: DataSource*/) {}
-/*
+  constructor(private dataSource: DataSource) {}
+
   getDataSource() {
     return this.dataSource;
-  }}*/
-}
+  }}

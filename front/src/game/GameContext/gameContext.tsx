@@ -2,7 +2,7 @@ import React from "react"
 import { io, Socket } from 'socket.io-client'
 import { GameInfoT } from "../GameUtils/type"
 
-type gameContextType = {
+type GameContextType = {
     socket:Socket|undefined
 	gameInfo:GameInfoT|undefined
 	setSocket:(socket:Socket) => void
@@ -14,7 +14,7 @@ type propsType = {
     children: React.ReactNode
 }
 
-const GameContext = React.createContext<gameContextType>({
+const GameContext = React.createContext<GameContextType>({
 	socket: undefined,
 	gameInfo: undefined,
 	setSocket: () => {},

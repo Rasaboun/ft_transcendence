@@ -11,7 +11,7 @@ import { SessionSerializer } from './utils/serialiazer';
 
 @Module({
   imports: [
-    //TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User]),
     PassportModule,
     HttpModule,
   ],

@@ -1,11 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { ChatContext } from "../ChatContext/chatContext";
+import { chatHandler, setSocketManager } from "../ChatUtils/socketManager";
 import Message from "../Elements/message";
-
+import {messageT} from "../ChatUtils/chatType"
 
 export default function ChatElem()
 {
+    const {socket, setSocket} = useContext(ChatContext)
     const [message, setMessage] = useState<string>("")
-    const [messagesList, setMessagesList] = useState<string[]>()
+    const [messagesList, setMessagesList] = useState<messageT[]>()
+    
     const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         setMessage(e.target.value)
     }
@@ -14,27 +18,41 @@ export default function ChatElem()
         if (message !== "")
         {
             setMessagesList((oldMessagesList) => (
-                oldMessagesList === undefined ? [message] :
-                    [...oldMessagesList,message]
+                oldMessagesList === undefined ? [{senderId: socket!.id ,text: message}] :
+                    [...oldMessagesList, {senderId: socket!.id ,text: message}]
             ))
-            e.preventDefault()
         }
+        e.preventDefault()
+
+    }
+
+    const handleMessageReceived = (senderId:string, message:string) => {
+        setMessagesList((oldMessagesList) => (
+            oldMessagesList === undefined ? [{senderId: socket!.id ,text: message}] :
+                [...oldMessagesList, {senderId: socket!.id ,text: message}]
+        ))
     }
 
 
     const messageElem = messagesList?.map((elem, index) => (
         <Message key={index} 
-            className="text-white bg-gray-400 px-3 py-2 rounded-md text-sm font-medium"
+            className={elem.senderId === socket?.id ?
+                "message message-right" : "message message-left"}
             message={elem}
-            senderId={index}
             />
     ))
 
+    useEffect(() => {
+        setSocketManager(socket!)
+        chatHandler(handleMessageReceived)
+
+    })
     return (
         <div>
-            <div className="flex-col border-4 border-dashed border-gray-200 rounded-lg h-96">
-
-                {messageElem}
+            <div className="border-4 border-dashed border-gray-200 rounded-lg h-96">
+                <div className="message-container">
+                    {messageElem}
+                </div>
             </div>
             <form onSubmit={handleSubmit}>
                 <input style={{

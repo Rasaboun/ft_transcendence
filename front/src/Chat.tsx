@@ -1,5 +1,7 @@
 import React from 'react';
-import ChatElem from './chat/component/chatElem';
+import { Route, Routes } from 'react-router-dom';
+import ChatElem from './chat/Component/chatElem';
+import ChatMenu from './chat/Component/chatMenu';
 import './output.css';
 
 
@@ -13,8 +15,13 @@ export default function Chat() {
 	</header>
 	<main>
 	<div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+		{/* <div className='border-4 border-dashed border-gray-200 rounded-lg h-96'> */}
+		<Routes>
+			<Route path="/" element={<ChatMenu/>}/>
+			<Route path="/message" element={<ChatElem/>}/>
+		</Routes>
+		{/* </div> */}
 	{/* Replace with your Chat */}
-	<ChatElem/>
 	<div className=" px-4 py-6 sm:px-0">
 	</div>
 	{/* /End replace */}

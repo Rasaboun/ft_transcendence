@@ -22,6 +22,8 @@ export class Lobby
         this.clients.set(client.id, client);
         client.join(this.id);
         client.data.lobby = this;
+        console.log(this.id)
+        
         if (this.nbPlayers < 2)
         {
             this.gameInstance.addPlayer(client.id);
@@ -36,13 +38,15 @@ export class Lobby
                 this.gameInstance.sendReady();
             }
         }
+        console.log("lobby client ", this.clients.size)
     }
 
     public startGame()
     {
 		if (this.state == GameState.Started)
 			return ;
-		this.state = GameState.Started;	
+		this.state = GameState.Started;
+        console.log('In startGame');	
         this.gameInstance.resetRound();
 		this.gameInstance.gameLoop();
     }
@@ -52,9 +56,9 @@ export class Lobby
         client.data.lobby = null;
         client.leave(this.id);
         this.clients.delete(client.id);
+		this.gameInstance.stop();
         if (this.gameInstance.isPlayer(client.id))
         {
-            this.gameInstance.stop();
             this.clients.forEach((user, id) => {
                 this.clients.delete(id);
             })
@@ -63,17 +67,6 @@ export class Lobby
             this.state = GameState.Stopped;          
             this.sendToUsers('gameStopped', "");  
         }          
-    }
-
-    public clear()
-    {
-        if (this.clients.size == 0)
-            return ;
-        this.clients.forEach((user, id) => {
-            this.clients.delete(id);
-            user.data.lobby = null;
-        })
-
     }
 
     public playersId(): string[] { return this.gameInstance.playersId(); }

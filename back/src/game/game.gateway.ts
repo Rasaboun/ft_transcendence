@@ -54,20 +54,15 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try {
 			this.lobbyManager.joinLobby(lobbyId, client);
-			client.emit('spectateSuccess', client.data.lobby.gameInstance.getPlayers());
+			console.log('Joined lobby');
 		}
 		catch (error) { client.emit('lobbyNotFound', error.message ) }
-	}
-
-	@SubscribeMessage('destroyLobby')
-	destroyLobby(client: AuthenticatedSocket)
-	{
-		this.lobbyManager.destroyLobby(client.data.lobby?.id);
 	}
 
 	@SubscribeMessage('getActiveGames')
 	getActiveGames(client: AuthenticatedSocket)
 	{
+		console.log(this.lobbyManager.getActiveLobbies())
 		client.emit('activeGames', this.lobbyManager.getActiveLobbies());
 	}
 
@@ -84,7 +79,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const player: Player = client.data.lobby?.getUser(client);
 		if (!player)
 			return ;
-			
 		player.pos = newPos;
 		client.data.lobby.sendToUsers('updatePaddle', {playerId: client.id, newPos: newPos});
 

@@ -1,22 +1,20 @@
 import React from "react";
+import "../chat.css"
+import { messageT } from "../ChatUtils/chatType";
 
 type MessagePropsT = {
     className: string,
-    message: string,
-    senderId: number
+    message: messageT
 }
 
-export default function Message(props:MessagePropsT)
+export default function Message({className, message}:MessagePropsT)
 {
-        const backgroundColor = props.senderId % 2 === 0 ?
-            "bg-gray-300" : "bg-sky-300"
-        const alignSelf = props.senderId % 2 === 0 ?
-            "items-end" : "items-start"
-    const classT = `${backgroundColor} ${alignSelf} ${props.className} `
-    console.log(classT)
     return(
-        <div className={`${classT}`}>
-            {props.message}
+        <div className={className}>
+            <h4 style={{
+                color: "red"
+            }}>{message.senderId}</h4>
+            {message.text}
         </div>
     )
 }

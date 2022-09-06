@@ -182,6 +182,7 @@ export default function Game()
 		socket.on('gameOver', (winnerId: string) => {
 			handleGameOver(winnerId);
 		})
+		return () => window.removeEventListener('resize', handleResize)
 	}, [])
 
 	useEffect(() => {

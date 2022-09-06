@@ -28,7 +28,6 @@ export class LobbyManager
 
     public terminateSocket(client: AuthenticatedSocket): void
     {
-        console.log("Leaving socket");
         client.data.lobby?.removeClient(client);
     }
 
@@ -56,26 +55,15 @@ export class LobbyManager
         lobby.addClient(client);
     }
 
-    public destroyLobby(lobbyId: string)
-    {
-        if (lobbyId == null)
-            return ;
-        const lobby = this.lobbies.get(lobbyId);
-        if (lobby == null)
-            return ;
-        lobby.clear();
-        this.lobbies.delete(lobbyId);
-    }
-
     public joinLobby(lobbyId: string, client: AuthenticatedSocket)
     {
         console.log(`Spectacte lobby ${lobbyId}`);
         
         const lobby: Lobby = this.lobbies.get(lobbyId);
-        if (lobby == undefined)
+        if (lobby?.addClient(client) == undefined)
             throw new NotFoundException("This lobby does not exist anymore");
-        lobby?.addClient(client)
-
+        else
+            console.log('Spectacte success');
     }
     /*
     * Retourne l'id de tous les lobbies en game et l'id des 2 joueurs
@@ -83,10 +71,12 @@ export class LobbyManager
     * Gerer le cas ou il n'y a pas de parties en cours
     */
    
+     
 
     public getActiveLobbies()
     {
         let res:{lobbyId: string, playersId: string[]}[] = [];
+        console.log(this.lobbies)
         this.lobbies.forEach((lobby, id) => {
             if (lobby.state == GameState.Started && lobby.nbPlayers == 2)
             {

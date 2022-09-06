@@ -1,5 +1,23 @@
 .message-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
 }
+
+.message {
+    color: white;
+    padding: 10px;
+    width: fit-content;
+    border-radius: 10px;
+}
+
+.message-left {
+    align-self: start;
+    background-color: grey;
+}
+
+.message-right {
+    background-color: blue;
+    align-self: self-end;
+
+}
+

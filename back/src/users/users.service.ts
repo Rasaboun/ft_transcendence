@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createUserDto } from 'src/users/dto/createUser.dto';
 import { User } from 'src/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
+import { UserStatus } from './types/UserStatus';
 
 @Injectable()
 export class UsersService {
@@ -14,6 +15,54 @@ export class UsersService {
     private dataSource: DataSource,
     private readonly configService: ConfigService
     ) { }
+
+    async blockUser(idToBlock: number) {
+        const user = this.findOneById(idToBlock);
+
+        if (!user)
+            throw new NotFoundException('User to block does not exist');
+        
+        //Temporary
+        // Remplace with real caller id
+        const caller = await this.findOneById(1);
+        
+        caller.blockedUsers.push(idToBlock);
+        await this.userRepository.update(
+            caller.id,
+            caller,
+            )
+    }
+
+    async unblockUser(idToBlock: number) {
+        const user = this.findOneById(idToBlock);
+
+        if (!user)
+            throw new NotFoundException('User to unblock does not exist');
+        
+        //Temporary
+        // Remplace with real caller id
+        const caller = await this.findOneById(1);
+        
+        const index = caller.blockedUsers.indexOf(idToBlock);
+        if (index == -1)
+            return ;
+        console.log(index);
+        caller.blockedUsers.splice(index, 1);
+        await this.userRepository.update(
+            caller.id,
+            caller,
+            )
+
+    }
+
+    async isBlocked(userId: number): Promise<boolean> {
+        //Temporary
+        // Remplace with real caller id
+        const caller = await this.findOneById(1);
+        
+        return caller.blockedUsers.indexOf(userId) == -1 ? false : true;
+        
+    }
 
     findAll(): Promise<User[]> {
         return this.userRepository.find();
@@ -78,6 +127,10 @@ export class UsersService {
             loser.id,
             loser
         );
+    }
+
+    async getUserStatus(id: number): Promise<UserStatus> {
+        return await (await this.findOneById(id)).status;
     }
 
 }

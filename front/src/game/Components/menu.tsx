@@ -41,7 +41,6 @@ export default function Menu()
         socketManager.getActiveGames()
 		socketManager.GameMenuHandler(handleAvailableLobbies, handleGoalScored)
 		socket = socketManager.getSocket()
-        console.log(socket)
         value?.setSocket(socket)
     }, [])
 

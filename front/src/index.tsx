@@ -16,6 +16,7 @@ import {
 } from "react-router-dom";
 import reportWebVitals from './reportWebVitals';
 import { GameContextProvider } from './game/GameContext/gameContext';
+import { ChatContextProvider } from './chat/ChatContext/chatContext';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -32,7 +33,10 @@ root.render(
     <Routes>
       <Route path="/" element={<Home/> }/>
       <Route path="Dashboard" element={<Dashboard/> }/>
-      <Route path="Chat" element={<Chat/>}/>
+      <Route path="Chat/*" element={
+        <ChatContextProvider>
+        	<Chat/>
+        </ChatContextProvider>}/>
     	<Route path="Pong/*" element={
 		<GameContextProvider>
 			<Pong/>

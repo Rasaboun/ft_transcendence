@@ -29,4 +29,16 @@ export class User {
         default: 0,
     })
     nbGames: number;
+
+    @Column('text', { 
+        array: true,
+        default: []
+    })
+    blockedUsers: number[];
+
+    @Column({
+        default: 0,
+        nullable: false
+    })
+    status: number;
 }
