@@ -7,16 +7,14 @@ import { ChannelsService } from "./channel.service";
 
 export class ChannelManager
 {
+	
+	constructor( private channelsService: ChannelsService) {}
+
     @WebSocketServer()
     public server;
-
     private readonly channels: Map<string, Channel> = new Map<string, Channel>();
 
-    constructor(
-        private readonly channelsService: ChannelsService
-    ) {
-    }
-
+    
     public initializeSocket(client: AuthenticatedSocket): void
     {
         client.data.channel = null;
@@ -33,12 +31,12 @@ export class ChannelManager
         let channel = new Channel(this.server);
 
         this.channels.set(channel.id, channel);
-        this.channelsService.createChannel( //change to just the name
-            {
-                name: channel.id,
-                isPrivate: false,
-                password: "",
-            });
+        // this.channelsService.createChannel( //change to just the name
+        //     {
+        //         name: channel.id,
+        //         isPrivate: false,
+        //         password: "",
+        //     });
         return channel;
     }
 
@@ -47,6 +45,7 @@ export class ChannelManager
         const channel: Channel = this.channels.get(channelId);
         if (channel?.addClient(client) == undefined)
             throw new NotFoundException("This channel does not exist anymore");
+		console.log("LALALALALALLA", this.channelsService)
         this.channelsService.addClient(channelId, 1) //change to real id
         channel.sendToUsers("joinedChannel", client.id);
     }
@@ -66,10 +65,11 @@ export class ChannelManager
    
     public  sendMessage(channelId: string, msg: Message)
     {
+		
         const channel: Channel = this.channels.get(channelId);
         if (!channel == undefined)
             throw new NotFoundException("This channel does not exist");
-        //channel.sendMessage(msg);
+        channel.sendMessage(msg.sender, msg.content);
         this.channelsService.addMessage(channelId, msg);
     }
 

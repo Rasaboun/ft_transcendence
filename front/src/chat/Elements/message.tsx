@@ -9,12 +9,15 @@ type MessagePropsT = {
 
 export default function Message({className, message}:MessagePropsT)
 {
+    console.log(message.sender, message.content)
     return(
         <div className={className}>
-            <h4 style={{
+            {<h4 style={{
                 color: "red"
-            }}>{message.senderId}</h4>
-            {message.text}
+            }}>
+                {message.sender}
+            </h4>}
+            {message.content}
         </div>
     )
 }

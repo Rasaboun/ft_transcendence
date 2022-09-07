@@ -9,7 +9,7 @@ import { AuthenticatedSocket } from './types/channel.type';
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
 
-	constructor( private channelManager: ChannelManager) {	}
+	constructor( private channelManager: ChannelManager) {}
 
 	@WebSocketServer()
 	server;
@@ -37,9 +37,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('createChannel')
 	createChannel(client: AuthenticatedSocket)
 	{
+		console.log(this.channelManager)
 		let channel = this.channelManager.createChannel();
 		channel.addClient(client);
-		client.emit("channelCreated", "Successful creation");
+		console.log(channel)
+		client.emit("channelCreated", channel.id);
 	}
 
 	@SubscribeMessage('joinChannel')
@@ -47,6 +49,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try
 		{
+			console.log('joining')
 			this.channelManager.joinChannel(client, channelId);
 		}
 		catch (error) { client.emit('channelNotFound', error.message ) }
@@ -66,7 +69,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('sendMessage')
-	sendMessage(client: AuthenticatedSocket, channelId: string, message: string)
+	sendMessage(client: AuthenticatedSocket, {channelId, message})
 	{
 		try {
 			const channel: Channel = this.channelManager.getChannel(channelId);

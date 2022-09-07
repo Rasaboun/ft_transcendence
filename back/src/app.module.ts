@@ -10,6 +10,7 @@ import { PassportModule } from '@nestjs/passport';
 import { DataSource } from "typeorm"
 import { MatchModule } from './match/match.module';
 import { ChatModule } from './chat/chat.module';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ChatModule } from './chat/chat.module';
   MatchModule,
   AuthModule,
   ChatModule,
+  GameModule
   ],
   controllers: [AppController],
   providers: [AppService],

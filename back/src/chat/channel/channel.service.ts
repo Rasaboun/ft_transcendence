@@ -1,18 +1,14 @@
-import { NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Channel } from "../../typeorm/Chat";
 import { CreateChannelDto } from "../dto/channel.dto";
 import { ChannelClient, Message } from "../types/channel.type";
 
+@Injectable()
 export class ChannelsService {
-    constructor(
-        @InjectRepository(Channel)
-        private readonly channelRepository: Repository<Channel>
-    ){
-        console.log("const services")
-    }
-
+    @InjectRepository(Channel)
+    private channelRepository: Repository<Channel>
     findAll() {
         return this.channelRepository.find();
     }

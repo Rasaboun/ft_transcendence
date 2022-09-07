@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { chatMenuHandler, createChannel, getActiveChannels, getSocket, initiateSocket } from "../ChatUtils/socketManager";
+import { chatMenuHandler, createChannel, getActiveChannels, getSocket, initiateSocket, joinChannel } from "../ChatUtils/socketManager";
 import { ChannelT } from "../ChatUtils/chatType";
 import { ChatContext } from "../ChatContext/chatContext";
 import { Link } from "react-router-dom";
@@ -7,26 +7,40 @@ import ChannelItem from "../Elements/channelItem";
 
 export default function ChatMenu()
 {
-	const {socket, setSocket} = useContext(ChatContext)
+	const {setSocket, setChannel} = useContext(ChatContext)
 	const [channels, setChannels] = useState<ChannelT[]>()
 	const newChannel = () => {
 		createChannel()
+
 	}
 
 	const handleActiveChannels = (channels:ChannelT[]) => {
 		setChannels(channels)
 	}
 
+	const handleChannelCreated = (channelId:string) => {
+		setChannel(channelId)
+	}
+
+	const handleJoinChannel = (channelId:string) => {
+		joinChannel(channelId)
+		setChannel(channelId)
+	}
+
 	useEffect(() => {
 		initiateSocket("http://localhost:8002/chat")
 		getActiveChannels()
-		chatMenuHandler(handleActiveChannels)
+		chatMenuHandler(handleActiveChannels, handleChannelCreated)
 		setSocket(getSocket())
-		getSocket().on('channelCreated',(message:string) => console.log(message))
+		getSocket().on('channelCreated',(message:string) => setChannel(message))
 	}, [])
 
 	const channelsElem = channels?.map((elem, index) => (
-		<ChannelItem channelId={elem.channelId} clientsId={elem.clientsId}/>
+		<ChannelItem key={index}
+			channelId={elem.channelId}
+			clientsId={elem.clientsId}
+			handleJoinChannel={handleJoinChannel}
+			/>
 	))
     return (
         <div>

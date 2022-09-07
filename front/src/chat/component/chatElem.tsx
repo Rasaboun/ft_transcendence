@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import { ChatContext } from "../ChatContext/chatContext";
-import { chatHandler, setSocketManager } from "../ChatUtils/socketManager";
+import { chatHandler, sendMessage, setSocketManager } from "../ChatUtils/socketManager";
 import Message from "../Elements/message";
 import {messageT} from "../ChatUtils/chatType"
 
 export default function ChatElem()
 {
-    const {socket, setSocket} = useContext(ChatContext)
+    const {socket, channel, setSocket, setChannel} = useContext(ChatContext)
     const [message, setMessage] = useState<string>("")
     const [messagesList, setMessagesList] = useState<messageT[]>()
     
@@ -15,28 +15,38 @@ export default function ChatElem()
     }
 
     const handleSubmit = (e:React.ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault()
         if (message !== "")
         {
             setMessagesList((oldMessagesList) => (
-                oldMessagesList === undefined ? [{senderId: socket!.id ,text: message}] :
-                    [...oldMessagesList, {senderId: socket!.id ,text: message}]
+                oldMessagesList === undefined ? [{sender: socket!.id ,content: message}] :
+                    [...oldMessagesList, {sender: socket!.id ,content: message}]
+            ))
+            console.log(message)
+            sendMessage(channel!, message)
+        }
+        setMessage("")
+        console.log(channel)
+    }
+
+    const handleMessageReceived = ({sender, content}:messageT) => {
+        console.log(sender, socket?.id, content)
+        if(sender !== socket?.id)
+        {
+            setMessagesList((oldMessagesList) => (
+                oldMessagesList === undefined ? [{sender: sender ,content: content}] :
+                    [...oldMessagesList, {sender: sender ,content: content}]
             ))
         }
-        e.preventDefault()
-
     }
 
-    const handleMessageReceived = (senderId:string, message:string) => {
-        setMessagesList((oldMessagesList) => (
-            oldMessagesList === undefined ? [{senderId: socket!.id ,text: message}] :
-                [...oldMessagesList, {senderId: socket!.id ,text: message}]
-        ))
-    }
-
-
+    // const handleChannelCreated = (channelId:string) => {
+	// 	setChannel(channelId)
+	// }
+    console.log(messagesList?.length)
     const messageElem = messagesList?.map((elem, index) => (
         <Message key={index} 
-            className={elem.senderId === socket?.id ?
+            className={elem.sender === socket?.id ?
                 "message message-right" : "message message-left"}
             message={elem}
             />
@@ -46,7 +56,7 @@ export default function ChatElem()
         setSocketManager(socket!)
         chatHandler(handleMessageReceived)
 
-    })
+    }, [])
     return (
         <div>
             <div className="border-4 border-dashed border-gray-200 rounded-lg h-96">
