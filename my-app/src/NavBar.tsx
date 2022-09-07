@@ -34,17 +34,10 @@ function HoverNavBar(location :String){
 export default function NavBar() {
   const location = useLocation();
   
-  useEffect(() => {
-    document.getElementById("notifications")?.classList.add(profileColor[1]);
+  useEffect(() => {    // Mettre à jour le titre du document en utilisant l'API du navigateur    
+    document.getElementById("notification")?.classList.add(profileColor[1]);
     HoverNavBar(location.pathname);
   });
-
-  const test = ():(void) => {
-    for (let other of navigation){
-      let idother = document.getElementById(other.name);
-      idother?.classList.remove("bg-indigo-200");
-    }
-  }
   
   return (
     <>
@@ -70,7 +63,10 @@ export default function NavBar() {
                   <Link
                   to="/"
                   onClick={() => {
-                        test()
+                        for (let other of navigation){
+                            let idother = document.getElementById(other.name);
+                            idother?.classList.remove("bg-indigo-200");
+                        }
                         }}
                    >
                   <img
@@ -168,7 +164,6 @@ export default function NavBar() {
                           </a>
                         )}
                       </Menu.Item>
-                      <div className="divide-y">
                       <Menu.Item>
                         {({ active }: {active: any}) => (
                           <Link
@@ -177,32 +172,6 @@ export default function NavBar() {
                           >
                             Settings
                           </Link>
-                        )}
-                      </Menu.Item>
-
-                      <Menu.Item>
-                        {({ active }: {active: any}) => (
-                          <div className='flex flex-row'>
-                          <span
-                           onClick={() => {
-                            for (let i of profileColor){
-                              let notif = document.getElementById("notifications");
-                              notif?.classList.remove(i);
-                            }
-                            let notif = document.getElementById("notifications");
-                            notif?.classList.add(profileColor[index]);
-                            index = index >= profileColor.length - 1 ? 0 : index + 1;
-                          }}
-                            className={classNames('bg-indigo-500 block px-4 py-2 text-sm text-white')}
-                            >
-                            Status
-                          </span>
-                          <span id="notifications"
-                        className="  w-3.5 h-3.5 border-2 border-gray rounded-full  justify-center mt-2 mx-8"
-                       
-                      >
-                      </span>
-                          </div>
                         )}
                       </Menu.Item>
                       <Menu.Item>
@@ -215,7 +184,6 @@ export default function NavBar() {
                           </a>
                         )}
                       </Menu.Item>
-                      </div>
                     </Menu.Items>
                   </Transition>
                 </Menu>
