@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, UseFilters, U
 import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
 import { AuthFilter } from 'src/auth/utils/auth.filter';
 import { User } from 'src/typeorm';
-import { createUserDto } from './dto/createUser.dto';
+import { createUserDto, updateStatusDto } from './dto/createUser.dto';
 import { UsersService } from './users.service';
 
 //@UseGuards(AuthenticatedGuard)
@@ -24,6 +24,17 @@ export class UsersController {
     @Get(':username')
     findOneByUsername(@Param('username') username: string): Promise<User> {
         return this.usersService.findOneByUsername(username);
+    }
+
+    @Get('status')
+    getUserStatus(@Body('id') userId: number) {
+        return this.usersService.getUserStatus(userId);
+    }
+
+
+    @Post('status')
+    setUserStatus(@Body() dto: updateStatusDto) {
+        return this.usersService.setUserStatus(dto);
     }
 
     @Delete(':username')

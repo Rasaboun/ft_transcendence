@@ -12,3 +12,13 @@ export class createUserDto {
     photoUrl: string;
 
 }
+
+export class updateStatusDto {
+    @IsNotEmpty()
+    @IsNumber()
+    userId: number;
+
+    @IsNotEmpty()
+    @IsString()
+    status: string;
+}

@@ -29,4 +29,9 @@ export class User {
         default: 0,
     })
     nbGames: number;
+
+    @Column({
+        default: "offline",
+    })
+    status: string;
 }
