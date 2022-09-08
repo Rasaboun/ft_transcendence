@@ -50,11 +50,11 @@ export default function Settings() {
                           type="text"
                           value="XXXrasaboun"
                           disabled
-                          className="w-1/6 border border-blue-300 rounded-md text-sm shadow-sm disabled:bg-blue-50 disabled:text-blue-500 disabled:border-blue-200 disabled:shadow-none"
+                          className="w-1/6 border border-indigo-300 rounded-md text-sm shadow-sm disabled:bg-indigo-50 disabled:text-indigo-500 disabled:border-indigo-200 disabled:shadow-none"
                         ></input>
                         <button
                           type="button"
-                          className="inline-flex justify-between items-center text-white bg-blue-800 hover:bg-blue-900 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
+                          className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
                         >
                           <svg
                             className="w-4 h-4 fill-current mr-2"
@@ -74,7 +74,7 @@ export default function Settings() {
                         <img className="h-10 w-10" src={profile} alt="" />
                         <button
                           type="button"
-                          className="inline-flex justify-between items-center text-white bg-blue-800 hover:bg-blue-900 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
+                          className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
                         >
                           <svg
                             className="w-4 h-4 fill-current mr-2"
