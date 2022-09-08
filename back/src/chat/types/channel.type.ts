@@ -8,7 +8,7 @@ export type AuthenticatedSocket = Socket & {
 }
 
 export type ChannelClient = {
-	id: number,
+	id: string,
 	isAdmin: boolean,
 	isMuted: boolean,
 }

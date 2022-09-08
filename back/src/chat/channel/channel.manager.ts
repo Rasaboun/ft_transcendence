@@ -27,27 +27,33 @@ export class ChannelManager
         client.data.channel?.removeClient(client);
     }
 
-    public createChannel(): Channel
+    public async createChannel(client: AuthenticatedSocket)
     {
-        console.log(this.channelsService)
+        //check if name is already taken
         let channel = new Channel(this.server);
 
+        channel.addClient(client);
         this.channels.set(channel.id, channel);
-        this.channelsService.createChannel( //change to just the name
+        await this.channelsService.createChannel( //change to just the name
             {
                 name: channel.id,
                 isPrivate: false,
                 password: "",
+                ownerId: client.id, //change to real id
             });
+        await this.channelsService.addClient(channel.id, client.id);//change to real id
+        await this.channelsService.addAdmin(channel.id, client.id);//change to real id
         return channel;
     }
 
     public joinChannel(client: AuthenticatedSocket, channelId: string)
     {        
         const channel: Channel = this.channels.get(channelId);
-        if (channel?.addClient(client) == undefined)
+        if (channel == undefined)
             throw new NotFoundException("This channel does not exist anymore");
-        this.channelsService.addClient(channelId, 1) //change to real id
+        
+        channel.addClient(client);
+        this.channelsService.addClient(channelId, client.id) //change to real id
         channel.sendToUsers("joinedChannel", client.id);
     }
 

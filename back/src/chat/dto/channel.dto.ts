@@ -11,6 +11,9 @@ export class CreateChannelDto {
     @IsNotEmpty()
     password: string;
     
+    @IsNotEmpty()
+    ownerId: string;
+    
 }
 
 export class NewClientDto {
@@ -18,7 +21,7 @@ export class NewClientDto {
     channelName: string;
 
     @IsNotEmpty()
-    clientId: number;
+    clientId: string;
 }
 
 export class NewMessageDto {

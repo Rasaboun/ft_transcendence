@@ -35,9 +35,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('createChannel')
-	createChannel(client: AuthenticatedSocket)
+	async createChannel(client: AuthenticatedSocket)
 	{
-		let channel = this.channelManager.createChannel();
+		let channel = await this.channelManager.createChannel(client);
 		channel.addClient(client);
 		client.emit("channelCreated", channel.id);
 	}
