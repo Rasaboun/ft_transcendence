@@ -30,7 +30,7 @@ export class ChannelsService {
             isAdmin: false,
             isMuted: false,
         }
-
+        console.log("Adding new client");
         channel.clients.push(newClient);
         await this.channelRepository.update(channel.id, channel);
     }
