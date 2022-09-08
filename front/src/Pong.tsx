@@ -9,7 +9,6 @@ import './output.css';
 
 export default function Pong() {
 	const value = useContext(GameContext);
-	console.log(value.gameInfo)
 	return (
 	
 		<div id="Pong" className="flex-1">

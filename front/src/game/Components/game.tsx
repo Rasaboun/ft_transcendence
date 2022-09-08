@@ -49,8 +49,6 @@ export default function Game()
 		height: 1080,
 	});
 
-	function setContext(newContext: CanvasRenderingContext2D){ context = newContext; }
-
 	const handleWait = () => {
 		setGameData((oldGameData) => ({
 			...oldGameData,
@@ -134,11 +132,11 @@ export default function Game()
 		handleResize();
 		initializeGame()
 		window.addEventListener('resize', handleResize);
-
 		socket = value?.socket!
-		socket.on('waitingForOpponent', handleWait)
+		console.log(socket)
+		socket?.on('waitingForOpponent', handleWait)
 
-		socket.on('updateBall', (ball) => {
+		socket?.on('updateBall', (ball) => {
 			const newBall = {
 				x:	utils.toScale(ball.x, canvas.width / gameSettings.width),
 				y: utils.toScale(ball.y, canvas.height / gameSettings.height),
@@ -152,34 +150,34 @@ export default function Game()
 				ball: newBall,
 			}));
 		})
-		socket.on('updatePaddle', ({playerId, newPos}) => {
+		socket?.on('updatePaddle', ({playerId, newPos}) => {
 			updatePaddle(playerId, newPos);
 		})
-		socket.on('gameReady', (data: GameData) => {
+		socket?.on('gameReady', (data: GameData) => {
 			setGameData((oldGameData) => ({
 				...oldGameData,
 				ball: data.ball,
 				players: data.players,
 				state: GameState.Started
 			}));
-			socket.emit("startGame");
+			socket?.emit("startGame");
 		})
 
-		socket.on('goalScored', (players: Player[]) => {
+		socket?.on('goalScored', (players: Player[]) => {
 			setGameData((oldGameData) => ({
 				...oldGameData,
 				players: players,
 			}));
 		})
 
-		socket.on('spectateSuccess', (players) => {
+		socket?.on('spectateSuccess', (players) => {
 			setGameData((oldGameData) => ({
 				...oldGameData,
 				players: players,
 				state: GameState.Spectacte
 			}))
 		})
-		socket.on('gameOver', (winnerId: string) => {
+		socket?.on('gameOver', (winnerId: string) => {
 			handleGameOver(winnerId);
 		})
 		return () => window.removeEventListener('resize', handleResize)

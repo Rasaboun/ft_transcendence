@@ -1,6 +1,9 @@
-.message-container {
+.message-container, .scroll {
     display: flex;
     flex-direction: column;
+    overflow-y:auto;
+    max-height: 100%;
+    /* transform: scale(1,-1); */
 }
 
 .message {

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useRef, useContext, useEffect, useState } from "react";
 import { ChatContext } from "../ChatContext/chatContext";
 import { chatHandler, sendMessage, setSocketManager } from "../ChatUtils/socketManager";
 import Message from "../Elements/message";
@@ -6,10 +6,15 @@ import {messageT} from "../ChatUtils/chatType"
 
 export default function ChatElem()
 {
-    const {socket, channel, setSocket, setChannel} = useContext(ChatContext)
+    const lastMessageRef = useRef<HTMLDivElement | null>(null)
+    const {socket, channel} = useContext(ChatContext)
     const [message, setMessage] = useState<string>("")
     const [messagesList, setMessagesList] = useState<messageT[]>()
     
+    const scrollToBottom = () => {
+        lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
+      }
+
     const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         setMessage(e.target.value)
     }
@@ -40,10 +45,6 @@ export default function ChatElem()
         }
     }
 
-    // const handleChannelCreated = (channelId:string) => {
-	// 	setChannel(channelId)
-	// }
-    console.log(messagesList?.length)
     const messageElem = messagesList?.map((elem, index) => (
         <Message key={index} 
             className={elem.sender === socket?.id ?
@@ -57,11 +58,17 @@ export default function ChatElem()
         chatHandler(handleMessageReceived)
 
     }, [])
+
+    useEffect(() => {
+       scrollToBottom()
+    }, [messagesList])
+
     return (
         <div>
             <div className="border-4 border-dashed border-gray-200 rounded-lg h-96">
                 <div className="message-container">
                     {messageElem}
+                    <div ref={lastMessageRef}/>
                 </div>
             </div>
             <form onSubmit={handleSubmit}>
