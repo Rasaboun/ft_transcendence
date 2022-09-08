@@ -9,14 +9,15 @@ export class Channel {
     @Column()
     name: string;
 
-    @Column('text', {
-        array: true,
+    @Column()
+    ownerId: string
+
+    @Column('json', {
         default: [],
     })
     clients: ChannelClient[];
 
-    @Column('text', {
-        array: true,
+    @Column('json', {
         default: [],
     })
     messages: Message[];
