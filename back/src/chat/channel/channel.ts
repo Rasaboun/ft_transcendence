@@ -4,13 +4,12 @@ import { AuthenticatedSocket, Message } from "../types/channel.type";
 
 export class Channel
 {
-    public readonly id: string = v4()
     public readonly isPrivate:      boolean = false;
     private         password:       string;
 
     public          clients:        	Map<string, AuthenticatedSocket> = new Map<string, AuthenticatedSocket>();
 
-    constructor    ( private server: Server) {}
+    constructor    ( private server: Server, public id : string) {}
 
     public addClient(client: AuthenticatedSocket): void
     {

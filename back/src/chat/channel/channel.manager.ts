@@ -27,16 +27,16 @@ export class ChannelManager
         client.data.channel?.removeClient(client);
     }
 
-    public async createChannel(client: AuthenticatedSocket)
+    public async createChannel(client: AuthenticatedSocket, channelName: string)
     {
         //check if name is already taken
-        let channel = new Channel(this.server);
+        let channel = new Channel(this.server, channelName);
 
         channel.addClient(client);
         this.channels.set(channel.id, channel);
         await this.channelsService.createChannel( //change to just the name
             {
-                name: channel.id,
+                name: channelName,
                 isPrivate: false,
                 password: "",
                 ownerId: client.id, //change to real id

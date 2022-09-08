@@ -19,8 +19,8 @@ export function setSocketManager(socket:Socket)
 	socket = socket
 }
 
-export function createChannel() {
-	socket?.emit("createChannel");
+export function createChannel(name:string) {
+	socket?.emit("createChannel", name);
 }
 
 export function joinChannel(channelId:string) {
