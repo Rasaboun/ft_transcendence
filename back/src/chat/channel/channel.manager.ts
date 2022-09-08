@@ -101,6 +101,19 @@ export class ChannelManager
         }
     }
     
+    public async banUser(clientId: string, data: ActionOnUser)
+    {
+
+        const caller: ChannelClient = await this.channelsService.getClientById(data.channelName, clientId);
+        if (caller == undefined || caller.isAdmin == false)
+            throw new ForbiddenException("You are not allowed to do this");
+        
+        try {    
+            await this.channelsService.banClient(data);
+        } catch (error) {
+            throw error;
+        }
+    }
 
     public getChannel(channelId: string)
     {

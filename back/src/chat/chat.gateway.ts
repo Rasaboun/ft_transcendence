@@ -84,6 +84,15 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		catch (error) { client.emit('channelNotFound', error.message ) }
 	}
 
+	@SubscribeMessage('banUser')
+	banUser(client: AuthenticatedSocket, data: ActionOnUser)
+	{
+		try {
+			this.channelManager.banUser(client.id, data);
+		}
+		catch (error) { client.emit('channelNotFound', error.message ) }
+	}
+
 	@SubscribeMessage('getActiveChannels')
 	getActiveChannels(client: AuthenticatedSocket)
 	{
