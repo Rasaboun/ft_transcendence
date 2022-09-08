@@ -10,8 +10,9 @@ export type AuthenticatedSocket = Socket & {
 export class ChannelClient {
 	public isAdmin: boolean = false;
 	public isMuted: boolean = false;
-	public unmuteDate: Date = null;
-	public unbanDate: Date = null;
+	public isBanned: boolean = false;
+	public unmuteDate: number = 0;
+	public unbanDate: number = 0;
 	constructor(
 		public id: string
 	){}

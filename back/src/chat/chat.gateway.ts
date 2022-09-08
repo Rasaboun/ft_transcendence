@@ -8,8 +8,8 @@ import { ActionOnUser, AuthenticatedSocket } from './types/channel.type';
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-
-	constructor( private channelManager: ChannelManager) {}
+	constructor( private channelManager: ChannelManager)
+	{}
 
 	@WebSocketServer()
 	server;
