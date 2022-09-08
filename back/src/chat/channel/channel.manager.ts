@@ -33,12 +33,12 @@ export class ChannelManager
         let channel = new Channel(this.server);
 
         this.channels.set(channel.id, channel);
-        // this.channelsService.createChannel( //change to just the name
-        //     {
-        //         name: channel.id,
-        //         isPrivate: false,
-        //         password: "",
-        //     });
+        this.channelsService.createChannel( //change to just the name
+            {
+                name: channel.id,
+                isPrivate: false,
+                password: "",
+            });
         return channel;
     }
 

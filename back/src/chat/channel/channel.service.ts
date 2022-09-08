@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Channel } from "../../typeorm/Channel";
+import { Channel } from "src/typeorm";
 import { CreateChannelDto } from "../dto/channel.dto";
 import { ChannelClient, Message } from "../types/channel.type";
 
@@ -49,6 +49,7 @@ export class ChannelsService {
     }
 
     public async createChannel(dto: CreateChannelDto) {
+        console.log(dto);
         const   newChannel = this.channelRepository.create(dto);
         await   this.channelRepository.save(newChannel);
     }
