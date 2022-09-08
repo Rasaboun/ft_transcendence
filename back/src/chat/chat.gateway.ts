@@ -37,10 +37,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('createChannel')
 	createChannel(client: AuthenticatedSocket)
 	{
-		console.log(this.channelManager)
 		let channel = this.channelManager.createChannel();
 		channel.addClient(client);
-		console.log(channel)
 		client.emit("channelCreated", channel.id);
 	}
 
@@ -49,7 +47,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try
 		{
-			console.log('joining')
 			this.channelManager.joinChannel(client, channelId);
 		}
 		catch (error) { client.emit('channelNotFound', error.message ) }
@@ -82,7 +79,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('getActiveChannels')
 	getActiveChannels(client: AuthenticatedSocket)
 	{
-		console.log(this.channelManager.getActiveChannels())
 		client.emit('activeChannels', this.channelManager.getActiveChannels());
 	}
 

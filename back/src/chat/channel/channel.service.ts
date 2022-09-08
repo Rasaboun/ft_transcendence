@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Channel } from "../../typeorm/Chat";
+import { Channel } from "../../typeorm/Channel";
 import { CreateChannelDto } from "../dto/channel.dto";
 import { ChannelClient, Message } from "../types/channel.type";
 
@@ -14,7 +14,6 @@ export class ChannelsService {
     }
 
     findOneById(name: string){
-        console.log("In find", name);
         return this.channelRepository.findOneBy({ name })
     }
 

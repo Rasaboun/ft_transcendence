@@ -1,4 +1,4 @@
-import { NotFoundException } from "@nestjs/common";
+import { forwardRef, Inject, NotFoundException } from "@nestjs/common";
 import { Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
 import { AuthenticatedSocket, Message } from "../types/channel.type";
@@ -8,7 +8,9 @@ import { ChannelsService } from "./channel.service";
 export class ChannelManager
 {
 	
-	constructor( private channelsService: ChannelsService) {}
+	constructor(
+        @Inject(forwardRef(() => ChannelsService))
+        private channelsService: ChannelsService) {}
 
     @WebSocketServer()
     public server;
@@ -45,7 +47,6 @@ export class ChannelManager
         const channel: Channel = this.channels.get(channelId);
         if (channel?.addClient(client) == undefined)
             throw new NotFoundException("This channel does not exist anymore");
-		console.log("LALALALALALLA", this.channelsService)
         this.channelsService.addClient(channelId, 1) //change to real id
         channel.sendToUsers("joinedChannel", client.id);
     }
@@ -85,8 +86,6 @@ export class ChannelManager
     public getActiveChannels()
     {
         let res:{channelId: string, clientsId: string[]}[] = [];
-
-        console.log(this.channels)
 
         this.channels.forEach((channel, id) => {
             if (channel.getNbClients() > 0)
