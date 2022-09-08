@@ -1,7 +1,7 @@
-import { forwardRef, Inject, NotFoundException } from "@nestjs/common";
+import { ForbiddenException, forwardRef, Inject, NotFoundException } from "@nestjs/common";
 import { Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
-import { AuthenticatedSocket, Message } from "../types/channel.type";
+import { ActionOnUser, AuthenticatedSocket, ChannelClient, Message } from "../types/channel.type";
 import { Channel } from "./channel";
 import { ChannelsService } from "./channel.service";
 
@@ -74,11 +74,29 @@ export class ChannelManager
     {
         const channel: Channel = this.channels.get(channelId);
         
-        if (!channel == undefined)
+        if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
         
         channel.sendMessage(msg.sender, msg.content);
         this.channelsService.addMessage(channelId, msg);
+    }
+
+    public async muteUser(clientId: string, data: ActionOnUser)
+    {
+        const channel: Channel = this.channels.get(data.channelName);
+        
+        if (!channel == undefined)
+            throw new NotFoundException("This channel does not exist");
+
+        const caller: ChannelClient = await this.channelsService.getClientById(data.channelName, clientId);
+        if (caller == undefined || caller.isAdmin == false)
+            throw new ForbiddenException("You are not allowed to do this");
+        
+        const target: ChannelClient = await this.channelsService.getClientById(data.channelName, data.targetId);
+        
+        
+        
+
     }
 
     public getChannel(channelId: string)

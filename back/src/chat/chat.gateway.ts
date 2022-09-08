@@ -2,7 +2,7 @@ import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessa
 import { Socket, Server } from 'socket.io';
 import { Channel } from './channel/channel';
 import { ChannelManager } from './channel/channel.manager';
-import { AuthenticatedSocket } from './types/channel.type';
+import { ActionOnUser, AuthenticatedSocket } from './types/channel.type';
 
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
@@ -73,6 +73,15 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 		catch (error) { client.emit('channelNotFound', error.message ) }
 
+	}
+
+	@SubscribeMessage('muteUser')
+	muteUser(client: AuthenticatedSocket, data: ActionOnUser)
+	{
+		try {
+			this.channelManager.muteUser(client.id, data);
+		}
+		catch (error) { client.emit('channelNotFound', error.message ) }
 	}
 
 	@SubscribeMessage('getActiveChannels')
