@@ -66,11 +66,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('sendMessage')
-	sendMessage(client: AuthenticatedSocket, {channelId, message})
+	sendMessage(client: AuthenticatedSocket, data: {channelId, message})
 	{
 		try {
-			const channel: Channel = this.channelManager.getChannel(channelId);
-			channel.sendMessage(client.id, message);
+			this.channelManager.sendMessage(data.channelId, {sender: client.id, content: data.message});
 		}
 		catch (error) { client.emit('channelNotFound', error.message ) }
 

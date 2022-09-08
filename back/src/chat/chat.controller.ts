@@ -16,14 +16,12 @@ export class ChatController {
 
     @Post('addClient')
     addClient(@Body() dto: NewClientDto) {
-        console.log(dto);
         this.channelsService.addClient(dto.channelName, dto.clientId);
     }
 
 
     @Post('addMessage')
     addMessage(@Body() dto: NewMessageDto) {
-        console.log(dto);
         this.channelsService.addMessage(dto.channelName, dto.message);
     }
 

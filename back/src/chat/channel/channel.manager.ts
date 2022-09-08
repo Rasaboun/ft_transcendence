@@ -72,10 +72,11 @@ export class ChannelManager
    
     public  sendMessage(channelId: string, msg: Message)
     {
-		
         const channel: Channel = this.channels.get(channelId);
+        
         if (!channel == undefined)
             throw new NotFoundException("This channel does not exist");
+        
         channel.sendMessage(msg.sender, msg.content);
         this.channelsService.addMessage(channelId, msg);
     }

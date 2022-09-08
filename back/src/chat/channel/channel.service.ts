@@ -25,11 +25,8 @@ export class ChannelsService {
 
         // Check password
 
-        const newClient: ChannelClient = {
-            id: clientId,
-            isAdmin: false,
-            isMuted: false,
-        }
+        const newClient = new ChannelClient(clientId);
+        
         channel.clients.push(newClient);
         await this.channelRepository.update(channel.id, channel);
     }
