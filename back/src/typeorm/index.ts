@@ -1,6 +1,6 @@
 import { Match } from "./Match";
 import { User } from "./User";
-import { Channel } from "./Chat";
+import { Channel } from "./Channel";
 import { TypeORMSession } from "./Session";
 
 const entities = [User, Match, Channel, TypeORMSession];

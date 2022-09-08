@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client'
 import Message from '../Elements/message';
-import { ChannelT, messageT } from './chatType';
+import { ActionOnUser, ChannelT, messageT } from './chatType';
 
 let socket:Socket
 
@@ -37,6 +37,14 @@ export function sendMessage(channelId: string, message: string) {
 
 export function getActiveChannels() {
 	socket?.emit("getActiveChannels");
+}
+
+export function banUser(data: ActionOnUser) {
+	socket?.emit("banUser", data);
+}
+
+export function muteUser(data: ActionOnUser) {
+	socket?.emit("muteUser", data);
 }
 
 export function chatMenuHandler(handleActiveChannels:any, handleChannelCreated:any)

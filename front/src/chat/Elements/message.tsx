@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import "../chat.css"
 import { messageT } from "../ChatUtils/chatType";
+import MessageOption from "./messageOption";
 
 type MessagePropsT = {
     className: string,
@@ -9,10 +10,23 @@ type MessagePropsT = {
 
 export default function Message({className, message}:MessagePropsT)
 {
-    console.log(message.sender, message.content)
+    const [isHover, setIsHover] = useState<boolean>(false)
+
+    const handleOnMouseOver = () => {
+        setIsHover(true)
+    }
+
+    const handleMouseLeave = () => {
+        setIsHover(false)
+    }
+
     return(
         <div className={className}>
-            {<h4 style={{
+            {
+                isHover &&
+                    <MessageOption handleMouseLeave={handleMouseLeave} sender={message.sender}/>
+            }
+            {<h4 onMouseOver={handleOnMouseOver} style={{
                 color: "red"
             }}>
                 {message.sender}

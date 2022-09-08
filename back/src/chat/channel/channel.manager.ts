@@ -91,6 +91,7 @@ export class ChannelManager
     {
 
         const caller: ChannelClient = await this.channelsService.getClientById(data.channelName, clientId);
+        console.log(caller)
         if (caller == undefined || caller.isAdmin == false)
             throw new ForbiddenException("You are not allowed to do this");
         

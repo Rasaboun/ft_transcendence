@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post } from "@nestjs/common";
-import { Channel } from "src/typeorm/Chat";
+import { Channel } from "src/typeorm/Channel";
 import { ChannelsService } from "./channel/channel.service";
 import { CreateChannelDto, NewClientDto, NewMessageDto } from "./dto/channel.dto";
 import { ChannelClient } from "./types/channel.type";
