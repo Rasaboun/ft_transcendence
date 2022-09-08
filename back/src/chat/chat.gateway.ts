@@ -8,8 +8,8 @@ import { ActionOnUser, AuthenticatedSocket } from './types/channel.type';
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-
-	constructor( private channelManager: ChannelManager) {}
+	constructor( private channelManager: ChannelManager)
+	{}
 
 	@WebSocketServer()
 	server;
@@ -80,6 +80,15 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try {
 			this.channelManager.muteUser(client.id, data);
+		}
+		catch (error) { client.emit('channelNotFound', error.message ) }
+	}
+
+	@SubscribeMessage('banUser')
+	banUser(client: AuthenticatedSocket, data: ActionOnUser)
+	{
+		try {
+			this.channelManager.banUser(client.id, data);
 		}
 		catch (error) { client.emit('channelNotFound', error.message ) }
 	}
