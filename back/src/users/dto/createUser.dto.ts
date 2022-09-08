@@ -1,4 +1,5 @@
 import { IsAlpha, IsNotEmpty, IsNumber, IsNumberString, IsString } from "class-validator";
+import { UserStatus } from "../type/users.type";
 
 export class createUserDto {
     @IsNotEmpty()
@@ -19,6 +20,6 @@ export class updateStatusDto {
     userId: number;
 
     @IsNotEmpty()
-    @IsString()
-    status: string;
+    @IsNumber()
+    status: UserStatus;
 }

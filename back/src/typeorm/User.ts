@@ -1,3 +1,4 @@
+import { UserStatus } from "src/users/type/users.type";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -31,7 +32,7 @@ export class User {
     nbGames: number;
 
     @Column({
-        default: "offline",
+        default: UserStatus.offline,
     })
-    status: string;
+    status: number;
 }
