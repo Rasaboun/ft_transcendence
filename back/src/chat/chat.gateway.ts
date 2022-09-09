@@ -37,7 +37,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('createChannel')
 	async createChannel(client: AuthenticatedSocket, channelName: string)
 	{
-		let channel
+		let channel;
 		try {
 			channel = await this.channelManager.createChannel(client, channelName);
 			channel.addClient(client);
@@ -47,11 +47,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('joinChannel')
-	joinChannel(client: AuthenticatedSocket, channelId: string)
+	async joinChannel(client: AuthenticatedSocket, channelId: string)
 	{
 		try
 		{
-			this.channelManager.joinChannel(client, channelId);
+			await this.channelManager.joinChannel(client, channelId);
 		}
 		catch (error) { client.emit('channelNotFound', error.message ) }
 		console.log(`Client ${client.id} joined channel ${channelId}`)
@@ -70,29 +70,29 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('sendMessage')
-	sendMessage(client: AuthenticatedSocket, data: {channelId, message})
+	async sendMessage(client: AuthenticatedSocket, data: {channelId, message})
 	{
 		try {
-			this.channelManager.sendMessage(data.channelId, {sender: client.id, content: data.message});
+			await this.channelManager.sendMessage(data.channelId, {sender: client.id, content: data.message});
 		}
 		catch (error) { client.emit('channelNotFound', error.message ) }
 
 	}
 
 	@SubscribeMessage('muteUser')
-	muteUser(client: AuthenticatedSocket, data: ActionOnUser)
+	async muteUser(client: AuthenticatedSocket, data: ActionOnUser)
 	{
 		try {
-			this.channelManager.muteUser(client.id, data);
+			await this.channelManager.muteUser(client.id, data);
 		}
 		catch (error) { client.emit('error', error.message) }
 	}
 
 	@SubscribeMessage('banUser')
-	banUser(client: AuthenticatedSocket, data: ActionOnUser)
+	async banUser(client: AuthenticatedSocket, data: ActionOnUser)
 	{
 		try {
-			this.channelManager.banUser(client.id, data);
+			await this.channelManager.banUser(client.id, data);
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}

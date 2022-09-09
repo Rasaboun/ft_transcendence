@@ -156,10 +156,9 @@ export class ChannelsService {
             throw new NotFoundException("This channel does not exist");
 
         const client = channel.clients[this.getClientIndex(channel.clients, clientId)]
-        console.log("here");
         if (client == undefined)
                 return false;
-        console.log("here");
+
         if (client.isBanned && new Date().getTime() / 1000 > client.unbanDate)
         {
             this.unbanClient(channelName, client.id)
@@ -179,20 +178,23 @@ export class ChannelsService {
 
     async getClientById(channelName: string, clientId: string) {
         const channel: Channel = await this.findOneById(channelName);
+        let res: ChannelClient = null;
 
         if (!channel)
             throw new NotFoundException("Channel not found");
         channel.clients.forEach((client) => {
             if (client.id == clientId)
-                return client;
+            {
+                res = client;
+                return ;
+            }
         })
 
-        return null;
+        return res;
     }
 
     private getClientIndex(clients: ChannelClient[], id: string) {
 
-        console.log('CHannel clients', clients);
         for(let i = 0; i < clients.length; i++)
         {
             if (clients[i].id == id) {

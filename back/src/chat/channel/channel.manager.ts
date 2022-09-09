@@ -65,17 +65,15 @@ export class ChannelManager
         return channel;
     }
 
-    public joinChannel(client: AuthenticatedSocket, channelId: string)
+    public async joinChannel(client: AuthenticatedSocket, channelId: string)
     {        
         const channel: Channel = this.channels.get(channelId);
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist anymore");
-        
-            console.log("Joined chan")
-        if (this.channelsService.isBanned(channelId, client.id))
+
+        if (await this.channelsService.isBanned(channelId, client.id) == true)
             throw new ForbiddenException("You are banned from this channel");
 
-            console.log("Joined chan")
         channel.addClient(client);
         this.channelsService.addClient(channelId, client.id) //change to real id
         channel.sendToUsers("joinedChannel", client.id);
@@ -94,14 +92,14 @@ export class ChannelManager
         this.channelsService.deleteChannel(channelId);
     }
    
-    public  sendMessage(channelId: string, msg: Message)
+    public async sendMessage(channelId: string, msg: Message)
     {
         const channel: Channel = this.channels.get(channelId);
         
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
         
-        if (this.channelsService.isMuted(channelId, msg.sender))
+        if (await this.channelsService.isMuted(channelId, msg.sender) == true)
             throw new ForbiddenException("You are muted on this channel");
 
         channel.sendMessage(msg.sender, msg.content);
@@ -110,9 +108,8 @@ export class ChannelManager
 
     public async muteUser(clientId: string, data: ActionOnUser)
     {
-
         const caller: ChannelClient = await this.channelsService.getClientById(data.channelName, clientId);
-        console.log(caller)
+
         if (caller == undefined || caller.isAdmin == false)
             throw new ForbiddenException("You are not allowed to do this");
         
