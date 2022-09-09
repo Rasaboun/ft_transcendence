@@ -3,6 +3,7 @@ import './output.css';
 
 
 export default function Dashboard() {
+	const tab:number[] = [1,2,3,4,5];
 	return (
 	<div id="Dashboard" className="flex-1">
 	<header className="bg-white shadow">
@@ -14,7 +15,12 @@ export default function Dashboard() {
 	<div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
 	{/* Replace with your content */}
 	<div className=" px-4 py-6 sm:px-0">
-		<div className="border-4 border-dashed border-gray-200 rounded-lg h-96" />
+		<div className="border-4 border-dashed border-gray-200 rounded-lg h-96" >
+
+			{
+			tab.map((number) => <h1>number</h1>)
+			}
+			</div>
 	</div>
 	{/* /End replace */}
 	</div>
