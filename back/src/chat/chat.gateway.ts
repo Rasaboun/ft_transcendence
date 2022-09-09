@@ -37,8 +37,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('createChannel')
 	async createChannel(client: AuthenticatedSocket, channelName: string)
 	{
-		let channel = await this.channelManager.createChannel(client, channelName);
-		channel.addClient(client);
+		let channel
+		try {
+			channel = await this.channelManager.createChannel(client, channelName);
+			channel.addClient(client);
+		}
+		catch (error) { return client.emit('error', error.message)}
 		client.emit("channelCreated", channel.id);
 	}
 
@@ -81,7 +85,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try {
 			this.channelManager.muteUser(client.id, data);
 		}
-		catch (error) { client.emit('channelNotFound', error.message ) }
+		catch (error) { client.emit('error', error.message) }
 	}
 
 	@SubscribeMessage('banUser')
@@ -90,7 +94,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try {
 			this.channelManager.banUser(client.id, data);
 		}
-		catch (error) { client.emit('channelNotFound', error.message ) }
+		catch (error) { client.emit('error', error.message ) }
 	}
 
 	@SubscribeMessage('getActiveChannels')

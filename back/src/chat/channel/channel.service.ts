@@ -156,8 +156,10 @@ export class ChannelsService {
             throw new NotFoundException("This channel does not exist");
 
         const client = channel.clients[this.getClientIndex(channel.clients, clientId)]
+        console.log("here");
         if (client == undefined)
-                throw new NotFoundException("Target user does not exist");
+                return false;
+        console.log("here");
         if (client.isBanned && new Date().getTime() / 1000 > client.unbanDate)
         {
             this.unbanClient(channelName, client.id)
@@ -190,6 +192,7 @@ export class ChannelsService {
 
     private getClientIndex(clients: ChannelClient[], id: string) {
 
+        console.log('CHannel clients', clients);
         for(let i = 0; i < clients.length; i++)
         {
             if (clients[i].id == id) {

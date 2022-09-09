@@ -10,12 +10,29 @@ export class ChannelManager
 	
 	constructor(
         @Inject(forwardRef(() => ChannelsService))
-        private channelsService: ChannelsService) {}
+        private channelsService: ChannelsService)
+    {
+        this.getChannelsInDb();
+    }
 
     @WebSocketServer()
     public server;
     private readonly channels: Map<string, Channel> = new Map<string, Channel>();
 
+    private async getChannelsInDb()
+    {
+        const channelsInDb = await this.channelsService.findAll();
+        for (let i = 0; i < channelsInDb.length; i++)
+        {
+            const currChannel = new Channel(this.server, channelsInDb[i].name);
+            
+            // for (let clientIndex = 0; clientIndex < channelsInDb[i].clients.length; clientIndex++)
+            // {
+            //     currChannel.addClient(channelsInDb[i].clients[clientIndex].id);
+            // }
+            this.channels.set(channelsInDb[i].name, currChannel)
+        }
+    }
     
     public initializeSocket(client: AuthenticatedSocket): void
     {
@@ -29,7 +46,9 @@ export class ChannelManager
 
     public async createChannel(client: AuthenticatedSocket, channelName: string)
     {
-        //check if name is already taken
+        if (this.channels.get(channelName) != undefined)
+            throw new ForbiddenException("This channel name is already taken");
+        
         let channel = new Channel(this.server, channelName);
 
         channel.addClient(client);
@@ -52,9 +71,11 @@ export class ChannelManager
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist anymore");
         
+            console.log("Joined chan")
         if (this.channelsService.isBanned(channelId, client.id))
             throw new ForbiddenException("You are banned from this channel");
 
+            console.log("Joined chan")
         channel.addClient(client);
         this.channelsService.addClient(channelId, client.id) //change to real id
         channel.sendToUsers("joinedChannel", client.id);
@@ -128,22 +149,25 @@ export class ChannelManager
     public getActiveChannels()
     {
         let res:{channelId: string, clientsId: string[]}[] = [];
-
         this.channels.forEach((channel, id) => {
-            if (channel.getNbClients() > 0)
-            {
-                res.push({
-                    channelId: id,
-                    clientsId: channel.clientsId(),
-                })
-            }
+            // if (channel.getNbClients() > 0)
+            // {
+            //     res.push({
+            //         channelId: id,
+            //         clientsId: channel.clientsId(),
+            //     })
+            // }
+            res.push({
+                        channelId: id,
+                        clientsId: channel.clientsId(),
+                    })
         });
         return res;
         
     }
 
     //Deletes stopped channels every minutes
-    @Interval(60 * 1000)
+    //@Interval(60 * 1000)
     private channelsCleaner(): void
     {
         console.log(`Avalaible channels: ${this.channels.size}`);
