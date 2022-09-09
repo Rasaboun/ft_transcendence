@@ -1,37 +1,42 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
-import { Channel } from "src/typeorm/Channel";
-import { ChannelsService } from "./channel/channel.service";
-import { CreateChannelDto, NewClientDto, NewMessageDto } from "./dto/channel.dto";
-import { ChannelClient } from "./types/channel.type";
+import { Controller, Post, Put, Param, Body, Request } from '@nestjs/common';
+import { timestamp } from 'rxjs';
+import { PrivChatService } from './chat.service';
+import {newChatDto, newMessageDto} from "./dto/chat.dto";
 
 @Controller('chat')
 export class ChatController {
-    constructor(private readonly channelsService: ChannelsService) {}
+	constructor (private chatService: PrivChatService) {}
+	@Put('/id')
+	update(@Param('id') id: string) {
+	 return `This action updates a #${id} cat`;
+	}
 
-    @Post('channel')
-    //@UsePipes(ValidationPipe)
-    createChannel(@Body() dto: CreateChannelDto) {
-        return this.channelsService.createChannel(dto);
-    }
+	@Put('send')
+	sendMessage(@Body() newChatMessage: newMessageDto)
+	{
+		return (this.chatService.sendMessage(newChatMessage));
+	}
 
-    @Post('addClient')
-    addClient(@Body() dto: NewClientDto) {
-        this.channelsService.addClient(dto.channelName, dto.clientId);
-    }
+	@Put('send')
+	createChannel(@Body() newChatMessage: newMessageDto)
+	{
+		return (this.chatService.sendMessage(newChatMessage));
+	}
+
+	@Put('newChat')
+	createChat(@Body() newChat: newChatDto)
+	{
+		return (this.chatService.createNewChat(newChat));
+	}
 
 
-    @Post('addMessage')
-    addMessage(@Body() dto: NewMessageDto) {
-        this.channelsService.addMessage(dto.channelName, dto.message);
-    }
-
-    @Get('channel')
-    findOneById(@Body('name') channelName: string): Promise<Channel> {
-        return this.channelsService.findOneById(channelName);
-    }
-
-    @Get('all')
-    getAllChannels() {
-        return this.channelsService.findAll();
-    }
+	@Post('test')
+	sendTheMessage(@Body() newChatMessage: string)
+	{
+		return (`This is the thing ${JSON.stringify(newChatMessage)}` );
+		// return (this.chatService.sendMessage(newChatMessage.senderId,
+		// 	newChatMessage.senderId,
+		// 	newChatMessage.message,
+		// 	newChatMessage.timeSent));
+	}
 }
