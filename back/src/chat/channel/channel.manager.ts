@@ -86,8 +86,8 @@ export class ChannelManager
             if (channel.isPrivate && !(await this.channelsService.isInvited(data.channelName, client.id)))
                 throw new ForbiddenException("You are not invited to this channel");
             //add password as param
-            this.channelsService.addClient(data.channelName, client.id, data.password) //change to real id
-
+            await this.channelsService.addClient(data.channelName, client.id, data.password) //change to real id
+            
             channel.addClient(client);
             console.log(client.id, data.channelName)
             channel.sendToUsers("joinedChannel", {clientId: client.id, channelId: data.channelName});
