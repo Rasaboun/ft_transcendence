@@ -37,13 +37,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('createChannel')
 	async createChannel(client: AuthenticatedSocket, channelName: string)
 	{
-		let channel;
 		try {
-			channel = await this.channelManager.createChannel(client, channelName);
+			const channel = await this.channelManager.createChannel(client, channelName);
 			channel.addClient(client);
+			client.emit("channelCreated", channel.id);
 		}
 		catch (error) { return client.emit('error', error.message)}
-		client.emit("channelCreated", channel.id);
 	}
 
 	@SubscribeMessage('joinChannel')
@@ -121,15 +120,15 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		catch (error) { client.emit('error', error.message ) }
 	}
 
-	// @SubscribeMessage('unsetChannelPassword')
-	// async unsetChannelPassword(client: AuthenticatedSocket, channelName: string)
-	// {
-	// 	try {
-	// 		await this.channelManager.unsetChannelPassword(client.id, channelName);
-	// 	}
-	// 	catch (error) { client.emit('error', error.message ) }
+	@SubscribeMessage('unsetChannelPassword')
+	async unsetChannelPassword(client: AuthenticatedSocket, channelName: string)
+	{
+		try {
+			await this.channelManager.unsetChannelPassword(client.id, channelName);
+		}
+		catch (error) { client.emit('error', error.message ) }
 
-	// }
+	}
 
 	@SubscribeMessage('setPrivateMode')
 	async setPrivateMode(client: AuthenticatedSocket, channelName: string)
