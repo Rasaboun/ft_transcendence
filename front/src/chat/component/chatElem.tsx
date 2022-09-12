@@ -3,9 +3,11 @@ import { ChatContext } from "../ChatContext/chatContext";
 import { chatHandler, sendMessage, setSocketManager } from "../ChatUtils/socketManager";
 import Message from "../Elements/message";
 import {messageT} from "../ChatUtils/chatType"
+import { useNavigate } from "react-router-dom";
 
 export default function ChatElem()
 {
+	const navigate = useNavigate();
     const lastMessageRef = useRef<HTMLDivElement | null>(null)
     const {socket, channel} = useContext(ChatContext)
     const [message, setMessage] = useState<string>("")
@@ -45,6 +47,15 @@ export default function ChatElem()
         }
     }
 
+    const handleChannelDeleted = (message:string) => {
+        navigate("chat")
+        window.alert(message)
+    }
+
+    const handleDelete = () => {
+       socket?.emit("deleteChannel", channel)
+    }
+
     const messageElem = messagesList?.map((elem, index) => (
         <Message key={index} 
             className={elem.sender === socket?.id ?
@@ -55,7 +66,7 @@ export default function ChatElem()
 
     useEffect(() => {
         setSocketManager(socket!)
-        chatHandler(handleMessageReceived)
+        chatHandler(handleMessageReceived, handleChannelDeleted)
 
     }, [])
 
@@ -65,6 +76,7 @@ export default function ChatElem()
 
     return (
         <div>
+            <button onClick={handleDelete}> supprimme  </button>
             <div className="border-4 border-dashed border-gray-200 rounded-lg h-96">
                 <div className="message-container">
                     {messageElem}

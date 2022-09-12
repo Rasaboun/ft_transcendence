@@ -2,7 +2,7 @@ import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessa
 import { Socket, Server } from 'socket.io';
 import { Channel } from './channel/channel';
 import { ChannelManager } from './channel/channel.manager';
-import { ActionOnUser, AuthenticatedSocket, InviteClient, SetChannelPassword } from './types/channel.type';
+import { ActionOnUser, AddAdmin, AuthenticatedSocket, InviteClient, SetChannelPassword } from './types/channel.type';
 
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
@@ -93,6 +93,15 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try {
 			await this.channelManager.banUser(client.id, data);
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('addAdmin')
+	async addAdmin(client: AuthenticatedSocket, data: AddAdmin)
+	{
+		try {
+			await this.channelManager.addAdmin(client.id, data);
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}

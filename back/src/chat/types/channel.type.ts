@@ -38,3 +38,8 @@ export type InviteClient = {
 	channelName: string,
 	clientId: string,
 }
+
+export type AddAdmin = {
+	channelName: string,
+	clientId: string,
+}

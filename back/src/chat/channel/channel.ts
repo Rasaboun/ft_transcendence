@@ -6,6 +6,7 @@ export class Channel
 {
     public          isPasswordProtected:    boolean = false;
     public          isPrivate:              boolean = false;
+    public          owner:                  string = "";
     public          clients:        	    Map<string, AuthenticatedSocket> = new Map<string, AuthenticatedSocket>();
 
     constructor    ( private server: Server, public id : string) {}
@@ -41,7 +42,7 @@ export class Channel
 
     public sendToUsers(event: string, data: any) { this.server.to(this.id).emit(event, data); }
 
-	public getUser(client: AuthenticatedSocket)	{ return this.clients.get(client.id); }
+	public getClientSocket(clientId: string)	{ return this.clients.get(clientId); }
     
     public getNbClients(): number { return this.clients.size; }
 }

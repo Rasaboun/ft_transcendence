@@ -58,7 +58,9 @@ export function chatMenuHandler(handleActiveChannels:any, handleChannelCreated:a
 		
 }
 
-export function chatHandler(handleMessageReceived:any)
+export function chatHandler(handleMessageReceived:any, handleChannelDeleted:any)
 {
         socket.on("msgToChannel", ({sender, content}:messageT) => handleMessageReceived({sender, content}))      
+        socket.on('channelDeleted', (message:string) => handleChannelDeleted(message))
+
 }

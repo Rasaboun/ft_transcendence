@@ -1,7 +1,7 @@
 import { ForbiddenException, forwardRef, Inject, NotFoundException } from "@nestjs/common";
 import { Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
-import { ActionOnUser, AuthenticatedSocket, ChannelClient, InviteClient, Message, SetChannelPassword } from "../types/channel.type";
+import { ActionOnUser, AddAdmin, AuthenticatedSocket, ChannelClient, InviteClient, Message, SetChannelPassword } from "../types/channel.type";
 import { Channel } from "./channel";
 import { ChannelsService } from "./channel.service";
 
@@ -51,6 +51,7 @@ export class ChannelManager
         
         let channel = new Channel(this.server, channelName);
         
+        channel.owner = client.id;
         channel.addClient(client);
         this.channels.set(channel.id, channel);
         await this.channelsService.createChannel( //change to just the name
@@ -63,8 +64,6 @@ export class ChannelManager
         await this.channelsService.addClient(channel.id, client.id);//change to real id
         await this.channelsService.addAdmin(channel.id, client.id);//change to real id
         this.channelsService.setPassword({channelName: channelName, password: "1234"}); //tmp
-        //this.channelsService.setPrivateMode(channelName);
-        //channel.isPrivate = true;
         return channel;
     }
 
@@ -93,9 +92,10 @@ export class ChannelManager
     public deleteChannel(channelId: string)
     {
         const channel: Channel = this.channels.get(channelId);
-        if (!channel == undefined)
+        if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
 
+        channel.sendToUsers("channelDeleted", "Channel has been destroyed");
         channel.clients.forEach((client) => {
             client.leave(channel.id);
         })
@@ -122,13 +122,9 @@ export class ChannelManager
         let caller: ChannelClient;
         try {
             caller = await this.channelsService.getClientById(data.channelName, clientId);
-        }
-        catch (error) { throw error }
-
-        if (caller == undefined || caller.isAdmin == false)
-            throw new ForbiddenException("You are not allowed to do this");
-        
-        try {    
+            if (caller == undefined || caller.isAdmin == false)
+                throw new ForbiddenException("You are not allowed to do this");
+            
             await this.channelsService.muteClient(data);
         } catch (error) {
             throw error;
@@ -140,33 +136,50 @@ export class ChannelManager
         let caller: ChannelClient;
         try {
             caller = await this.channelsService.getClientById(data.channelName, clientId);
-        }
-        catch (error) { throw error }
 
-        if (caller == undefined || caller.isAdmin == false)
-            throw new ForbiddenException("You are not allowed to do this");
-        
-        try {    
-            await this.channelsService.banClient(data);
+            if (caller == undefined || caller.isAdmin == false)
+                throw new ForbiddenException("You are not allowed to do this");
+            await this.channelsService.banClient(data);    
         } catch (error) {
             throw error;
         }
     }
     
+    public async addAdmin(clientId: string, data: AddAdmin)
+    {
+        let channel = this.channels.get(data.channelName);
+
+        if (channel == undefined)
+            throw new NotFoundException("This channel does not exist");
+        
+        try {
+            if (!this.channelsService.isAdmin(data.channelName, clientId) || data.clientId == channel.owner)
+                throw new ForbiddenException("You are not allowed to do this");
+            if (this.channelsService.isAdmin(data.channelName, data.clientId))
+            {
+                channel.getClientSocket(clientId).emit("isAlreadyAdmin");
+                return ;
+            }
+            await this.channelsService.addAdmin(data.channelName, data.clientId);
+            channel.getClientSocket(data.clientId).emit("addAdmin");
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+
+
     public async inviteClient(clientId: string, data: InviteClient)
     {
         let caller: ChannelClient;
         try {
             caller = await this.channelsService.getClientById(data.channelName, clientId);
-        }
-        catch (error) { throw error }
-
-        if (caller == undefined || caller.isAdmin == false)
-            throw new ForbiddenException("You are not allowed to do this");
-        
-        // Send notification ?
-        try {    
-            await this.channelsService.inviteClient(data);
+ 
+            if (caller == undefined || caller.isAdmin == false)
+                throw new ForbiddenException("You are not allowed to do this");
+            
+            // Send notification ?
+            await this.channelsService.inviteClient(data); 
         } catch (error) {
             throw error;
         }
@@ -214,16 +227,14 @@ export class ChannelManager
         let caller: ChannelClient;
         try {
             caller = await this.channelsService.getClientById(channelName, clientId);
-        }
-        catch (error) { throw error }
     
-        if (caller == undefined || caller.isAdmin == false)
-            throw new ForbiddenException("You are not allowed to do this");
-        
-        try {    
-            await this.channelsService.setPrivateMode(channelName);
+            if (caller == undefined || caller.isAdmin == false)
+                throw new ForbiddenException("You are not allowed to do this");
+            
+                await this.channelsService.setPrivateMode(channelName);
             this.channels.get(channelName).isPrivate = true;
-        } catch (error) {
+        }
+        catch (error) {
             throw error;
         }
     }
@@ -239,18 +250,20 @@ export class ChannelManager
 
     public getActiveChannels()
     {
-        let res:{channelId: string, clientsId: string[]}[] = [];
+        let res: {
+            channelId: string,
+            nbClients: number,
+            isPrivate: boolean,
+            isPasswordProtected: boolean,
+            owner: string,
+        }[] = [];
         this.channels.forEach((channel, id) => {
-            // if (channel.getNbClients() > 0)
-            // {
-            //     res.push({
-            //         channelId: id,
-            //         clientsId: channel.clientsId(),
-            //     })
-            // }
             res.push({
                         channelId: id,
-                        clientsId: channel.clientsId(),
+                        nbClients: channel.clients.size,
+                        isPrivate: channel.isPrivate,
+                        isPasswordProtected: channel.isPasswordProtected,
+                        owner: channel.owner,
                         
                     })
         });
