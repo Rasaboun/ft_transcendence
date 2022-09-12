@@ -11,11 +11,11 @@ export default function ChannelItem(props:ChannelT)
         }}>
             <h1>{props.channelId}</h1>
             <h2>{props.clientsId.length} client dans ce channel</h2> 
-            <Link to="message">
-                <button onClick={() =>
-                    props.handleJoinChannel(props.channelId)
-                    }>JOIN</button>
-            </Link>
+            <button onClick={() =>
+                props.handleJoinChannel(props.channelId)
+                }>
+                    JOIN
+            </button>
         </div>
     )
 }

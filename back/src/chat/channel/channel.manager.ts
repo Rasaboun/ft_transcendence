@@ -62,7 +62,7 @@ export class ChannelManager
             });
         await this.channelsService.addClient(channel.id, client.id);//change to real id
         await this.channelsService.addAdmin(channel.id, client.id);//change to real id
-        this.channelsService.setPassword({channelName: channelName, password: "123"}); //tmp
+        this.channelsService.setPassword({channelName: channelName, password: "1234"}); //tmp
         //this.channelsService.setPrivateMode(channelName);
         //channel.isPrivate = true;
         return channel;
@@ -86,7 +86,8 @@ export class ChannelManager
         }
         catch (error) { throw error }
         channel.addClient(client);
-        channel.sendToUsers("joinedChannel", client.id);
+        console.log(client.id, channelName)
+        channel.sendToUsers("joinedChannel", {clientId: client.id, channelId: channelName});
     }
 
     public deleteChannel(channelId: string)

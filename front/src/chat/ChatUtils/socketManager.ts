@@ -47,15 +47,18 @@ export function muteUser(data: ActionOnUser) {
 	socket?.emit("muteUser", data);
 }
 
-export function chatMenuHandler(handleActiveChannels:any, handleChannelCreated:any)
+export function chatMenuHandler(handleActiveChannels:any, handleChannelCreated:any, handleChannelJoined:any, handleError:any)
 {
         socket.on('channelNotFound', () => {})
 		socket.on('activeChannels', (channels:ChannelT) => handleActiveChannels(channels));
         socket.on('channelCreated', () => handleChannelCreated)
+        socket.on('joinedChannel', ({clientId, channelId}) => handleChannelJoined({clientId, channelId}))
+        socket.on('error', (message:string) => handleError(message))
+
+		
 }
 
 export function chatHandler(handleMessageReceived:any)
 {
-        socket.on("msgToChannel", ({sender, content}:messageT) => handleMessageReceived({sender, content}))
-        
+        socket.on("msgToChannel", ({sender, content}:messageT) => handleMessageReceived({sender, content}))      
 }
