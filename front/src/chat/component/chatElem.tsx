@@ -1,8 +1,8 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
 import { ChatContext } from "../ChatContext/chatContext";
-import { chatHandler, sendMessage, setSocketManager } from "../ChatUtils/socketManager";
+import { chatHandler, inviteClient, sendMessage, setSocketManager } from "../ChatUtils/socketManager";
 import Message from "../Elements/message";
-import {messageT} from "../ChatUtils/chatType"
+import {ClientInfoT, messageT, UserStateT} from "../ChatUtils/chatType"
 import { useNavigate } from "react-router-dom";
 
 export default function ChatElem()
@@ -10,30 +10,52 @@ export default function ChatElem()
 	const navigate = useNavigate();
     const lastMessageRef = useRef<HTMLDivElement | null>(null)
     const {socket, channel} = useContext(ChatContext)
-    const [message, setMessage] = useState<string>("")
+    const [form, setForm] = useState({
+        message:"",
+        invite:"",
+    })
     const [messagesList, setMessagesList] = useState<messageT[]>()
+    const [userState, setUserState] = useState<UserStateT>()
     
     const scrollToBottom = () => {
         lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
       }
 
     const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-        setMessage(e.target.value)
+        setForm((oldForm) => ({
+            ...oldForm,
+            [e.target.name]: e.target.value
+        }))
     }
 
-    const handleSubmit = (e:React.ChangeEvent<HTMLFormElement>) => {
+    const handleSubmitMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (message !== "")
+        if (form.message !== "")
         {
             setMessagesList((oldMessagesList) => (
-                oldMessagesList === undefined ? [{sender: socket!.id ,content: message}] :
-                    [...oldMessagesList, {sender: socket!.id ,content: message}]
+                oldMessagesList === undefined ? [{sender: socket!.id ,content: form.message}] :
+                    [...oldMessagesList, {sender: socket!.id ,content: form.message}]
             ))
-            console.log(message)
-            sendMessage(channel!, message)
+            console.log(form.message)
+            sendMessage(channel!, form.message)
         }
-        setMessage("")
-        console.log(channel)
+        setForm((oldForm) => ({
+            ...oldForm,
+            message: ""
+        }))
+    }
+
+	const handleSubmitInvite = (e:React.ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        if (form.invite !== "")
+        {
+			console.log(form.invite)
+            inviteClient({channelName:channel!, clientId: form.invite})
+        }
+        setForm((oldForm) => ({
+            ...oldForm,
+            invite: ""
+        }))
     }
 
     const handleMessageReceived = ({sender, content}:messageT) => {
@@ -48,12 +70,20 @@ export default function ChatElem()
     }
 
     const handleChannelDeleted = (message:string) => {
-        navigate("chat")
+        navigate(-1)
         window.alert(message)
     }
 
     const handleDelete = () => {
        socket?.emit("deleteChannel", channel)
+    }
+
+    const handleClientInfo = (data:ClientInfoT) => {
+        setUserState({
+            isOwner: data.isOwner,
+            isAdmin: data.isAdmin,
+            isMuted: data.isMuted
+        })
     }
 
     const messageElem = messagesList?.map((elem, index) => (
@@ -63,10 +93,9 @@ export default function ChatElem()
             message={elem}
             />
     ))
-
     useEffect(() => {
         setSocketManager(socket!)
-        chatHandler(handleMessageReceived, handleChannelDeleted)
+        chatHandler(handleMessageReceived, handleChannelDeleted, handleClientInfo)
 
     }, [])
 
@@ -76,19 +105,43 @@ export default function ChatElem()
 
     return (
         <div>
-            <button onClick={handleDelete}> supprimme  </button>
+            {
+                userState?.isAdmin &&
+                    <div>
+                        Owner 👑
+                        <form onSubmit={handleSubmitInvite}>
+                            <input style={{
+                                border: "1px solid black",
+                                marginRight: "15px"
+                            }}
+                            name="invite" type="text" value={form.invite} onChange={handleChange}/>
+                            <button type="submit" style={{
+                                height: "2vh",
+                                width: "10vh",
+                                backgroundColor: "#00ffff",
+                                borderRadius: "20px"
+                            }} >
+                                invite
+                            </button>
+                        </form>          
+                    </div>
+            }
+            {
+                userState?.isOwner &&
+                    <button onClick={handleDelete}> deleteChannel </button>
+            }
             <div className="border-4 border-dashed border-gray-200 rounded-lg h-96">
                 <div className="message-container">
                     {messageElem}
                     <div ref={lastMessageRef}/>
                 </div>
             </div>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmitMessage}>
                 <input style={{
                     border: "1px solid black",
                     marginRight: "15px"
                 }}
-                type="text" value={message} onChange={handleChange}/>
+                name='message' type="text" value={form.message} onChange={handleChange}/>
                 <button type="submit" style={{
                     height: "5vh",
                     width: "20vh",

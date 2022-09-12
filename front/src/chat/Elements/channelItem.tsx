@@ -1,9 +1,28 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from "react-router-dom";
-import { ChannelT } from '../ChatUtils/chatType';
+import { ChannelT, JoinChannelT } from '../ChatUtils/chatType';
 
 export default function ChannelItem(props:ChannelT)
 {
+    const [displayPassInput, setDisplayPassInput] = useState<boolean>(false)
+    const [password, setPassword] = useState<string>("")
+
+    const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+        setPassword(e.target.value)
+    }
+
+    const handleSubmit = (e:React.ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        let data:JoinChannelT
+        if (password !== "")
+        {
+            data = {channelName:props.channelId, password}
+            console.log(password)
+			props.handleJoinChannel(data)
+        }
+        setPassword("")
+    }
+    console.log(props.isPasswordProtected)
     return (
         <div style={{
             padding: "1em",
@@ -11,11 +30,32 @@ export default function ChannelItem(props:ChannelT)
         }}>
             <h1>{props.channelId}</h1>
             <h2>{props.nbClients} client dans ce channel</h2> 
-            <button onClick={() =>
-                props.handleJoinChannel(props.channelId)
-                }>
-                    JOIN
-            </button>
+            {
+                displayPassInput ?
+                    <form onSubmit={handleSubmit}>
+                        <input style={{
+                            border: "1px solid black",
+                            marginRight: "15px"
+                        }}
+                        type="text" value={password} onChange={handleChange}/>
+                        <button type="submit" style={{
+                            height: "3vh",
+                            width: "17vh",
+                            backgroundColor: "#00ffff",
+                            borderRadius: "20px"
+                        }} >
+                            send password
+                        </button>
+                    </form> :
+                <button onClick={() =>
+                    !props.isPasswordProtected ? 
+                        props.handleJoinChannel({channelName:props.channelId}) :
+                        setDisplayPassInput(true)
+                    }>
+                        JOIN
+                </button>
+            }
+            
         </div>
     )
 }

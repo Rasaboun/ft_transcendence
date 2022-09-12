@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { chatMenuHandler, createChannel, getActiveChannels, getSocket, initiateSocket, joinChannel } from "../ChatUtils/socketManager";
-import { ChannelT } from "../ChatUtils/chatType";
+import { ChannelT, JoinChannelT } from "../ChatUtils/chatType";
 import { ChatContext } from "../ChatContext/chatContext";
 import { useNavigate } from "react-router-dom";
 import ChannelItem from "../Elements/channelItem";
@@ -25,8 +25,8 @@ export default function ChatMenu()
 		
 	}
 
-	const handleJoinChannel = (channelId:string) => {
-		joinChannel(channelId)
+	const handleJoinChannel = (data:JoinChannelT) => {
+		joinChannel(data)
 	}
 
 	const handleChannelJoined = ({clientId, channelId}:{clientId:string, channelId:string}) => {
@@ -55,10 +55,14 @@ export default function ChatMenu()
 		window.alert(message)
 	}
 
+	const handleInvitation = (message:string) => {
+		window.alert(message)
+	}
+
 	useEffect(() => {
 		initiateSocket("http://localhost:8002/chat")
 		getActiveChannels()
-		chatMenuHandler(handleActiveChannels, handleChannelCreated, handleChannelJoined, handleError)
+		chatMenuHandler(handleActiveChannels, handleChannelCreated, handleChannelJoined, handleError, handleInvitation)
 		setSocket(getSocket())
 		getSocket().on('channelCreated',(message:string) => setChannel(message))
 	}, [])
