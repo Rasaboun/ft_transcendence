@@ -81,6 +81,10 @@ export class ChannelsService {
             throw new NotFoundException("Channel not found");
         
         const clientIndex = this.getClientIndex(channel.clients, clientId);
+
+        if (clientIndex == -1)
+                throw new NotFoundException("Target user does not exist");
+
         channel.clients[clientIndex].isAdmin = true;
         await this.channelRepository.update(channel.id, channel);
         
@@ -131,6 +135,20 @@ export class ChannelsService {
         }
         return client.isMuted;
     }
+
+    async isAdmin(channelName: string, clientId: string)
+    {
+        const channel: Channel = await this.findOneById(channelName);
+        if (channel == undefined)
+            throw new NotFoundException("This channel does not exist");
+
+        const client = channel.clients[this.getClientIndex(channel.clients, clientId)]
+        if (client == undefined)
+                throw new NotFoundException("Target user does not exist");
+        return client.isAdmin;
+
+    }
+
     async banClient(data: ActionOnUser) {
         const channel: Channel = await this.findOneById(data.channelName);  
         if (channel == undefined)
@@ -214,9 +232,8 @@ export class ChannelsService {
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
 
-        const id = channel.inviteList.indexOf(clientId);
-        console.log("Index", id);
-        return id == -1 ? false : true;
+        const index = channel.inviteList.indexOf(clientId);
+        return index == -1 ? false : true;
     }
 
     async getMessages(channelName: string) {
