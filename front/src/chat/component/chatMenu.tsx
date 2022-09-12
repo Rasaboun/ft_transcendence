@@ -55,7 +55,10 @@ export default function ChatMenu()
 	const channelsElem = channels?.map((elem, index) => (
 		<ChannelItem key={index}
 			channelId={elem.channelId}
-			clientsId={elem.clientsId}
+			nbClients={elem.nbClients}
+			isPrivate={elem.isPrivate}
+			isPasswordProtected={elem.isPasswordProtected}
+			owner={elem.owner}
 			handleJoinChannel={handleJoinChannel}
 			/>
 	))

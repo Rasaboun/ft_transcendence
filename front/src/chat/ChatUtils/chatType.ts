@@ -1,6 +1,9 @@
 export type ChannelT = {
 	channelId: string,
-	clientsId: string[]
+	nbClients: number,
+	isPrivate: boolean,
+	isPasswordProtected: boolean,
+	owner: string,
     handleJoinChannel: (channelId: string) => void
 }
 
