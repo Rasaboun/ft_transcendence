@@ -49,3 +49,10 @@ export type AddAdmin = {
 	channelName: string,
 	clientId: string,
 }
+
+export type CreateChannel = {
+	channelName: string,
+	isPrivate: boolean,
+	isPasswordProtected: boolean,
+	password: string,
+}

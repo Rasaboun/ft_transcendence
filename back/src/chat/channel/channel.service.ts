@@ -192,6 +192,16 @@ export class ChannelsService {
         await this.channelRepository.update(channel.id, channel);
     }
 
+    async unsetPassword(channelName: string)
+    {
+        const channel: Channel = await this.findOneById(channelName);  
+        if (channel == undefined)
+            throw new NotFoundException("This channel does not exist");
+        
+        channel.isPasswordProtected = false;   
+        await this.channelRepository.update(channel.id, channel);
+    }
+
     async setPrivateMode(channelName: string)
     {
         const channel: Channel = await this.findOneById(channelName);  
@@ -199,6 +209,17 @@ export class ChannelsService {
             throw new NotFoundException("This channel does not exist");
         
         channel.isPrivate = true;   
+        await this.channelRepository.update(channel.id, channel);
+    }
+
+    async unsetPrivateMode(channelName: string)
+    {
+        const channel: Channel = await this.findOneById(channelName);  
+        if (channel == undefined)
+            throw new NotFoundException("This channel does not exist");
+        
+        channel.isPrivate = false;
+        channel.inviteList = [];   
         await this.channelRepository.update(channel.id, channel);
     }
 

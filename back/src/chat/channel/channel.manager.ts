@@ -83,13 +83,25 @@ export class ChannelManager
                 throw new ForbiddenException("You are not invited to this channel");
             //add password as param
             this.channelsService.addClient(data.channelName, client.id, data.password) //change to real id
+
+            channel.addClient(client);
+            console.log(client.id, data.channelName)
+            channel.sendToUsers("joinedChannel", {clientId: client.id, channelId: data.channelName});
+            this.sendClientInfo(client, data.channelName);
         }
         catch (error) { throw error }
-        channel.addClient(client);
-        console.log(client.id, data.channelName)
-        channel.sendToUsers("joinedChannel", {clientId: client.id, channelId: data.channelName});
-        this.sendClientInfo(client, data.channelName);
     }
+
+    // public async leaveChannel(client: AuthenticatedSocket, channelName: string)
+    // {        
+    //     const channel: Channel = this.channels.get(channelName);
+    //     if (channel == undefined)
+    //         throw new NotFoundException("This channel does not exist anymore");
+    //     try {
+    //         await this.channelsService.removeClient(channelName, client.id);
+
+    //     } catch (error) { throw error }
+    // }
 
     public deleteChannel(channelId: string)
     {
@@ -128,6 +140,7 @@ export class ChannelManager
                 throw new ForbiddenException("You are not allowed to do this");
             
             await this.channelsService.muteClient(data);
+            this.channels.get(data.channelName).getClientSocket(data.targetId).emit("mutedInChannel");  
         } catch (error) {
             throw error;
         }
@@ -141,7 +154,8 @@ export class ChannelManager
 
             if (caller == undefined || caller.isAdmin == false)
                 throw new ForbiddenException("You are not allowed to do this");
-            await this.channelsService.banClient(data);    
+            await this.channelsService.banClient(data);
+            this.channels.get(data.channelName).getClientSocket(data.targetId).emit("bannedFromChannel");    
         } catch (error) {
             throw error;
         }
@@ -195,7 +209,7 @@ export class ChannelManager
         }
         catch (error) { throw error }
     
-        if (caller == undefined || caller.isAdmin == false)
+        if (caller == undefined || caller.isOwner == false)
             throw new ForbiddenException("You are not allowed to do this");
         
         try {    
@@ -206,23 +220,20 @@ export class ChannelManager
         }
     }
     
-    // public async unsetChannelPassword(clientId: string, channelName: string)
-    // {
-    //     let caller: ChannelClient;
-    //     try {
-    //         caller = await this.channelsService.getClientById(channelName, clientId);
-    //     }
-    //     catch (error) { throw error }
-
-    //     if (caller == undefined || caller.isAdmin == false)
-    //         throw new ForbiddenException("You are not allowed to do this");
-    //     try {    
-    //         await this.channelsService.unsetPassword(channelName, clientId);
-    //         this.channels.get(data.channelName).isPasswordProtected = false;
-    //     } catch (error) {
-    //         throw error;
-    //     }
-    // }
+    public async unsetChannelPassword(clientId: string, channelName: string)
+    {
+        let caller: ChannelClient;
+        try {
+            caller = await this.channelsService.getClientById(channelName, clientId);
+       
+            if (caller == undefined || caller.isOwner == false)
+                throw new ForbiddenException("You are not allowed to do this");  
+            
+            await this.channelsService.unsetPassword(channelName);
+            this.channels.get(channelName).isPasswordProtected = false;
+        }
+        catch (error) { throw error }
+    }
 
     public async setPrivateMode(clientId: string, channelName: string)
     {
@@ -230,7 +241,7 @@ export class ChannelManager
         try {
             caller = await this.channelsService.getClientById(channelName, clientId);
     
-            if (caller == undefined || caller.isAdmin == false)
+            if (caller == undefined || caller.isOwner == false)
                 throw new ForbiddenException("You are not allowed to do this");
             
                 await this.channelsService.setPrivateMode(channelName);
@@ -241,6 +252,21 @@ export class ChannelManager
         }
     }
 
+    public async unsetPrivateMode(clientId: string, channelName: string)
+    {
+        let caller: ChannelClient;
+        try {
+            caller = await this.channelsService.getClientById(channelName, clientId);
+       
+            if (caller == undefined || caller.isOwner == false)
+                throw new ForbiddenException("You are not allowed to do this");  
+            
+            await this.channelsService.unsetPassword(channelName);
+            this.channels.get(channelName).isPrivate = false;
+        }
+        catch (error) { throw error }
+    }
+
     public async sendClientInfo(client: AuthenticatedSocket, channelName: string)
     {
         const data: ChannelClient = await this.channelsService.getClientById(channelName, client.id)
@@ -248,8 +274,7 @@ export class ChannelManager
         client.emit("clientInfo", {
             isOwner: data.isOwner,
             isAdmin: data.isAdmin,
-            isMuted: await this.channelsService.isMuted(channelName, client.id),
-           
+            isMuted: await this.channelsService.isMuted(channelName, client.id),          
         })
     }
 
