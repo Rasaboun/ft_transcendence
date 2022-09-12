@@ -28,3 +28,13 @@ export type ActionOnUser = {
 	targetId:	string,
 	duration: number,
 }
+
+export type SetChannelPassword = {
+	channelName: string,
+	password: string,
+}
+
+export type InviteClient = {
+	channelName: string,
+	clientId: string,
+}

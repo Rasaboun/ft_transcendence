@@ -2,7 +2,7 @@ import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessa
 import { Socket, Server } from 'socket.io';
 import { Channel } from './channel/channel';
 import { ChannelManager } from './channel/channel.manager';
-import { ActionOnUser, AuthenticatedSocket } from './types/channel.type';
+import { ActionOnUser, AuthenticatedSocket, InviteClient, SetChannelPassword } from './types/channel.type';
 
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
@@ -53,7 +53,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		{
 			await this.channelManager.joinChannel(client, channelId);
 		}
-		catch (error) { client.emit('channelNotFound', error.message ) }
+		catch (error) { client.emit('error', error.message ) }
 		console.log(`Client ${client.id} joined channel ${channelId}`)
 	}
 
@@ -64,7 +64,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		{
 			this.channelManager.deleteChannel(channelId);
 		}
-		catch (error) { client.emit('channelNotFound', error.message ) }
+		catch (error) { client.emit('error', error.message ) }
 		console.log(`Client ${client.id} deleted channel ${channelId}`)
 
 	}
@@ -75,7 +75,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try {
 			await this.channelManager.sendMessage(data.channelId, {sender: client.id, content: data.message});
 		}
-		catch (error) { client.emit('channelNotFound', error.message ) }
+		catch (error) { client.emit('error', error.message ) }
 
 	}
 
@@ -103,4 +103,40 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		client.emit('activeChannels', this.channelManager.getActiveChannels());
 	}
 
+	@SubscribeMessage('setChannelPassword')
+	async setChannelPassword(client: AuthenticatedSocket, data: SetChannelPassword)
+	{
+		try {
+			await this.channelManager.setChannelPassword(client.id, data);
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	// @SubscribeMessage('unsetChannelPassword')
+	// async unsetChannelPassword(client: AuthenticatedSocket, channelName: string)
+	// {
+	// 	try {
+	// 		await this.channelManager.unsetChannelPassword(client.id, channelName);
+	// 	}
+	// 	catch (error) { client.emit('error', error.message ) }
+
+	// }
+
+	@SubscribeMessage('setPrivateMode')
+	async setPrivateMode(client: AuthenticatedSocket, channelName: string)
+	{
+		try {
+			await this.channelManager.setPrivateMode(client.id, channelName);
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('inviteClient')
+	async inviteClient(client: AuthenticatedSocket, data: InviteClient)
+	{
+		try {
+			await this.channelManager.inviteClient(client.id, data);
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
 }

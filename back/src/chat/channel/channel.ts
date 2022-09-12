@@ -4,10 +4,9 @@ import { AuthenticatedSocket, Message } from "../types/channel.type";
 
 export class Channel
 {
-    public readonly isPrivate:      boolean = false;
-    private         password:       string;
-
-    public          clients:        	Map<string, AuthenticatedSocket> = new Map<string, AuthenticatedSocket>();
+    public          isPasswordProtected:    boolean = false;
+    public          isPrivate:              boolean = false;
+    public          clients:        	    Map<string, AuthenticatedSocket> = new Map<string, AuthenticatedSocket>();
 
     constructor    ( private server: Server, public id : string) {}
 

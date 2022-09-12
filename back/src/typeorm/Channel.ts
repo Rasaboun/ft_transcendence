@@ -22,9 +22,22 @@ export class Channel {
     })
     messages: Message[];
 
-    @Column()
-    isPrivate: boolean;
+    @Column({
+        default: false,
+    })
+    isPasswordProtected: boolean;
 
     @Column()
     password: string;
+
+    @Column({
+        default: false,
+    })
+    isPrivate: boolean;
+
+    @Column('text', {
+        default: [],
+        array: true,
+    })
+    inviteList: string[];
 }

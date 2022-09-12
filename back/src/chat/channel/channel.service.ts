@@ -1,14 +1,17 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Channel } from "src/typeorm";
 import { CreateChannelDto } from "../dto/channel.dto";
-import { ActionOnUser, ChannelClient, Message } from "../types/channel.type";
-
+import { ActionOnUser, ChannelClient, InviteClient, Message, SetChannelPassword } from "../types/channel.type";
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class ChannelsService {
     @InjectRepository(Channel)
     private channelRepository: Repository<Channel>
+    
+    private readonly saltRounds: number = 10;
+
     findAll() {
         return this.channelRepository.find();
     }
@@ -24,6 +27,14 @@ export class ChannelsService {
             throw new NotFoundException("Channel not found");
 
         // Check password
+        console.log("Channel password", channel.password);
+        const password = "1234";
+        if (channel.isPasswordProtected)
+        {
+            const result = bcrypt.compareSync(password, channel.password);
+            if (!result)
+                throw new ForbiddenException("Wrong channel password");
+        }
 
         const newClient = new ChannelClient(clientId);
         
@@ -131,8 +142,7 @@ export class ChannelsService {
         
         client.isBanned = true;
         client.unbanDate = (new Date().getTime() / 1000) + data.duration;
-        await this.channelRepository.update(channel.id, channel);
-        
+        await this.channelRepository.update(channel.id, channel);        
     }
 
     async unbanClient(channelName: string, clientId: string)
@@ -147,6 +157,37 @@ export class ChannelsService {
         
         channel.clients[clientIndex].isBanned = false;
         channel.clients[clientIndex].unbanDate = 0;
+    }
+
+    async setPassword(data: SetChannelPassword)
+    {
+        const channel: Channel = await this.findOneById(data.channelName);  
+        if (channel == undefined)
+            throw new NotFoundException("This channel does not exist");
+        
+        channel.isPasswordProtected = true;   
+        channel.password = bcrypt.hashSync(data.password, this.saltRounds);
+        await this.channelRepository.update(channel.id, channel);
+    }
+
+    async setPrivateMode(channelName: string)
+    {
+        const channel: Channel = await this.findOneById(channelName);  
+        if (channel == undefined)
+            throw new NotFoundException("This channel does not exist");
+        
+        channel.isPrivate = true;   
+        await this.channelRepository.update(channel.id, channel);
+    }
+
+    async inviteClient(data: InviteClient)
+    {
+        const channel: Channel = await this.findOneById(data.channelName);  
+        if (channel == undefined)
+            throw new NotFoundException("This channel does not exist");
+        
+        channel.inviteList.push(data.clientId); // Get user with id and throw error if does not exist
+        await this.channelRepository.update(channel.id, channel);
     }
 
     async isBanned(channelName: string, clientId: string): Promise<boolean>
@@ -165,6 +206,17 @@ export class ChannelsService {
             return false;
         }
         return client.isBanned;
+    }
+
+    async isInvited(channelName: string, clientId: string): Promise<boolean>
+    {
+        const channel: Channel = await this.findOneById(channelName);
+        if (channel == undefined)
+            throw new NotFoundException("This channel does not exist");
+
+        const id = channel.inviteList.indexOf(clientId);
+        console.log("Index", id);
+        return id == -1 ? false : true;
     }
 
     async getMessages(channelName: string) {
