@@ -2,7 +2,7 @@ import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessa
 import { Socket, Server } from 'socket.io';
 import { Channel } from './channel/channel';
 import { ChannelManager } from './channel/channel.manager';
-import { ActionOnUser, AddAdmin, AuthenticatedSocket, InviteClient, SetChannelPassword } from './types/channel.type';
+import { ActionOnUser, AddAdmin, AuthenticatedSocket, InviteClient, JoinChannel, SetChannelPassword } from './types/channel.type';
 
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
@@ -47,14 +47,14 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('joinChannel')
-	async joinChannel(client: AuthenticatedSocket, channelId: string)
+	async joinChannel(client: AuthenticatedSocket, data: JoinChannel)
 	{
 		try
 		{
-			await this.channelManager.joinChannel(client, channelId);
+			await this.channelManager.joinChannel(client, data);
 		}
 		catch (error) { client.emit('error', error.message ) }
-		console.log(`Client ${client.id} joined channel ${channelId}`)
+		console.log(`Client ${client.id} joined channel ${data.channelName}`)
 	}
 
 	@SubscribeMessage('deleteChannel')

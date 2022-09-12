@@ -17,8 +17,9 @@ export class Channel
         client.join(this.id);
         client.data.channel = this;
         console.log(this.id)
+        
 
-        console.log("Channel clients ", this.clients.size)
+        console.log("Channel clients ", this.clients.size);
     }
 
     public removeClient(client: AuthenticatedSocket)

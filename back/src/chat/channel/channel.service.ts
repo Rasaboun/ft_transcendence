@@ -20,15 +20,13 @@ export class ChannelsService {
         return this.channelRepository.findOneBy({ name })
     }
 
-    async addClient(channelName: string, clientId: string) {
+    async addClient(channelName: string, clientId: string, password?: string) {
         const channel: Channel = await this.findOneById(channelName);
 
         if (!channel)
             throw new NotFoundException("Channel not found");
 
-        // Check password
-        console.log("Channel password", channel.password);
-        const password = "1234";
+
         if (channel.isPasswordProtected)
         {
             const result = bcrypt.compareSync(password, channel.password);
@@ -37,7 +35,8 @@ export class ChannelsService {
         }
 
         const newClient = new ChannelClient(clientId);
-        
+        if (channel.ownerId == clientId)
+            newClient.isOwner = true;
         channel.clients.push(newClient);
         await this.channelRepository.update(channel.id, channel);
     }

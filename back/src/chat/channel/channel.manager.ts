@@ -1,7 +1,7 @@
 import { ForbiddenException, forwardRef, Inject, NotFoundException } from "@nestjs/common";
 import { Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
-import { ActionOnUser, AddAdmin, AuthenticatedSocket, ChannelClient, InviteClient, Message, SetChannelPassword } from "../types/channel.type";
+import { ActionOnUser, AddAdmin, AuthenticatedSocket, ChannelClient, InviteClient, JoinChannel, Message, SetChannelPassword } from "../types/channel.type";
 import { Channel } from "./channel";
 import { ChannelsService } from "./channel.service";
 
@@ -63,30 +63,32 @@ export class ChannelManager
             });
         await this.channelsService.addClient(channel.id, client.id);//change to real id
         await this.channelsService.addAdmin(channel.id, client.id);//change to real id
-        this.channelsService.setPassword({channelName: channelName, password: "1234"}); //tmp
+
+        this.sendClientInfo(client, channelName);
         return channel;
     }
 
-    public async joinChannel(client: AuthenticatedSocket, channelName: string)
+    public async joinChannel(client: AuthenticatedSocket, data: JoinChannel)
     {        
-        const channel: Channel = this.channels.get(channelName);
+        const channel: Channel = this.channels.get(data.channelName);
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist anymore");
 
-        if (await this.channelsService.isBanned(channelName, client.id) == true)
+        if (await this.channelsService.isBanned(data.channelName, client.id) == true)
             throw new ForbiddenException("You are banned from this channel");
 
         try
         {
-            if (channel.isPrivate && !(await this.channelsService.isInvited(channelName, client.id)))
+            if (channel.isPrivate && !(await this.channelsService.isInvited(data.channelName, client.id)))
                 throw new ForbiddenException("You are not invited to this channel");
             //add password as param
-            this.channelsService.addClient(channelName, client.id) //change to real id
+            this.channelsService.addClient(data.channelName, client.id, data.password) //change to real id
         }
         catch (error) { throw error }
         channel.addClient(client);
-        console.log(client.id, channelName)
-        channel.sendToUsers("joinedChannel", {clientId: client.id, channelId: channelName});
+        console.log(client.id, data.channelName)
+        channel.sendToUsers("joinedChannel", {clientId: client.id, channelId: data.channelName});
+        this.sendClientInfo(client, data.channelName);
     }
 
     public deleteChannel(channelId: string)
@@ -237,6 +239,18 @@ export class ChannelManager
         catch (error) {
             throw error;
         }
+    }
+
+    public async sendClientInfo(client: AuthenticatedSocket, channelName: string)
+    {
+        const data: ChannelClient = await this.channelsService.getClientById(channelName, client.id)
+
+        client.emit("clientInfo", {
+            isOwner: data.isOwner,
+            isAdmin: data.isAdmin,
+            isMuted: await this.channelsService.isMuted(channelName, client.id),
+           
+        })
     }
 
     public getChannel(channelId: string)

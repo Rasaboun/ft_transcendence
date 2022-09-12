@@ -8,6 +8,7 @@ export type AuthenticatedSocket = Socket & {
 }
 
 export class ChannelClient {
+	public isOwner: boolean = false;
 	public isAdmin: boolean = false;
 	public isMuted: boolean = false;
 	public isBanned: boolean = false;
@@ -27,6 +28,11 @@ export type ActionOnUser = {
 	channelName: string,
 	targetId:	string,
 	duration: number,
+}
+
+export type JoinChannel = {
+	channelName: string,
+	password: string,
 }
 
 export type SetChannelPassword = {
