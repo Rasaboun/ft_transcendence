@@ -32,7 +32,7 @@ export type ActionOnUser = {
 
 export type JoinChannel = {
 	channelName: string,
-	password: string,
+	password: string|undefined,
 }
 
 export type SetChannelPassword = {

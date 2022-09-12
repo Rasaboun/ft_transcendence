@@ -53,6 +53,7 @@ export class ChannelManager
         
         channel.owner = client.id;
         channel.addClient(client);
+        channel.isPasswordProtected = true;
         this.channels.set(channel.id, channel);
         await this.channelsService.createChannel( //change to just the name
             {
@@ -63,14 +64,17 @@ export class ChannelManager
             });
         await this.channelsService.addClient(channel.id, client.id);//change to real id
         await this.channelsService.addAdmin(channel.id, client.id);//change to real id
-
+        await this.channelsService.setPassword({channelName, password:"1234"})
         this.sendClientInfo(client, channelName);
         return channel;
     }
 
     public async joinChannel(client: AuthenticatedSocket, data: JoinChannel)
-    {        
+    {
+        console.log("ffdsfsdf", data.password)
         const channel: Channel = this.channels.get(data.channelName);
+        console.log("ffdsfsdf", data.channelName)
+
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist anymore");
 
@@ -82,7 +86,7 @@ export class ChannelManager
             if (channel.isPrivate && !(await this.channelsService.isInvited(data.channelName, client.id)))
                 throw new ForbiddenException("You are not invited to this channel");
             //add password as param
-            this.channelsService.addClient(data.channelName, client.id, data.password) //change to real id
+            await this.channelsService.addClient(data.channelName, client.id, data.password) //change to real id
         }
         catch (error) { throw error }
         channel.addClient(client);
@@ -176,15 +180,17 @@ export class ChannelManager
         let caller: ChannelClient;
         try {
             caller = await this.channelsService.getClientById(data.channelName, clientId);
- 
             if (caller == undefined || caller.isAdmin == false)
                 throw new ForbiddenException("You are not allowed to do this");
-            
+            this.setPrivateMode(clientId, data.channelName);
             // Send notification ?
-            await this.channelsService.inviteClient(data); 
+            await this.channelsService.inviteClient(data);
+            //console.log(this.channels.get(data.channelName).getClientSocket(data.clientId))
+            //need session this.channels.get(data.channelName).getClientSocket(data.clientId).emit("InvitedToChannel", data.channelName)
         } catch (error) {
             throw error;
         }
+
     }
 
     public async setChannelPassword(clientId: string, data: SetChannelPassword)
@@ -244,12 +250,12 @@ export class ChannelManager
     public async sendClientInfo(client: AuthenticatedSocket, channelName: string)
     {
         const data: ChannelClient = await this.channelsService.getClientById(channelName, client.id)
-
+        console.log(data);
         client.emit("clientInfo", {
             isOwner: data.isOwner,
             isAdmin: data.isAdmin,
             isMuted: await this.channelsService.isMuted(channelName, client.id),
-           
+
         })
     }
 
