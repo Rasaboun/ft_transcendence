@@ -254,13 +254,15 @@ export class ChannelManager
             nbClients: number,
             isPrivate: boolean,
             isPasswordProtected: boolean,
+            owner: string,
         }[] = [];
         this.channels.forEach((channel, id) => {
             res.push({
                         channelId: id,
                         nbClients: channel.clients.size,
                         isPrivate: channel.isPrivate,
-                        isPasswordProtected: channel.isPasswordProtected
+                        isPasswordProtected: channel.isPasswordProtected,
+                        owner: channel.owner,
                         
                     })
         });
