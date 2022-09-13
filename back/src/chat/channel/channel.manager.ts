@@ -1,7 +1,7 @@
 import { ForbiddenException, forwardRef, Inject, NotFoundException } from "@nestjs/common";
 import { Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
-import { ActionOnUser, AddAdmin, AuthenticatedSocket, ChannelClient, ChannelModes, InviteClient, JoinChannel, Message, SetChannelPassword } from "../types/channel.type";
+import { ActionOnUser, AddAdmin, AuthenticatedSocket, ChannelClient, ChannelInfo, ChannelModes, InviteClient, JoinChannel, Message, MutedException, SetChannelPassword } from "../types/channel.type";
 import { Channel } from "./channel";
 import { ChannelsService } from "./channel.service";
 
@@ -105,14 +105,15 @@ export class ChannelManager
             
             channel.addClient(client);
             console.log(client.id, data.channelName)
-            channel.sendToUsers("joinedChannel", {clientId: client.id, channelId: data.channelName});
+            channel.sendToUsers("joinedChannel", {clientId: client.id, channelInfo: channel.getInfo});
             this.sendClientInfo(client, data.channelName);
         }
         catch (error) { throw error }
     }
 
     public async leaveChannel(clientId: string, channelName: string)
-    {   try
+    {
+        try
         {    
             const channel: Channel = this.channels.get(channelName);
             if (channel == undefined)
@@ -168,8 +169,11 @@ export class ChannelManager
             throw new NotFoundException("This channel does not exist");
         
         if (await this.channelsService.isMuted(channelId, msg.sender) == true)
-            throw new ForbiddenException("You are muted on this channel");
-
+        { 
+            const mutedTimeRemaining = (await this.channelsService.getClientById(channelId, msg.sender)).unmuteDate - new Date().getTime() / 1000;
+            throw new MutedException("You are muted on this channel", mutedTimeRemaining);
+        }
+        this.channelsService.getClientById
         channel.sendMessage(msg.sender, msg.content);
         await this.channelsService.addMessage(channelId, msg);
     }
@@ -333,12 +337,8 @@ export class ChannelManager
 
     public getActiveChannels()
     {
-        let res: {
-            channelId: string,
-            nbClients: number,
-            mode: ChannelModes,
-            owner: string,
-        }[] = [];
+        let res: ChannelInfo[] = [];
+
         this.channels.forEach((channel, id) => {
             res.push({
                         channelId: id,

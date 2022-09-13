@@ -1,3 +1,4 @@
+import { HttpException } from "@nestjs/common";
 import { Socket } from "socket.io"
 import { Channel } from "../channel/channel"
 
@@ -24,6 +25,15 @@ export enum ChannelModes {
 	Public,
 	Private,
 	Password,
+}
+
+export class MutedException extends HttpException
+{
+
+    constructor(objectOrError?: string | object | any, time?: number, description?: string)
+	{
+		super(objectOrError, 401);
+	}
 }
 
 export type Message = {
@@ -63,4 +73,11 @@ export type CreateChannel = {
 	mode: ChannelModes,
 	password: string,
 	ownerId: string
+}
+
+export type ChannelInfo = {
+	channelId: string,
+	nbClients: number,
+	mode: ChannelModes,
+	owner: string,
 }

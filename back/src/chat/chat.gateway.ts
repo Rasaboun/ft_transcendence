@@ -62,7 +62,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try {
 			const channel = await this.channelManager.createChannel(client, channelName);
 			channel.addClient(client);
-			client.emit("channelCreated", channel.id);
+			client.emit("channelCreated", channel.getInfo());
 		}
 		catch (error) { return client.emit('error', error.message)}
 	}

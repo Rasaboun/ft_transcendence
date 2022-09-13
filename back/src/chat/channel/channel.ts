@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { Server } from "socket.io";
-import { AuthenticatedSocket, ChannelModes, Message } from "../types/channel.type";
+import { AuthenticatedSocket, ChannelInfo, ChannelModes, Message } from "../types/channel.type";
 
 export class Channel
 {
@@ -36,6 +36,17 @@ export class Channel
             clientsIdArray.push(id);
         })
         return clientsIdArray;
+    }
+
+    public getInfo(): ChannelInfo
+    {
+        const res: ChannelInfo = {
+            channelId: this.id,
+            mode: this.mode,
+            nbClients: this.getNbClients(),
+            owner: this.owner,
+        }
+        return res;
     }
 
     public isPublic(): boolean { return this.mode == ChannelModes.Public }
