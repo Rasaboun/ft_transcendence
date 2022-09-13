@@ -1,9 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import axios from "axios";
 import './output.css';
 
 
+
+const url:string = "http://localhost:3001/users"
+
+interface Iuser {
+	id: number;
+	photoUrl:string;
+
+}
 export default function Dashboard() {
-	const tab:number[] = [1,2,3,4,5];
+
+	const [users, setUsers] = React.useState<Iuser[]>([]);
+	
+	
+	
+	
+	useEffect(() => { axios.get(url).then((response) => { setUsers(response.data);})                   })
+	
+	
 	return (
 	<div id="Dashboard" className="flex-1">
 	<header className="bg-white shadow">
@@ -18,7 +35,7 @@ export default function Dashboard() {
 		<div className="border-4 border-dashed border-gray-200 rounded-lg h-96" >
 
 			{
-			tab.map((number) => <h1>number</h1>)
+			users.map((user:Iuser) => <h1>user.id</h1>)
 			}
 			</div>
 	</div>
