@@ -63,7 +63,7 @@ export class ChannelManager
             });
         await this.channelsService.addClient(channel.id, client.id);//change to real id
         await this.channelsService.addAdmin(channel.id, client.id);//change to real id
-
+        channel.sendToUsers("joinedChannel", {clientId: client.id, channelId: channelName});
         this.sendClientInfo(client, channelName);
         return channel;
     }
@@ -177,7 +177,7 @@ export class ChannelManager
                 throw new ForbiddenException("You are not allowed to do this");
             
             await this.channelsService.muteClient(data);
-            this.channels.get(data.channelName).getClientSocket(data.targetId).emit("mutedInChannel");  
+            this.channels.get(data.channelName).sendToUsers("mutedInChannel", data.targetId);  
         } catch (error) {
             throw error;
         }
@@ -192,7 +192,7 @@ export class ChannelManager
             if (caller == undefined || caller.isAdmin == false)
                 throw new ForbiddenException("You are not allowed to do this");
             await this.channelsService.banClient(data);
-            this.channels.get(data.channelName).getClientSocket(data.targetId).emit("bannedFromChannel");    
+            this.channels.get(data.channelName).sendToUsers("bannedFromChannel", data.targetId);    
         } catch (error) {
             throw error;
         }
@@ -208,12 +208,15 @@ export class ChannelManager
         try {
             if (!this.channelsService.isAdmin(data.channelName, clientId) || data.clientId == channel.owner)
                 throw new ForbiddenException("You are not allowed to do this");
-            if (this.channelsService.isAdmin(data.channelName, data.clientId))
+            if (await this.channelsService.isAdmin(data.channelName, data.clientId))
             {
+                console.log("is ALREADY admin")
+
                 channel.getClientSocket(clientId).emit("isAlreadyAdmin");
                 return ;
             }
             await this.channelsService.addAdmin(data.channelName, data.clientId);
+            console.log("is admin")
             channel.getClientSocket(data.clientId).emit("addAdmin");
         }
         catch (error) {

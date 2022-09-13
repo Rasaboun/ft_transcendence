@@ -30,6 +30,7 @@ export default function ChatMenu()
 	}
 
 	const handleChannelJoined = ({clientId, channelId}:{clientId:string, channelId:string}) => {
+		console.log("herreee")
 		if (getSocket().id === clientId)
 		{
 			setChannel(channelId)
@@ -46,7 +47,8 @@ export default function ChatMenu()
         if (name !== "")
         {
 			newChannel(name)
-			navigate("message")
+			console.log("navigaate")
+			
         }
         setName("")
     }

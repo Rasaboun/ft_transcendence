@@ -165,6 +165,7 @@ export class ChannelsService {
         const client = channel.clients[this.getClientIndex(channel.clients, clientId)]
         if (client == undefined)
                 throw new NotFoundException("Target user does not exist");
+        console.log(client);
         return client.isAdmin;
 
     }

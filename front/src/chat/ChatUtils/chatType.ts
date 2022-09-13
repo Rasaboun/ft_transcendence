@@ -8,8 +8,9 @@ export type ChannelT = {
 }
 
 export type messageT = {
-    sender : string,
-    content : string
+    sender? : string,
+    content : string,
+	isInfo?: boolean
 }
 
 export type ActionOnUser = {
@@ -38,6 +39,16 @@ export type ClientInfoT = {
 }
 
 export type InviteClientT = {
+	channelName: string,
+	clientId: string,
+}
+
+export type SetChannelPasswordT = {
+	channelName: string,
+	password: string,
+}
+
+export type AddAdminT = {
 	channelName: string,
 	clientId: string,
 }

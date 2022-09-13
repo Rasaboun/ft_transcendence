@@ -4,6 +4,7 @@ import { chatHandler, inviteClient, sendMessage, setSocketManager } from "../Cha
 import Message from "../Elements/message";
 import {ClientInfoT, messageT, UserStateT} from "../ChatUtils/chatType"
 import { useNavigate } from "react-router-dom";
+import InfoMessage from "../Elements/InfoMessage";
 
 export default function ChatElem()
 {
@@ -30,19 +31,30 @@ export default function ChatElem()
 
     const handleSubmitMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (form.message !== "")
+        const mutedMessage = "you are muted: 60sec left"
+        if(!userState?.isMuted)
         {
-            setMessagesList((oldMessagesList) => (
-                oldMessagesList === undefined ? [{sender: socket!.id ,content: form.message}] :
-                    [...oldMessagesList, {sender: socket!.id ,content: form.message}]
-            ))
-            console.log(form.message)
-            sendMessage(channel!, form.message)
+            if (form.message !== "")
+            {
+                setMessagesList((oldMessagesList) => (
+                    oldMessagesList === undefined ? [{sender: socket!.id ,content: form.message}] :
+                        [...oldMessagesList, {sender: socket!.id ,content: form.message}]
+                ))
+                console.log(form.message)
+                sendMessage(channel!, form.message)
+            }
+            setForm((oldForm) => ({
+                ...oldForm,
+                message: ""
+            }))
         }
-        setForm((oldForm) => ({
-            ...oldForm,
-            message: ""
-        }))
+        else {
+            setMessagesList((oldMessagesList) => (
+                oldMessagesList === undefined ? [{content: mutedMessage, isInfo: true}] :
+                    [...oldMessagesList, {content: mutedMessage, isInfo: true}]
+            ))
+        }
+
     }
 
 	const handleSubmitInvite = (e:React.ChangeEvent<HTMLFormElement>) => {
@@ -86,16 +98,61 @@ export default function ChatElem()
         })
     }
 
+    const handleAddAdmin = () => {
+        console.log("dsfkshkjfhsdjkh")
+        setUserState((oldUserState) => ({
+            ...oldUserState!,
+            isAdmin: true
+            })
+        )
+    }
+
+    
+
+    const handleBannedFromChannel = (id:string) => {
+        const message = id === socket?.id ? 
+            "You have been banned from the chat" :
+            `${id} has been banned from the chat`
+
+        setMessagesList((oldMessagesList) => (
+            oldMessagesList === undefined ? [{content: message, isInfo: true}] :
+                [...oldMessagesList, {content: message, isInfo: true}]
+        ))
+    }
+
+    
+
+    const handleMutedFromChannel = (id:string) => {
+        const message = id === socket?.id ? 
+            "You have been muted 60 sec" :
+            `${id} has been muted for 60 sec`
+
+        setMessagesList((oldMessagesList) => (
+            oldMessagesList === undefined ? [{content: message, isInfo: true}] :
+                [...oldMessagesList, {content: message, isInfo: true}]
+        ))
+        if (id === socket?.id)
+        {
+            setUserState((oldUserState) => ({
+                ...oldUserState!,
+                isMuted: true
+                })
+            )
+        }
+    }
+
     const messageElem = messagesList?.map((elem, index) => (
-        <Message key={index} 
-            className={elem.sender === socket?.id ?
-                "message message-right" : "message message-left"}
-            message={elem}
+        elem.isInfo ? 
+            <InfoMessage key={index} message={elem}/> :
+            <Message key={index} 
+                className={elem.sender === socket?.id ?
+                    "message message-right" : "message message-left"}
+                message={elem}
             />
     ))
     useEffect(() => {
         setSocketManager(socket!)
-        chatHandler(handleMessageReceived, handleChannelDeleted, handleClientInfo)
+        chatHandler(handleMessageReceived, handleChannelDeleted, handleClientInfo, handleBannedFromChannel, handleMutedFromChannel, handleAddAdmin)
 
     }, [])
 
@@ -103,6 +160,7 @@ export default function ChatElem()
        scrollToBottom()
     }, [messagesList])
 
+    console.log(userState?.isAdmin)
     return (
         <div>
             {
@@ -122,6 +180,9 @@ export default function ChatElem()
                                 borderRadius: "20px"
                             }} >
                                 invite
+                            </button>
+                            <button>
+                                
                             </button>
                         </form>          
                     </div>

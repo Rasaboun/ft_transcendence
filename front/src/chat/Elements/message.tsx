@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import "../chat.css"
+import { ChatContext } from "../ChatContext/chatContext";
 import { messageT } from "../ChatUtils/chatType";
 import MessageOption from "./messageOption";
 
@@ -11,6 +12,7 @@ type MessagePropsT = {
 export default function Message({className, message}:MessagePropsT)
 {
     const [isHover, setIsHover] = useState<boolean>(false)
+    const {socket} = useContext(ChatContext)
 
     const handleOnMouseOver = () => {
         setIsHover(true)
@@ -23,8 +25,8 @@ export default function Message({className, message}:MessagePropsT)
     return(
         <div className={className}>
             {
-                isHover &&
-                    <MessageOption handleMouseLeave={handleMouseLeave} sender={message.sender}/>
+                isHover && socket?.id !== message.sender && !message.isInfo &&
+                    <MessageOption handleMouseLeave={handleMouseLeave} sender={message.sender!}/>
             }
             {<h4 onMouseOver={handleOnMouseOver} style={{
                 color: "red"
