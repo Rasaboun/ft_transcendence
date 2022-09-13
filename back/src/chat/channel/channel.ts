@@ -38,7 +38,6 @@ export class Channel
         })
         return clientsIdArray;
     }
-
     public sendMessage(clientId: string, message: string) { this.server.to(this.id).emit("msgToChannel", {sender: clientId, content: message})}
 
     public sendToUsers(event: string, data: any) { this.server.to(this.id).emit(event, data); }

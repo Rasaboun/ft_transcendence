@@ -29,12 +29,12 @@ export class ChannelsService {
 
         if (channel.isPasswordProtected)
         {
-            const result = bcrypt.compareSync(password, channel.password);
-            if (!result)
+            if (!(await this.checkPassword(channelName, password)))
                 throw new ForbiddenException("Wrong channel password");
         }
 
         const newClient = new ChannelClient(clientId);
+        console.log("Date: ", newClient.joinedDate);
         if (channel.ownerId == clientId)
             newClient.isOwner = true;
         channel.clients.push(newClient);
@@ -92,6 +92,22 @@ export class ChannelsService {
         channel.clients[clientIndex].isAdmin = true;
         await this.channelRepository.update(channel.id, channel);
         
+    }
+
+    async setNewOwner(channelName: string, newOwnerId: string)
+    {
+        const channel: Channel = await this.findOneById(channelName);
+
+        if (!channel)
+            throw new NotFoundException("Channel not found");
+        const clientIndex = this.getClientIndex(channel.clients, newOwnerId);
+
+        if (clientIndex == -1)
+                throw new NotFoundException("Target user does not exist");
+
+        channel.clients[clientIndex].isAdmin = true;
+        channel.ownerId = newOwnerId;
+        await this.channelRepository.update(channel.id, channel);
     }
 
     async muteClient(data: ActionOnUser) {
@@ -233,6 +249,15 @@ export class ChannelsService {
         await this.channelRepository.update(channel.id, channel);
     }
 
+    async checkPassword(channelName: string, password: string): Promise<boolean>
+    {
+        const channel: Channel = await this.findOneById(channelName);
+        if (channel == undefined)
+            throw new NotFoundException("This channel does not exist");
+        return bcrypt.compareSync(password, channel.password);
+
+    }
+
     async isBanned(channelName: string, clientId: string): Promise<boolean>
     {
         const channel: Channel = await this.findOneById(channelName);
@@ -249,6 +274,16 @@ export class ChannelsService {
             return false;
         }
         return client.isBanned;
+    }
+
+    async isClient(channelName: string, clientId: string)
+    {
+        const channel: Channel = await this.findOneById(channelName);
+        if (channel == undefined)
+            throw new NotFoundException("This channel does not exist");
+
+        const index = this.getClientIndex(channel.clients, clientId);
+        return index == -1 ? false : true;
     }
 
     async isInvited(channelName: string, clientId: string): Promise<boolean>
@@ -268,6 +303,24 @@ export class ChannelsService {
             throw new NotFoundException("Channel not found");
 
         return channel.messages;
+    }
+
+    async getClientMessages(channelName: string, clientId: string): Promise<Message[]>
+    {
+        const channel: Channel = await this.findOneById(channelName);
+        if (channel == undefined)
+            throw new NotFoundException("This channel does not exist");
+
+        const index = this.getClientIndex(channel.clients, clientId);
+        if (index == -1)
+            throw new NotFoundException("User is not in this channel");
+        
+        const joinedDate: Date = channel.clients[index].joinedDate;
+        let firstMessage = 0;
+        while (joinedDate > new Date(channel.messages[firstMessage].date))
+            firstMessage++;
+        return channel.messages.slice(firstMessage);
+
     }
 
     async getClientById(channelName: string, clientId: string) {

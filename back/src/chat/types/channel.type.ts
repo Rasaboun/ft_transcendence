@@ -14,6 +14,7 @@ export class ChannelClient {
 	public isBanned: boolean = false;
 	public unmuteDate: number = 0;
 	public unbanDate: number = 0;
+	public joinedDate: Date = new Date();
 	constructor(
 		public id: string
 	){}
@@ -22,6 +23,7 @@ export class ChannelClient {
 export type Message = {
 	sender: string,
 	content: string,
+	date?: string,
 }
 
 export type ActionOnUser = {

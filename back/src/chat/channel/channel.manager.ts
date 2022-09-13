@@ -53,7 +53,6 @@ export class ChannelManager
         
         channel.owner = client.id;
         channel.addClient(client);
-        channel.isPasswordProtected = true;
         this.channels.set(channel.id, channel);
         await this.channelsService.createChannel( //change to just the name
             {
@@ -64,16 +63,14 @@ export class ChannelManager
             });
         await this.channelsService.addClient(channel.id, client.id);//change to real id
         await this.channelsService.addAdmin(channel.id, client.id);//change to real id
-        await this.channelsService.setPassword({channelName, password:"1234"})
+
         this.sendClientInfo(client, channelName);
         return channel;
     }
 
     public async joinChannel(client: AuthenticatedSocket, data: JoinChannel)
     {
-        console.log("ffdsfsdf", data.password)
         const channel: Channel = this.channels.get(data.channelName);
-        console.log("ffdsfsdf", data.channelName)
 
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist anymore");
@@ -85,7 +82,19 @@ export class ChannelManager
         {
             if (channel.isPrivate && !(await this.channelsService.isInvited(data.channelName, client.id)))
                 throw new ForbiddenException("You are not invited to this channel");
-            //add password as param
+            
+            // A TESTER    
+            // if (await this.channelsService.isClient(data.channelName, client.id))
+            // {
+            //     if (channel.isPasswordProtected && !(await this.channelsService.checkPassword(data.channelName, data.password)))
+            //         throw new ForbiddenException("Wrong channel password");
+            //     const messages: Message[] = await this.channelsService.getClientMessages(data.channelName, client.id);
+            //     client.emit("connectedToChannel", {
+            //         channelName: data.channelName,
+            //         messages: messages,
+            //     })
+            // }
+
             await this.channelsService.addClient(data.channelName, client.id, data.password) //change to real id
             
             channel.addClient(client);
@@ -96,16 +105,40 @@ export class ChannelManager
         catch (error) { throw error }
     }
 
-    // public async leaveChannel(client: AuthenticatedSocket, channelName: string)
-    // {        
-    //     const channel: Channel = this.channels.get(channelName);
-    //     if (channel == undefined)
-    //         throw new NotFoundException("This channel does not exist anymore");
-    //     try {
-    //         await this.channelsService.removeClient(channelName, client.id);
+    public async leaveChannel(clientId: string, channelName: string)
+    {   try
+        {    
+            const channel: Channel = this.channels.get(channelName);
+            if (channel == undefined)
+                throw new NotFoundException("This channel does not exist anymore");
+            
+            await this.channelsService.removeClient(channelName, clientId);
+            if (channel.getNbClients() == 1)
+            {
+                this.channels.delete(channelName);
+                await this.channelsService.deleteChannel(channelName);
+                return ;
+            }
+            let newOwnerSocket: AuthenticatedSocket = null;
+            if (channel.owner == clientId)
+            {
+                channel.clients.forEach((socket, id) => {
+                    if (this.channelsService.isAdmin(channelName, id) && id != clientId)
+                        newOwnerSocket =  socket;
+                })
+            }
+            if (newOwnerSocket == null)
+            {
+                channel.clients.forEach((socket, id) => {
+                    if (id != clientId)
+                        newOwnerSocket =  socket;
+                })
+            }
+            channel.owner = newOwnerSocket.id;
+            await this.channelsService.setNewOwner(channelName, newOwnerSocket.id);
 
-    //     } catch (error) { throw error }
-    // }
+        } catch (error) { throw error }
+    }
 
     public deleteChannel(channelId: string)
     {
@@ -124,7 +157,7 @@ export class ChannelManager
     public async sendMessage(channelId: string, msg: Message)
     {
         const channel: Channel = this.channels.get(channelId);
-        
+        msg.date = new Date().toString();
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
         
@@ -132,7 +165,7 @@ export class ChannelManager
             throw new ForbiddenException("You are muted on this channel");
 
         channel.sendMessage(msg.sender, msg.content);
-        this.channelsService.addMessage(channelId, msg);
+        await this.channelsService.addMessage(channelId, msg);
     }
 
     public async muteUser(clientId: string, data: ActionOnUser)

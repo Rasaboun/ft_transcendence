@@ -34,17 +34,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		
 	}
 
-	@SubscribeMessage('createChannel')
-	async createChannel(client: AuthenticatedSocket, channelName: string)
-	{
-		try {
-			const channel = await this.channelManager.createChannel(client, channelName);
-			channel.addClient(client);
-			client.emit("channelCreated", channel.id);
-		}
-		catch (error) { return client.emit('error', error.message)}
-	}
-
 	@SubscribeMessage('joinChannel')
 	async joinChannel(client: AuthenticatedSocket, data: JoinChannel)
 	{
@@ -54,6 +43,28 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 		catch (error) { client.emit('error', error.message ) }
 		console.log(`Client ${client.id} joined channel ${data.channelName}`)
+	}
+
+	@SubscribeMessage('leaveChannel')
+	async leaveChannel(client: AuthenticatedSocket, channelName: string)
+	{
+		try
+		{
+			await this.channelManager.leaveChannel(client.id, channelName);
+		}
+		catch (error) { client.emit('error', error.message ) }
+		console.log(`Client ${client.id} left channel ${channelName}`)
+	}
+
+	@SubscribeMessage('createChannel')
+	async createChannel(client: AuthenticatedSocket, channelName: string)
+	{
+		try {
+			const channel = await this.channelManager.createChannel(client, channelName);
+			channel.addClient(client);
+			client.emit("channelCreated", channel.id);
+		}
+		catch (error) { return client.emit('error', error.message)}
 	}
 
 	@SubscribeMessage('deleteChannel')
