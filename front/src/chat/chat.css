@@ -24,3 +24,12 @@
 
 }
 
+.option-buttons {
+	display: flex;
+	justify-content: space-between;
+}
+
+.info-message {
+	opacity: .6;
+	align-self: center;
+}

@@ -33,7 +33,6 @@ export class ChannelsService {
         }
 
         const newClient = new ChannelClient(clientId);
-        console.log("Date: ", newClient.joinedDate);
         if (channel.ownerId == clientId)
             newClient.isOwner = true;
         channel.clients.push(newClient);

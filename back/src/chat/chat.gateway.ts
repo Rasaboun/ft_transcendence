@@ -150,6 +150,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		catch (error) { client.emit('error', error.message ) }
 	}
 
+	@SubscribeMessage('unsetPrivateMode')
+	async unsetPrivateMode(client: AuthenticatedSocket, channelName: string)
+	{
+		try {
+			await this.channelManager.unsetPrivateMode(client.id, channelName);
+		}
+		catch (error) { client.emit('error', error.message ) }
+
+	}
+
 	@SubscribeMessage('inviteClient')
 	async inviteClient(client: AuthenticatedSocket, data: InviteClient)
 	{

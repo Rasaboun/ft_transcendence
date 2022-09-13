@@ -12,7 +12,6 @@ export class MatchController {
     constructor(private readonly matchService: MatchService) {}
 
     @Post('result')
-    @UsePipes(ValidationPipe)
     matchResult(@Body() resultDto: matchDto) {
         return this.matchService.matchResult(resultDto);
     }

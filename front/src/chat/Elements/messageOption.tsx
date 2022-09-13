@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { ChatContext } from "../ChatContext/chatContext";
-import { banUser, muteUser } from "../ChatUtils/socketManager";
+import { addAdmin, banUser, muteUser } from "../ChatUtils/socketManager";
 import Message from "./message";
 
 type MessagePropsT = {
@@ -28,6 +28,15 @@ export default function MessageOption({ handleMouseLeave, sender }: MessageProps
             duration: 60
         })
     }
+
+    const handleSetAdmin = () => {
+        console.log(sender)
+        addAdmin({
+            channelName: channel!,
+            clientId: sender
+        })
+        
+    }
     
     return (
         <div onMouseLeave={() => handleMouseLeave()} className="message-option">
@@ -37,6 +46,7 @@ export default function MessageOption({ handleMouseLeave, sender }: MessageProps
             <div className="option-buttons">
                 <button onClick={() => handleBan()}>ban</button>
                 <button onClick={() => handleMute()}>Mute</button>
+                <button onClick={() => handleSetAdmin()}>admin</button>
             </div>
             
         </div>
