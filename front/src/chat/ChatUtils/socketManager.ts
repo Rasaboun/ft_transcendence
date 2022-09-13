@@ -28,7 +28,7 @@ export function joinChannel(data:JoinChannelT) {
 }
 
 export function leaveChannel(channelName:string) {
-	socket?.emit("joinChannel", channelName);
+	socket?.emit("leaveChannel", channelName);
 }
 
 export function deleteChannel(channelId:string) {

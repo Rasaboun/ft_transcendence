@@ -3,7 +3,6 @@ export type ChannelT = {
 	nbClients: number,
 	mode: ChannelModes
 	owner: string,
-    handleJoinChannel: ( data:JoinChannelT ) => void;
 }
 
 export type messageT = {

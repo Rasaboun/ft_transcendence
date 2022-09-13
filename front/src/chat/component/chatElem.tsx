@@ -1,6 +1,6 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
 import { ChatContext } from "../ChatContext/chatContext";
-import { chatHandler, inviteClient, sendMessage, setSocketManager } from "../ChatUtils/socketManager";
+import { chatHandler, inviteClient, leaveChannel, sendMessage, setChannelPassword, setSocketManager } from "../ChatUtils/socketManager";
 import Message from "../Elements/message";
 import {ClientInfoT, messageT, UserStateT} from "../ChatUtils/chatType"
 import { useNavigate } from "react-router-dom";
@@ -14,6 +14,7 @@ export default function ChatElem()
     const [form, setForm] = useState({
         message:"",
         invite:"",
+        password:"",
     })
     const [messagesList, setMessagesList] = useState<messageT[]>()
     const [userState, setUserState] = useState<UserStateT>()
@@ -67,6 +68,23 @@ export default function ChatElem()
         setForm((oldForm) => ({
             ...oldForm,
             invite: ""
+        }))
+    }
+
+    const handleSubmitPassword = (e:React.ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        if (form.password !== "")
+        {
+			console.log(form.password)
+            setChannelPassword(
+            {
+                channelName: channel!,
+                password: form.password
+            })
+        }
+        setForm((oldForm) => ({
+            ...oldForm,
+            password: ""
         }))
     }
 
@@ -141,6 +159,11 @@ export default function ChatElem()
         }
     }
 
+    const handleLeaveChannel = () => {
+        leaveChannel(channel!)
+        navigate("/Chat")
+    }
+
     const messageElem = messagesList?.map((elem, index) => (
         elem.isInfo ? 
             <InfoMessage key={index} message={elem}/> :
@@ -181,16 +204,32 @@ export default function ChatElem()
                             }} >
                                 invite
                             </button>
-                            <button>
-                                
+                        </form>
+                        <form onSubmit={handleSubmitPassword}>
+                            <input style={{
+                                border: "1px solid black",
+                                marginRight: "15px"
+                            }}
+                            name="password" type="text" value={form.password} onChange={handleChange}/>
+                            <button type="submit" style={{
+                                height: "2vh",
+                                width: "10vh",
+                                backgroundColor: "#00ffff",
+                                borderRadius: "20px"
+                            }} >
+                                set password
                             </button>
-                        </form>          
+                        </form>   
                     </div>
             }
             {
                 userState?.isOwner &&
                     <button onClick={handleDelete}> deleteChannel </button>
             }
+            <div>
+                <button onClick={handleLeaveChannel}>Leave</button>
+            </div>
+
             <div className="border-4 border-dashed border-gray-200 rounded-lg h-96">
                 <div className="message-container">
                     {messageElem}

@@ -1,11 +1,12 @@
 import React, { useState } from "react"
 import { Socket } from 'socket.io-client'
+import { ChannelT } from "../ChatUtils/chatType"
 
 type ChatContextType = {
     socket:Socket|undefined
-    channel:string|undefined
+    channel:ChannelT|undefined
 	setSocket:(socket:Socket) => void
-	setChannel:(channel:string) => void
+	setChannel:(channel:ChannelT) => void
 	
 }
 
@@ -23,7 +24,7 @@ const ChatContext = React.createContext<ChatContextType>({
 function ChatContextProvider (props:propsType)
 {
 	const [socket, setSocket] = useState<Socket>()
-	const [channel, setChannel] = useState<string>()
+	const [channel, setChannel] = useState<ChannelT>()
 	return (
 		<ChatContext.Provider value={{socket, channel, setSocket, setChannel}}>
 			{props.children}

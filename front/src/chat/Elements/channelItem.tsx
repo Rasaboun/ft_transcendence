@@ -2,7 +2,12 @@ import React, { useState } from 'react'
 import { Link } from "react-router-dom";
 import { ChannelModes, ChannelT, JoinChannelT } from '../ChatUtils/chatType';
 
-export default function ChannelItem(props:ChannelT)
+type ChannelPropsT = {
+    channel:ChannelT,
+    handleJoinChannel: ( data:JoinChannelT ) => void;
+}
+
+export default function ChannelItem({channel, handleJoinChannel}:ChannelPropsT)
 {
     const [displayPassInput, setDisplayPassInput] = useState<boolean>(false)
     const [password, setPassword] = useState<string>("")
@@ -16,20 +21,20 @@ export default function ChannelItem(props:ChannelT)
         let data:JoinChannelT
         if (password !== "")
         {
-            data = {channelName:props.channelId, password}
+            data = {channelName:channel.channelId, password}
             console.log(password)
-			props.handleJoinChannel(data)
+			handleJoinChannel(data)
         }
         setPassword("")
     }
-    console.log(props.mode)
+    console.log(channel.mode)
     return (
         <div style={{
             padding: "1em",
             borderBottom: "1px solid black"
         }}>
-            <h1>{props.channelId}</h1>
-            <h2>{props.nbClients} client dans ce channel</h2> 
+            <h1>{channel.channelId}</h1>
+            <h2>{channel.nbClients} client dans ce channel</h2> 
             {
                 displayPassInput ?
                     <form onSubmit={handleSubmit}>
@@ -48,8 +53,8 @@ export default function ChannelItem(props:ChannelT)
                         </button>
                     </form> :
                 <button onClick={() =>
-                    !(props.mode == ChannelModes.Password) ? 
-                        props.handleJoinChannel({channelName:props.channelId}) :
+                    !(channel.mode == ChannelModes.Password) ? 
+                    handleJoinChannel({channelName:channel.channelId}) :
                         setDisplayPassInput(true)
                     }>
                         JOIN

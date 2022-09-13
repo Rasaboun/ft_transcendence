@@ -114,6 +114,7 @@ export class ChannelManager
     public async leaveChannel(clientId: string, channelName: string)
     {   try
         {    
+            console.log("leave", channelName)
             const channel: Channel = this.channels.get(channelName);
             if (channel == undefined)
                 throw new NotFoundException("This channel does not exist anymore");
