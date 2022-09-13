@@ -1,8 +1,7 @@
 export type ChannelT = {
 	channelId: string,
 	nbClients: number,
-	isPrivate: boolean,
-	isPasswordProtected: boolean,
+	mode: ChannelModes
 	owner: string,
     handleJoinChannel: ( data:JoinChannelT ) => void;
 }
@@ -10,6 +9,12 @@ export type ChannelT = {
 export type messageT = {
     sender : string,
     content : string
+}
+
+export enum ChannelModes {
+	Public,
+	Private,
+	Password,
 }
 
 export type ActionOnUser = {

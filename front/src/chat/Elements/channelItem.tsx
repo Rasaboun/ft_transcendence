@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from "react-router-dom";
-import { ChannelT, JoinChannelT } from '../ChatUtils/chatType';
+import { ChannelModes, ChannelT, JoinChannelT } from '../ChatUtils/chatType';
 
 export default function ChannelItem(props:ChannelT)
 {
@@ -22,7 +22,7 @@ export default function ChannelItem(props:ChannelT)
         }
         setPassword("")
     }
-    console.log(props.isPasswordProtected)
+    console.log(props.mode)
     return (
         <div style={{
             padding: "1em",
@@ -48,7 +48,7 @@ export default function ChannelItem(props:ChannelT)
                         </button>
                     </form> :
                 <button onClick={() =>
-                    !props.isPasswordProtected ? 
+                    !(props.mode == ChannelModes.Password) ? 
                         props.handleJoinChannel({channelName:props.channelId}) :
                         setDisplayPassInput(true)
                     }>

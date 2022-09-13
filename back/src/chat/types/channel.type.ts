@@ -20,6 +20,12 @@ export class ChannelClient {
 	){}
 }
 
+export enum ChannelModes {
+	Public,
+	Private,
+	Password,
+}
+
 export type Message = {
 	sender: string,
 	content: string,
@@ -53,8 +59,8 @@ export type AddAdmin = {
 }
 
 export type CreateChannel = {
-	channelName: string,
-	isPrivate: boolean,
-	isPasswordProtected: boolean,
+	name: string,
+	mode: ChannelModes,
 	password: string,
+	ownerId: string
 }

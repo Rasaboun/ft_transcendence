@@ -1,11 +1,10 @@
 import { v4 } from "uuid";
 import { Server } from "socket.io";
-import { AuthenticatedSocket, Message } from "../types/channel.type";
+import { AuthenticatedSocket, ChannelModes, Message } from "../types/channel.type";
 
 export class Channel
 {
-    public          isPasswordProtected:    boolean = false;
-    public          isPrivate:              boolean = false;
+    public          mode:                   ChannelModes = ChannelModes.Public;
     public          owner:                  string = "";
     public          clients:        	    Map<string, AuthenticatedSocket> = new Map<string, AuthenticatedSocket>();
 
@@ -38,6 +37,13 @@ export class Channel
         })
         return clientsIdArray;
     }
+
+    public isPublic(): boolean { return this.mode == ChannelModes.Public }
+
+    public isPrivate(): boolean { return this.mode == ChannelModes.Private }
+
+    public isPasswordProtected(): boolean { return this.mode == ChannelModes.Password }
+
     public sendMessage(clientId: string, message: string) { this.server.to(this.id).emit("msgToChannel", {sender: clientId, content: message})}
 
     public sendToUsers(event: string, data: any) { this.server.to(this.id).emit(event, data); }

@@ -1,7 +1,7 @@
 import { ForbiddenException, forwardRef, Inject, NotFoundException } from "@nestjs/common";
 import { Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
-import { ActionOnUser, AddAdmin, AuthenticatedSocket, ChannelClient, InviteClient, JoinChannel, Message, SetChannelPassword } from "../types/channel.type";
+import { ActionOnUser, AddAdmin, AuthenticatedSocket, ChannelClient, ChannelModes, InviteClient, JoinChannel, Message, SetChannelPassword } from "../types/channel.type";
 import { Channel } from "./channel";
 import { ChannelsService } from "./channel.service";
 
@@ -46,26 +46,31 @@ export class ChannelManager
 
     public async createChannel(client: AuthenticatedSocket, channelName: string)
     {
-        if (this.channels.get(channelName) != undefined)
-            throw new ForbiddenException("This channel name is already taken");
-        
-        let channel = new Channel(this.server, channelName);
-        
-        channel.owner = client.id;
-        channel.addClient(client);
-        this.channels.set(channel.id, channel);
-        await this.channelsService.createChannel( //change to just the name
-            {
-                name: channelName,
-                isPrivate: false,
-                password: "",
-                ownerId: client.id, //change to real id
-            });
-        await this.channelsService.addClient(channel.id, client.id);//change to real id
-        await this.channelsService.addAdmin(channel.id, client.id);//change to real id
+        try
+        {       
+            if (this.channels.get(channelName) != undefined)
+                throw new ForbiddenException("This channel name is already taken");
+            
+            let channel = new Channel(this.server, channelName);
+            
+            channel.owner = client.id;
+            channel.addClient(client);
+            this.channels.set(channel.id, channel);
+            await this.channelsService.createChannel( //change to just the name
+                {
+                    name: channelName,
+                    mode: ChannelModes.Public,
+                    password: "",
+                    ownerId: client.id, //change to real id
+                });
+            await this.channelsService.addClient(channel.id, client.id);//change to real id
+            await this.channelsService.addAdmin(channel.id, client.id);//change to real id
 
-        this.sendClientInfo(client, channelName);
-        return channel;
+            this.sendClientInfo(client, channelName);
+        
+            return channel;
+        }
+        catch (error) { throw error }
     }
 
     public async joinChannel(client: AuthenticatedSocket, data: JoinChannel)
@@ -80,7 +85,7 @@ export class ChannelManager
 
         try
         {
-            if (channel.isPrivate && !(await this.channelsService.isInvited(data.channelName, client.id)))
+            if (channel.isPrivate() && !(await this.channelsService.isInvited(data.channelName, client.id)))
                 throw new ForbiddenException("You are not invited to this channel");
             
             // A TESTER    
@@ -253,7 +258,7 @@ export class ChannelManager
         
         try {    
             await this.channelsService.setPassword(data);
-            this.channels.get(data.channelName).isPasswordProtected = true;
+            this.channels.get(data.channelName).mode = ChannelModes.Password;
         } catch (error) {
             throw error;
         }
@@ -269,7 +274,7 @@ export class ChannelManager
                 throw new ForbiddenException("You are not allowed to do this");  
             
             await this.channelsService.unsetPassword(channelName);
-            this.channels.get(channelName).isPasswordProtected = false;
+            this.channels.get(channelName).mode = ChannelModes.Public;
         }
         catch (error) { throw error }
     }
@@ -283,8 +288,8 @@ export class ChannelManager
             if (caller == undefined || caller.isOwner == false)
                 throw new ForbiddenException("You are not allowed to do this");
             
-                await this.channelsService.setPrivateMode(channelName);
-            this.channels.get(channelName).isPrivate = true;
+            await this.channelsService.setPrivateMode(channelName);
+            this.channels.get(channelName).mode = ChannelModes.Private;
         }
         catch (error) {
             throw error;
@@ -301,7 +306,7 @@ export class ChannelManager
                 throw new ForbiddenException("You are not allowed to do this");  
             
             await this.channelsService.unsetPassword(channelName);
-            this.channels.get(channelName).isPrivate = false;
+            this.channels.get(channelName).mode = ChannelModes.Public;
         }
         catch (error) { throw error }
     }
@@ -331,16 +336,14 @@ export class ChannelManager
         let res: {
             channelId: string,
             nbClients: number,
-            isPrivate: boolean,
-            isPasswordProtected: boolean,
+            mode: ChannelModes,
             owner: string,
         }[] = [];
         this.channels.forEach((channel, id) => {
             res.push({
                         channelId: id,
                         nbClients: channel.clients.size,
-                        isPrivate: channel.isPrivate,
-                        isPasswordProtected: channel.isPasswordProtected,
+                        mode: channel.mode,
                         owner: channel.owner,
                         
                     })

@@ -2,8 +2,7 @@ import { ForbiddenException, Injectable, NotFoundException, UnauthorizedExceptio
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Channel } from "src/typeorm";
-import { CreateChannelDto } from "../dto/channel.dto";
-import { ActionOnUser, ChannelClient, InviteClient, Message, SetChannelPassword } from "../types/channel.type";
+import { ActionOnUser, ChannelClient, ChannelModes, CreateChannel, InviteClient, Message, SetChannelPassword } from "../types/channel.type";
 import * as bcrypt from 'bcrypt';
 @Injectable()
 export class ChannelsService {
@@ -27,7 +26,7 @@ export class ChannelsService {
             throw new NotFoundException("Channel not found");
 
 
-        if (channel.isPasswordProtected)
+        if (channel.mode == ChannelModes.Password)
         {
             if (!(await this.checkPassword(channelName, password)))
                 throw new ForbiddenException("Wrong channel password");
@@ -54,8 +53,8 @@ export class ChannelsService {
         channel.clients.splice(userIndex , 1)
     }
 
-    public async createChannel(dto: CreateChannelDto) {
-        const   newChannel = this.channelRepository.create(dto);
+    public async createChannel(data: CreateChannel) {
+        const   newChannel = this.channelRepository.create(data);
         await   this.channelRepository.save(newChannel);
     }
 
@@ -203,7 +202,7 @@ export class ChannelsService {
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
         
-        channel.isPasswordProtected = true;   
+        channel.mode = ChannelModes.Password;   
         channel.password = bcrypt.hashSync(data.password, this.saltRounds);
         await this.channelRepository.update(channel.id, channel);
     }
@@ -214,7 +213,7 @@ export class ChannelsService {
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
         
-        channel.isPasswordProtected = false;   
+        channel.mode = ChannelModes.Public;     
         await this.channelRepository.update(channel.id, channel);
     }
 
@@ -224,7 +223,7 @@ export class ChannelsService {
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
         
-        channel.isPrivate = true;   
+        channel.mode = ChannelModes.Private;    
         await this.channelRepository.update(channel.id, channel);
     }
 
@@ -234,7 +233,7 @@ export class ChannelsService {
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
         
-        channel.isPrivate = false;
+        channel.mode = ChannelModes.Public;   
         channel.inviteList = [];   
         await this.channelRepository.update(channel.id, channel);
     }

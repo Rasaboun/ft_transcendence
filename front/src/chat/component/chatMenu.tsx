@@ -43,7 +43,7 @@ export default function ChatMenu()
 
     const handleSubmit = (e:React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (name !== "")
+		if (name !== "")
         {
 			newChannel(name)
 			navigate("message")
@@ -73,8 +73,7 @@ export default function ChatMenu()
 		<ChannelItem key={index}
 			channelId={elem.channelId}
 			nbClients={elem.nbClients}
-			isPrivate={elem.isPrivate}
-			isPasswordProtected={elem.isPasswordProtected}
+			mode={elem.mode}
 			owner={elem.owner}
 			handleJoinChannel={handleJoinChannel}
 			/>
