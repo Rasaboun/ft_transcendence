@@ -49,6 +49,13 @@ export class Channel
         return res;
     }
 
+	public changeMode(newChannelMode: ChannelModes)
+	{
+		this.mode = newChannelMode;
+	
+		this.sendToUsers("channelModeChanged", {channelName: this.id, mode: newChannelMode})
+	}
+
     public isPublic(): boolean { return this.mode == ChannelModes.Public }
 
     public isPrivate(): boolean { return this.mode == ChannelModes.Private }

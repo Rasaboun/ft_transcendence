@@ -120,6 +120,7 @@ export class ChannelManager
                 throw new NotFoundException("This channel does not exist anymore");
             
             await this.channelsService.removeClient(channelName, clientId);
+            channel.sendToUsers("leftChannel", {chanelName: channel.id, clientId: clientId});
             if (channel.getNbClients() == 1)
             {
                 this.channels.delete(channelName);
@@ -142,6 +143,7 @@ export class ChannelManager
                 })
             }
             channel.owner = newOwnerSocket.id;
+			newOwnerSocket.emit("upgradeToOwner", channel.id);
             await this.channelsService.setNewOwner(channelName, newOwnerSocket.id);
 
         } catch (error) { throw error }
@@ -263,7 +265,7 @@ export class ChannelManager
         
         try {    
             await this.channelsService.setPassword(data);
-            this.channels.get(data.channelName).mode = ChannelModes.Password;
+            this.channels.get(data.channelName).changeMode(ChannelModes.Password);
         } catch (error) {
             throw error;
         }
@@ -279,7 +281,7 @@ export class ChannelManager
                 throw new ForbiddenException("You are not allowed to do this");  
             
             await this.channelsService.unsetPassword(channelName);
-            this.channels.get(channelName).mode = ChannelModes.Public;
+            this.channels.get(channelName).changeMode(ChannelModes.Public);
         }
         catch (error) { throw error }
     }
@@ -294,7 +296,7 @@ export class ChannelManager
                 throw new ForbiddenException("You are not allowed to do this");
             
             await this.channelsService.setPrivateMode(channelName);
-            this.channels.get(channelName).mode = ChannelModes.Private;
+            this.channels.get(channelName).changeMode(ChannelModes.Private);
         }
         catch (error) {
             throw error;
@@ -311,7 +313,7 @@ export class ChannelManager
                 throw new ForbiddenException("You are not allowed to do this");  
             
             await this.channelsService.unsetPassword(channelName);
-            this.channels.get(channelName).mode = ChannelModes.Public;
+            this.channels.get(channelName).changeMode(ChannelModes.Public);
         }
         catch (error) { throw error }
     }
