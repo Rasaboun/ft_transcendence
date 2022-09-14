@@ -20,20 +20,20 @@ export default function ChatMenu()
 		setChannels(channels)
 	}
 
-	const handleChannelCreated = (channelId:string) => {
-		setChannel(channelId)
-		
+	const handleChannelCreated = (channelInfo:ChannelT) => {
+		console.log(channelInfo)
+		setChannel(channelInfo)
 	}
 
 	const handleJoinChannel = (data:JoinChannelT) => {
 		joinChannel(data)
 	}
 
-	const handleChannelJoined = ({clientId, channelId}:{clientId:string, channelId:string}) => {
-		console.log("herreee")
+	const handleChannelJoined = ({clientId, channelInfo}:{clientId:string, channelInfo:ChannelT}) => {
+		console.log("chauuuud",channelInfo)
 		if (getSocket().id === clientId)
 		{
-			setChannel(channelId)
+			setChannel(channelInfo)
 			navigate("message")
 		}
 	}
@@ -66,17 +66,13 @@ export default function ChatMenu()
 		getActiveChannels()
 		chatMenuHandler(handleActiveChannels, handleChannelCreated, handleChannelJoined, handleError, handleInvitation)
 		setSocket(getSocket())
-		getSocket().on('channelCreated',(message:string) => setChannel(message))
 	}, [])
 
 	console.log(channels)
 
 	const channelsElem = channels?.map((elem, index) => (
 		<ChannelItem key={index}
-			channelId={elem.channelId}
-			nbClients={elem.nbClients}
-			mode={elem.mode}
-			owner={elem.owner}
+			channel={elem}
 			handleJoinChannel={handleJoinChannel}
 			/>
 	))

@@ -15,7 +15,7 @@ export default function MessageOption({ handleMouseLeave, sender }: MessageProps
     const {channel} = useContext(ChatContext)
     const handleBan = () => {
         banUser({
-            channelName: channel!,
+            channelName: channel!.channelId,
             targetId: sender,
             duration: 60
         })
@@ -23,7 +23,7 @@ export default function MessageOption({ handleMouseLeave, sender }: MessageProps
 
     const handleMute = () => {
         muteUser({
-            channelName: channel!,
+            channelName: channel!.channelId,
             targetId: sender,
             duration: 60
         })
@@ -32,7 +32,7 @@ export default function MessageOption({ handleMouseLeave, sender }: MessageProps
     const handleSetAdmin = () => {
         console.log(sender)
         addAdmin({
-            channelName: channel!,
+            channelName: channel!.channelId,
             clientId: sender
         })
         

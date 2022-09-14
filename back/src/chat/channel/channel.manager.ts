@@ -65,8 +65,7 @@ export class ChannelManager
                 });
             await this.channelsService.addClient(channel.id, client.id);//change to real id
             await this.channelsService.addAdmin(channel.id, client.id);//change to real id
-            channel.sendToUsers("joinedChannel", {clientId: client.id, channelId: channelName});
-
+            channel.sendToUsers("joinedChannel", {clientId: client.id, channelInfo:channel.getInfo()});
             this.sendClientInfo(client, channelName);
         
             return channel;
@@ -104,8 +103,8 @@ export class ChannelManager
             await this.channelsService.addClient(data.channelName, client.id, data.password) //change to real id
             
             channel.addClient(client);
-            console.log(client.id, data.channelName)
-            channel.sendToUsers("joinedChannel", {clientId: client.id, channelInfo: channel.getInfo});
+            console.log(channel.getInfo())
+            channel.sendToUsers("joinedChannel", {clientId: client.id, channelInfo: channel.getInfo()});
             this.sendClientInfo(client, data.channelName);
         }
         catch (error) { throw error }

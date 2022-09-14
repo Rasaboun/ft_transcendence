@@ -71,12 +71,16 @@ export function setPrivateMode(channelName: string) {
 	socket?.emit("setPrivateMode", channelName);
 }
 
+export function unsetPrivateMode(channelName: string) {
+	socket?.emit("unsetPrivateMode", channelName);
+}
+
 export function chatMenuHandler(handleActiveChannels:any, handleChannelCreated:any, handleChannelJoined:any, handleError:any, handleInvitation:any)
 {
         socket.on('channelNotFound', () => {})
 		socket.on('activeChannels', (channels:ChannelT) => handleActiveChannels(channels));
-        socket.on('channelCreated', () => handleChannelCreated)
-        socket.on('joinedChannel', ({clientId, channelId}) => handleChannelJoined({clientId, channelId}))
+        socket.on('channelCreated', (channelInfo) => handleChannelCreated(channelInfo))
+        socket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
         socket.on('error', (message:string) => handleError(message))
         socket.on('InvitedToChannel', (message:string) => handleInvitation(message))
 }

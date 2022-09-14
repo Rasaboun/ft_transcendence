@@ -1,8 +1,8 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
 import { ChatContext } from "../ChatContext/chatContext";
-import { chatHandler, inviteClient, leaveChannel, sendMessage, setChannelPassword, setSocketManager } from "../ChatUtils/socketManager";
+import { chatHandler, inviteClient, leaveChannel, sendMessage, setChannelPassword, setPrivateMode, setSocketManager, unsetChannelPassword, unsetPrivateMode } from "../ChatUtils/socketManager";
 import Message from "../Elements/message";
-import {ClientInfoT, messageT, UserStateT} from "../ChatUtils/chatType"
+import {ChannelModes, ChannelT, ClientInfoT, messageT, UserStateT} from "../ChatUtils/chatType"
 import { useNavigate } from "react-router-dom";
 import InfoMessage from "../Elements/InfoMessage";
 
@@ -10,7 +10,7 @@ export default function ChatElem()
 {
 	const navigate = useNavigate();
     const lastMessageRef = useRef<HTMLDivElement | null>(null)
-    const {socket, channel} = useContext(ChatContext)
+    const {socket, channel, setChannel} = useContext(ChatContext)
     const [form, setForm] = useState({
         message:"",
         invite:"",
@@ -42,7 +42,7 @@ export default function ChatElem()
                         [...oldMessagesList, {sender: socket!.id ,content: form.message}]
                 ))
                 console.log(form.message)
-                sendMessage(channel!, form.message)
+                sendMessage(channel!.channelId, form.message)
             }
             setForm((oldForm) => ({
                 ...oldForm,
@@ -63,7 +63,7 @@ export default function ChatElem()
         if (form.invite !== "")
         {
 			console.log(form.invite)
-            inviteClient({channelName:channel!, clientId: form.invite})
+            inviteClient({channelName:channel!.channelId, clientId: form.invite})
         }
         setForm((oldForm) => ({
             ...oldForm,
@@ -78,9 +78,18 @@ export default function ChatElem()
 			console.log(form.password)
             setChannelPassword(
             {
-                channelName: channel!,
+                channelName: channel!.channelId,
                 password: form.password
             })
+            if (channel?.mode !== ChannelModes.Password)
+            {
+                setChannel({
+                    channelId: channel!.channelId,
+                    nbClients: channel!.nbClients,
+                    mode: ChannelModes.Password,
+                    owner: channel!.owner
+                })
+            }  
         }
         setForm((oldForm) => ({
             ...oldForm,
@@ -125,8 +134,6 @@ export default function ChatElem()
         )
     }
 
-    
-
     const handleBannedFromChannel = (id:string) => {
         const message = id === socket?.id ? 
             "You have been banned from the chat" :
@@ -160,8 +167,38 @@ export default function ChatElem()
     }
 
     const handleLeaveChannel = () => {
-        leaveChannel(channel!)
+        leaveChannel(channel!.channelId)
         navigate("/Chat")
+    }
+
+    const handleUnsetPassword = () => {
+        unsetChannelPassword(channel!.channelId)
+        setChannel({
+            channelId: channel!.channelId,
+            nbClients: channel!.nbClients,
+            mode: ChannelModes.Public,
+            owner: channel!.owner
+        })
+    }
+
+    const handleUnsetPrivMode = () => {
+        unsetPrivateMode(channel!.channelId)
+        setChannel({
+            channelId: channel!.channelId,
+            nbClients: channel!.nbClients,
+            mode: ChannelModes.Public,
+            owner: channel!.owner
+        })
+    }
+
+    const handleSetInvite = () => {
+        setPrivateMode(channel!.channelId)
+        setChannel({
+            channelId: channel!.channelId,
+            nbClients: channel!.nbClients,
+            mode: ChannelModes.Private,
+            owner: channel!.owner
+        })
     }
 
     const messageElem = messagesList?.map((elem, index) => (
@@ -183,28 +220,42 @@ export default function ChatElem()
        scrollToBottom()
     }, [messagesList])
 
-    console.log(userState?.isAdmin)
+    console.log(channel)
     return (
         <div>
             {
                 userState?.isAdmin &&
                     <div>
                         Owner 👑
-                        <form onSubmit={handleSubmitInvite}>
-                            <input style={{
-                                border: "1px solid black",
-                                marginRight: "15px"
-                            }}
-                            name="invite" type="text" value={form.invite} onChange={handleChange}/>
-                            <button type="submit" style={{
-                                height: "2vh",
-                                width: "10vh",
-                                backgroundColor: "#00ffff",
-                                borderRadius: "20px"
-                            }} >
-                                invite
-                            </button>
-                        </form>
+                        {
+                            channel?.mode === ChannelModes.Public &&
+                                <button onClick={handleSetInvite} style={{
+                                    height: "2vh",
+                                    width: "10vh",
+                                    backgroundColor: "#00ffff",
+                                    borderRadius: "20px"
+                                }} >
+                                    invite
+                                </button>  
+                        }
+                        {
+                            channel?.mode === ChannelModes.Private &&
+                                <form onSubmit={handleSubmitInvite}>
+                                    <input style={{
+                                        border: "1px solid black",
+                                        marginRight: "15px"
+                                    }}
+                                    name="invite" type="text" value={form.invite} onChange={handleChange}/>
+                                    <button type="submit" style={{
+                                        height: "2vh",
+                                        width: "10vh",
+                                        backgroundColor: "#00ffff",
+                                        borderRadius: "20px"
+                                    }} >
+                                        invite
+                                    </button>
+                                </form>
+                        }
                         <form onSubmit={handleSubmitPassword}>
                             <input style={{
                                 border: "1px solid black",
@@ -217,9 +268,19 @@ export default function ChatElem()
                                 backgroundColor: "#00ffff",
                                 borderRadius: "20px"
                             }} >
-                                set password
+                                {channel?.mode === ChannelModes.Public ?
+                                "set password" : "change password"}
                             </button>
-                        </form>   
+                        </form>
+                        {
+                            channel?.mode !== ChannelModes.Public &&
+                                <button onClick={channel?.mode === ChannelModes.Password ? 
+                                    handleUnsetPassword:
+                                    handleUnsetPrivMode}>
+                                    unset Mode ❌
+                                </button> 
+                        }
+                        
                     </div>
             }
             {
