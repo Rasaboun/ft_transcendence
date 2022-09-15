@@ -25,7 +25,6 @@ export class ChannelsService {
         if (!channel)
             throw new NotFoundException("Channel not found");
 
-
         if (channel.mode == ChannelModes.Password)
         {
             if (!(await this.checkPassword(channelName, password)))
@@ -44,16 +43,20 @@ export class ChannelsService {
 
         if (!channel)
             throw new NotFoundException("Channel not found");
-        
         const userIndex = this.getClientIndex(channel.clients, clientId);
         if (userIndex == null)
             throw new NotFoundException(`Client ${clientId} is not member of channel ${channelName}`);
         
-        channel.clients.splice(userIndex , 1)
+        channel.clients.splice(userIndex , 1);
+        await this.channelRepository.update(channel.id, channel);
     }
 
     public async createChannel(data: CreateChannel) {
-        const   newChannel = this.channelRepository.create(data);
+        if (data.mode == ChannelModes.Password)
+            data.password = bcrypt.hashSync(data.password, this.saltRounds);
+        
+            const   newChannel = this.channelRepository.create(data);
+    
         await   this.channelRepository.save(newChannel);
     }
 
@@ -85,7 +88,7 @@ export class ChannelsService {
         const clientIndex = this.getClientIndex(channel.clients, clientId);
 
         if (clientIndex == -1)
-                throw new NotFoundException("Target user does not exist");
+                throw new NotFoundException("This user is not member of the channel");
 
         channel.clients[clientIndex].isAdmin = true;
         await this.channelRepository.update(channel.id, channel);
@@ -101,7 +104,7 @@ export class ChannelsService {
         const clientIndex = this.getClientIndex(channel.clients, newOwnerId);
 
         if (clientIndex == -1)
-                throw new NotFoundException("Target user does not exist");
+                throw new NotFoundException("This user is not member of the channel");
 
         channel.clients[clientIndex].isAdmin = true;
         channel.ownerId = newOwnerId;
@@ -115,7 +118,7 @@ export class ChannelsService {
         
         const client = channel.clients[this.getClientIndex(channel.clients, data.targetId)]
         if (client == undefined)
-                throw new NotFoundException("Target user does not exist");
+                throw new NotFoundException("This user is not member of the channel");
         
         client.isMuted = true;
         client.unmuteDate = (new Date().getTime() / 1000) + data.duration;
@@ -131,10 +134,12 @@ export class ChannelsService {
 
         const clientIndex = this.getClientIndex(channel.clients, clientId)
         if (clientIndex == -1)
-                throw new NotFoundException("Target user does not exist");
+                throw new NotFoundException("This user is not member of the channel");
         
         channel.clients[clientIndex].isMuted = false;
         channel.clients[clientIndex].unmuteDate = 0;
+        await this.channelRepository.update(channel.id, channel);
+        
     }
 
     async isMuted(channelName: string, clientId: string): Promise<boolean>
@@ -145,10 +150,11 @@ export class ChannelsService {
 
         const client = channel.clients[this.getClientIndex(channel.clients, clientId)]
         if (client == undefined)
-                throw new NotFoundException("Target user does not exist");
+                throw new NotFoundException("This user is not member of the channel");
+        console.log(new Date().getTime() / 1000, client.unmuteDate);
         if (client.isMuted && new Date().getTime() / 1000 > client.unmuteDate)
         {
-            this.unmuteClient(channelName, client.id)
+            await this.unmuteClient(channelName, client.id)
             return false;
         }
         return client.isMuted;
@@ -162,7 +168,7 @@ export class ChannelsService {
 
         const client = channel.clients[this.getClientIndex(channel.clients, clientId)]
         if (client == undefined)
-                throw new NotFoundException("Target user does not exist");
+                throw new NotFoundException("This user is not member of the channel");
         return client.isAdmin;
 
     }
@@ -174,7 +180,7 @@ export class ChannelsService {
         
         const client = channel.clients[this.getClientIndex(channel.clients, data.targetId)]
         if (client == undefined)
-                throw new NotFoundException("Target user does not exist");
+                throw new NotFoundException("This user is not member of the channel");
         
         client.isBanned = true;
         client.unbanDate = (new Date().getTime() / 1000) + data.duration;
@@ -189,7 +195,7 @@ export class ChannelsService {
 
         const clientIndex = this.getClientIndex(channel.clients, clientId)
         if (clientIndex == -1)
-                throw new NotFoundException("Target user does not exist");
+                throw new NotFoundException("This user is not member of the channel");
         
         channel.clients[clientIndex].isBanned = false;
         channel.clients[clientIndex].unbanDate = 0;

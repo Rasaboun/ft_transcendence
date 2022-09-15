@@ -21,8 +21,8 @@ export default function ChatMenu()
 		name: "",
 		mode: ChannelModes.Public,
 	})
-	const newChannel = (name:string) => {
-		createChannel(name)
+	const newChannel = (channelForm:channelFormT) => {
+		createChannel(channelForm)
 	}
 
 	const handleActiveChannels = (channels:ChannelT[]) => {
@@ -65,7 +65,7 @@ export default function ChatMenu()
 			channelForm.mode !== ChannelModes.Password))
 		{
 			console.log("valide pass")
-			newChannel(channelForm.name)
+			newChannel(channelForm)
 			setChannelForm((oldChannelForm) => ({
 				...oldChannelForm,
 				name: ""

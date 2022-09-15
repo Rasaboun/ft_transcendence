@@ -1,7 +1,7 @@
 import { ForbiddenException, forwardRef, Inject, NotFoundException } from "@nestjs/common";
 import { Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
-import { ActionOnUser, AddAdmin, AuthenticatedSocket, ChannelClient, ChannelInfo, ChannelModes, InviteClient, JoinChannel, Message, MutedException, SetChannelPassword } from "../types/channel.type";
+import { ActionOnUser, AddAdmin, AuthenticatedSocket, ChannelClient, ChannelInfo, ChannelModes, CreateChannel, InviteClient, JoinChannel, Message, MutedException, SetChannelPassword } from "../types/channel.type";
 import { Channel } from "./channel";
 import { ChannelsService } from "./channel.service";
 
@@ -41,32 +41,38 @@ export class ChannelManager
 
     public terminateSocket(client: AuthenticatedSocket): void
     {
-        client.data.channel?.removeClient(client);
+        client.data.channel?.removeClient(client.id);
     }
 
-    public async createChannel(client: AuthenticatedSocket, channelName: string)
+    public async createChannel(client: AuthenticatedSocket, data: CreateChannel)
     {
         try
         {       
-            if (this.channels.get(channelName) != undefined)
+            if (this.channels.get(data.name) != undefined)
                 throw new ForbiddenException("This channel name is already taken");
             
-            let channel = new Channel(this.server, channelName);
+            let channel = new Channel(this.server, data.name);
             
             channel.owner = client.id;
+            channel.mode = data.mode;
             channel.addClient(client);
+
+            if (data.mode != ChannelModes.Password)
+                data.password = "";
+
             this.channels.set(channel.id, channel);
             await this.channelsService.createChannel( //change to just the name
                 {
-                    name: channelName,
-                    mode: ChannelModes.Public,
-                    password: "",
+                    name: data.name,
+                    mode: data.mode,
+                    password: data.password,
                     ownerId: client.id, //change to real id
                 });
-            await this.channelsService.addClient(channel.id, client.id);//change to real id
+            await this.channelsService.addClient(channel.id, client.id, data.password);//change to real id
             await this.channelsService.addAdmin(channel.id, client.id);//change to real id
+
             channel.sendToUsers("joinedChannel", {clientId: client.id, channelInfo:channel.getInfo()});
-            this.sendClientInfo(client, channelName);
+            this.sendClientInfo(client, data.name);
         
             return channel;
         }
@@ -103,7 +109,6 @@ export class ChannelManager
             await this.channelsService.addClient(data.channelName, client.id, data.password) //change to real id
             
             channel.addClient(client);
-            console.log(channel.getInfo())
             channel.sendToUsers("joinedChannel", {clientId: client.id, channelInfo: channel.getInfo()});
             this.sendClientInfo(client, data.channelName);
         }
@@ -114,19 +119,21 @@ export class ChannelManager
     {
         try
         {    
-            console.log("leave", channelName)
             const channel: Channel = this.channels.get(channelName);
             if (channel == undefined)
                 throw new NotFoundException("This channel does not exist anymore");
             
             await this.channelsService.removeClient(channelName, clientId);
+            channel.removeClient(clientId);
             channel.sendToUsers("leftChannel", {channelName: channel.id, clientId: clientId});
-            if (channel.getNbClients() == 1)
+            if (channel.getNbClients() == 0)
             {
                 this.channels.delete(channelName);
                 await this.channelsService.deleteChannel(channelName);
                 return ;
             }
+            if (channel.owner != clientId)
+                return ;
             let newOwnerSocket: AuthenticatedSocket = null;
             if (channel.owner == clientId)
             {
@@ -185,10 +192,10 @@ export class ChannelManager
         let caller: ChannelClient;
         try {
             caller = await this.channelsService.getClientById(data.channelName, clientId);
-            if (caller == undefined || caller.isAdmin == false)
+            if (caller == undefined || caller.isAdmin == false || this.channels.get(data.channelName).owner == data.targetId)
                 throw new ForbiddenException("You are not allowed to do this");
-            
             await this.channelsService.muteClient(data);
+
             this.channels.get(data.channelName).sendToUsers("mutedInChannel", data.targetId);  
         } catch (error) {
             throw error;
@@ -201,7 +208,7 @@ export class ChannelManager
         try {
             caller = await this.channelsService.getClientById(data.channelName, clientId);
 
-            if (caller == undefined || caller.isAdmin == false)
+            if (caller == undefined || caller.isAdmin == false || this.channels.get(data.channelName).owner == data.targetId)
                 throw new ForbiddenException("You are not allowed to do this");
             await this.channelsService.banClient(data);
             this.channels.get(data.channelName).sendToUsers("bannedFromChannel", data.targetId);    

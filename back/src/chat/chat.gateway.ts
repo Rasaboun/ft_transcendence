@@ -2,7 +2,7 @@ import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessa
 import { Socket, Server } from 'socket.io';
 import { Channel } from './channel/channel';
 import { ChannelManager } from './channel/channel.manager';
-import { ActionOnUser, AddAdmin, AuthenticatedSocket, InviteClient, JoinChannel, SetChannelPassword } from './types/channel.type';
+import { ActionOnUser, AddAdmin, AuthenticatedSocket, CreateChannel, InviteClient, JoinChannel, SetChannelPassword } from './types/channel.type';
 
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
@@ -57,10 +57,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('createChannel')
-	async createChannel(client: AuthenticatedSocket, channelName: string)
+	async createChannel(client: AuthenticatedSocket, data: CreateChannel)
 	{
 		try {
-			const channel = await this.channelManager.createChannel(client, channelName);
+			const channel = await this.channelManager.createChannel(client, data);
 			channel.addClient(client);
 			client.emit("channelCreated", channel.getInfo());
 		}

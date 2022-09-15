@@ -1,4 +1,5 @@
 import { io, Socket } from 'socket.io-client'
+import { channelFormT } from '../component/chatMenu';
 import Message from '../Elements/message';
 import { ActionOnUser, AddAdminT, ChannelT, ClientInfoT, InviteClientT, JoinChannelT, messageT, SetChannelPasswordT } from './chatType';
 
@@ -19,8 +20,8 @@ export function setSocketManager(socket:Socket)
 	socket = socket
 }
 
-export function createChannel(name:string) {
-	socket?.emit("createChannel", name);
+export function createChannel(channelForm:channelFormT) {
+	socket?.emit("createChannel", channelForm);
 }
 
 export function joinChannel(data:JoinChannelT) {

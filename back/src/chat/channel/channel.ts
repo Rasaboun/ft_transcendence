@@ -15,17 +15,17 @@ export class Channel
         this.clients.set(client.id, client);
         client.join(this.id);
         client.data.channel = this;
-        console.log(this.id)
         
 
         console.log("Channel clients ", this.clients.size);
     }
 
-    public removeClient(client: AuthenticatedSocket)
+    public removeClient(clientId: string)
     {
-        client.data.channel = null;
-        client.leave(this.id);
-        this.clients.delete(client.id);
+        let clientSocket: AuthenticatedSocket = this.clients.get(clientId);
+        clientSocket.data.channel = null;
+        clientSocket.leave(this.id);
+        this.clients.delete(clientId);
     }
 
     public clientsId(): string[]
