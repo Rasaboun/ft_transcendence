@@ -2,6 +2,7 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import ChatElem from './chat/component/chatElem';
 import ChatMenu from './chat/component/chatMenu';
+import PrivChatElem from './chat/component/privChatElem';
 import './output.css';
 
 

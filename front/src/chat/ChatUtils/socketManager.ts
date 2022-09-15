@@ -1,5 +1,4 @@
 import { io, Socket } from 'socket.io-client'
-import Message from '../Elements/message';
 import { ActionOnUser, ChannelT, messageT } from './chatType';
 
 let socket:Socket
@@ -14,9 +13,9 @@ export function getSocket()
 	return socket
 }
 
-export function setSocketManager(socket:Socket)
+export function setSocketManager(_socket:Socket)
 {
-	socket = socket
+	socket = _socket
 }
 
 export function createChannel(name:string) {
@@ -57,5 +56,11 @@ export function chatMenuHandler(handleActiveChannels:any, handleChannelCreated:a
 export function chatHandler(handleMessageReceived:any)
 {
         socket.on("msgToChannel", ({sender, content}:messageT) => handleMessageReceived({sender, content}))
-        
+}
+
+// Priv chat
+export function loadPrivChat(test:string)
+{
+	console.log("LoadPrivatChat called");
+    socket?.emit("joinUserPrivatChat", test);
 }

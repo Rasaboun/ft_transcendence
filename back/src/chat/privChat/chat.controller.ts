@@ -1,7 +1,7 @@
 import { Controller, Post, Put, Param, Body, Request } from '@nestjs/common';
 import { timestamp } from 'rxjs';
 import { PrivChatService } from './chat.service';
-import {newChatDto, newMessageDto} from "./dto/chat.dto";
+import {newChatDto, newMessageDto} from "../dto/chat.dto";
 
 @Controller('chat')
 export class ChatController {

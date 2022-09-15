@@ -1,6 +1,6 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
 import { ChatContext } from "../ChatContext/chatContext";
-import { chatHandler, sendMessage, setSocketManager } from "../ChatUtils/socketManager";
+import { chatHandler, sendMessage, setSocketManager, loadPrivChat } from "../ChatUtils/socketManager";
 import Message from "../Elements/message";
 import {messageT} from "../ChatUtils/chatType"
 
@@ -20,6 +20,7 @@ export default function ChatElem()
     }
 
     const handleSubmit = (e:React.ChangeEvent<HTMLFormElement>) => {
+		loadPrivChat(message)
         e.preventDefault()
         if (message !== "")
         {
@@ -35,6 +36,7 @@ export default function ChatElem()
     }
 
     const handleMessageReceived = ({sender, content}:messageT) => {
+		loadPrivChat(content)
         console.log(sender, socket?.id, content)
         if(sender !== socket?.id)
         {
@@ -56,8 +58,7 @@ export default function ChatElem()
     useEffect(() => {
         setSocketManager(socket!)
         chatHandler(handleMessageReceived)
-
-    }, [])
+    }, [socket])
 
     useEffect(() => {
        scrollToBottom()

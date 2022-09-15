@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { PrivChat } from 'src/typeorm';
-import { newChatDto, newMessageDto} from "./dto/chat.dto";
-import { Message } from "./chat.type";
+import { newChatDto, newMessageDto} from "../dto/chat.dto";
+import { Message } from "../chat.type";
 import { log } from 'console';
 
 @Injectable()
@@ -79,6 +79,12 @@ export class PrivChatService {
 		const chatMod: PrivChat = await this.getChat(getChatEntry);
 		chatMod.mess.push(chatInsert);
 		return await this.chatRepository.update(chatMod.id, chatMod); 
+	}
+
+	async getMessageList(senderId: number, recieverid: number): Promise<Message[]>
+	{
+		var getChatInstance = await this.findOneBySenderReciever(senderId, recieverid);
+		return (getChatInstance?.mess);
 	}
 // chat exists with name and user
 // if chat does'nt exist does the user exist

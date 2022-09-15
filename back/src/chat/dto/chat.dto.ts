@@ -10,7 +10,6 @@ export class newChatDto{
     @IsNumber()
     UserIdFirstReciever: number;
 
-    @IsNotEmpty()
     mess: Message[];
 }
 
