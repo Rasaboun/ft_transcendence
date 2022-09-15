@@ -1,16 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { chatMenuHandler, createChannel, getActiveChannels, getSocket, initiateSocket, joinChannel } from "../ChatUtils/socketManager";
-import { ChannelModes, ChannelT, JoinChannelT } from "../ChatUtils/chatType";
+import { channelFormT, ChannelModes, ChannelT, JoinChannelT } from "../ChatUtils/chatType";
 import { ChatContext } from "../ChatContext/chatContext";
 import { useNavigate } from "react-router-dom";
 import ChannelItem from "../Elements/channelItem";
-import { Socket } from "socket.io-client";
-
-export type channelFormT = {
-	name: string,
-	mode: ChannelModes,
-	password?: string
-}
 
 export default function ChatMenu()
 {

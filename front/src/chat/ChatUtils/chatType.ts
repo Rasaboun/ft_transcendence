@@ -56,3 +56,9 @@ export type AddAdminT = {
 	channelName: string,
 	clientId: string,
 }
+
+export type channelFormT = {
+	name: string,
+	mode: ChannelModes,
+	password?: string
+}

@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client'
-import { channelFormT } from '../component/chatMenu';
+import { channelFormT } from './chatType';
 import Message from '../Elements/message';
 import { ActionOnUser, AddAdminT, ChannelT, ClientInfoT, InviteClientT, JoinChannelT, messageT, SetChannelPasswordT } from './chatType';
 

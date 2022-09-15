@@ -23,6 +23,7 @@ export class AuthController {
 
     @Post('signup')
     async signup(@Body() dto: {username: string, password: string}) {
+        console.log(dto);
         return await this.authService.signup(dto);
     }
 

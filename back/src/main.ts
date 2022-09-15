@@ -12,17 +12,17 @@ import * as cors from 'cors'
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
+import bodyParser from 'body-parser';
 
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
   const sessionRepo = app
     .get(AppModule)
     .getDataSource()
     .getRepository(TypeORMSession);
 
   app.useGlobalPipes(new ValidationPipe()) //Don't need to use validation in controller
-
   app.use(session({
       cookie: {
         maxAge: Number(process.env.COOKIE_LIFETIME_IN_MS),

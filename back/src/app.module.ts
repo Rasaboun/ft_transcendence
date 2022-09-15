@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -11,6 +11,8 @@ import { DataSource } from "typeorm"
 import { MatchModule } from './match/match.module';
 import { ChatModule } from './chat/chat.module';
 import { GameModule } from './game/game.module';
+import { RawBodyMiddleware } from './raw-body.middleware';
+import { JsonBodyMiddleware } from './jsonboymiddlewae';
 
 @Module({
   imports: [
@@ -38,9 +40,20 @@ import { GameModule } from './game/game.module';
   providers: [AppService],
   exports: [AppService]
 })
-export class AppModule {
-  constructor(private dataSource: DataSource) {}
-
-  getDataSource() {
-    return this.dataSource;
-  }}
+export class AppModule implements NestModule {
+    constructor(private dataSource: DataSource) {}
+  
+    getDataSource() {
+      return this.dataSource;
+    }
+    public configure(consumer: MiddlewareConsumer): void {
+        consumer
+            .apply(RawBodyMiddleware)
+            .forRoutes({
+                path: '/uploadExportFile',
+                method: RequestMethod.POST,
+            })
+            .apply(JsonBodyMiddleware)
+            .forRoutes('*');
+    }
+}

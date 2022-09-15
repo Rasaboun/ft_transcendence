@@ -23,7 +23,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	handleConnection(client: Socket){
 		console.log(`Client ${client.id} joined chat socket`);
-		console.log(client);
+		//console.log(client);
 		
 		this.channelManager.initializeSocket(client as AuthenticatedSocket);
 		
