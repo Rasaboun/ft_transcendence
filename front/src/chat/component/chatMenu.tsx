@@ -1,17 +1,25 @@
 import React, { useContext, useEffect, useState } from "react";
 import { chatMenuHandler, createChannel, getActiveChannels, getSocket, initiateSocket, joinChannel } from "../ChatUtils/socketManager";
-import { ChannelT, JoinChannelT } from "../ChatUtils/chatType";
+import { ChannelModes, ChannelT, JoinChannelT } from "../ChatUtils/chatType";
 import { ChatContext } from "../ChatContext/chatContext";
 import { useNavigate } from "react-router-dom";
 import ChannelItem from "../Elements/channelItem";
 import { Socket } from "socket.io-client";
+
+export type channelFormT = {
+	name: string,
+	mode: ChannelModes
+}
 
 export default function ChatMenu()
 {
 	const navigate = useNavigate();
 	const {socket, setSocket, setChannel} = useContext(ChatContext)
 	const [channels, setChannels] = useState<ChannelT[]>()
-	const [name, setName] = useState<string>("")
+	const [channelForm, setChannelForm] = useState<channelFormT>({
+		name: "",
+		mode: ChannelModes.Public
+	})
 	const newChannel = (name:string) => {
 		createChannel(name)
 	}
@@ -39,18 +47,36 @@ export default function ChatMenu()
 	}
 
     const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-        setName(e.target.value)
+		// let channelMode:ChannelModes
+		// if (e.target.name === "mode")
+		// {
+		// 	channelMode = e.target.value === "Public" ?
+		// 		ChannelModes.Public : 
+		// 		(e.target.value === "Private" ?
+		// 		ChannelModes.Private : ChannelModes.Password)
+		// 		setChannelForm((oldChannelForm) => ({
+		// 			...oldChannelForm,
+		// 			mode: channelMode
+		// 		}))
+		// }
+		setChannelForm((oldChannelForm) => ({
+			...oldChannelForm,
+			[e.target.name]: e.target.name === "mode" ?
+				parseFloat(e.target.value) :
+				e.target.value 
+		}))
     }
 
     const handleSubmit = (e:React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
-		if (name !== "")
+		if (channelForm.name !== "")
         {
-			newChannel(name)
-			console.log("navigaate")
-			
+			newChannel(channelForm.name)			
         }
-        setName("")
+        setChannelForm((oldChannelForm) => ({
+			...oldChannelForm,
+			name: ""
+		}))
     }
 
 	const handleError = (message:string) => {
@@ -76,23 +102,51 @@ export default function ChatMenu()
 			handleJoinChannel={handleJoinChannel}
 			/>
 	))
+
+	console.log(channelForm)
     return (
         <div>
-			<form onSubmit={handleSubmit}>
-				<input style={{
-					border: "1px solid black",
-					marginRight: "15px"
-				}}
-				type="text" value={name} onChange={handleChange}/>
-				<button type="submit" style={{
-					height: "3vh",
-					width: "17vh",
-					backgroundColor: "#00ffff",
-					borderRadius: "20px"
-				}} >
-					Create Channel
-				</button>
-			</form>
+			<div>
+				<form className="channel-form" onSubmit={handleSubmit}>
+					<input name="name" style={{
+						border: "1px solid black",
+						marginRight: "15px"
+					}}
+					type="text" value={channelForm.name} onChange={handleChange}/>
+					<div className="form-radio">
+						<label>
+							<input name="mode"
+								type="radio" 
+								value={ChannelModes.Public}
+								checked={channelForm.mode === ChannelModes.Public}
+								onChange={handleChange}
+								/>
+							Public
+						</label>
+						<label>
+							<input name="mode" 
+								type="radio"
+								value={ChannelModes.Private}
+								checked={channelForm.mode === ChannelModes.Private}
+								onChange={handleChange}
+								/>
+								Private
+						</label>
+						<label>
+							<input name="mode"
+								type="radio"
+								value={ChannelModes.Password}
+								checked={channelForm.mode === ChannelModes.Password}
+								onChange={handleChange}
+								/>
+							Password
+						</label>
+					</div>
+					<button type="submit" className="button-action" >
+						Create Channel
+					</button>
+				</form>
+			</div>
 			<div>
 				{channelsElem}
 			</div>

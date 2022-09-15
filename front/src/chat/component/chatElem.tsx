@@ -5,6 +5,7 @@ import Message from "../Elements/message";
 import {ChannelModes, ChannelT, ClientInfoT, messageT, UserStateT} from "../ChatUtils/chatType"
 import { useNavigate } from "react-router-dom";
 import InfoMessage from "../Elements/InfoMessage";
+import ChannelBoard from "../Elements/ChannelBoard";
 
 export default function ChatElem()
 {
@@ -58,45 +59,6 @@ export default function ChatElem()
 
     }
 
-	const handleSubmitInvite = (e:React.ChangeEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        if (form.invite !== "")
-        {
-			console.log(form.invite)
-            inviteClient({channelName:channel!.channelId, clientId: form.invite})
-        }
-        setForm((oldForm) => ({
-            ...oldForm,
-            invite: ""
-        }))
-    }
-
-    const handleSubmitPassword = (e:React.ChangeEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        if (form.password !== "")
-        {
-			console.log(form.password)
-            setChannelPassword(
-            {
-                channelName: channel!.channelId,
-                password: form.password
-            })
-            if (channel?.mode !== ChannelModes.Password)
-            {
-                setChannel({
-                    channelId: channel!.channelId,
-                    nbClients: channel!.nbClients,
-                    mode: ChannelModes.Password,
-                    owner: channel!.owner
-                })
-            }  
-        }
-        setForm((oldForm) => ({
-            ...oldForm,
-            password: ""
-        }))
-    }
-
     const handleMessageReceived = ({sender, content}:messageT) => {
         console.log(sender, socket?.id, content)
         if(sender !== socket?.id)
@@ -108,13 +70,36 @@ export default function ChatElem()
         }
     }
 
+    const handleLeftChannel = ({channelName, clientId}:{channelName: string, clientId: string}) => {
+        const message = `${clientId} left the chat`
+        if(clientId !== socket?.id)
+        {
+            setMessagesList((oldMessagesList) => (
+                oldMessagesList === undefined ? [{content: message, isInfo: true}] :
+                    [...oldMessagesList, {content: message, isInfo: true}]
+            ))
+        }
+    }
+
+    const upgradeToOwner = (channelName:string) => {
+        const message = `You are now Owner`
+        setMessagesList((oldMessagesList) => (
+            oldMessagesList === undefined ? [{content: message, isInfo: true}] :
+                [...oldMessagesList, {content: message, isInfo: true}]
+        ))
+    }
+
+    const handleIsAlreadyAdmin = () => {
+        const message = `Is already admin`
+        setMessagesList((oldMessagesList) => (
+            oldMessagesList === undefined ? [{content: message, isInfo: true}] :
+                [...oldMessagesList, {content: message, isInfo: true}]
+        ))
+    }
+
     const handleChannelDeleted = (message:string) => {
         navigate(-1)
         window.alert(message)
-    }
-
-    const handleDelete = () => {
-       socket?.emit("deleteChannel", channel)
     }
 
     const handleClientInfo = (data:ClientInfoT) => {
@@ -166,41 +151,6 @@ export default function ChatElem()
         }
     }
 
-    const handleLeaveChannel = () => {
-        leaveChannel(channel!.channelId)
-        navigate("/Chat")
-    }
-
-    const handleUnsetPassword = () => {
-        unsetChannelPassword(channel!.channelId)
-        setChannel({
-            channelId: channel!.channelId,
-            nbClients: channel!.nbClients,
-            mode: ChannelModes.Public,
-            owner: channel!.owner
-        })
-    }
-
-    const handleUnsetPrivMode = () => {
-        unsetPrivateMode(channel!.channelId)
-        setChannel({
-            channelId: channel!.channelId,
-            nbClients: channel!.nbClients,
-            mode: ChannelModes.Public,
-            owner: channel!.owner
-        })
-    }
-
-    const handleSetInvite = () => {
-        setPrivateMode(channel!.channelId)
-        setChannel({
-            channelId: channel!.channelId,
-            nbClients: channel!.nbClients,
-            mode: ChannelModes.Private,
-            owner: channel!.owner
-        })
-    }
-
     const messageElem = messagesList?.map((elem, index) => (
         elem.isInfo ? 
             <InfoMessage key={index} message={elem}/> :
@@ -212,7 +162,16 @@ export default function ChatElem()
     ))
     useEffect(() => {
         setSocketManager(socket!)
-        chatHandler(handleMessageReceived, handleChannelDeleted, handleClientInfo, handleBannedFromChannel, handleMutedFromChannel, handleAddAdmin)
+        chatHandler(handleMessageReceived,
+                    handleChannelDeleted,
+                    handleClientInfo,
+                    handleBannedFromChannel,
+                    handleMutedFromChannel,
+                    handleAddAdmin,
+                    handleLeftChannel,
+                    upgradeToOwner,
+                    handleIsAlreadyAdmin
+                    )
 
     }, [])
 
@@ -222,97 +181,33 @@ export default function ChatElem()
 
     console.log(channel)
     return (
-        <div>
-            {
-                userState?.isAdmin &&
-                    <div>
-                        Owner 👑
-                        {
-                            channel?.mode === ChannelModes.Public &&
-                                <button onClick={handleSetInvite} style={{
-                                    height: "2vh",
-                                    width: "10vh",
-                                    backgroundColor: "#00ffff",
-                                    borderRadius: "20px"
-                                }} >
-                                    invite
-                                </button>  
-                        }
-                        {
-                            channel?.mode === ChannelModes.Private &&
-                                <form onSubmit={handleSubmitInvite}>
-                                    <input style={{
-                                        border: "1px solid black",
-                                        marginRight: "15px"
-                                    }}
-                                    name="invite" type="text" value={form.invite} onChange={handleChange}/>
-                                    <button type="submit" style={{
-                                        height: "2vh",
-                                        width: "10vh",
-                                        backgroundColor: "#00ffff",
-                                        borderRadius: "20px"
-                                    }} >
-                                        invite
-                                    </button>
-                                </form>
-                        }
-                        <form onSubmit={handleSubmitPassword}>
-                            <input style={{
-                                border: "1px solid black",
-                                marginRight: "15px"
-                            }}
-                            name="password" type="text" value={form.password} onChange={handleChange}/>
-                            <button type="submit" style={{
-                                height: "2vh",
-                                width: "10vh",
-                                backgroundColor: "#00ffff",
-                                borderRadius: "20px"
-                            }} >
-                                {channel?.mode === ChannelModes.Public ?
-                                "set password" : "change password"}
-                            </button>
-                        </form>
-                        {
-                            channel?.mode !== ChannelModes.Public &&
-                                <button onClick={channel?.mode === ChannelModes.Password ? 
-                                    handleUnsetPassword:
-                                    handleUnsetPrivMode}>
-                                    unset Mode ❌
-                                </button> 
-                        }
-                        
+        <div className="chat">
+            <ChannelBoard userState={userState}/>
+            <div className="chat-right">
+                <div className="h-96">
+                    <div className="message-container">
+                        {messageElem}
+                        <div ref={lastMessageRef}/>
                     </div>
-            }
-            {
-                userState?.isOwner &&
-                    <button onClick={handleDelete}> deleteChannel </button>
-            }
-            <div>
-                <button onClick={handleLeaveChannel}>Leave</button>
-            </div>
-
-            <div className="border-4 border-dashed border-gray-200 rounded-lg h-96">
-                <div className="message-container">
-                    {messageElem}
-                    <div ref={lastMessageRef}/>
                 </div>
-            </div>
-            <form onSubmit={handleSubmitMessage}>
-                <input style={{
-                    border: "1px solid black",
-                    marginRight: "15px"
-                }}
-                name='message' type="text" value={form.message} onChange={handleChange}/>
-                <button type="submit" style={{
-                    height: "5vh",
-                    width: "20vh",
-                    backgroundColor: "#00ffff",
-                    borderRadius: "20px"
-                }} >
-                    Send
-                </button>
-                
-            </form>          
+                <form onSubmit={handleSubmitMessage}>
+                    <input style={{
+                        border: "1px solid black",
+                        marginRight: "15px"
+                    }}
+                    name='message' type="text" value={form.message} onChange={handleChange}/>
+                    <button type="submit" style={{
+                        height: "5vh",
+                        width: "20vh",
+                        backgroundColor: "#00ffff",
+                        borderRadius: "20px"
+                    }} >
+                        Send
+                    </button>
+                    
+                </form>
+            </div>  
+                      
         </div>
     )
 }

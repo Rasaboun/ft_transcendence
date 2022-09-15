@@ -120,7 +120,7 @@ export class ChannelManager
                 throw new NotFoundException("This channel does not exist anymore");
             
             await this.channelsService.removeClient(channelName, clientId);
-            channel.sendToUsers("leftChannel", {chanelName: channel.id, clientId: clientId});
+            channel.sendToUsers("leftChannel", {channelName: channel.id, clientId: clientId});
             if (channel.getNbClients() == 1)
             {
                 this.channels.delete(channelName);
