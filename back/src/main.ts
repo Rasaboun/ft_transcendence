@@ -22,7 +22,7 @@ async function bootstrap() {
     .getRepository(TypeORMSession);
 
   app.useGlobalPipes(new ValidationPipe()) //Don't need to use validation in controller
-/*
+
   app.use(session({
       cookie: {
         maxAge: Number(process.env.COOKIE_LIFETIME_IN_MS),
@@ -35,7 +35,7 @@ async function bootstrap() {
   );
   app.use(passport.initialize());
   app.use(passport.session());
-*/  
+  
   await app.listen(3002);
 }
 bootstrap();

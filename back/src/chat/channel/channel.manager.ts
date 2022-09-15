@@ -304,6 +304,7 @@ export class ChannelManager
             
             await this.channelsService.setPrivateMode(channelName);
             this.channels.get(channelName).changeMode(ChannelModes.Private);
+            this.server.emit('activeChannels', this.getActiveChannels());
         }
         catch (error) {
             throw error;

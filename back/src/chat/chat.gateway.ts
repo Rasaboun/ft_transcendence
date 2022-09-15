@@ -23,6 +23,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	handleConnection(client: Socket){
 		console.log(`Client ${client.id} joined chat socket`);
+		console.log(client);
 		
 		this.channelManager.initializeSocket(client as AuthenticatedSocket);
 		
@@ -63,6 +64,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			const channel = await this.channelManager.createChannel(client, data);
 			channel.addClient(client);
 			client.emit("channelCreated", channel.getInfo());
+			this.server.emit('activeChannels', this.channelManager.getActiveChannels());
+
 		}
 		catch (error) { return client.emit('error', error.message)}
 	}
