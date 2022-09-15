@@ -27,6 +27,7 @@ async function bootstrap() {
       cookie: {
         maxAge: Number(process.env.COOKIE_LIFETIME_IN_MS),
       },
+      name: "FT_TRANSCENDENCE_SESSION",
       secret: process.env.COOKIE_SECRET,
       resave: false,
       saveUninitialized: false,

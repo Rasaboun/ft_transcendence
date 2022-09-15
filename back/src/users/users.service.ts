@@ -72,10 +72,10 @@ export class UsersService {
         return this.userRepository.findOneBy({ id });
     }
 
-    findOneByIntraId(id: number) {
+    findOneByIntraLogin(login: string) {
         return this.userRepository.findOne({
             where: [
-                { intraId: id},
+                { intraLogin: login},
             ],
         })
     }

@@ -19,13 +19,13 @@ export class IntraStrategy extends PassportStrategy(Strategy, 'intra') {
         })
     } 
 
-    async validate(accessToken: string, refreshToken: string, profile: any): Promise<any> {
-        const details: createUserDto = {
-            intraId: profile.id,
-            username: profile.username,
-            photoUrl: profile.photos[0].value
-        };
+    // async validate(accessToken: string, refreshToken: string, profile: any): Promise<any> {
+    //     const details: createUserDto = {
+    //         intraLogin: profile.intraLogin,
+    //         username: profile.username,
+    //         photoUrl: profile.photos[0].value
+    //     };
 
-        return this.authService.validateUser(details);
-    }
+    //     return this.authService.validateUser(details);
+    // }
 }

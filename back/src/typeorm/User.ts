@@ -7,13 +7,16 @@ export class User {
     id: number;
 
     @Column()
-    intraId: number;
+    intraLogin: string;
 
     @Column()
     username: string;
 
+    // @Column()
+    // photoUrl: string;
+    
     @Column()
-    photoUrl: string;
+    password: string;
 
     @Column({
         default: 0,

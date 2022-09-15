@@ -2,12 +2,12 @@ import { IsAlpha, IsNotEmpty, IsNumber, IsNumberString, IsString } from "class-v
 
 export class createUserDto {
     @IsNotEmpty()
-    intraId: number;
+    intraLogin: string;
     
     @IsNotEmpty()
     username: string;
 
     @IsNotEmpty()
-    photoUrl: string;
+    password: string;
 
 }
