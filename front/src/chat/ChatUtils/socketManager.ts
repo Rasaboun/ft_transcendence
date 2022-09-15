@@ -55,10 +55,14 @@ export function chatMenuHandler(handleActiveChannels:any, handleChannelCreated:a
 
 export function chatHandler(handleMessageReceived:any)
 {
-        socket.on("msgToChannel", ({sender, content}:messageT) => handleMessageReceived({sender, content}))
+	socket.on("msgToChannel", ({sender, content}:messageT) => handleMessageReceived({sender, content}))
 }
 
 // Priv chat
+export function loadConnectedUsers()
+{
+	socket?.emit("loadConnectedUsers", ({listOfUsers:Array<string>()}));
+}
 export function loadPrivChat(test:string)
 {
 	console.log("LoadPrivatChat called");
