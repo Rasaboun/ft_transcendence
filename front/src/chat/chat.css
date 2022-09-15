@@ -66,10 +66,17 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    padding: 10px;
+    width: 30%;
 }
-.chat-left > input[text] {
+.chat-left > input[type='text'] {
     color: black;
 }
 .chat-right {
     flex-grow: 2;
+}
+
+.bottom-button {
+    display: flex;
+    justify-content: space-between;
 }

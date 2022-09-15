@@ -125,7 +125,9 @@ export default function ChannelBoard({userState}:PropsT)
                                 <form onSubmit={handleSubmitInvite}>
                                     <input style={{
                                         border: "1px solid black",
-                                        marginRight: "15px"
+                                        marginRight: "15px",
+                                        color: "black",
+                                        padding: "5px"
                                     }}
                                     name="invite" type="text" value={form.invite} onChange={handleChange}/>
                                     <button type="submit" style={{
@@ -141,7 +143,9 @@ export default function ChannelBoard({userState}:PropsT)
                         <form onSubmit={handleSubmitPassword}>
                             <input style={{
                                 border: "1px solid black",
-                                marginRight: "15px"
+                                marginRight: "15px",
+                                color: "black",
+                                padding: "5px"
                             }}
                             name="password" type="text" value={form.password} onChange={handleChange}/>
                             <button type="submit" style={{
@@ -165,12 +169,13 @@ export default function ChannelBoard({userState}:PropsT)
                         
                     </div>
             }
+            
+            <div className="bottom-button">
             {
                 userState?.isOwner &&
-                    <button onClick={handleDelete}> deleteChannel </button>
+                    <button onClick={handleDelete}> 🗑️ </button>
             }
-            <div>
-                <button onClick={handleLeaveChannel}>Leave</button>
+                <button onClick={handleLeaveChannel}>❌</button>
             </div>
         </div>
     )

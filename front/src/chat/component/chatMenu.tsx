@@ -8,7 +8,8 @@ import { Socket } from "socket.io-client";
 
 export type channelFormT = {
 	name: string,
-	mode: ChannelModes
+	mode: ChannelModes,
+	password?: string
 }
 
 export default function ChatMenu()
@@ -18,7 +19,7 @@ export default function ChatMenu()
 	const [channels, setChannels] = useState<ChannelT[]>()
 	const [channelForm, setChannelForm] = useState<channelFormT>({
 		name: "",
-		mode: ChannelModes.Public
+		mode: ChannelModes.Public,
 	})
 	const newChannel = (name:string) => {
 		createChannel(name)
@@ -47,18 +48,6 @@ export default function ChatMenu()
 	}
 
     const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-		// let channelMode:ChannelModes
-		// if (e.target.name === "mode")
-		// {
-		// 	channelMode = e.target.value === "Public" ?
-		// 		ChannelModes.Public : 
-		// 		(e.target.value === "Private" ?
-		// 		ChannelModes.Private : ChannelModes.Password)
-		// 		setChannelForm((oldChannelForm) => ({
-		// 			...oldChannelForm,
-		// 			mode: channelMode
-		// 		}))
-		// }
 		setChannelForm((oldChannelForm) => ({
 			...oldChannelForm,
 			[e.target.name]: e.target.name === "mode" ?
@@ -69,14 +58,19 @@ export default function ChatMenu()
 
     const handleSubmit = (e:React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
-		if (channelForm.name !== "")
-        {
-			newChannel(channelForm.name)			
-        }
-        setChannelForm((oldChannelForm) => ({
-			...oldChannelForm,
-			name: ""
-		}))
+		if (channelForm.name !== "" &&
+			((channelForm.mode === ChannelModes.Password &&
+			channelForm.password &&
+			channelForm.password !== "") || 
+			channelForm.mode !== ChannelModes.Password))
+		{
+			console.log("valide pass")
+			newChannel(channelForm.name)
+			setChannelForm((oldChannelForm) => ({
+				...oldChannelForm,
+				name: ""
+			}))			
+		}
     }
 
 	const handleError = (message:string) => {
@@ -113,35 +107,53 @@ export default function ChatMenu()
 						marginRight: "15px"
 					}}
 					type="text" value={channelForm.name} onChange={handleChange}/>
-					<div className="form-radio">
-						<label>
-							<input name="mode"
-								type="radio" 
-								value={ChannelModes.Public}
-								checked={channelForm.mode === ChannelModes.Public}
-								onChange={handleChange}
-								/>
-							Public
-						</label>
-						<label>
-							<input name="mode" 
-								type="radio"
-								value={ChannelModes.Private}
-								checked={channelForm.mode === ChannelModes.Private}
-								onChange={handleChange}
-								/>
-								Private
-						</label>
-						<label>
-							<input name="mode"
-								type="radio"
-								value={ChannelModes.Password}
-								checked={channelForm.mode === ChannelModes.Password}
-								onChange={handleChange}
-								/>
-							Password
-						</label>
-					</div>
+					{
+						channelForm.mode !== ChannelModes.Password ?
+						<div className="form-radio">
+							<label>
+								<input name="mode"
+									type="radio" 
+									value={ChannelModes.Public}
+									checked={channelForm.mode === ChannelModes.Public}
+									onChange={handleChange}
+									/>
+								Public
+							</label>
+							<label>
+								<input name="mode" 
+									type="radio"
+									value={ChannelModes.Private}
+									checked={channelForm.mode === ChannelModes.Private}
+									onChange={handleChange}
+									/>
+									Private
+							</label>
+							<label>
+								<input name="mode"
+									type="radio"
+									value={ChannelModes.Password}
+									checked={false}
+									onChange={handleChange}
+									/>
+								Password
+							</label>
+						</div> :
+						<div>
+							<button onClick={() => setChannelForm((oldChannelForm) => ({
+								...oldChannelForm,
+								mode: ChannelModes.Public,
+								password: ""
+								}))	} 
+								className="button-action" >
+								unset pass
+							</button>
+							<input name="password" style={{
+							border: "1px solid black",
+							marginRight: "15px"
+						}}
+						type="text" value={channelForm.password} onChange={handleChange}/>
+						</div>
+					}
 					<button type="submit" className="button-action" >
 						Create Channel
 					</button>
