@@ -95,6 +95,7 @@ export class UsersService {
         }
 
         const newUser = this.userRepository.create(userDto);
+        console.log(newUser);
         return this.userRepository.save(newUser);
     }
     

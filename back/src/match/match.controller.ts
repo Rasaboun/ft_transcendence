@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 //import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
-import { AuthFilter } from 'src/auth/utils/auth.filter';
 import { Match } from 'src/typeorm';
 import { matchDto } from './dto/match.dto';
 import { MatchService } from './match.service';

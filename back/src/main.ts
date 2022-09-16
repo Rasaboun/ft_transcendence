@@ -5,7 +5,6 @@ import * as session from 'express-session'
 import * as passport from 'passport'
 import { TypeORMSession } from './typeorm';
 import { TypeormStore } from 'connect-typeorm/out';
-import { AuthFilter } from './auth/utils/auth.filter';
 import { NestApplication, } from '@nestjs/core';
 import { WsAdapter } from '@nestjs/platform-ws';
 import * as cors from 'cors'
