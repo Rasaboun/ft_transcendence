@@ -233,6 +233,7 @@ export class ChannelManager
                 return ;
             }
             await this.channelsService.addAdmin(data.channelName, data.clientId);
+            this.server.to
             channel.getClientSocket(data.clientId).emit("addAdmin");
         }
         catch (error) {

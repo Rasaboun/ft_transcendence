@@ -6,6 +6,9 @@ export type AuthenticatedSocket = Socket & {
 	data: {
 		channel: null | Channel;
 	}
+	sessionId: string,
+	userId: string,
+	username: string,
 }
 
 export class ChannelClient {

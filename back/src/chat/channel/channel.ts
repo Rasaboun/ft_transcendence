@@ -62,6 +62,14 @@ export class Channel
 
     public isPasswordProtected(): boolean { return this.mode == ChannelModes.Password }
 
+    public updateClient(clientId: string, socket: AuthenticatedSocket)
+    {
+        if (this.clients.get(clientId) == null)
+            return ;
+        this.clients.set(clientId, socket);   
+        socket.join(this.id);
+    }
+
     public sendMessage(clientId: string, message: string) { this.server.to(this.id).emit("msgToChannel", {sender: clientId, content: message})}
 
     public sendToUsers(event: string, data: any) { this.server.to(this.id).emit(event, data); }
