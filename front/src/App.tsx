@@ -10,6 +10,7 @@ import useLocalStorage from "./hooks/localStoragehook";
 import NavBar from "./NavBar";
 import Pong from "./Pong";
 import Settings from "./Settings";
+import Profile from "./Profile";
 
 export default function App()
 {
@@ -41,6 +42,7 @@ export default function App()
 					</GameContextProvider>
 				}/>
 				<Route path="Settings" element={<Settings/>}/>
+				<Route path="myProfile" element={<Profile/>}/>
 			</Routes>
 			<Footer/>
 		</BrowserRouter>

@@ -156,12 +156,12 @@ export default function NavBar() {
                     <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-indigo-400 ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <Menu.Item>
                         {({ active }: {active: any}) => (
-                          <a
-                            href="#"
-                            className={classNames(active ? 'bg-indigo-300' : '', 'block px-4 py-2 text-sm text-white')}
-                          >
-                            Your Profile
-                          </a>
+                          <Link
+                          to="myProfile"
+                          className={classNames(active ? 'bg-indigo-300' : '', 'block px-4 py-2 text-sm text-white')}
+                        >
+                          Profile
+                        </Link>
                         )}
                       </Menu.Item>
                       <Menu.Item>
