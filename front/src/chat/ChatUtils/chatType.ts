@@ -11,6 +11,7 @@ export type messageT = {
 		username:string
 	},
     content : string,
+	date?:Date
 	isInfo?: boolean
 }
 
@@ -42,7 +43,8 @@ export type UserStateT = {
 export type ClientInfoT = {
 	isOwner: boolean,
 	isAdmin: boolean,
-	isMuted: boolean
+	isMuted: boolean,
+	messages?: messageT[]
 }
 
 export type InviteClientT = {

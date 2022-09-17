@@ -37,6 +37,7 @@ export default function ChatMenu()
 	}
 
 	const handleChannelJoined = (data:{clientId:string, channelInfo:ChannelT}) => {
+
 		console.log("logon:", storage.login)
 		if (storage.login === data.clientId)
 		{

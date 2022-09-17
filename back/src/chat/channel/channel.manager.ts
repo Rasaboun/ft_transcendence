@@ -1,6 +1,7 @@
 import { ForbiddenException, forwardRef, Inject, NotFoundException } from "@nestjs/common";
 import { Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
+import { createClient } from "redis";
 import { UsersService } from "src/users/users.service";
 import { ActionOnUser, AddAdmin, AuthenticatedSocket, ChannelClient, ChannelInfo, ChannelModes, CreateChannel, InviteClient, JoinChannel, Message, MutedException, SetChannelPassword } from "../types/channel.type";
 import { Channel } from "./channel";
@@ -97,23 +98,18 @@ export class ChannelManager
                 throw new ForbiddenException("You are not invited to this channel");
             if ((await this.channelsService.isClient(channel.id, client.login)))
             {
-                console.log("fdsfdsfdsf")
+            //     if (channel.isPasswordProtected() && !(await this.channelsService.checkPassword(data.channelName, data.password)))
+            //         throw new ForbiddenException("Wrong channel password");
+                client.join(channel.id);
                 // Change to one user
                 channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo()});
                 return ;
             }
-
-            // A TESTER    
-            // if (await this.channelsService.isClient(data.channelName, client.id))
-            // {
-            //     if (channel.isPasswordProtected && !(await this.channelsService.checkPassword(data.channelName, data.password)))
-            //         throw new ForbiddenException("Wrong channel password");
-            //     const messages: Message[] = await this.channelsService.getClientMessages(data.channelName, client.id);
-            //     client.emit("connectedToChannel", {
-            //         channelName: data.channelName,
-            //         messages: messages,
-            //     })
-            // }
+ 
+            if (await this.channelsService.isClient(data.channelName, client.id))
+            {
+                
+            }
 
             await this.channelsService.addClient(data.channelName, client.login, data.password) //change to real id
             
@@ -376,10 +372,13 @@ export class ChannelManager
     public async sendClientInfo(client: AuthenticatedSocket, channelName: string)
     {
         const data: ChannelClient = await this.channelsService.getClientById(channelName, client.login)
+        const messages: Message[] = await this.channelsService.getClientMessages(channelName, client.login);
         client.emit("clientInfo", {
             isOwner: data.isOwner,
             isAdmin: data.isAdmin,
             isMuted: await this.channelsService.isMuted(channelName, client.login),
+            messages: messages,
+
         })
     }
 

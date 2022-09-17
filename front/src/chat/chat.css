@@ -10,6 +10,7 @@
     color: white;
     padding: 10px;
     width: fit-content;
+    min-width: 10em;
     border-radius: 10px;
 }
 
@@ -21,7 +22,6 @@
 .message-right {
     background-color: blue;
     align-self: self-end;
-
 }
 
 .option-buttons {

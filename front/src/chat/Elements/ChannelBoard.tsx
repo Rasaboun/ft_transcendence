@@ -1,6 +1,7 @@
 import { channel } from "diagnostics_channel";
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useLocalStorage from "../../hooks/localStoragehook";
 import { ChatContext } from "../ChatContext/chatContext";
 import { ChannelModes, UserStateT } from "../ChatUtils/chatType";
 import { inviteClient, leaveChannel, setChannelPassword, setPrivateMode, unsetChannelPassword, unsetPrivateMode } from "../ChatUtils/socketManager";
@@ -11,6 +12,7 @@ type PropsT = {
 
 export default function ChannelBoard({userState}:PropsT)
 {
+    const { storage } = useLocalStorage("user")
     const {socket, channel, setChannel} = useContext(ChatContext)
     const navigate = useNavigate()
     const [form, setForm] = useState({
@@ -108,7 +110,7 @@ export default function ChannelBoard({userState}:PropsT)
             {
                 userState?.isAdmin &&
                     <div>
-                        {`${socket?.id} 👑`}
+                        {`${storage.username} 👑`}
                         {
                             channel?.mode === ChannelModes.Public &&
                                 <button onClick={handleSetInvite} style={{

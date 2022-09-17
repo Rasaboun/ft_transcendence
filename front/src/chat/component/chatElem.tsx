@@ -58,13 +58,10 @@ export default function ChatElem()
 
     const handleMessageReceived = ({sender, content}:messageT) => {
         console.log(sender, socket?.id, content)
-        if(sender?.login !== storage.login)
-        {
-            setMessagesList((oldMessagesList) => (
-                oldMessagesList === undefined ? [{sender: sender ,content: content}] :
-                    [...oldMessagesList, {sender: sender ,content: content}]
-            ))
-        }
+        setMessagesList((oldMessagesList) => (
+            oldMessagesList === undefined ? [{sender: sender ,content: content}] :
+                [...oldMessagesList, {sender: sender ,content: content}]
+        ))
     }
 
     const handleLeftChannel = ({channelName, clientId}:{channelName: string, clientId: string}) => {
@@ -106,6 +103,10 @@ export default function ChatElem()
             isAdmin: data.isAdmin,
             isMuted: data.isMuted
         })
+        if (data.messages?.length !== 0)
+        {
+            setMessagesList(data.messages)
+        }
     }
 
     const handleAddAdmin = () => {
@@ -148,12 +149,12 @@ export default function ChatElem()
             )
         }
     }
-
+    console.log(messagesList)
     const messageElem = messagesList?.map((elem, index) => (
         elem.isInfo ? 
             <InfoMessage key={index} message={elem}/> :
             <Message key={index} 
-                className={elem.sender === socket?.id ?
+                className={elem.sender?.login ===  storage.login ?
                     "message message-right" : "message message-left"}
                 message={elem}
             />
