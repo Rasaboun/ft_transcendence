@@ -74,7 +74,6 @@ export class ChannelManager
 
             client.join(channel.id);
             channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo:channel.getInfo()});
-            this.sendClientInfo(client, data.name);
         
             return channel;
         }
@@ -100,8 +99,6 @@ export class ChannelManager
             {
                 // Change to one user
                 channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo()});
-                setTimeout(() => {}, 1000);
-                this.sendClientInfo(client, data.channelName);
                 return ;
             }
 
@@ -120,10 +117,8 @@ export class ChannelManager
             await this.channelsService.addClient(data.channelName, client.login, data.password) //change to real id
             
             channel.addClient(client.login, client.roomId);
-            console.log("Emit joined");
             client.join(channel.id);
             channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo()});
-            this.sendClientInfo(client, data.channelName);
         }
         catch (error) { throw error }
     }
@@ -369,7 +364,6 @@ export class ChannelManager
     public async sendClientInfo(client: AuthenticatedSocket, channelName: string)
     {
         const data: ChannelClient = await this.channelsService.getClientById(channelName, client.login)
-        console.log("client info", data);
         client.emit("clientInfo", {
             isOwner: data.isOwner,
             isAdmin: data.isAdmin,
