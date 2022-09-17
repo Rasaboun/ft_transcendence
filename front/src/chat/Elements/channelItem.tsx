@@ -27,7 +27,6 @@ export default function ChannelItem({channel, handleJoinChannel}:ChannelPropsT)
         }
         setPassword("")
     }
-    console.log(channel.mode)
     return (
         <div style={{
             padding: "1em",
@@ -54,7 +53,7 @@ export default function ChannelItem({channel, handleJoinChannel}:ChannelPropsT)
                     </form> :
                 <button onClick={() =>
                     !(channel.mode == ChannelModes.Password) ? 
-                    handleJoinChannel({channelName:channel.channelId}) :
+                        handleJoinChannel({channelName:channel.channelId}) :
                         setDisplayPassInput(true)
                     }>
                         JOIN

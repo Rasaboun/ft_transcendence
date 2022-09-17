@@ -69,6 +69,7 @@ export class ChannelManager
             await this.channelsService.addClient(channel.id, client.login, data.password);//change to real id
             await this.channelsService.addAdmin(channel.id, client.login);//change to real id
 
+            client.join(channel.id);
             channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo:channel.getInfo()});
             this.sendClientInfo(client, data.name);
         
@@ -79,6 +80,7 @@ export class ChannelManager
 
     public async joinChannel(client: AuthenticatedSocket, data: JoinChannel)
     {
+        console.log("Emit joined");
         const channel: Channel = this.channels.get(data.channelName);
 
         if (channel == undefined)
@@ -91,8 +93,9 @@ export class ChannelManager
         {
             if (channel.isPrivate() && !(await this.channelsService.isInvited(data.channelName, client.login)))
                 throw new ForbiddenException("You are not invited to this channel");
-            if (this.channelsService.isClient(channel.id, client.login))
+            if ((await this.channelsService.isClient(channel.id, client.login)))
             {
+                // Change to one user
                 channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo()});
                 return ;
             }
@@ -112,6 +115,7 @@ export class ChannelManager
             await this.channelsService.addClient(data.channelName, client.login, data.password) //change to real id
             
             channel.addClient(client.login, client.roomId);
+            console.log("Emit joined");
             client.join(channel.id);
             channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo()});
             this.sendClientInfo(client, data.channelName);
@@ -124,7 +128,6 @@ export class ChannelManager
         console.log("login: ", client.login);
         for (const channelName in this.channels)
         {
-            
             console.log("Channel: ", channelName);
             if ((await this.channelsService.isClient(channelName, client.login)))
             {

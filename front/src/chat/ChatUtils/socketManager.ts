@@ -6,7 +6,7 @@ let socket:Socket
 
 
 
-export function initiateSocket(url:string, setSocket:any, sessioninfo?:{sessionId:string, userId:string}, username?:string)
+export function initiateSocket(url:string, setSocket:any, sessioninfo?:{sessionId:string, roomId:string}, login?:string)
 {
 	socket = io(url, { autoConnect: false });
 	console.log(socket)
@@ -15,7 +15,7 @@ export function initiateSocket(url:string, setSocket:any, sessioninfo?:{sessionI
 	if (sessioninfo)
 		socket.auth = sessioninfo;
 	else
-		socket.auth = { username } 
+		socket.auth = { login } 
 	socket.connect();
 }
 

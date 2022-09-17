@@ -36,10 +36,12 @@ export default function ChatMenu()
 		joinChannel(data)
 	}
 
-	const handleChannelJoined = ({clientId, channelInfo}:{clientId:string, channelInfo:ChannelT}) => {
-		if (storage2 === clientId)
+	const handleChannelJoined = (data:{clientId:string, channelInfo:ChannelT}) => {
+		console.log("logon:", storage.login)
+		if (storage.login === data.clientId)
 		{
-			setChannel(channelInfo)
+			console.log()
+			setChannel(data.channelInfo)
 			navigate("message")
 		}
 	}
@@ -77,12 +79,12 @@ export default function ChatMenu()
 		window.alert(message)
 	}
 
-	const handleSession = (sessionInfo:{ sessionId:string, userId:string }, sock:Socket) => {
+	const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, sock:Socket) => {
 		console.log(sock)
 		if (sock)
 		{
 			setStorage("sessionId", sessionInfo.sessionId);
-			setStorage("userId", sessionInfo.userId);
+			setStorage("roomId", sessionInfo.roomId);
 			sock.auth = { sessionId: sessionInfo.sessionId } ;		
 			//socket.userID = userID;
 		}
@@ -90,19 +92,19 @@ export default function ChatMenu()
 
 	useEffect(() => {
 		let sessionId = localStorage.getItem("sessionId");
-		let userId = localStorage.getItem("userId");
+		let roomId = localStorage.getItem("roomId");
 		let sessioninfo;
-		if (sessionId && userId)
+		if (sessionId && roomId)
 		{
 			sessionId = JSON.parse(sessionId);
-			userId = JSON.parse(userId);
+			roomId = JSON.parse(roomId);
 			console.log("sessionId", sessionId)
-			console.log("userId", userId)
-			if (sessionId && userId)
-				sessioninfo = {sessionId: sessionId, userId: userId}
+			console.log("roomId", roomId)
+			if (sessionId && roomId)
+				sessioninfo = {sessionId: sessionId, roomId: roomId}
 		}
 		console.log("Storage", storage);
-		initiateSocket("http://localhost:8002/chat", setSocket, sessioninfo, storage.intraLogin)
+		initiateSocket("http://localhost:8002/chat", setSocket, sessioninfo, storage.login)
 		getActiveChannels()
 		chatMenuHandler(handleActiveChannels,
 			handleChannelCreated,
