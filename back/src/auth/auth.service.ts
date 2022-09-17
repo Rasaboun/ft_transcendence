@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, HttpException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Token } from 'client-oauth2';
 import { UsersService } from 'src/users/users.service';
@@ -26,7 +26,7 @@ export class AuthService {
         if (await this.userService.findOneByIntraLogin(dto.username))
         {
             console.log("here");
-            return new UnauthorizedException("User already exists");
+            throw new UnauthorizedException("User already exists");
         }
         await this.userService.createUser({intraLogin: dto.username, ...dto})
         return true;
@@ -35,7 +35,6 @@ export class AuthService {
     async login(dto: any)
     {
         const user = await this.userService.findOneByIntraLogin(dto.username);
-
         const payload = { username: dto.username, password: dto.password};
         return {
             access_token: this.jwtService.sign(payload),

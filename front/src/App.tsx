@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Login from "./authPage/component/LogPage";
 import Chat from "./Chat";
 import { ChatContextProvider } from "./chat/ChatContext/chatContext";
 import Dashboard from "./Dashboard";
@@ -9,38 +10,39 @@ import Home from "./Home";
 import useLocalStorage from "./hooks/localStoragehook";
 import NavBar from "./NavBar";
 import Pong from "./Pong";
+import { PrivateRoute } from "./PrivateRoute";
 import Settings from "./Settings";
 
 export default function App()
 {
-	const {storage, setStorage} = useLocalStorage()
+	// const { setStorage } = useLocalStorage()
 
-	useEffect(() => {
-		setStorage("user", {
-			intraId: 1,
-			username: "Meetch",
-			photoUrl: "https://i1.wp.com/dreamleaguesoccer.com.br/wp-content/uploads/psg-logo.png?fit=512%2C512&ssl=1"
-		})
-	}, [])
+	// useEffect(() => {
+	// 	setStorage("token", undefined)
+	// 	setStorage("user", undefined)
+	// }, [])
     return (
 		<BrowserRouter>
 			<NavBar />
 			<Routes>
-				<Route path="/" element={<Home/> }/>
-				<Route path="Dashboard" element={<Dashboard/> }/>
-				<Route path="Chat/*" element=
-				{
-					<ChatContextProvider>
-						<Chat/>
-					</ChatContextProvider>
-				}/>
-				<Route path="Pong/*" element=
-				{
-					<GameContextProvider>
-						<Pong/>
-					</GameContextProvider>
-				}/>
-				<Route path="Settings" element={<Settings/>}/>
+				<Route element={<PrivateRoute/>}>
+					<Route path="/" element={<Home/> }/>
+					<Route path="Dashboard" element={<Dashboard/> }/>
+					<Route path="Chat/*" element=
+					{
+						<ChatContextProvider>
+							<Chat/>
+						</ChatContextProvider>
+					}/>
+					<Route path="Pong/*" element=
+					{
+						<GameContextProvider>
+							<Pong/>
+						</GameContextProvider>
+					}/>
+					<Route path="Settings" element={<Settings/>}/>
+				</Route>
+				<Route path="/login" element={<Login/> }/>
 			</Routes>
 			<Footer/>
 		</BrowserRouter>

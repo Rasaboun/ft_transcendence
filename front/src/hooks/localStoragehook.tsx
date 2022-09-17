@@ -1,14 +1,15 @@
 import { useState } from 'react';
 
-export default function useLocalStorage() {
-  const getStorage = (key:string) => {
-    const storageString = localStorage.getItem(key);
-    let storage
+export default function useLocalStorage(key?:string) {
+  const getStorage = () => {
+	const storageString = localStorage.getItem(key!);
+	console.log(storageString)
+	let storage
 	if (storageString) 
 		storage = JSON.parse(storageString);
 	else
-		storage = undefined
-    return storage
+		storage = null
+	return storage
   };
 
   const [storage, setStorage] = useState();
@@ -20,6 +21,7 @@ export default function useLocalStorage() {
 
   return {
     setStorage: saveStorage,
-    storage
+    storage: getStorage(),
+	storage2: getStorage()
   }
 }

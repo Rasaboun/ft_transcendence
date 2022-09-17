@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { AuthFormT } from "../AuthUtils/AuthTypes";
+import { AuthFormT } from "../authUtils/AuthTypes";
 import "../auth.css"
 import axios from "axios";
+import useLocalStorage from "../../hooks/localStoragehook";
 
-export default function LogPage ()
+export default function Login ()
 {
+	const {storage, setStorage} = useLocalStorage()
 	const [authForm, setAuthForm] = useState<AuthFormT>({
 		username: "",
 		password: ""
@@ -18,11 +20,14 @@ export default function LogPage ()
 		if (authForm.username !== "" && authForm.password != "")
 		{
 			const url = button ? 'http://localhost:3002/auth/login' :
-			'						http://localhost:3002/auth/signup'
+								'http://localhost:3002/auth/signup'
 
 			axios.post(url, { ...authForm }).then(res => {
-				console.log(res);
-				console.log(res.data);
+				if (button)
+				{
+					setStorage("token", res.data.access_token)
+					setStorage("user", res.data.user)
+				}
 			  })
 		}
 	}

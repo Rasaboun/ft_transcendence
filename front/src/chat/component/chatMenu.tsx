@@ -4,9 +4,12 @@ import { channelFormT, ChannelModes, ChannelT, JoinChannelT } from "../ChatUtils
 import { ChatContext } from "../ChatContext/chatContext";
 import { useNavigate } from "react-router-dom";
 import ChannelItem from "../Elements/channelItem";
+import useLocalStorage from "../../hooks/localStoragehook";
 
 export default function ChatMenu()
 {
+	const {storage, setStorage} = useLocalStorage("user")
+	const {storage2} = useLocalStorage("sessionID")
 	const navigate = useNavigate();
 	const {socket, setSocket, setChannel} = useContext(ChatContext)
 	const [channels, setChannels] = useState<ChannelT[]>()
@@ -74,10 +77,25 @@ export default function ChatMenu()
 		window.alert(message)
 	}
 
+	const handleSession = ({ sessionID, userID }:{ sessionID:string, userID:string }) => {
+		if (socket)
+		{
+			socket.auth = { sessionID };		
+			setStorage("sessionID", sessionID);
+			//socket.userID = userID;
+		}
+	}
+
 	useEffect(() => {
-		initiateSocket("http://localhost:8002/chat")
+		if (storage && storage2)
+		initiateSocket("http://localhost:8002/chat", {sessionId: storage.intraLogin, userId: storage2})
 		getActiveChannels()
-		chatMenuHandler(handleActiveChannels, handleChannelCreated, handleChannelJoined, handleError, handleInvitation)
+		chatMenuHandler(handleActiveChannels,
+			handleChannelCreated,
+			handleChannelJoined,
+			handleError,
+			handleInvitation,
+			handleSession)
 		setSocket(getSocket())
 	}, [])
 
