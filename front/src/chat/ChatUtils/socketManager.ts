@@ -53,6 +53,10 @@ export function getActiveChannels() {
 	socket?.emit("getActiveChannels");
 }
 
+export function getClientInfo(channelName:string) {
+	socket?.emit("clientInfo", channelName);
+}
+
 export function banUser(data: ActionOnUser) {
 	socket?.emit("banUser", data);
 }
