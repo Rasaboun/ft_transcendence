@@ -5,7 +5,7 @@ export default function useLocalStorage(key?:string) {
 	if (!key)
 		return undefined
 	const storageString = localStorage.getItem(key);
-	let storage
+	let storage;
 	if (storageString) 
 		storage = JSON.parse(storageString);
 	else
@@ -16,6 +16,7 @@ export default function useLocalStorage(key?:string) {
   const [storage, setStorage] = useState();
 
   const saveStorage = (key:string, data:any) => {
+    console.log("In storage", key, data);
     localStorage.setItem(key , JSON.stringify(data));
     setStorage(data);
   };

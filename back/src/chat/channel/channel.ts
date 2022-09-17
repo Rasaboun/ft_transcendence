@@ -6,25 +6,19 @@ export class Channel
 {
     public          mode:                   ChannelModes = ChannelModes.Public;
     public          owner:                  string = "";
-    public          clients:        	    Map<string, AuthenticatedSocket> = new Map<string, AuthenticatedSocket>();
+    public          clients:        	    Map<string, string> = new Map<string, string>();
 
     constructor    ( private server: Server, public id : string) {}
 
-    public addClient(client: AuthenticatedSocket): void
+    public addClient(username: string, roomId: string | null): void
     {
-        this.clients.set(client.username, client);
-        client.join(this.id);
-        client.data.channel = this;
+        this.clients.set(username, roomId);
         
-
         console.log("Channel clients ", this.clients.size);
     }
 
     public removeClient(clientId: string)
     {
-        let clientSocket: AuthenticatedSocket = this.clients.get(clientId);
-        clientSocket.data.channel = null;
-        clientSocket.leave(this.id);
         this.clients.delete(clientId);
     }
 
@@ -55,6 +49,19 @@ export class Channel
 	
 		this.sendToUsers("channelModeChanged", {channelName: this.id, mode: newChannelMode})
 	}
+    
+    public sendToClient(clientId: string, event: string, data?: any)
+    {
+        const roomId = this.clients.get(clientId);
+
+        if (!roomId)
+            return ;
+        this.server.to(roomId).emit(event, data);
+    }
+
+    public updateClient(username: string, roomId: string) {  this.clients.set(username, roomId); }
+
+    public isClient(clientId: string): boolean { return this.clients.has(clientId); }
 
     public isPublic(): boolean { return this.mode == ChannelModes.Public }
 
@@ -62,19 +69,11 @@ export class Channel
 
     public isPasswordProtected(): boolean { return this.mode == ChannelModes.Password }
 
-    public updateClient(clientId: string, socket: AuthenticatedSocket)
-    {
-        if (this.clients.get(clientId) == null)
-            return ;
-        this.clients.set(clientId, socket);   
-        socket.join(this.id);
-    }
-
     public sendMessage(clientId: string, message: string) { this.server.to(this.id).emit("msgToChannel", {sender: clientId, content: message})}
 
     public sendToUsers(event: string, data: any) { this.server.to(this.id).emit(event, data); }
 
-	public getClientSocket(clientId: string)	{ return this.clients.get(clientId); }
-    
+	public getClientRoomId(clientId: string) { return this.clients.get(clientId); }
+
     public getNbClients(): number { return this.clients.size; }
 }

@@ -11,13 +11,15 @@ export class SessionManager
 
     initializeSocket(client: AuthenticatedSocket)
     {
-		const sessionID = client.handshake.auth.sessionID;
-		if (sessionID)
+		const sessionId = client.handshake.auth.sessionId;
+        console.log("auth", client.handshake.auth)
+		if (sessionId)
         {
-		  const session = this.findSession(sessionID);
+		  const session = this.findSession(sessionId);
+          console.log("session", session)
 		  if (session)
           {
-			client.sessionId = sessionID;
+			client.sessionId = sessionId;
 			client.userId = session.userId;
 			client.username = session.username;
 		  }
@@ -38,7 +40,6 @@ export class SessionManager
             sessionId: client.sessionId,
             userId: client.userId,
         })
-        console.log("sesssiiooooon",client.sessionId)
 
     }
 

@@ -26,22 +26,20 @@ export class ChannelManager
         {
             const currChannel = new Channel(this.server, channelsInDb[i].name);
             
-            // for (let clientIndex = 0; clientIndex < channelsInDb[i].clients.length; clientIndex++)
-            // {
-            //     currChannel.addClient(channelsInDb[i].clients[clientIndex].id);
-            // }
+            for (let clientIndex = 0; clientIndex < channelsInDb[i].clients.length; clientIndex++)
+            {
+                currChannel.addClient(channelsInDb[i].clients[clientIndex].id, null);
+            }
             this.channels.set(channelsInDb[i].name, currChannel)
         }
     }
     
     public initializeSocket(client: AuthenticatedSocket): void
     {
-        client.data.channel = null;
     }
 
     public terminateSocket(client: AuthenticatedSocket): void
     {
-        client.data.channel?.removeClient(client.id);
     }
 
     public async createChannel(client: AuthenticatedSocket, data: CreateChannel)
@@ -55,7 +53,7 @@ export class ChannelManager
             
             channel.owner = client.username;
             channel.mode = data.mode;
-            channel.addClient(client);
+            channel.addClient(client.username, client.userId);
 
             if (data.mode != ChannelModes.Password)
                 data.password = "";
@@ -93,7 +91,12 @@ export class ChannelManager
         {
             if (channel.isPrivate() && !(await this.channelsService.isInvited(data.channelName, client.username)))
                 throw new ForbiddenException("You are not invited to this channel");
-            
+            if (this.channelsService.isClient(channel.id, client.username))
+            {
+                channel.sendToUsers("joinedChannel", {clientId: client.username, channelInfo: channel.getInfo()});
+                return ;
+            }
+
             // A TESTER    
             // if (await this.channelsService.isClient(data.channelName, client.id))
             // {
@@ -108,7 +111,8 @@ export class ChannelManager
 
             await this.channelsService.addClient(data.channelName, client.username, data.password) //change to real id
             
-            channel.addClient(client);
+            channel.addClient(client.username, client.userId);
+            client.join(channel.id);
             channel.sendToUsers("joinedChannel", {clientId: client.username, channelInfo: channel.getInfo()});
             this.sendClientInfo(client, data.channelName);
         }
@@ -125,6 +129,7 @@ export class ChannelManager
             if ((await this.channelsService.isClient(channelName, client.username)))
             {
                 client.join(channelName);
+                this.channels.get(channelName).updateClient(client.username, client.userId)
             }
         }
     }
@@ -148,24 +153,33 @@ export class ChannelManager
             }
             if (channel.owner != clientId)
                 return ;
-            let newOwnerSocket: AuthenticatedSocket = null;
+            let newOwnerRoomId: string = null;
+            let newOwnerUsername: string = null;
+
             if (channel.owner == clientId)
             {
-                channel.clients.forEach((socket, id) => {
+                channel.clients.forEach((roomId, id) => {
                     if (this.channelsService.isAdmin(channelName, id) && id != clientId)
-                        newOwnerSocket =  socket;
+                    {
+                        newOwnerRoomId = roomId;
+                        newOwnerUsername = id;
+                    }
                 })
             }
-            if (newOwnerSocket == null)
+            if (newOwnerUsername == null)
             {
-                channel.clients.forEach((socket, id) => {
+                channel.clients.forEach((roomId, id) => {
                     if (id != clientId)
-                        newOwnerSocket =  socket;
+                    {
+                        newOwnerRoomId = roomId;
+                        newOwnerUsername = id;
+                    }
                 })
             }
-            channel.owner = newOwnerSocket.id;
-			newOwnerSocket.emit("upgradeToOwner", channel.id);
-            await this.channelsService.setNewOwner(channelName, newOwnerSocket.id);
+            channel.owner = newOwnerUsername;
+            if (newOwnerRoomId)
+                this.server.to(newOwnerRoomId).emit("upgradeToOwner", channel.id);
+            await this.channelsService.setNewOwner(channelName, newOwnerUsername);
 
         } catch (error) { throw error }
     }
@@ -177,9 +191,9 @@ export class ChannelManager
             throw new NotFoundException("This channel does not exist");
 
         channel.sendToUsers("channelDeleted", "Channel has been destroyed");
-        channel.clients.forEach((client) => {
-            client.leave(channel.id);
-        })
+        // channel.clients.forEach((client) => {
+        //     client.leave(channel.id);                    // change here
+        // })
         this.channels.delete(channelId);
         this.channelsService.deleteChannel(channelId);
     }
@@ -243,12 +257,11 @@ export class ChannelManager
                 throw new ForbiddenException("You are not allowed to do this");
             if (await this.channelsService.isAdmin(data.channelName, data.clientId))
             {
-                channel.getClientSocket(clientId).emit("isAlreadyAdmin");
+                channel.sendToClient(clientId, "isAlreadyAdmin");
                 return ;
             }
             await this.channelsService.addAdmin(data.channelName, data.clientId);
-            this.server.to
-            channel.getClientSocket(data.clientId).emit("addAdmin");
+            channel.sendToClient(data.clientId, "addAdmin");
         }
         catch (error) {
             throw error;

@@ -79,21 +79,29 @@ export default function ChatMenu()
 		console.log(sock)
 		if (sock)
 		{
-			console.log("je suis pas nul comme l'om")
+			console.log("Before storage")
 			setStorage("sessionId", sessionInfo.sessionId);
+			setStorage("userId", sessionInfo.userId);
+			console.log("After storage")
 			sock.auth = { sessionId: sessionInfo.sessionId } ;		
 			//socket.userID = userID;
 		}
 	}
 
 	useEffect(() => {
-		const tmp = localStorage.getItem("sessionId");
-		let sessioninfo = undefined
-		if (storage && tmp)
+		let sessionId = localStorage.getItem("sessionId");
+		let userId = localStorage.getItem("userId");
+		let sessioninfo;
+		if (sessionId && userId)
 		{
-			const storage2 = JSON.parse(tmp)
-			sessioninfo = {sessionId: storage.intraLogin, userId: storage2}
+			sessionId = JSON.parse(sessionId);
+			userId = JSON.parse(userId);
+			console.log("sessionId", sessionId)
+			console.log("userId", userId)
+			if (sessionId && userId)
+				sessioninfo = {sessionId: sessionId, userId: userId}
 		}
+		console.log("Storage", storage);
 		initiateSocket("http://localhost:8002/chat", setSocket, sessioninfo, storage.intraLogin)
 		getActiveChannels()
 		chatMenuHandler(handleActiveChannels,

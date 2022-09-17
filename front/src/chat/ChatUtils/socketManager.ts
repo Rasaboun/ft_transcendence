@@ -11,6 +11,7 @@ export function initiateSocket(url:string, setSocket:any, sessioninfo?:{sessionI
 	socket = io(url, { autoConnect: false });
 	console.log(socket)
 	setSocket(socket)
+	console.log("sessionInfo", sessioninfo);
 	if (sessioninfo)
 		socket.auth = sessioninfo;
 	else
