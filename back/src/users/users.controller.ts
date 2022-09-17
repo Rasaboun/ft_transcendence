@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
 import { AuthFilter } from 'src/auth/utils/auth.filter';
 import { User } from 'src/typeorm';
-import { createUserDto, updateStatusDto } from './dto/createUser.dto';
+import { createUserDto } from './dto/createUser.dto';
+import { UserStatus } from './types/UserStatus';
 import { UsersService } from './users.service';
 
 //@UseGuards(AuthenticatedGuard)
@@ -16,6 +17,23 @@ export class UsersController {
         return this.usersService.createUser(userDto);
     }
 
+    @Put('block/:id')
+    blockUser(@Param('id') idToBlock: number)
+    {
+        return this.usersService.blockUser(idToBlock)
+    }
+    
+    @Put('unblock/:id')
+    unblockUser(@Param('id') idToBlock: number)
+    {
+        return this.usersService.unblockUser(idToBlock)
+    }
+
+    @Get('isblocked/:id')
+    isBlocked(@Param('id') userId: number) {
+        return this.usersService.isBlocked(userId);
+    }
+
     @Get()
     findAll(): Promise<User[]> {
         return this.usersService.findAll();
@@ -26,15 +44,9 @@ export class UsersController {
         return this.usersService.findOneByUsername(username);
     }
 
-    @Get('status')
-    getUserStatus(@Body('id') userId: number) {
+    @Get('status/:id')
+    getUserStatus(@Param('id') userId: number): Promise<UserStatus> {
         return this.usersService.getUserStatus(userId);
-    }
-
-
-    @Post('status')
-    setUserStatus(@Body() dto: updateStatusDto) {
-        return this.usersService.setUserStatus(dto);
     }
 
     @Delete(':username')

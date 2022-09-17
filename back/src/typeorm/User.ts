@@ -31,8 +31,15 @@ export class User {
     })
     nbGames: number;
 
+    @Column('text', { 
+        array: true,
+        default: []
+    })
+    blockedUsers: number[];
+
     @Column({
-        default: UserStatus.offline,
+        default: 0,
+        nullable: false
     })
     status: number;
 }
