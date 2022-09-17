@@ -20,25 +20,25 @@ export class SessionManager
 		  if (session)
           {
 			client.sessionId = sessionId;
-			client.userId = session.userId;
-			client.username = session.username;
+			client.roomId = session.roomId;
+			client.login = session.login;
 		  }
 		}
         else
         {
             client.sessionId = v4();
-            client.userId = v4();
-            client.username = client.handshake.auth.username;
+            client.roomId = v4();
+            client.login = client.handshake.auth.login;
             this.saveSession(client.sessionId, {
                 connected: true,
-                userId: client.userId,
-                username: client.username,
+                roomId: client.roomId,
+                login: client.login,
                 })
         }
-        client.join(client.userId);
+        client.join(client.roomId);
         client.emit("session", {
             sessionId: client.sessionId,
-            userId: client.userId,
+            roomId: client.roomId,
         })
 
     }

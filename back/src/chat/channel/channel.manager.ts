@@ -51,9 +51,9 @@ export class ChannelManager
             
             let channel = new Channel(this.server, data.name);
             
-            channel.owner = client.username;
+            channel.owner = client.login;
             channel.mode = data.mode;
-            channel.addClient(client.username, client.userId);
+            channel.addClient(client.login, client.roomId);
 
             if (data.mode != ChannelModes.Password)
                 data.password = "";
@@ -64,12 +64,12 @@ export class ChannelManager
                     name: data.name,
                     mode: data.mode,
                     password: data.password,
-                    ownerId: client.username, //change to real id
+                    ownerId: client.login, //change to real id
                 });
-            await this.channelsService.addClient(channel.id, client.username, data.password);//change to real id
-            await this.channelsService.addAdmin(channel.id, client.username);//change to real id
+            await this.channelsService.addClient(channel.id, client.login, data.password);//change to real id
+            await this.channelsService.addAdmin(channel.id, client.login);//change to real id
 
-            channel.sendToUsers("joinedChannel", {clientId: client.username, channelInfo:channel.getInfo()});
+            channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo:channel.getInfo()});
             this.sendClientInfo(client, data.name);
         
             return channel;
@@ -84,16 +84,16 @@ export class ChannelManager
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist anymore");
 
-        if (await this.channelsService.isBanned(data.channelName, client.username) == true)
+        if (await this.channelsService.isBanned(data.channelName, client.login) == true)
             throw new ForbiddenException("You are banned from this channel");
 
         try
         {
-            if (channel.isPrivate() && !(await this.channelsService.isInvited(data.channelName, client.username)))
+            if (channel.isPrivate() && !(await this.channelsService.isInvited(data.channelName, client.login)))
                 throw new ForbiddenException("You are not invited to this channel");
-            if (this.channelsService.isClient(channel.id, client.username))
+            if (this.channelsService.isClient(channel.id, client.login))
             {
-                channel.sendToUsers("joinedChannel", {clientId: client.username, channelInfo: channel.getInfo()});
+                channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo()});
                 return ;
             }
 
@@ -109,11 +109,11 @@ export class ChannelManager
             //     })
             // }
 
-            await this.channelsService.addClient(data.channelName, client.username, data.password) //change to real id
+            await this.channelsService.addClient(data.channelName, client.login, data.password) //change to real id
             
-            channel.addClient(client.username, client.userId);
+            channel.addClient(client.login, client.roomId);
             client.join(channel.id);
-            channel.sendToUsers("joinedChannel", {clientId: client.username, channelInfo: channel.getInfo()});
+            channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo()});
             this.sendClientInfo(client, data.channelName);
         }
         catch (error) { throw error }
@@ -121,15 +121,15 @@ export class ChannelManager
 
     public async joinChannels(client: AuthenticatedSocket)
     {
-        console.log("Username: ", client.username);
+        console.log("login: ", client.login);
         for (const channelName in this.channels)
         {
             
             console.log("Channel: ", channelName);
-            if ((await this.channelsService.isClient(channelName, client.username)))
+            if ((await this.channelsService.isClient(channelName, client.login)))
             {
                 client.join(channelName);
-                this.channels.get(channelName).updateClient(client.username, client.userId)
+                this.channels.get(channelName).updateClient(client.login, client.roomId)
             }
         }
     }
@@ -356,11 +356,11 @@ export class ChannelManager
 
     public async sendClientInfo(client: AuthenticatedSocket, channelName: string)
     {
-        const data: ChannelClient = await this.channelsService.getClientById(channelName, client.username)
+        const data: ChannelClient = await this.channelsService.getClientById(channelName, client.login)
         client.emit("clientInfo", {
             isOwner: data.isOwner,
             isAdmin: data.isAdmin,
-            isMuted: await this.channelsService.isMuted(channelName, client.username),
+            isMuted: await this.channelsService.isMuted(channelName, client.login),
         })
     }
 

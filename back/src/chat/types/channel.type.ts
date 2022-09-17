@@ -4,8 +4,8 @@ import { Channel } from "../channel/channel"
 
 export type AuthenticatedSocket = Socket & {
 	sessionId: string,
-	userId: string,
-	username: string,
+	roomId: string,
+	login: string,
 }
 
 export class ChannelClient {

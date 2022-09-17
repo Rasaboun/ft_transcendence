@@ -39,8 +39,8 @@ export class AuthService {
         return {
             access_token: this.jwtService.sign(payload),
             user: {
-                intraLogin: user.intraLogin,
-                surname: user.username,
+                login: user.intraLogin,
+                username: user.username,
             }
         }
     }
