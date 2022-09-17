@@ -59,6 +59,13 @@ export class Channel
         this.server.to(roomId).emit(event, data);
     }
 
+    public sendToUsers(event: string, data: any)
+    {
+        this.clients.forEach((roomId, client) => {
+            this.server.to(roomId).emit(event, data);
+        })
+    }
+
     public updateClient(username: string, roomId: string) {  this.clients.set(username, roomId); }
 
     public isClient(clientId: string): boolean { return this.clients.has(clientId); }
@@ -69,9 +76,8 @@ export class Channel
 
     public isPasswordProtected(): boolean { return this.mode == ChannelModes.Password }
 
-    public sendMessage(clientId: string, message: string) { this.server.to(this.id).emit("msgToChannel", {sender: clientId, content: message})}
+    public sendMessage(msg: Message) { this.server.to(this.id).emit("msgToChannel", msg)}
 
-    public sendToUsers(event: string, data: any) { this.server.to(this.id).emit(event, data); }
 
 	public getClientRoomId(clientId: string) { return this.clients.get(clientId); }
 

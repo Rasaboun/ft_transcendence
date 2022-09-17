@@ -119,6 +119,7 @@ export class ChannelManager
             channel.addClient(client.login, client.roomId);
             client.join(channel.id);
             channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo()});
+            console.log("client info",)
         }
         catch (error) { throw error }
     }
@@ -201,12 +202,12 @@ export class ChannelManager
         this.channelsService.deleteChannel(channelId);
     }
    
-    public async sendMessage(channelId: string, client: AuthenticatedSocket, msg: Message)
+    public async sendMessage(channelId: string, client: AuthenticatedSocket, msg: string)
     {
         try
         {
             const channel: Channel = this.channels.get(channelId);
-            msg.date = new Date().toString();
+            
             if (channel == undefined)
                 throw new NotFoundException("This channel does not exist");
             
@@ -215,9 +216,19 @@ export class ChannelManager
                 const mutedTimeRemaining = (await this.channelsService.getClientById(channelId, client.login)).unmuteDate - new Date().getTime() / 1000;
                 throw new MutedException("You are muted on this channel", mutedTimeRemaining);
             }
-            this.channelsService.getClientById
-            channel.sendMessage(client.login, msg.content);
-            await this.channelsService.addMessage(channelId, msg);
+            const user = await this.userService.findOneByIntraLogin(client.login);
+
+            let message: Message = {
+                sender: {
+                    login: user.intraLogin,
+                    username: user.username,
+                },
+                content: msg,
+                date: new Date().toString(),
+            };
+
+            channel.sendMessage(message);
+            await this.channelsService.addMessage(channelId, message);
         }
         catch (error) { throw error; }
     }
