@@ -26,12 +26,12 @@ export default function Message({className, message}:MessagePropsT)
         <div className={className}>
             {
                 isHover && socket?.id !== message.sender && !message.isInfo &&
-                    <MessageOption handleMouseLeave={handleMouseLeave} sender={message.sender!}/>
+                    <MessageOption handleMouseLeave={handleMouseLeave} sender={message.sender!.username}/>
             }
             {<h4 onMouseOver={handleOnMouseOver} style={{
                 color: "red"
             }}>
-                {message.sender}
+                {message.sender!.username}
             </h4>}
             {message.content}
         </div>

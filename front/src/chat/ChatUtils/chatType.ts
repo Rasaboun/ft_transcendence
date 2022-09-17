@@ -6,7 +6,10 @@ export type ChannelT = {
 }
 
 export type messageT = {
-    sender? : string,
+    sender?: {
+		login:string,
+		username:string
+	},
     content : string,
 	isInfo?: boolean
 }
@@ -61,4 +64,9 @@ export type channelFormT = {
 	name: string,
 	mode: ChannelModes,
 	password?: string
+}
+
+export type MessageInfoT = {
+	channelName: string,
+	
 }

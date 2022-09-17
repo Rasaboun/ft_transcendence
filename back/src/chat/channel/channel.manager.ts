@@ -97,6 +97,7 @@ export class ChannelManager
                 throw new ForbiddenException("You are not invited to this channel");
             if ((await this.channelsService.isClient(channel.id, client.login)))
             {
+                console.log("fdsfdsfdsf")
                 // Change to one user
                 channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo()});
                 return ;

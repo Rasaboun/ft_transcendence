@@ -1,14 +1,16 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
 import { ChatContext } from "../ChatContext/chatContext";
-import { chatHandler, inviteClient, leaveChannel, sendMessage, setChannelPassword, setPrivateMode, setSocketManager, unsetChannelPassword, unsetPrivateMode } from "../ChatUtils/socketManager";
+import { chatHandler, getClientInfo, inviteClient, leaveChannel, sendMessage, setChannelPassword, setPrivateMode, setSocketManager, unsetChannelPassword, unsetPrivateMode } from "../ChatUtils/socketManager";
 import Message from "../Elements/message";
 import {ChannelModes, ChannelT, ClientInfoT, messageT, UserStateT} from "../ChatUtils/chatType"
 import { useNavigate } from "react-router-dom";
 import InfoMessage from "../Elements/InfoMessage";
 import ChannelBoard from "../Elements/ChannelBoard";
+import useLocalStorage from "../../hooks/localStoragehook";
 
 export default function ChatElem()
 {
+    const { storage } = useLocalStorage("user")
 	const navigate = useNavigate();
     const lastMessageRef = useRef<HTMLDivElement | null>(null)
     const {socket, channel, setChannel} = useContext(ChatContext)
@@ -38,11 +40,6 @@ export default function ChatElem()
         {
             if (form.message !== "")
             {
-                setMessagesList((oldMessagesList) => (
-                    oldMessagesList === undefined ? [{sender: socket!.id ,content: form.message}] :
-                        [...oldMessagesList, {sender: socket!.id ,content: form.message}]
-                ))
-                console.log(form.message)
                 sendMessage(channel!.channelId, form.message)
             }
             setForm((oldForm) => ({
@@ -61,7 +58,7 @@ export default function ChatElem()
 
     const handleMessageReceived = ({sender, content}:messageT) => {
         console.log(sender, socket?.id, content)
-        if(sender !== socket?.id)
+        if(sender?.login !== storage.login)
         {
             setMessagesList((oldMessagesList) => (
                 oldMessagesList === undefined ? [{sender: sender ,content: content}] :
@@ -103,6 +100,7 @@ export default function ChatElem()
     }
 
     const handleClientInfo = (data:ClientInfoT) => {
+        console.log(data)
         setUserState({
             isOwner: data.isOwner,
             isAdmin: data.isAdmin,
@@ -162,6 +160,8 @@ export default function ChatElem()
     ))
     useEffect(() => {
         setSocketManager(socket!)
+        if (channel)
+            getClientInfo(channel.channelId)
         chatHandler(handleMessageReceived,
                     handleChannelDeleted,
                     handleClientInfo,
