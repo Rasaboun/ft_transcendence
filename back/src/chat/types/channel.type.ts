@@ -37,7 +37,10 @@ export class MutedException extends HttpException
 }
 
 export type Message = {
-	sender: string,
+	sender: {
+		login: string,
+		username: string,
+	},
 	content: string,
 	date?: string,
 }

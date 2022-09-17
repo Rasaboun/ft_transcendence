@@ -6,11 +6,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChannelsService } from './channel/channel.service';
 import { ChatController } from './chat.controller';
 import { SessionManager } from './sessions/sessions.manager';
+import { UsersService } from 'src/users/users.service';
+import { User } from 'src/typeorm';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Channel])],
-    providers: [ChannelsService, ChannelManager, ChatGateway, SessionManager],
+        TypeOrmModule.forFeature([Channel]),
+        TypeOrmModule.forFeature([User])],
+    providers: [UsersService, ChannelsService, ChannelManager, ChatGateway, SessionManager],
     controllers: [ChatController]
 })
 export class ChatModule {}

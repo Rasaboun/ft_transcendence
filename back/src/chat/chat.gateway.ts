@@ -89,7 +89,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async sendMessage(client: AuthenticatedSocket, data: {channelId, message})
 	{
 		try {
-			await this.channelManager.sendMessage(data.channelId, {sender: client.id, content: data.message});
+			await this.channelManager.sendMessage(data.channelId, client, data.message);
 		}
 		catch (error) { client.emit('error', error.message ) }
 
@@ -118,6 +118,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try {
 			await this.channelManager.addAdmin(client.id, data);
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('clientInfo')
+	async getClientInfoOnChannel(client: AuthenticatedSocket, channelName: string)
+	{
+		try
+		{
+			await this.channelManager.sendClientInfo(client, channelName);
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}

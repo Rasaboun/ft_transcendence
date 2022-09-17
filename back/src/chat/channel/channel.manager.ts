@@ -1,6 +1,7 @@
 import { ForbiddenException, forwardRef, Inject, NotFoundException } from "@nestjs/common";
 import { Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
+import { UsersService } from "src/users/users.service";
 import { ActionOnUser, AddAdmin, AuthenticatedSocket, ChannelClient, ChannelInfo, ChannelModes, CreateChannel, InviteClient, JoinChannel, Message, MutedException, SetChannelPassword } from "../types/channel.type";
 import { Channel } from "./channel";
 import { ChannelsService } from "./channel.service";
@@ -10,7 +11,9 @@ export class ChannelManager
 	
 	constructor(
         @Inject(forwardRef(() => ChannelsService))
-        private channelsService: ChannelsService)
+        private channelsService: ChannelsService,
+        @Inject(forwardRef(() => UsersService))
+        private userService: UsersService,)
     {
         this.getChannelsInDb();
     }
@@ -97,6 +100,8 @@ export class ChannelManager
             {
                 // Change to one user
                 channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo()});
+                setTimeout(() => {}, 1000);
+                this.sendClientInfo(client, data.channelName);
                 return ;
             }
 
@@ -201,21 +206,25 @@ export class ChannelManager
         this.channelsService.deleteChannel(channelId);
     }
    
-    public async sendMessage(channelId: string, msg: Message)
+    public async sendMessage(channelId: string, client: AuthenticatedSocket, msg: Message)
     {
-        const channel: Channel = this.channels.get(channelId);
-        msg.date = new Date().toString();
-        if (channel == undefined)
-            throw new NotFoundException("This channel does not exist");
-        
-        if (await this.channelsService.isMuted(channelId, msg.sender) == true)
-        { 
-            const mutedTimeRemaining = (await this.channelsService.getClientById(channelId, msg.sender)).unmuteDate - new Date().getTime() / 1000;
-            throw new MutedException("You are muted on this channel", mutedTimeRemaining);
+        try
+        {
+            const channel: Channel = this.channels.get(channelId);
+            msg.date = new Date().toString();
+            if (channel == undefined)
+                throw new NotFoundException("This channel does not exist");
+            
+            if (await this.channelsService.isMuted(channelId, client.login) == true)
+            { 
+                const mutedTimeRemaining = (await this.channelsService.getClientById(channelId, client.login)).unmuteDate - new Date().getTime() / 1000;
+                throw new MutedException("You are muted on this channel", mutedTimeRemaining);
+            }
+            this.channelsService.getClientById
+            channel.sendMessage(client.login, msg.content);
+            await this.channelsService.addMessage(channelId, msg);
         }
-        this.channelsService.getClientById
-        channel.sendMessage(msg.sender, msg.content);
-        await this.channelsService.addMessage(channelId, msg);
+        catch (error) { throw error; }
     }
 
     public async muteUser(clientId: string, data: ActionOnUser)
@@ -360,6 +369,7 @@ export class ChannelManager
     public async sendClientInfo(client: AuthenticatedSocket, channelName: string)
     {
         const data: ChannelClient = await this.channelsService.getClientById(channelName, client.login)
+        console.log("client info", data);
         client.emit("clientInfo", {
             isOwner: data.isOwner,
             isAdmin: data.isAdmin,
