@@ -31,7 +31,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.sessionManager.initializeSocket(client as AuthenticatedSocket);
 		this.channelManager.joinChannels(client as AuthenticatedSocket);
 		console.log(client);
-		
 	}
 
 	async handleDisconnect(client: AuthenticatedSocket) {
