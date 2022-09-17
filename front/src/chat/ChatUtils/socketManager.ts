@@ -1,19 +1,20 @@
 import { io, Socket } from 'socket.io-client'
 import { channelFormT } from './chatType';
-import Message from '../Elements/message';
 import { ActionOnUser, AddAdminT, ChannelT, ClientInfoT, InviteClientT, JoinChannelT, messageT, SetChannelPasswordT } from './chatType';
-import useLocalStorage from '../../hooks/localStoragehook';
 
 let socket:Socket
 
 
 
-export function initiateSocket(url:string, sessioninfo?:{sessionId:string, userId:string})
+export function initiateSocket(url:string, setSocket:any, sessioninfo?:{sessionId:string, userId:string}, username?:string)
 {
-	console.log(sessioninfo)
 	socket = io(url, { autoConnect: false });
+	console.log(socket)
+	setSocket(socket)
 	if (sessioninfo)
 		socket.auth = sessioninfo;
+	else
+		socket.auth = { username } 
 	socket.connect();
 }
 
@@ -85,13 +86,12 @@ export function unsetPrivateMode(channelName: string) {
 
 export function chatMenuHandler(handleActiveChannels:any, handleChannelCreated:any, handleChannelJoined:any, handleError:any, handleInvitation:any, handleSession:any)
 {
-        socket.on('channelNotFound', () => {})
 		socket.on('activeChannels', (channels:ChannelT) => handleActiveChannels(channels));
         socket.on('channelCreated', (channelInfo) => handleChannelCreated(channelInfo))
         socket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
         socket.on('error', (message:string) => handleError(message))
         socket.on('InvitedToChannel', (message:string) => handleInvitation(message))
-		socket.on("session", ({ sessionID, userID }) => handleSession({ sessionID, userID }));
+		socket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, socket));
 }
 
 export function chatHandler(handleMessageReceived:any,

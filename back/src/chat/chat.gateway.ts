@@ -2,13 +2,17 @@ import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessa
 import { Socket, Server } from 'socket.io';
 import { Channel } from './channel/channel';
 import { ChannelManager } from './channel/channel.manager';
+import { SessionManager } from './sessions/sessions.manager';
 import { ActionOnUser, AddAdmin, AuthenticatedSocket, CreateChannel, InviteClient, JoinChannel, SetChannelPassword } from './types/channel.type';
 
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-	constructor( private channelManager: ChannelManager)
+	constructor(
+				private channelManager: ChannelManager,
+				private sessionManager: SessionManager,
+			)
 	{}
 
 	@WebSocketServer()
@@ -24,11 +28,13 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	handleConnection(client: Socket){
 		console.log(`Client ${client.id} joined chat socket`);
 		console.log(client.handshake.auth);
-		this.channelManager.initializeSocket(client as AuthenticatedSocket);
+		this.sessionManager.initializeSocket(client as AuthenticatedSocket);
+		this.channelManager.joinChannels(client as AuthenticatedSocket);
+		console.log(client);
 		
 	}
 
-	handleDisconnect(client: AuthenticatedSocket) {
+	async handleDisconnect(client: AuthenticatedSocket) {
 		console.log(`Client ${client.id} left server`);
 		this.channelManager.terminateSocket(client);
 		
@@ -42,7 +48,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			await this.channelManager.joinChannel(client, data);
 		}
 		catch (error) { client.emit('error', error.message ) }
-		console.log(`Client ${client.id} joined channel ${data.channelName}`)
+		console.log(`Client ${client.username} joined channel ${data.channelName}`)
 	}
 
 	@SubscribeMessage('leaveChannel')

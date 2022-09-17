@@ -5,11 +5,12 @@ import { ChatContext } from "../ChatContext/chatContext";
 import { useNavigate } from "react-router-dom";
 import ChannelItem from "../Elements/channelItem";
 import useLocalStorage from "../../hooks/localStoragehook";
+import { Session } from "inspector";
+import { Socket } from "socket.io-client";
 
 export default function ChatMenu()
 {
 	const {storage, setStorage} = useLocalStorage("user")
-	const {storage2} = useLocalStorage("sessionID")
 	const navigate = useNavigate();
 	const {socket, setSocket, setChannel} = useContext(ChatContext)
 	const [channels, setChannels] = useState<ChannelT[]>()
@@ -26,7 +27,6 @@ export default function ChatMenu()
 	}
 
 	const handleChannelCreated = (channelInfo:ChannelT) => {
-		console.log(channelInfo)
 		setChannel(channelInfo)
 	}
 
@@ -35,7 +35,6 @@ export default function ChatMenu()
 	}
 
 	const handleChannelJoined = ({clientId, channelInfo}:{clientId:string, channelInfo:ChannelT}) => {
-		console.log("chauuuud",channelInfo)
 		if (getSocket().id === clientId)
 		{
 			setChannel(channelInfo)
@@ -60,7 +59,6 @@ export default function ChatMenu()
 			channelForm.password !== "") || 
 			channelForm.mode !== ChannelModes.Password))
 		{
-			console.log("valide pass")
 			newChannel(channelForm)
 			setChannelForm((oldChannelForm) => ({
 				...oldChannelForm,
@@ -77,18 +75,26 @@ export default function ChatMenu()
 		window.alert(message)
 	}
 
-	const handleSession = ({ sessionID, userID }:{ sessionID:string, userID:string }) => {
-		if (socket)
+	const handleSession = (sessionInfo:{ sessionId:string, userId:string }, sock:Socket) => {
+		console.log(sock)
+		if (sock)
 		{
-			socket.auth = { sessionID };		
-			setStorage("sessionID", sessionID);
+			console.log("je suis pas nul comme l'om")
+			setStorage("sessionId", sessionInfo.sessionId);
+			sock.auth = { sessionId: sessionInfo.sessionId } ;		
 			//socket.userID = userID;
 		}
 	}
 
 	useEffect(() => {
-		if (storage && storage2)
-		initiateSocket("http://localhost:8002/chat", {sessionId: storage.intraLogin, userId: storage2})
+		const tmp = localStorage.getItem("sessionId");
+		let sessioninfo = undefined
+		if (storage && tmp)
+		{
+			const storage2 = JSON.parse(tmp)
+			sessioninfo = {sessionId: storage.intraLogin, userId: storage2}
+		}
+		initiateSocket("http://localhost:8002/chat", setSocket, sessioninfo, storage.intraLogin)
 		getActiveChannels()
 		chatMenuHandler(handleActiveChannels,
 			handleChannelCreated,
@@ -96,10 +102,7 @@ export default function ChatMenu()
 			handleError,
 			handleInvitation,
 			handleSession)
-		setSocket(getSocket())
 	}, [])
-
-	console.log(channels)
 
 	const channelsElem = channels?.map((elem, index) => (
 		<ChannelItem key={index}
@@ -108,7 +111,6 @@ export default function ChatMenu()
 			/>
 	))
 
-	console.log(channelForm)
     return (
         <div>
 			<div>
