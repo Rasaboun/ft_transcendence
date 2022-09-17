@@ -12,7 +12,7 @@ export class Channel
 
     public addClient(client: AuthenticatedSocket): void
     {
-        this.clients.set(client.id, client);
+        this.clients.set(client.username, client);
         client.join(this.id);
         client.data.channel = this;
         
