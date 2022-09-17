@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
+const createUser_dto_1 = require("./dto/createUser.dto");
 const typeorm_2 = require("../typeorm");
 const typeorm_3 = require("typeorm");
 const config_1 = require("@nestjs/config");
@@ -23,6 +24,30 @@ let UsersService = class UsersService {
         this.userRepository = userRepository;
         this.dataSource = dataSource;
         this.configService = configService;
+    }
+    async blockUser(idToBlock) {
+        const user = this.findOneById(idToBlock);
+        if (!user)
+            throw new common_1.NotFoundException('User to block does not exist');
+        const caller = await this.findOneById(1);
+        caller.blockedUsers.push(idToBlock);
+        await this.userRepository.update(caller.id, caller);
+    }
+    async unblockUser(idToBlock) {
+        const user = this.findOneById(idToBlock);
+        if (!user)
+            throw new common_1.NotFoundException('User to unblock does not exist');
+        const caller = await this.findOneById(1);
+        const index = caller.blockedUsers.indexOf(idToBlock);
+        if (index == -1)
+            return;
+        console.log(index);
+        caller.blockedUsers.splice(index, 1);
+        await this.userRepository.update(caller.id, caller);
+    }
+    async isBlocked(userId) {
+        const caller = await this.findOneById(1);
+        return caller.blockedUsers.indexOf(userId) == -1 ? false : true;
     }
     findAll() {
         return this.userRepository.find();
@@ -67,6 +92,9 @@ let UsersService = class UsersService {
         loser.defeats++;
         loser.nbGames++;
         await this.userRepository.update(loser.id, loser);
+    }
+    async getUserStatus(id) {
+        return await (await this.findOneById(id)).status;
     }
 };
 UsersService = __decorate([

@@ -11,7 +11,7 @@ async function bootstrap() {
         .getDataSource()
         .getRepository(typeorm_1.TypeORMSession);
     app.useGlobalPipes(new common_1.ValidationPipe());
-    await app.listen(3001);
+    await app.listen(3002);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
+const users_type_1 = require("../users/type/users.type");
 const typeorm_1 = require("typeorm");
 let User = class User {
 };
@@ -47,6 +48,20 @@ __decorate([
     }),
     __metadata("design:type", Number)
 ], User.prototype, "nbGames", void 0);
+__decorate([
+    (0, typeorm_1.Column)('text', {
+        array: true,
+        default: []
+    }),
+    __metadata("design:type", Array)
+], User.prototype, "blockedUsers", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        default: 0,
+        nullable: false
+    }),
+    __metadata("design:type", Number)
+], User.prototype, "status", void 0);
 User = __decorate([
     (0, typeorm_1.Entity)()
 ], User);

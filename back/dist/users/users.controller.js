@@ -14,6 +14,9 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersController = void 0;
 const common_1 = require("@nestjs/common");
+const auth_guard_1 = require("../auth/guards/auth.guard");
+const auth_filter_1 = require("../auth/utils/auth.filter");
+const typeorm_1 = require("../typeorm");
 const createUser_dto_1 = require("./dto/createUser.dto");
 const users_service_1 = require("./users.service");
 let UsersController = class UsersController {
@@ -23,11 +26,23 @@ let UsersController = class UsersController {
     createUser(userDto) {
         return this.usersService.createUser(userDto);
     }
+    blockUser(idToBlock) {
+        return this.usersService.blockUser(idToBlock);
+    }
+    unblockUser(idToBlock) {
+        return this.usersService.unblockUser(idToBlock);
+    }
+    isBlocked(userId) {
+        return this.usersService.isBlocked(userId);
+    }
     findAll() {
         return this.usersService.findAll();
     }
     findOneByUsername(username) {
         return this.usersService.findOneByUsername(username);
+    }
+    getUserStatus(userId) {
+        return this.usersService.getUserStatus(userId);
     }
     removeByUsername(username) {
         return this.usersService.removeByUsername(username);
@@ -41,6 +56,27 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "createUser", null);
 __decorate([
+    (0, common_1.Put)('block/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "blockUser", null);
+__decorate([
+    (0, common_1.Put)('unblock/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "unblockUser", null);
+__decorate([
+    (0, common_1.Get)('isblocked/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "isBlocked", null);
+__decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
@@ -53,6 +89,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "findOneByUsername", null);
+__decorate([
+    (0, common_1.Get)('status/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getUserStatus", null);
 __decorate([
     (0, common_1.Delete)(':username'),
     __param(0, (0, common_1.Param)('username')),

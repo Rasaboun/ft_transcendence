@@ -21,6 +21,8 @@ const config_1 = require("@nestjs/config");
 const passport_1 = require("@nestjs/passport");
 const typeorm_3 = require("typeorm");
 const match_module_1 = require("./match/match.module");
+const chat_module_1 = require("./chat/chat.module");
+const game_module_1 = require("./game/game.module");
 let AppModule = class AppModule {
     constructor(dataSource) {
         this.dataSource = dataSource;
@@ -49,6 +51,8 @@ AppModule = __decorate([
             passport_1.PassportModule.register({ session: true }),
             match_module_1.MatchModule,
             auth_module_1.AuthModule,
+            chat_module_1.ChatModule,
+            game_module_1.GameModule
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

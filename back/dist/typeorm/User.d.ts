@@ -6,4 +6,6 @@ export declare class User {
     victories: number;
     defeats: number;
     nbGames: number;
+    blockedUsers: number[];
+    status: number;
 }
