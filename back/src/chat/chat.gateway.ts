@@ -26,14 +26,14 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	handleConnection(client: Socket){
-		console.log(`Client ${client.handshake.auth.username} joined chat socket`);
+		console.log(`Client ${client.handshake.auth.login} joined chat socket`);
 		this.sessionManager.initializeSocket(client as AuthenticatedSocket);
 		this.channelManager.joinChannels(client as AuthenticatedSocket);
 		//console.log(client);
 	}
 
 	async handleDisconnect(client: AuthenticatedSocket) {
-		console.log(`Client ${client.username} left server`);
+		console.log(`Client ${client.login} left server`);
 		this.channelManager.terminateSocket(client);
 		
 	}
@@ -46,7 +46,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			await this.channelManager.joinChannel(client, data);
 		}
 		catch (error) { client.emit('error', error.message ) }
-		console.log(`Client ${client.username} joined channel ${data.channelName}`)
+		console.log(`Client ${client.login} joined channel ${data.channelName}`)
 	}
 
 	@SubscribeMessage('leaveChannel')
@@ -65,7 +65,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try {
 			const channel = await this.channelManager.createChannel(client, data);
-			channel.addClient(client.username, client.userId);
+			channel.addClient(client.login, client.roomId);
 			client.emit("channelCreated", channel.getInfo());
 			this.server.emit('activeChannels', this.channelManager.getActiveChannels());
 

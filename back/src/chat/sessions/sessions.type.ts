@@ -1,5 +1,5 @@
 export type Session = {
-    userId: string,
-    username: string,
+    roomId: string,
+    login: string,
     connected: boolean,
 }
