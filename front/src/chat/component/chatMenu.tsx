@@ -7,10 +7,12 @@ import ChannelItem from "../Elements/channelItem";
 import useLocalStorage from "../../hooks/localStoragehook";
 import { Session } from "inspector";
 import { Socket } from "socket.io-client";
+import userEvent from "@testing-library/user-event";
 
 export default function ChatMenu()
 {
 	const {storage, setStorage} = useLocalStorage("user")
+	const {storage2} = useLocalStorage("sessionId")
 	const navigate = useNavigate();
 	const {socket, setSocket, setChannel} = useContext(ChatContext)
 	const [channels, setChannels] = useState<ChannelT[]>()
@@ -35,7 +37,7 @@ export default function ChatMenu()
 	}
 
 	const handleChannelJoined = ({clientId, channelInfo}:{clientId:string, channelInfo:ChannelT}) => {
-		if (getSocket().id === clientId)
+		if (storage2 === clientId)
 		{
 			setChannel(channelInfo)
 			navigate("message")
@@ -79,10 +81,8 @@ export default function ChatMenu()
 		console.log(sock)
 		if (sock)
 		{
-			console.log("Before storage")
 			setStorage("sessionId", sessionInfo.sessionId);
 			setStorage("userId", sessionInfo.userId);
-			console.log("After storage")
 			sock.auth = { sessionId: sessionInfo.sessionId } ;		
 			//socket.userID = userID;
 		}
