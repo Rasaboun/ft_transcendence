@@ -138,7 +138,7 @@ export default function ChatElem()
                 [...oldMessagesList, {content: message, isInfo: true}]
         ))
         if (id === storage.login)
-            navigate("/chat")
+            navigate("/Chat")
     }
 
     
