@@ -240,6 +240,7 @@ export class ChannelManager
                     login: client.login,
                     username: client.login,
                 },
+                date: new Date().toString(),
                 content: content,
                 isInfo: true,
             }
