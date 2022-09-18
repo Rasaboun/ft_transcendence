@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AuthFormT } from "../authUtils/AuthTypes";
 import "../auth.css"
 import axios from "axios";
 import useLocalStorage from "../../hooks/localStoragehook";
 
-export default function Login ()
+export default function LoginElem ()
 {
 	const {storage, setStorage} = useLocalStorage()
 	const [authForm, setAuthForm] = useState<AuthFormT>({
@@ -39,6 +39,9 @@ export default function Login ()
 		}))
 	}
 
+	useEffect (() => {
+		localStorage.clear()
+	}, [])
 	return (
 		<div className="auth-container">
 			<form className="auth-form" onSubmit={handleSubmit}>

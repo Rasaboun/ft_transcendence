@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import InfoMessage from "../Elements/InfoMessage";
 import ChannelBoard from "../Elements/ChannelBoard";
 import useLocalStorage from "../../hooks/localStoragehook";
+import MessageInput from "./MessageInput";
 
 export default function ChatElem()
 {
@@ -190,22 +191,7 @@ export default function ChatElem()
                         <div ref={lastMessageRef}/>
                     </div>
                 </div>
-                <form onSubmit={handleSubmitMessage}>
-                    <input style={{
-                        border: "1px solid black",
-                        marginRight: "15px"
-                    }}
-                    name='message' type="text" value={form.message} onChange={handleChange}/>
-                    <button type="submit" style={{
-                        height: "5vh",
-                        width: "20vh",
-                        backgroundColor: "#00ffff",
-                        borderRadius: "20px"
-                    }} >
-                        Send
-                    </button>
-                    
-                </form>
+                <MessageInput handleChange={handleChange} handleSubmitMessage={handleSubmitMessage} value={form.message}/>
             </div>  
                       
         </div>
