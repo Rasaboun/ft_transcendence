@@ -22,13 +22,14 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	afterInit(server: Server) {
 		
 		this.channelManager.server = server;
+		this.channelManager.initChannels();
 	
 	}
 
-	handleConnection(client: Socket){
+	async handleConnection(client: Socket){
 		console.log(`Client ${client.handshake.auth.login} joined chat socket`);
 		this.sessionManager.initializeSocket(client as AuthenticatedSocket);
-		this.channelManager.joinChannels(client as AuthenticatedSocket);
+		await this.channelManager.joinChannels(client as AuthenticatedSocket);
 		//console.log(client);
 	}
 

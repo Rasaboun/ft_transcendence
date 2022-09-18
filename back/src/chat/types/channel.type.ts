@@ -87,6 +87,7 @@ export type CreateChannel = {
 
 export type ChannelInfo = {
 	channelId: string,
+	clients?: ClientInfo[],
 	nbClients: number,
 	mode: ChannelModes,
 	owner: string,

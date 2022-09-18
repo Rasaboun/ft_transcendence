@@ -322,7 +322,6 @@ export class ChannelsService {
         let firstMessage = 0;
         while (firstMessage < channel.messages.length && joinedDate > new Date(channel.messages[firstMessage].date))
             firstMessage++;
-        console.log("first message", firstMessage);
         return channel.messages.slice(firstMessage);
 
     }

@@ -16,14 +16,13 @@ export class ChannelManager
         @Inject(forwardRef(() => UsersService))
         private userService: UsersService,)
     {
-        this.getChannelsInDb();
     }
 
     @WebSocketServer()
     public server;
     private readonly channels: Map<string, Channel> = new Map<string, Channel>();
 
-    private async getChannelsInDb()
+    public async initChannels()
     {
         const channelsInDb = await this.channelsService.findAll();
         for (let i = 0; i < channelsInDb.length; i++)
@@ -74,7 +73,7 @@ export class ChannelManager
             await this.channelsService.addAdmin(channel.id, client.login);//change to real id
 
             client.join(channel.id);
-            channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo:channel.getInfo()});
+            channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id)), });
         
             return channel;
         }
@@ -83,7 +82,6 @@ export class ChannelManager
 
     public async joinChannel(client: AuthenticatedSocket, data: JoinChannel)
     {
-        console.log("Emit joined");
         const channel: Channel = this.channels.get(data.channelName);
 
         if (channel == undefined)
@@ -97,32 +95,25 @@ export class ChannelManager
             if ((await this.channelsService.isClient(channel.id, client.login)))
             {
                 client.join(channel.id);
-                channel.sendToClient(client.login, "joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(), clients: await this.getChannelClients(channel.id)});
+                channel.sendToClient(client.login, "joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
                 return ;
             }
             if (channel.isPrivate() && !(await this.channelsService.isInvited(data.channelName, client.login)))
                 throw new ForbiddenException("You are not invited to this channel");
- 
-            if (await this.channelsService.isClient(data.channelName, client.id))
-            {
-                
-            }
 
             await this.channelsService.addClient(data.channelName, client.login, data.password) //change to real id
             
             channel.addClient(client.login, client.roomId);
             client.join(channel.id);
-            channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(), clients: await this.getChannelClients(channel.id)});
+            channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
         }
         catch (error) { throw error }
     }
 
     public async joinChannels(client: AuthenticatedSocket)
     {
-        console.log("login: ", client.login);
-        for (const channelName in this.channels)
+        for (const [channelName, channel] of this.channels)
         {
-            console.log("Channel: ", channelName);
             if ((await this.channelsService.isClient(channelName, client.login)))
             {
                 client.join(channelName);
@@ -184,7 +175,6 @@ export class ChannelManager
 
     public deleteChannel(channelId: string)
     {
-        console.log(channelId);
         const channel: Channel = this.channels.get(channelId);
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
@@ -393,7 +383,6 @@ export class ChannelManager
 
         for (const [clientLogin, roomId] of channel.clients)
         {
-            console.log("clientLogin login", clientLogin);
             const channelInfo: ChannelClient = await this.channelsService.getClientById(channelName, clientLogin);
             const userInfo = await this.userService.findOneByIntraLogin(clientLogin);
             clients.push({
@@ -403,7 +392,6 @@ export class ChannelManager
                 isAdmin: channelInfo.isOwner,
             })
         }
-        console.log("Clients", clients);
         return clients;
     }
 
@@ -432,19 +420,4 @@ export class ChannelManager
         return res;
         
     }
-
-    //Deletes stopped channels every minutes
-    //@Interval(60 * 1000)
-    private channelsCleaner(): void
-    {
-        console.log(`Avalaible channels: ${this.channels.size}`);
-        this.channels.forEach((channel, id) => {
-            if (channel.getNbClients() == 0)
-            {
-                this.channels.delete(id);
-            }
-        });
-        console.log(`Active channels: ${this.channels.size}`);
-    }
-
 }

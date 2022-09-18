@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { Server } from "socket.io";
-import { AuthenticatedSocket, ChannelInfo, ChannelModes, Message } from "../types/channel.type";
+import { AuthenticatedSocket, ChannelInfo, ChannelModes, ClientInfo, Message } from "../types/channel.type";
 
 export class Channel
 {
@@ -13,8 +13,6 @@ export class Channel
     public addClient(username: string, roomId: string | null): void
     {
         this.clients.set(username, roomId);
-        
-        console.log("Channel clients ", this.clients.size);
     }
 
     public removeClient(clientId: string)
@@ -32,10 +30,11 @@ export class Channel
         return clientsIdArray;
     }
 
-    public getInfo(): ChannelInfo
+    public getInfo(clients?: ClientInfo[]): ChannelInfo
     {
         const res: ChannelInfo = {
             channelId: this.id,
+            clients: clients,
             mode: this.mode,
             nbClients: this.getNbClients(),
             owner: this.owner,
@@ -62,8 +61,8 @@ export class Channel
     public sendToUsers(event: string, data: any)
     {
         this.clients.forEach((roomId, client) => {
-            console.log("sending to", client)
-            this.server.to(roomId).emit(event, data);
+            if (roomId != null)
+                this.server.to(roomId).emit(event, data);
         })
     }
 
