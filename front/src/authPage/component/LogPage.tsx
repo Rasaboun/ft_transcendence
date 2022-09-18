@@ -3,9 +3,11 @@ import { AuthFormT } from "../authUtils/AuthTypes";
 import "../auth.css"
 import axios from "axios";
 import useLocalStorage from "../../hooks/localStoragehook";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginElem ()
 {
+	const navigate = useNavigate()
 	const {storage, setStorage} = useLocalStorage()
 	const [authForm, setAuthForm] = useState<AuthFormT>({
 		username: "",
@@ -27,8 +29,9 @@ export default function LoginElem ()
 				{
 					setStorage("token", res.data.access_token)
 					setStorage("user", res.data.user)
+					navigate("/chat")
 				}
-			  })
+			  }).catch(e => console.log)
 		}
 	}
 
@@ -39,7 +42,7 @@ export default function LoginElem ()
 		}))
 	}
 
-	useEffect (() => {
+	useEffect(() => {
 		localStorage.clear()
 	}, [])
 	return (

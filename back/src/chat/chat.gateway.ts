@@ -54,7 +54,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try
 		{
-			await this.channelManager.leaveChannel(client.id, channelName);
+			await this.channelManager.leaveChannel(client.login, channelName);
 		}
 		catch (error) { client.emit('error', error.message ) }
 		console.log(`Client ${client.id} left channel ${channelName}`)
@@ -68,7 +68,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			channel.addClient(client.login, client.roomId);
 			client.emit("channelCreated", channel.getInfo());
 			this.server.emit('activeChannels', this.channelManager.getActiveChannels());
-
 		}
 		catch (error) { return client.emit('error', error.message)}
 	}
@@ -79,6 +78,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try
 		{
 			this.channelManager.deleteChannel(channelId);
+			this.server.emit('activeChannels', this.channelManager.getActiveChannels());
 		}
 		catch (error) { client.emit('error', error.message ) }
 		console.log(`Client ${client.id} deleted channel ${channelId}`)
@@ -99,7 +99,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async muteUser(client: AuthenticatedSocket, data: ActionOnUser)
 	{
 		try {
-			await this.channelManager.muteUser(client.id, data);
+			await this.channelManager.muteUser(client.login, data);
 		}
 		catch (error) { client.emit('error', error.message) }
 	}
@@ -108,7 +108,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async banUser(client: AuthenticatedSocket, data: ActionOnUser)
 	{
 		try {
-			await this.channelManager.banUser(client.id, data);
+			await this.channelManager.banUser(client.login, data);
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
@@ -117,7 +117,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async addAdmin(client: AuthenticatedSocket, data: AddAdmin)
 	{
 		try {
-			await this.channelManager.addAdmin(client.id, data);
+			await this.channelManager.addAdmin(client.login, data);
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
@@ -142,7 +142,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async setChannelPassword(client: AuthenticatedSocket, data: SetChannelPassword)
 	{
 		try {
-			await this.channelManager.setChannelPassword(client.id, data);
+			await this.channelManager.setChannelPassword(client.login, data);
+			this.server.emit('activeChannels', this.channelManager.getActiveChannels());
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
@@ -151,7 +152,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async unsetChannelPassword(client: AuthenticatedSocket, channelName: string)
 	{
 		try {
-			await this.channelManager.unsetChannelPassword(client.id, channelName);
+			await this.channelManager.unsetChannelPassword(client.login, channelName);
 		}
 		catch (error) { client.emit('error', error.message ) }
 
@@ -161,7 +162,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async setPrivateMode(client: AuthenticatedSocket, channelName: string)
 	{
 		try {
-			await this.channelManager.setPrivateMode(client.id, channelName);
+			await this.channelManager.setPrivateMode(client.login, channelName);
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
@@ -170,7 +171,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async unsetPrivateMode(client: AuthenticatedSocket, channelName: string)
 	{
 		try {
-			await this.channelManager.unsetPrivateMode(client.id, channelName);
+			await this.channelManager.unsetPrivateMode(client.login, channelName);
 		}
 		catch (error) { client.emit('error', error.message ) }
 
@@ -180,7 +181,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async inviteClient(client: AuthenticatedSocket, data: InviteClient)
 	{
 		try {
-			await this.channelManager.inviteClient(client.id, data);
+			await this.channelManager.inviteClient(client.login, data);
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}

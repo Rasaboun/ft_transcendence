@@ -104,7 +104,8 @@ export default function ChatMenu()
 				sessioninfo = {sessionId: sessionId, roomId: roomId}
 		}
 		console.log("Storage", storage);
-		initiateSocket("http://localhost:8002/chat", setSocket, sessioninfo, storage.login)
+		if (!socket)
+			initiateSocket("http://localhost:8002/chat", setSocket, sessioninfo, storage.login)
 		getActiveChannels()
 		chatMenuHandler(handleActiveChannels,
 			handleChannelCreated,

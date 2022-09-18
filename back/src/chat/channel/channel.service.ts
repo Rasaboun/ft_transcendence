@@ -319,10 +319,11 @@ export class ChannelsService {
         if (index == -1)
             throw new NotFoundException("User is not in this channel");
         
-        const joinedDate: Date = channel.clients[index].joinedDate;
+        const joinedDate = new Date(channel.clients[index].joinedDate);
         let firstMessage = 0;
-        while (joinedDate > new Date(channel.messages[firstMessage].date))
+        while (firstMessage < channel.messages.length && joinedDate > new Date(channel.messages[firstMessage].date))
             firstMessage++;
+        console.log("first message", firstMessage);
         return channel.messages.slice(firstMessage);
 
     }

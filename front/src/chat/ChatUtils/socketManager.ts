@@ -4,8 +4,6 @@ import { ActionOnUser, AddAdminT, ChannelT, ClientInfoT, InviteClientT, JoinChan
 
 let socket:Socket
 
-
-
 export function initiateSocket(url:string, setSocket:any, sessioninfo?:{sessionId:string, roomId:string}, login?:string)
 {
 	socket = io(url, { autoConnect: false });
@@ -107,15 +105,18 @@ export function chatHandler(handleMessageReceived:any,
 							handleAddAdmin:any,
 							handleLeftChannel:any,
 							handleUpgradeToOwner:any,
-							handleIsAlreadyAdmin:any)
+							handleIsAlreadyAdmin:any,
+							handleSession:any)
 {
         socket.on("msgToChannel", ({sender, content}:messageT) => handleMessageReceived({sender, content}))      
         socket.on('channelDeleted', (message:string) => handleChannelDeleted(message))
         socket.on('clientInfo', (data:ClientInfoT) => handleClientInfo(data))
         socket.on('bannedFromChannel', (id:string) => handleBannedFromChannel(id))
-        socket.on('mutedInChannel', (data:ClientInfoT) => handleMutedFromChannel(data))
+        socket.on('mutedInChannel', (data:ActionOnUser) => handleMutedFromChannel(data))
         socket.on('addAdmin', handleAddAdmin)
         socket.on('leftChannel', ({chanelName, clientId}) => handleLeftChannel({chanelName, clientId}))
         socket.on('upgradeToOwner', (channelName:string) => handleUpgradeToOwner(channelName))
         socket.on('isAlreadyAdmin', handleIsAlreadyAdmin)
+		socket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, socket));
+
 }

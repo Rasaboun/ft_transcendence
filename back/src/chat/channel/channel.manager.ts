@@ -1,6 +1,7 @@
 import { ForbiddenException, forwardRef, Inject, NotFoundException } from "@nestjs/common";
 import { Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
+import { createClient } from "redis";
 import { UsersService } from "src/users/users.service";
 import { ActionOnUser, AddAdmin, AuthenticatedSocket, ChannelClient, ChannelInfo, ChannelModes, CreateChannel, InviteClient, JoinChannel, Message, MutedException, SetChannelPassword } from "../types/channel.type";
 import { Channel } from "./channel";
@@ -97,29 +98,25 @@ export class ChannelManager
                 throw new ForbiddenException("You are not invited to this channel");
             if ((await this.channelsService.isClient(channel.id, client.login)))
             {
-                console.log("fdsfdsfdsf")
+            //     if (channel.isPasswordProtected() && !(await this.channelsService.checkPassword(data.channelName, data.password)))
+            //         throw new ForbiddenException("Wrong channel password");
+                client.join(channel.id);
                 // Change to one user
                 channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo()});
                 return ;
             }
-
-            // A TESTER    
-            // if (await this.channelsService.isClient(data.channelName, client.id))
-            // {
-            //     if (channel.isPasswordProtected && !(await this.channelsService.checkPassword(data.channelName, data.password)))
-            //         throw new ForbiddenException("Wrong channel password");
-            //     const messages: Message[] = await this.channelsService.getClientMessages(data.channelName, client.id);
-            //     client.emit("connectedToChannel", {
-            //         channelName: data.channelName,
-            //         messages: messages,
-            //     })
-            // }
+ 
+            if (await this.channelsService.isClient(data.channelName, client.id))
+            {
+                
+            }
 
             await this.channelsService.addClient(data.channelName, client.login, data.password) //change to real id
             
             channel.addClient(client.login, client.roomId);
             client.join(channel.id);
             channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo()});
+            console.log("client info",)
         }
         catch (error) { throw error }
     }
@@ -190,6 +187,7 @@ export class ChannelManager
 
     public deleteChannel(channelId: string)
     {
+        console.log(channelId);
         const channel: Channel = this.channels.get(channelId);
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
@@ -202,12 +200,12 @@ export class ChannelManager
         this.channelsService.deleteChannel(channelId);
     }
    
-    public async sendMessage(channelId: string, client: AuthenticatedSocket, msg: Message)
+    public async sendMessage(channelId: string, client: AuthenticatedSocket, msg: string)
     {
         try
         {
             const channel: Channel = this.channels.get(channelId);
-            msg.date = new Date().toString();
+            
             if (channel == undefined)
                 throw new NotFoundException("This channel does not exist");
             
@@ -216,9 +214,19 @@ export class ChannelManager
                 const mutedTimeRemaining = (await this.channelsService.getClientById(channelId, client.login)).unmuteDate - new Date().getTime() / 1000;
                 throw new MutedException("You are muted on this channel", mutedTimeRemaining);
             }
-            this.channelsService.getClientById
-            channel.sendMessage(client.login, msg.content);
-            await this.channelsService.addMessage(channelId, msg);
+            const user = await this.userService.findOneByIntraLogin(client.login);
+
+            let message: Message = {
+                sender: {
+                    login: user.intraLogin,
+                    username: user.username,
+                },
+                content: msg,
+                date: new Date().toString(),
+            };
+
+            channel.sendMessage(message);
+            await this.channelsService.addMessage(channelId, message);
         }
         catch (error) { throw error; }
     }
@@ -232,7 +240,7 @@ export class ChannelManager
                 throw new ForbiddenException("You are not allowed to do this");
             await this.channelsService.muteClient(data);
 
-            this.channels.get(data.channelName).sendToUsers("mutedInChannel", data.targetId);  
+            this.channels.get(data.channelName).sendToUsers("mutedInChannel", data);  
         } catch (error) {
             throw error;
         }
@@ -284,7 +292,10 @@ export class ChannelManager
             caller = await this.channelsService.getClientById(data.channelName, clientId);
             if (caller == undefined || caller.isAdmin == false)
                 throw new ForbiddenException("You are not allowed to do this");
-            this.setPrivateMode(clientId, data.channelName);
+            let target = await this.userService.findOneByUsername(data.clientId);
+            if (!target)
+                throw new NotFoundException("This user does not exist");
+            data.clientId = target.intraLogin;
             // Send notification ?
             await this.channelsService.inviteClient(data);
             //console.log(this.channels.get(data.channelName).getClientSocket(data.clientId))
@@ -365,10 +376,13 @@ export class ChannelManager
     public async sendClientInfo(client: AuthenticatedSocket, channelName: string)
     {
         const data: ChannelClient = await this.channelsService.getClientById(channelName, client.login)
+        const messages: Message[] = await this.channelsService.getClientMessages(channelName, client.login);
         client.emit("clientInfo", {
             isOwner: data.isOwner,
             isAdmin: data.isAdmin,
             isMuted: await this.channelsService.isMuted(channelName, client.login),
+            messages: messages,
+
         })
     }
 
