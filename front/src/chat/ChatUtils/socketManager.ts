@@ -106,7 +106,8 @@ export function chatHandler(handleMessageReceived:any,
 							handleLeftChannel:any,
 							handleUpgradeToOwner:any,
 							handleIsAlreadyAdmin:any,
-							handleSession:any)
+							handleSession:any,
+							handleChannelJoined:any)
 {
         socket.on("msgToChannel", ({sender, content}:messageT) => handleMessageReceived({sender, content}))      
         socket.on('channelDeleted', (message:string) => handleChannelDeleted(message))
@@ -114,6 +115,7 @@ export function chatHandler(handleMessageReceived:any,
         socket.on('bannedFromChannel', (id:string) => handleBannedFromChannel(id))
         socket.on('mutedInChannel', (data:ActionOnUser) => handleMutedFromChannel(data))
         socket.on('addAdmin', handleAddAdmin)
+        socket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
         socket.on('leftChannel', ({chanelName, clientId}) => handleLeftChannel({chanelName, clientId}))
         socket.on('upgradeToOwner', (channelName:string) => handleUpgradeToOwner(channelName))
         socket.on('isAlreadyAdmin', handleIsAlreadyAdmin)

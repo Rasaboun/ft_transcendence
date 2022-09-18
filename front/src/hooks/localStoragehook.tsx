@@ -25,6 +25,8 @@ export default function useLocalStorage(key?:string) {
   return {
     setStorage: saveStorage,
     storage: getStorage(),
-	storage2: getStorage()
+	  storage2: getStorage(),
+	  storage3: getStorage(),
+	  storage4: getStorage()
   }
 }

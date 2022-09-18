@@ -11,24 +11,11 @@ type MessagePropsT = {
 
 export default function Message({className, message}:MessagePropsT)
 {
-    const [isHover, setIsHover] = useState<boolean>(false)
     const {socket} = useContext(ChatContext)
-
-    const handleOnMouseOver = () => {
-        setIsHover(true)
-    }
-
-    const handleMouseLeave = () => {
-        setIsHover(false)
-    }
 
     return(
         <div className={className}>
-            {
-                isHover && socket?.id !== message.sender && !message.isInfo &&
-                    <MessageOption handleMouseLeave={handleMouseLeave} sender={message.sender!.username}/>
-            }
-            {<h4 onMouseOver={handleOnMouseOver} style={{
+            {<h4 style={{
                 color: "red"
             }}>
                 {message.sender!.username}

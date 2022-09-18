@@ -3,8 +3,9 @@ import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useLocalStorage from "../../hooks/localStoragehook";
 import { ChatContext } from "../ChatContext/chatContext";
-import { ChannelModes, UserStateT } from "../ChatUtils/chatType";
+import { ChannelModes, ClientElem, UserStateT } from "../ChatUtils/chatType";
 import { inviteClient, leaveChannel, setChannelPassword, setPrivateMode, unsetChannelPassword, unsetPrivateMode } from "../ChatUtils/socketManager";
+import UserListElem from "./UserListElem";
 
 type PropsT = {
     userState?: UserStateT
@@ -13,7 +14,8 @@ type PropsT = {
 export default function ChannelBoard({userState}:PropsT)
 {
     const {storage} = useLocalStorage("user");
-    const {socket, channel, setChannel} = useContext(ChatContext)
+    const {storage2, setStorage} = useLocalStorage("channel");
+    const {socket} = useContext(ChatContext)
     const navigate = useNavigate()
     const [form, setForm] = useState({
         message:"",
@@ -25,7 +27,7 @@ export default function ChannelBoard({userState}:PropsT)
         e.preventDefault()
         if (form.invite !== "")
         {
-            inviteClient({channelName:channel!.channelId, clientId: form.invite})
+            inviteClient({channelName: storage2!.channelId, clientId: form.invite})
         }
         setForm((oldForm) => ({
             ...oldForm,
@@ -40,16 +42,16 @@ export default function ChannelBoard({userState}:PropsT)
 			console.log(form.password)
             setChannelPassword(
             {
-                channelName: channel!.channelId,
+                channelName: storage2!.channelId,
                 password: form.password
             })
-            if (channel?.mode !== ChannelModes.Password)
+            if (storage2?.mode !== ChannelModes.Password)
             {
-                setChannel({
-                    channelId: channel!.channelId,
-                    nbClients: channel!.nbClients,
+                setStorage("channel", {
+                    channelId: storage2!.channelId,
+                    nbClients: storage2!.nbClients,
                     mode: ChannelModes.Password,
-                    owner: channel!.owner
+                    owner: storage2!.owner
                 })
             }  
         }
@@ -67,44 +69,55 @@ export default function ChannelBoard({userState}:PropsT)
     }
 
     const handleLeaveChannel = () => {
-        leaveChannel(channel!.channelId)
+        leaveChannel(storage2!.channelId)
         navigate("/Chat")
     }
 
     const handleUnsetPassword = () => {
-        unsetChannelPassword(channel!.channelId)
-        setChannel({
-            channelId: channel!.channelId,
-            nbClients: channel!.nbClients,
+        unsetChannelPassword(storage2!.channelId)
+        setStorage("channel", {
+            channelId: storage2!.channelId,
+            nbClients: storage2!.nbClients,
             mode: ChannelModes.Public,
-            owner: channel!.owner
+            owner: storage2!.owner
         })
     }
 
     const handleUnsetPrivMode = () => {
-        unsetPrivateMode(channel!.channelId)
-        setChannel({
-            channelId: channel!.channelId,
-            nbClients: channel!.nbClients,
+        unsetPrivateMode(storage2!.channelId)
+        setStorage("channel", {
+            channelId: storage2!.channelId,
+            nbClients: storage2!.nbClients,
             mode: ChannelModes.Public,
-            owner: channel!.owner
+            owner: storage2!.owner
         })
     }
 
     const handleSetInvite = () => {
-        setPrivateMode(channel!.channelId)
-        setChannel({
-            channelId: channel!.channelId,
-            nbClients: channel!.nbClients,
+        setPrivateMode(storage2!.channelId)
+        setStorage("channel", {
+            channelId: storage2!.channelId,
+            nbClients: storage2!.nbClients,
             mode: ChannelModes.Private,
-            owner: channel!.owner
+            owner: storage2!.owner
         })
     }
 
     const handleDelete = () => {
-        socket?.emit("deleteChannel", channel?.channelId)
+        socket?.emit("deleteChannel", storage2?.channelId)
      }
 
+    let ownerList: ClientElem[] = [];
+    let adminsList: ClientElem[] = [];
+    let othersList: ClientElem[] = [];
+    
+    storage2?.clients.forEach((elem:ClientElem, index:number) => {
+        elem.isOwner && ownerList.push(elem)
+        elem.isAdmin && !elem.isOwner && adminsList.push(elem)
+        !elem.isAdmin && !elem.isOwner && othersList.push(elem)
+    })
+
+    console.log("admin, other", adminsList, othersList)
     return (
         <div className="chat-left">
             {
@@ -112,7 +125,7 @@ export default function ChannelBoard({userState}:PropsT)
                     <div>
                         {`${storage.username} 👑`}
                         {
-                            channel?.mode === ChannelModes.Public &&
+                            storage2?.mode === ChannelModes.Public &&
                                 <button onClick={handleSetInvite} style={{
                                     height: "2vh",
                                     width: "10vh",
@@ -123,7 +136,7 @@ export default function ChannelBoard({userState}:PropsT)
                                 </button>  
                         }
                         {
-                            channel?.mode === ChannelModes.Private &&
+                            storage2?.mode === ChannelModes.Private &&
                                 <form onSubmit={handleSubmitInvite}>
                                     <input style={{
                                         border: "1px solid black",
@@ -156,13 +169,13 @@ export default function ChannelBoard({userState}:PropsT)
                                 backgroundColor: "#00ffff",
                                 borderRadius: "20px"
                             }} >
-                                {channel?.mode === ChannelModes.Public ?
+                                {storage2?.mode === ChannelModes.Public ?
                                 "set password" : "change password"}
                             </button>
                         </form>
                         {
-                            channel?.mode !== ChannelModes.Public &&
-                                <button onClick={channel?.mode === ChannelModes.Password ? 
+                            storage2?.mode !== ChannelModes.Public &&
+                                <button onClick={storage2?.mode === ChannelModes.Password ? 
                                     handleUnsetPassword:
                                     handleUnsetPrivMode}>
                                     unset Mode ❌
@@ -171,7 +184,24 @@ export default function ChannelBoard({userState}:PropsT)
                         
                     </div>
             }
-            
+            <div className="user-list">
+                {ownerList.length !== 0 && <h2>Owner</h2>}
+                    {ownerList.map((elem:ClientElem, index:number) => 
+                        <UserListElem key={index} client={elem} userState={userState}/>
+                        )
+                    }
+                
+                {adminsList.length !== 0 && <h2>Admin</h2>}
+                    {adminsList.map((elem:ClientElem, index:number) => 
+                        <UserListElem key={index} client={elem} userState={userState}/>
+                        )
+                    }
+                {othersList.length !== 0 && <h2>Les Paillots</h2>}
+                    {othersList.map((elem:ClientElem, index:number) => 
+                        <UserListElem key={index} client={elem} userState={userState}/>
+                        )
+                    }
+            </div>
             <div className="bottom-button">
             {
                 userState?.isOwner &&

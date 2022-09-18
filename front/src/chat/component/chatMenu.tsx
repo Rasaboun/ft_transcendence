@@ -14,7 +14,7 @@ export default function ChatMenu()
 	const {storage, setStorage} = useLocalStorage("user")
 	const {storage2} = useLocalStorage("sessionId")
 	const navigate = useNavigate();
-	const {socket, setSocket, setChannel} = useContext(ChatContext)
+	const {socket, setSocket} = useContext(ChatContext)
 	const [channels, setChannels] = useState<ChannelT[]>()
 	const [channelForm, setChannelForm] = useState<channelFormT>({
 		name: "",
@@ -29,7 +29,7 @@ export default function ChatMenu()
 	}
 
 	const handleChannelCreated = (channelInfo:ChannelT) => {
-		setChannel(channelInfo)
+		setStorage("channel", channelInfo)
 	}
 
 	const handleJoinChannel = (data:JoinChannelT) => {
@@ -41,7 +41,7 @@ export default function ChatMenu()
 		if (storage.login === data.clientId)
 		{
 			console.log()
-			setChannel(data.channelInfo)
+			setStorage("channel", data.channelInfo)
 			navigate("message")
 		}
 	}

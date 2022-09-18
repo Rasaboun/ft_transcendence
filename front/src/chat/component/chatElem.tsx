@@ -14,9 +14,10 @@ export default function ChatElem()
 {
     const {storage, setStorage} = useLocalStorage("user")
 	const {storage2} = useLocalStorage("sessionId")
+	const {storage3} = useLocalStorage("channel")
 	const navigate = useNavigate();
     const lastMessageRef = useRef<HTMLDivElement | null>(null)
-    const {socket, channel, setChannel, setSocket} = useContext(ChatContext)
+    const {socket, setSocket} = useContext(ChatContext)
     const [form, setForm] = useState({
         message:"",
         invite:"",
@@ -44,7 +45,7 @@ export default function ChatElem()
         {
             if (form.message !== "")
             {
-                sendMessage(channel!.channelId, form.message)
+                sendMessage(storage3!.channelId, form.message)
             }
             setForm((oldForm) => ({
                 ...oldForm,
@@ -61,7 +62,6 @@ export default function ChatElem()
     }
 
     const handleMessageReceived = ({sender, content}:messageT) => {
-        console.log(sender, socket?.id, content)
         setMessagesList((oldMessagesList) => (
             oldMessagesList === undefined ? [{sender: sender ,content: content}] :
                 [...oldMessagesList, {sender: sender ,content: content}]
@@ -70,7 +70,7 @@ export default function ChatElem()
 
     const handleLeftChannel = ({channelName, clientId}:{channelName: string, clientId: string}) => {
         const message = `${clientId} left the chat`
-        if(clientId !== socket?.id)
+        if(clientId !== storage.login)
         {
             setMessagesList((oldMessagesList) => (
                 oldMessagesList === undefined ? [{content: message, isInfo: true}] :
@@ -79,6 +79,9 @@ export default function ChatElem()
         }
     }
 
+    const handleChannelJoined = (data:{clientId:string, channelInfo:ChannelT}) => {
+        setStorage("channel", data.channelInfo)
+	}
     const upgradeToOwner = (channelName:string) => {
         const message = `You are now Owner`;
         setUserState((oldUserState) => ({
@@ -197,10 +200,10 @@ export default function ChatElem()
                 sessioninfo = {sessionId: sessionId, roomId: roomId}
         }
 		if (!socket)
-			initiateSocket("http://10.11.11.23:8002/chat", setSocket, sessioninfo, storage.login)
+			initiateSocket("http://localhost:8002/chat", setSocket, sessioninfo, storage.login)
         setSocketManager(socket!)
-        if (channel)
-            getClientInfo(channel.channelId)
+        if (storage3)
+            getClientInfo(storage3.channelId)
         chatHandler(handleMessageReceived,
                     handleChannelDeleted,
                     handleClientInfo,
@@ -210,7 +213,8 @@ export default function ChatElem()
                     handleLeftChannel,
                     upgradeToOwner,
                     handleIsAlreadyAdmin,
-                    handleSession
+                    handleSession,
+                    handleChannelJoined
                     )
     }, [])
 
@@ -227,7 +231,7 @@ export default function ChatElem()
 	}, [mutedTime])
 
     console.log(socket)
-    console.log(channel)
+    console.log("channel", storage3)
     return (
         <div className="chat">
             <ChannelBoard userState={userState}/>

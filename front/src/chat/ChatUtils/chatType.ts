@@ -1,5 +1,15 @@
+export type ClientElem = {
+	login:string,
+	username:string,
+	isOwner: boolean,
+	isAdmin: boolean,
+	isMuted: boolean,
+	messages?: messageT[]
+}
+
 export type ChannelT = {
 	channelId: string,
+	clients: ClientElem[]
 	nbClients: number,
 	mode: ChannelModes
 	owner: string,
