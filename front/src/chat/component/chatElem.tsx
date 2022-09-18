@@ -108,7 +108,8 @@ export default function ChatElem()
         setUserState({
             isOwner: data.isOwner,
             isAdmin: data.isAdmin,
-            isMuted: data.isMuted
+            isMuted: data.isMuted,
+            unmuteDate: data.unmuteDate,
         })
         if (data.messages?.length !== 0)
         {
@@ -125,16 +126,20 @@ export default function ChatElem()
         )
     }
 
-    const handleBannedFromChannel = (id:string) => {
-        const message = id === storage.login ? 
+    const handleBannedFromChannel = (data:ActionOnUser) => {
+        const message = data.targetId === storage.login ? 
             "You have been banned from the chat" :
-            `${id} has been banned from the chat`
+            `${data.targetId} has been banned from the chat`
 
         setMessagesList((oldMessagesList) => (
             oldMessagesList === undefined ? [{content: message, isInfo: true}] :
                 [...oldMessagesList, {content: message, isInfo: true}]
         ))
-        if (id === storage.login)
+        setUserState((oldUserState) => ({
+            ...oldUserState!,
+            unmuteDate: data.duration,
+        }))
+        if (data.targetId === storage.login)
             navigate("/chat")
     }
 
@@ -236,7 +241,7 @@ export default function ChatElem()
                         <div ref={lastMessageRef}/>
                     </div>
                 </div>
-                <MessageInput mutedTime={mutedTime} handleChange={handleChange} handleSubmitMessage={handleSubmitMessage} value={form.message}/>
+                <MessageInput mutedTime={userState ? userState.unmuteDate : 0} handleChange={handleChange} handleSubmitMessage={handleSubmitMessage} value={form.message}/>
             </div>           
         </div>
     )

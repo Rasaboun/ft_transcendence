@@ -46,7 +46,7 @@ export type UserStateT = {
 	isOwner: boolean,
 	isAdmin: boolean,
 	isMuted: boolean,
-	unmuteDate?: number,
+	unmuteDate: number,
 	unbanDate?: number
 }
 
@@ -54,6 +54,7 @@ export type ClientInfoT = {
 	isOwner: boolean,
 	isAdmin: boolean,
 	isMuted: boolean,
+	unmuteDate: number,
 	messages?: messageT[]
 }
 
