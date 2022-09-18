@@ -291,7 +291,10 @@ export class ChannelManager
             caller = await this.channelsService.getClientById(data.channelName, clientId);
             if (caller == undefined || caller.isAdmin == false)
                 throw new ForbiddenException("You are not allowed to do this");
-            this.setPrivateMode(clientId, data.channelName);
+            let target = await this.userService.findOneByUsername(data.clientId);
+            if (!target)
+                throw new NotFoundException("This user does not exist");
+            data.clientId = target.intraLogin;
             // Send notification ?
             await this.channelsService.inviteClient(data);
             //console.log(this.channels.get(data.channelName).getClientSocket(data.clientId))
