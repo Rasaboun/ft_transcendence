@@ -3,6 +3,7 @@
     flex-direction: column;
     overflow-y:auto;
     max-height: 100%;
+    padding: 10px;
     /* transform: scale(1,-1); */
 }
 

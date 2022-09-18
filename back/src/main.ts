@@ -15,7 +15,7 @@ import bodyParser from 'body-parser';
 
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule, {cors:  true });
   const sessionRepo = app
     .get(AppModule)
     .getDataSource()
@@ -35,7 +35,9 @@ async function bootstrap() {
   );
   app.use(passport.initialize());
   app.use(passport.session());
-  
+  // app.enableCors({  
+  //   origin: ["http://10.11.10.22:3000", "http://localhost:3000"],
+  //   credentials: true,});
   await app.listen(3002);
 }
 bootstrap();

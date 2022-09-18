@@ -184,6 +184,7 @@ export class ChannelManager
 
     public deleteChannel(channelId: string)
     {
+        console.log(channelId);
         const channel: Channel = this.channels.get(channelId);
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
@@ -236,7 +237,7 @@ export class ChannelManager
                 throw new ForbiddenException("You are not allowed to do this");
             await this.channelsService.muteClient(data);
 
-            this.channels.get(data.channelName).sendToUsers("mutedInChannel", data.targetId);  
+            this.channels.get(data.channelName).sendToUsers("mutedInChannel", data);  
         } catch (error) {
             throw error;
         }

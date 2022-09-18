@@ -68,7 +68,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			channel.addClient(client.login, client.roomId);
 			client.emit("channelCreated", channel.getInfo());
 			this.server.emit('activeChannels', this.channelManager.getActiveChannels());
-
 		}
 		catch (error) { return client.emit('error', error.message)}
 	}
@@ -79,6 +78,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try
 		{
 			this.channelManager.deleteChannel(channelId);
+			this.server.emit('activeChannels', this.channelManager.getActiveChannels());
 		}
 		catch (error) { client.emit('error', error.message ) }
 		console.log(`Client ${client.id} deleted channel ${channelId}`)

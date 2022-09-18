@@ -12,7 +12,7 @@ type PropsT = {
 
 export default function ChannelBoard({userState}:PropsT)
 {
-    const { storage } = useLocalStorage("user")
+    const {storage} = useLocalStorage("user");
     const {socket, channel, setChannel} = useContext(ChatContext)
     const navigate = useNavigate()
     const [form, setForm] = useState({
@@ -102,7 +102,7 @@ export default function ChannelBoard({userState}:PropsT)
     }
 
     const handleDelete = () => {
-        socket?.emit("deleteChannel", channel)
+        socket?.emit("deleteChannel", channel?.channelId)
      }
 
     return (

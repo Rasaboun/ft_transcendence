@@ -5,7 +5,7 @@ import axios from "axios";
 import useLocalStorage from "../../hooks/localStoragehook";
 import { useNavigate } from "react-router-dom";
 
-export default function Login ()
+export default function LoginElem ()
 {
 	const navigate = useNavigate()
 	const {storage, setStorage} = useLocalStorage()
@@ -31,7 +31,7 @@ export default function Login ()
 					setStorage("user", res.data.user)
 					navigate("/chat")
 				}
-			  })
+			  }).catch(e => console.log)
 		}
 	}
 
