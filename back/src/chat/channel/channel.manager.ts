@@ -180,6 +180,7 @@ export class ChannelManager
             channel.owner = newOwnerUsername;
             if (newOwnerRoomId)
                 this.server.to(newOwnerRoomId).emit("upgradeToOwner", channel.id);
+            //add new owner in admin
             await this.channelsService.setNewOwner(channelName, newOwnerUsername);
 
         } catch (error) { throw error }
