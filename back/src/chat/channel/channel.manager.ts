@@ -82,16 +82,21 @@ export class ChannelManager
 
     public async joinChannel(client: AuthenticatedSocket, data: JoinChannel)
     {
-        const channel: Channel = this.channels.get(data.channelName);
-
-        if (channel == undefined)
-            throw new NotFoundException("This channel does not exist anymore");
-
-        if (await this.channelsService.isBanned(data.channelName, client.login) == true)
-            throw new ForbiddenException("You are banned from this channel");
-
         try
         {
+            const channel: Channel = this.channels.get(data.channelName);
+
+            if (channel == undefined)
+                throw new NotFoundException("This channel does not exist anymore");
+
+            if (await this.channelsService.isBanned(data.channelName, client.login) == true)
+            {
+                const user = await this.channelsService.getClientById(data.channelName, client.login);
+                const timeBanned = user.unbanDate - (new Date().getTime() / 1000);
+                console.log(`You are banned from this channel for ${Math.trunc(timeBanned)} seconds`);
+                return ;
+
+            }
             if ((await this.channelsService.isClient(channel.id, client.login)))
             {
                 client.join(channel.id);
@@ -102,7 +107,10 @@ export class ChannelManager
                 throw new ForbiddenException("You are not invited to this channel");
 
             await this.channelsService.addClient(data.channelName, client.login, data.password) //change to real id
-            
+
+            const user = await this.userService.findOneByIntraLogin(client.login);
+            await this.sendInfoMessage(client, channel.id, `${user.username} joined the channel`);
+
             channel.addClient(client.login, client.roomId);
             client.join(channel.id);
             channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
@@ -122,7 +130,7 @@ export class ChannelManager
         }
     }
 
-    public async leaveChannel(clientId: string, channelName: string)
+    public async leaveChannel(client: AuthenticatedSocket, channelName: string)
     {
         try
         {    
@@ -130,24 +138,28 @@ export class ChannelManager
             if (channel == undefined)
                 throw new NotFoundException("This channel does not exist anymore");
             
-            await this.channelsService.removeClient(channelName, clientId);
-            channel.removeClient(clientId);
-            channel.sendToUsers("leftChannel", {channelName: channel.id, clientId: clientId});
+            await this.channelsService.removeClient(channelName, client.login);
+            channel.removeClient(client.login);
+
+            const user = await this.userService.findOneByIntraLogin(client.login);
+            await this.sendInfoMessage(client, channel.id, `${user.username} left the channel`);
+
+            channel.sendToUsers("leftChannel", {channelName: channel.id, clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
             if (channel.getNbClients() == 0)
             {
                 this.channels.delete(channelName);
                 await this.channelsService.deleteChannel(channelName);
                 return ;
             }
-            if (channel.owner != clientId)
+            if (channel.owner != client.login)
                 return ;
             let newOwnerRoomId: string = null;
             let newOwnerUsername: string = null;
 
-            if (channel.owner == clientId)
+            if (channel.owner == client.login)
             {
                 channel.clients.forEach((roomId, id) => {
-                    if (this.channelsService.isAdmin(channelName, id) && id != clientId)
+                    if (this.channelsService.isAdmin(channelName, id) && id != client.login)
                     {
                         newOwnerRoomId = roomId;
                         newOwnerUsername = id;
@@ -157,7 +169,7 @@ export class ChannelManager
             if (newOwnerUsername == null)
             {
                 channel.clients.forEach((roomId, id) => {
-                    if (id != clientId)
+                    if (id != client.login)
                     {
                         newOwnerRoomId = roomId;
                         newOwnerUsername = id;
@@ -210,9 +222,28 @@ export class ChannelManager
                 },
                 content: msg,
                 date: new Date().toString(),
+                isInfo: false,
             };
 
             channel.sendMessage(message);
+            await this.channelsService.addMessage(channelId, message);
+        }
+        catch (error) { throw error; }
+    }
+
+    public async sendInfoMessage(client: AuthenticatedSocket, channelId: string, content: string)
+    {
+        try
+        {
+            const message: Message = {
+                sender: {
+                    login: client.login,
+                    username: client.login,
+                },
+                content: content,
+                isInfo: true,
+            }
+            client.broadcast.to(channelId).emit("messageReceived", message);
             await this.channelsService.addMessage(channelId, message);
         }
         catch (error) { throw error; }
@@ -368,8 +399,8 @@ export class ChannelManager
             isOwner: data.isOwner,
             isAdmin: data.isAdmin,
             isMuted: await this.channelsService.isMuted(channelName, client.login),
+            unmuteDate: data.unmuteDate,
             messages: messages,
-
         })
     }
 

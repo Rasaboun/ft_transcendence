@@ -58,6 +58,7 @@ export class Channel
         this.server.to(roomId).emit(event, data);
     }
 
+
     public sendToUsers(event: string, data: any)
     {
         this.clients.forEach((roomId, client) => {

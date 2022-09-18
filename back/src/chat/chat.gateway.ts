@@ -45,9 +45,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try
 		{
 			await this.channelManager.joinChannel(client, data);
+			console.log(`Client ${client.login} joined channel ${data.channelName}`)
 		}
 		catch (error) { client.emit('error', error.message ) }
-		console.log(`Client ${client.login} joined channel ${data.channelName}`)
 	}
 
 	@SubscribeMessage('leaveChannel')
@@ -55,10 +55,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try
 		{
-			await this.channelManager.leaveChannel(client.login, channelName);
+			await this.channelManager.leaveChannel(client, channelName);
+			console.log(`Client ${client.id} left channel ${channelName}`)
 		}
 		catch (error) { client.emit('error', error.message ) }
-		console.log(`Client ${client.id} left channel ${channelName}`)
 	}
 
 	@SubscribeMessage('createChannel')
@@ -80,9 +80,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		{
 			this.channelManager.deleteChannel(channelId);
 			this.server.emit('activeChannels', this.channelManager.getActiveChannels());
+			console.log(`Client ${client.id} deleted channel ${channelId}`)
 		}
 		catch (error) { client.emit('error', error.message ) }
-		console.log(`Client ${client.id} deleted channel ${channelId}`)
 
 	}
 

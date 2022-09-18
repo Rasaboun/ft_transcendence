@@ -43,6 +43,7 @@ export type Message = {
 	},
 	content: string,
 	date?: string,
+	isInfo: boolean,
 }
 
 export type ActionOnUser = {
