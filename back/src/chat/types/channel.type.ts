@@ -71,6 +71,13 @@ export type AddAdmin = {
 	clientId: string,
 }
 
+export type ClientInfo = {
+	login: string,
+	username: string,
+	isOwner: boolean,
+	isAdmin: boolean,
+}
+
 export type CreateChannel = {
 	name: string,
 	mode: ChannelModes,

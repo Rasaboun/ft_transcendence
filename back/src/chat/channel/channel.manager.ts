@@ -3,7 +3,7 @@ import { Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
 import { createClient } from "redis";
 import { UsersService } from "src/users/users.service";
-import { ActionOnUser, AddAdmin, AuthenticatedSocket, ChannelClient, ChannelInfo, ChannelModes, CreateChannel, InviteClient, JoinChannel, Message, MutedException, SetChannelPassword } from "../types/channel.type";
+import { ActionOnUser, AddAdmin, AuthenticatedSocket, ChannelClient, ChannelInfo, ChannelModes, ClientInfo, CreateChannel, InviteClient, JoinChannel, Message, MutedException, SetChannelPassword } from "../types/channel.type";
 import { Channel } from "./channel";
 import { ChannelsService } from "./channel.service";
 
@@ -94,17 +94,14 @@ export class ChannelManager
 
         try
         {
-            if (channel.isPrivate() && !(await this.channelsService.isInvited(data.channelName, client.login)))
-                throw new ForbiddenException("You are not invited to this channel");
             if ((await this.channelsService.isClient(channel.id, client.login)))
             {
-            //     if (channel.isPasswordProtected() && !(await this.channelsService.checkPassword(data.channelName, data.password)))
-            //         throw new ForbiddenException("Wrong channel password");
                 client.join(channel.id);
-                // Change to one user
-                channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo()});
+                channel.sendToClient(client.login, "joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(), clients: await this.getChannelClients(channel.id)});
                 return ;
             }
+            if (channel.isPrivate() && !(await this.channelsService.isInvited(data.channelName, client.login)))
+                throw new ForbiddenException("You are not invited to this channel");
  
             if (await this.channelsService.isClient(data.channelName, client.id))
             {
@@ -115,8 +112,7 @@ export class ChannelManager
             
             channel.addClient(client.login, client.roomId);
             client.join(channel.id);
-            channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo()});
-            console.log("client info",)
+            channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(), clients: await this.getChannelClients(channel.id)});
         }
         catch (error) { throw error }
     }
@@ -384,6 +380,30 @@ export class ChannelManager
             messages: messages,
 
         })
+    }
+
+    public async getChannelClients(channelName: string)
+    {
+        let clients: ClientInfo[] = [];
+
+        const channel = this.channels.get(channelName);
+        if (!channel)
+            throw new NotFoundException("This channel does not exist anymore");
+
+        for (const [clientLogin, roomId] of channel.clients)
+        {
+            console.log("clientLogin login", clientLogin);
+            const channelInfo: ChannelClient = await this.channelsService.getClientById(channelName, clientLogin);
+            const userInfo = await this.userService.findOneByIntraLogin(clientLogin);
+            clients.push({
+                login: clientLogin,
+                username: userInfo.username,
+                isOwner: channelInfo.isAdmin,
+                isAdmin: channelInfo.isOwner,
+            })
+        }
+        console.log("Clients", clients);
+        return clients;
     }
 
     public getChannel(channelId: string)

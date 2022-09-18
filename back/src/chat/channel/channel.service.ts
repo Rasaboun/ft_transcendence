@@ -35,7 +35,6 @@ export class ChannelsService {
         if (channel.ownerId == clientId)
             newClient.isOwner = true;
         channel.clients.push(newClient);
-        console.log("Channel clients", channel.clients);
         await this.channelRepository.update(channel.id, channel);
     }
 
