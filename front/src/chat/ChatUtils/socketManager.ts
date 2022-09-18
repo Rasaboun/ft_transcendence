@@ -87,10 +87,9 @@ export function unsetPrivateMode(channelName: string) {
 	socket?.emit("unsetPrivateMode", channelName);
 }
 
-export function chatMenuHandler(handleActiveChannels:any, handleChannelCreated:any, handleChannelJoined:any, handleError:any, handleInvitation:any, handleSession:any)
+export function chatMenuHandler(handleActiveChannels:any, handleChannelJoined:any, handleError:any, handleInvitation:any, handleSession:any)
 {
 		socket.on('activeChannels', (channels:ChannelT) => handleActiveChannels(channels));
-        socket.on('channelCreated', (channelInfo) => handleChannelCreated(channelInfo))
         socket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
         socket.on('error', (message:string) => handleError(message))
         socket.on('InvitedToChannel', (message:string) => handleInvitation(message))
@@ -116,7 +115,7 @@ export function chatHandler(handleMessageReceived:any,
         socket.on('mutedInChannel', (data:ActionOnUser) => handleMutedFromChannel(data))
         socket.on('addAdmin', handleAddAdmin)
         socket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
-        socket.on('leftChannel', ({chanelName, clientId}) => handleLeftChannel({chanelName, clientId}))
+        socket.on('leftChannel', (channelInfo:ChannelT) => handleLeftChannel(channelInfo))
         socket.on('upgradeToOwner', (channelName:string) => handleUpgradeToOwner(channelName))
         socket.on('isAlreadyAdmin', handleIsAlreadyAdmin)
 		socket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, socket));

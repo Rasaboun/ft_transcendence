@@ -11,6 +11,7 @@ type UserElemPropsT = {
 export default function UserListElem({ client, userState }:UserElemPropsT)
 {
 	const {storage} = useLocalStorage("channel")
+	const {storage2} = useLocalStorage("user")
 	const [isHover, setIsHover] = useState<boolean>(false)
 
     const handleOnMouseOver = () => {
@@ -52,7 +53,7 @@ export default function UserListElem({ client, userState }:UserElemPropsT)
 				<h3>{client.username}</h3>
 			</div>
 			{
-                isHover && userState?.isAdmin && 
+                isHover && userState?.isAdmin && storage2.login !== client.login &&
 					<div className="user-option">
 						<button onClick={() => handleMute()}>🙊</button>
 						<button onClick={() => handleBan()}>🚫</button>

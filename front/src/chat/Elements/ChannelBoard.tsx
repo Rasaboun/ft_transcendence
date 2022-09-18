@@ -1,5 +1,5 @@
 import { channel } from "diagnostics_channel";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useLocalStorage from "../../hooks/localStoragehook";
 import { ChatContext } from "../ChatContext/chatContext";
@@ -13,6 +13,9 @@ type PropsT = {
 
 export default function ChannelBoard({userState}:PropsT)
 {
+    let ownerList: ClientElem[] = [];
+    let adminsList: ClientElem[] = [];
+    let othersList: ClientElem[] = [];
     const {storage} = useLocalStorage("user");
     const {storage2, setStorage} = useLocalStorage("channel");
     const {socket} = useContext(ChatContext)
@@ -106,18 +109,22 @@ export default function ChannelBoard({userState}:PropsT)
     const handleDelete = () => {
         socket?.emit("deleteChannel", storage2?.channelId)
      }
-
-    let ownerList: ClientElem[] = [];
-    let adminsList: ClientElem[] = [];
-    let othersList: ClientElem[] = [];
     
-    storage2?.clients.forEach((elem:ClientElem, index:number) => {
+	useEffect(() => {
+		storage2?.clients?.forEach((elem:ClientElem, index:number) => {
+			elem.isOwner && ownerList.push(elem)
+			elem.isAdmin && !elem.isOwner && adminsList.push(elem)
+			!elem.isAdmin && !elem.isOwner && othersList.push(elem)
+		})
+	}, [])
+    
+    storage2?.clients?.forEach((elem:ClientElem, index:number) => {
         elem.isOwner && ownerList.push(elem)
         elem.isAdmin && !elem.isOwner && adminsList.push(elem)
         !elem.isAdmin && !elem.isOwner && othersList.push(elem)
     })
 
-    console.log("admin, other", adminsList, othersList)
+    console.log("admin, other", storage2.clients)
     return (
         <div className="chat-left">
             {

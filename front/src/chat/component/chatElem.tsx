@@ -68,18 +68,12 @@ export default function ChatElem()
         ))
     }
 
-    const handleLeftChannel = ({channelName, clientId}:{channelName: string, clientId: string}) => {
-        const message = `${clientId} left the chat`
-        if(clientId !== storage.login)
-        {
-            setMessagesList((oldMessagesList) => (
-                oldMessagesList === undefined ? [{content: message, isInfo: true}] :
-                    [...oldMessagesList, {content: message, isInfo: true}]
-            ))
-        }
+    const handleLeftChannel = (channelInfo:ChannelT) => {
+        setStorage("channel", channelInfo)        
     }
 
     const handleChannelJoined = (data:{clientId:string, channelInfo:ChannelT}) => {
+        console.log(data.channelInfo)
         setStorage("channel", data.channelInfo)
 	}
     const upgradeToOwner = (channelName:string) => {
@@ -141,7 +135,7 @@ export default function ChatElem()
                 [...oldMessagesList, {content: message, isInfo: true}]
         ))
         if (id === storage.login)
-            navigate("/Chat")
+            navigate("/chat")
     }
 
     

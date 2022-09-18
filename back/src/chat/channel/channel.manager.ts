@@ -144,7 +144,7 @@ export class ChannelManager
             const user = await this.userService.findOneByIntraLogin(client.login);
             await this.sendInfoMessage(client, channel.id, `${user.username} left the channel`);
 
-            channel.sendToUsers("leftChannel", {channelName: channel.id, clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
+            channel.sendToUsers("leftChannel", channel.getInfo(await this.getChannelClients(channel.id)));
             if (channel.getNbClients() == 0)
             {
                 this.channels.delete(channelName);

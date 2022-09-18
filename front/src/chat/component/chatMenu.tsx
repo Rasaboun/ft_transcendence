@@ -11,8 +11,9 @@ import userEvent from "@testing-library/user-event";
 
 export default function ChatMenu()
 {
-	const {storage, setStorage} = useLocalStorage("user")
+	const {storage} = useLocalStorage("user")
 	const {storage2} = useLocalStorage("sessionId")
+	const {setStorage} = useLocalStorage()
 	const navigate = useNavigate();
 	const {socket, setSocket} = useContext(ChatContext)
 	const [channels, setChannels] = useState<ChannelT[]>()
@@ -28,19 +29,14 @@ export default function ChatMenu()
 		setChannels(channels)
 	}
 
-	const handleChannelCreated = (channelInfo:ChannelT) => {
-		setStorage("channel", channelInfo)
-	}
-
 	const handleJoinChannel = (data:JoinChannelT) => {
 		joinChannel(data)
 	}
 
 	const handleChannelJoined = (data:{clientId:string, channelInfo:ChannelT}) => {
-		console.log("logon:", storage.login)
+        console.log(data.channelInfo)
 		if (storage.login === data.clientId)
 		{
-			console.log()
 			setStorage("channel", data.channelInfo)
 			navigate("message")
 		}
@@ -108,7 +104,6 @@ export default function ChatMenu()
 			initiateSocket("http://localhost:8002/chat", setSocket, sessioninfo, storage.login)
 		getActiveChannels()
 		chatMenuHandler(handleActiveChannels,
-			handleChannelCreated,
 			handleChannelJoined,
 			handleError,
 			handleInvitation,
