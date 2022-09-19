@@ -25,7 +25,6 @@ export class AuthService {
     async signup(dto: {username: string, password: string}) {
         if (await this.userService.findOneByIntraLogin(dto.username))
         {
-            console.log("here");
             throw new UnauthorizedException("User already exists");
         }
         await this.userService.createUser({intraLogin: dto.username, ...dto})

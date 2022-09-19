@@ -2,8 +2,9 @@ import { ForbiddenException, forwardRef, Inject, NotFoundException } from "@nest
 import { Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
 import { createClient } from "redis";
+import { Server } from "socket.io";
 import { UsersService } from "src/users/users.service";
-import { ActionOnUser, AddAdmin, AuthenticatedSocket, ChannelClient, ChannelInfo, ChannelModes, ClientInfo, CreateChannel, InviteClient, JoinChannel, Message, MutedException, SetChannelPassword } from "../types/channel.type";
+import { ActionOnUser, AddAdmin, AuthenticatedSocket, ChannelClient, ChannelInfo, ChannelModes, ClientInfo, CreateChannel, InviteClient, JoinChannel, Message, MutedException, SetChannelPassword, uuidRegexExp } from "../types/channel.type";
 import { Channel } from "./channel";
 import { ChannelsService } from "./channel.service";
 
@@ -19,7 +20,7 @@ export class ChannelManager
     }
 
     @WebSocketServer()
-    public server;
+    public server: Server;
     private readonly channels: Map<string, Channel> = new Map<string, Channel>();
 
     public async initChannels()
@@ -51,7 +52,8 @@ export class ChannelManager
         {       
             if (this.channels.get(data.name) != undefined)
                 throw new ForbiddenException("This channel name is already taken");
-            
+            if (uuidRegexExp.test(data.name))
+                throw new ForbiddenException("Invalid channel name");
             let channel = new Channel(this.server, data.name);
             
             channel.owner = client.login;
@@ -114,7 +116,8 @@ export class ChannelManager
 
             channel.addClient(client.login, client.roomId);
             client.join(channel.id);
-            channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
+            client.emit("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
+            channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))}, client.roomId);
         }
         catch (error) { throw error }
     }
@@ -148,6 +151,7 @@ export class ChannelManager
             channel.sendToUsers("leftChannel", channel.getInfo(await this.getChannelClients(channel.id)));
             if (channel.getNbClients() == 0)
             {
+                await this.deleteChannel(channelName);
                 this.channels.delete(channelName);
                 await this.channelsService.deleteChannel(channelName);
                 return ;
@@ -184,18 +188,24 @@ export class ChannelManager
         } catch (error) { throw error }
     }
 
-    public deleteChannel(channelId: string)
+    public async deleteChannel(channelId: string)
     {
         const channel: Channel = this.channels.get(channelId);
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
 
-        channel.sendToUsers("channelDeleted", "Channel has been destroyed");
-        // channel.clients.forEach((client) => {
-        //     client.leave(channel.id);                    // change here
-        // })
+        await channel.sendToUsers("channelDeleted", "Channel has been destroyed");
+  
         this.channels.delete(channelId);
         this.channelsService.deleteChannel(channelId);
+
+        const clientsSockets = await this.server.in(channelId).fetchSockets();
+        console.log(`Channel got deleted with ${clientsSockets.length} clients`);
+        clientsSockets.forEach((socket) => {
+            socket.leave(channelId);
+        })
+
+        this.server.emit('activeChannels', this.getActiveChannels());
     }
    
     public async sendMessage(channelId: string, client: AuthenticatedSocket, msg: string)
@@ -270,6 +280,7 @@ export class ChannelManager
     
     public async banUser(clientId: string, data: ActionOnUser)
     {
+        console.log("Ban data", data);
         let caller: ChannelClient;
         try {
             caller = await this.channelsService.getClientById(data.channelName, clientId);
@@ -399,15 +410,31 @@ export class ChannelManager
 
     public async sendClientInfo(client: AuthenticatedSocket, channelName: string)
     {
-        const data: ChannelClient = await this.channelsService.getClientById(channelName, client.login)
-        const messages: Message[] = await this.channelsService.getClientMessages(channelName, client.login);
-        client.emit("clientInfo", {
-            isOwner: data.isOwner,
-            isAdmin: data.isAdmin,
-            isMuted: await this.channelsService.isMuted(channelName, client.login),
-            unmuteDate: data.unmuteDate,
-            messages: messages,
-        })
+        try
+        {
+            const data: ChannelClient = await this.channelsService.getClientById(channelName, client.login)
+            const messages: Message[] = await this.channelsService.getClientMessages(channelName, client.login);
+            client.emit("clientInfo", {
+                isOwner: data.isOwner,
+                isAdmin: data.isAdmin,
+                isMuted: await this.channelsService.isMuted(channelName, client.login),
+                unmuteDate: data.unmuteDate,
+                messages: messages,
+            })
+        } catch (error) { throw error }
+        
+    }
+
+    public async sendChannelInfo(client: AuthenticatedSocket, channelName: string)
+    {
+        try
+        {
+            const channel = this.channels.get(channelName);
+            if (channel == undefined)
+                throw new NotFoundException("This channel does not exist");
+            client.emit('channelInfo', channel.getInfo(await this.getChannelClients(channel.id)))
+        } catch (error) { throw error }
+        
     }
 
     public async getChannelClients(channelName: string)

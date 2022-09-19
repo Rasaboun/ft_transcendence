@@ -59,10 +59,10 @@ export class Channel
     }
 
 
-    public sendToUsers(event: string, data: any)
+    public async sendToUsers(event: string, data: any, exclude?: string)
     {
         this.clients.forEach((roomId, client) => {
-            if (roomId != null)
+            if (roomId != null && roomId != exclude)
                 this.server.to(roomId).emit(event, data);
         })
     }
