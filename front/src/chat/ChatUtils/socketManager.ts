@@ -108,7 +108,7 @@ export function chatHandler(handleMessageReceived:any,
 							handleSession:any,
 							handleChannelJoined:any)
 {
-        socket.on("msgToChannel", ({sender, content}:messageT) => handleMessageReceived({sender, content}))      
+        socket.on("msgToChannel", (msg:messageT) => handleMessageReceived(msg))      
         socket.on('channelDeleted', (message:string) => handleChannelDeleted(message))
         socket.on('clientInfo', (data:ClientInfoT) => handleClientInfo(data))
         socket.on('bannedFromChannel', (data:ActionOnUser) => handleBannedFromChannel(data))

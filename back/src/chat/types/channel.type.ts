@@ -41,6 +41,7 @@ export type Message = {
 		login: string,
 		username: string,
 	},
+	channelName?: string,
 	content: string,
 	date?: string,
 	isInfo: boolean,

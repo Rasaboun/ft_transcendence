@@ -61,10 +61,10 @@ export default function ChatElem()
 
     }
 
-    const handleMessageReceived = ({sender, content}:messageT) => {
+    const handleMessageReceived = (msg:messageT) => {
         setMessagesList((oldMessagesList) => (
-            oldMessagesList === undefined ? [{sender: sender ,content: content}] :
-                [...oldMessagesList, {sender: sender ,content: content}]
+            oldMessagesList === undefined ? [msg] :
+                [...oldMessagesList, msg]
         ))
     }
 

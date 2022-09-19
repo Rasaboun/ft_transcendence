@@ -107,6 +107,7 @@ export class ChannelsService {
                 throw new NotFoundException("This user is not member of the channel");
 
         channel.clients[clientIndex].isAdmin = true;
+        channel.clients[clientIndex].isOwner = true;
         channel.ownerId = newOwnerId;
         await this.channelRepository.update(channel.id, channel);
     }

@@ -100,7 +100,8 @@ export class ChannelManager
             if ((await this.channelsService.isClient(channel.id, client.login)))
             {
                 client.join(channel.id);
-                channel.sendToClient(client.login, "joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
+                client.emit("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
+                //channel.sendToClient(client.login, "joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
                 return ;
             }
             if (channel.isPrivate() && !(await this.channelsService.isInvited(data.channelName, client.login)))
@@ -156,16 +157,14 @@ export class ChannelManager
             let newOwnerRoomId: string = null;
             let newOwnerUsername: string = null;
 
-            if (channel.owner == client.login)
-            {
-                channel.clients.forEach((roomId, id) => {
-                    if (this.channelsService.isAdmin(channelName, id) && id != client.login)
-                    {
-                        newOwnerRoomId = roomId;
-                        newOwnerUsername = id;
-                    }
-                })
-            }
+            
+            channel.clients.forEach((roomId, id) => {
+                if (this.channelsService.isAdmin(channelName, id) && id != client.login)
+                {
+                    newOwnerRoomId = roomId;
+                    newOwnerUsername = id;
+                }
+            })
             if (newOwnerUsername == null)
             {
                 channel.clients.forEach((roomId, id) => {
@@ -220,6 +219,7 @@ export class ChannelManager
                     login: user.intraLogin,
                     username: user.username,
                 },
+                channelName: channelId,
                 content: msg,
                 date: new Date().toString(),
                 isInfo: false,
@@ -240,11 +240,13 @@ export class ChannelManager
                     login: client.login,
                     username: client.login,
                 },
+                channelName: channelId,
                 date: new Date().toString(),
                 content: content,
                 isInfo: true,
             }
-            client.broadcast.to(channelId).emit("messageReceived", message);
+            this.channels.get(channelId).sendMessage(message);
+            //this.server.to(channelId).emit("messageReceived", message);
             await this.channelsService.addMessage(channelId, message);
         }
         catch (error) { throw error; }
