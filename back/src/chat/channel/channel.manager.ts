@@ -252,6 +252,7 @@ export class ChannelManager
 
     public async muteUser(clientId: string, data: ActionOnUser)
     {
+        console.log("Mute data", data);
         let caller: ChannelClient;
         try {
             caller = await this.channelsService.getClientById(data.channelName, clientId);
@@ -274,7 +275,7 @@ export class ChannelManager
             if (caller == undefined || caller.isAdmin == false || this.channels.get(data.channelName).owner == data.targetId)
                 throw new ForbiddenException("You are not allowed to do this");
             await this.channelsService.banClient(data);
-            this.channels.get(data.channelName).sendToUsers("bannedFromChannel", data.targetId);    
+            this.channels.get(data.channelName).sendToUsers("bannedFromChannel", data);    
         } catch (error) {
             throw error;
         }
@@ -296,6 +297,8 @@ export class ChannelManager
                 return ;
             }
             await this.channelsService.addAdmin(data.channelName, data.clientId);
+            const usr = await this.channelsService.getClientById(data.channelName, data.clientId);
+            console.log(usr);
             channel.sendToClient(data.clientId, "addAdmin");
         }
         catch (error) {
@@ -400,7 +403,7 @@ export class ChannelManager
             isOwner: data.isOwner,
             isAdmin: data.isAdmin,
             isMuted: await this.channelsService.isMuted(channelName, client.login),
-            unmuteDate: data.unbanDate > new Date().getTime() ? data.unmuteDate : 0,
+            unmuteDate: data.unmuteDate,
             messages: messages,
         })
     }
@@ -420,8 +423,9 @@ export class ChannelManager
             clients.push({
                 login: clientLogin,
                 username: userInfo.username,
-                isOwner: channelInfo.isAdmin,
-                isAdmin: channelInfo.isOwner,
+                isOwner: channelInfo.isOwner,
+                isAdmin: channelInfo.isAdmin,
+                isMuted: await this.channelsService.isMuted(channelName, clientLogin),
             })
         }
         return clients;

@@ -77,6 +77,7 @@ export type ClientInfo = {
 	username: string,
 	isOwner: boolean,
 	isAdmin: boolean,
+	isMuted: boolean,
 }
 
 export type CreateChannel = {

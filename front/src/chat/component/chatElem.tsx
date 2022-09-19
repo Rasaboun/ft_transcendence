@@ -104,7 +104,7 @@ export default function ChatElem()
     }
 
     const handleClientInfo = (data:ClientInfoT) => {
-        console.log(data)
+        console.log("Dataaa", data)
         setUserState({
             isOwner: data.isOwner,
             isAdmin: data.isAdmin,
@@ -115,7 +115,6 @@ export default function ChatElem()
         {
             setMessagesList(data.messages)
         }
-        console
         if (data.unmuteDate)
             setMutedTime(Math.trunc(data.unmuteDate / 1000 - new Date().getTime() / 1000))
         
@@ -131,6 +130,7 @@ export default function ChatElem()
     }
 
     const handleBannedFromChannel = (data:ActionOnUser) => {
+        console.log("Banned data", data);
         const message = data.targetId === storage.login ? 
             "You have been banned from the chat" :
             `${data.targetId} has been banned from the chat`

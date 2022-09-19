@@ -151,7 +151,6 @@ export class ChannelsService {
         const client = channel.clients[this.getClientIndex(channel.clients, clientId)]
         if (client == undefined)
                 throw new NotFoundException("This user is not member of the channel");
-        console.log(new Date().getTime() / 1000 - client.unmuteDate)
         if (client.isMuted && new Date().getTime() / 1000 >= client.unmuteDate)
         {
             await this.unmuteClient(channelName, client.id)
