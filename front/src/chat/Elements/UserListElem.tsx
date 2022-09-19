@@ -26,7 +26,7 @@ export default function UserListElem({ client, userState }:UserElemPropsT)
 		banUser({
 			channelName: storage!.channelId,
 			targetId: client.login,
-			duration: 60
+			duration: new Date().getTime() + 60
 		})
 	}
 
@@ -34,7 +34,7 @@ export default function UserListElem({ client, userState }:UserElemPropsT)
 		muteUser({
 			channelName: storage!.channelId,
 			targetId: client.login,
-			duration: 60
+			duration: (60)
 		})
 	}
 

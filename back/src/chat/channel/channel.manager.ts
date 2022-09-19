@@ -400,7 +400,7 @@ export class ChannelManager
             isOwner: data.isOwner,
             isAdmin: data.isAdmin,
             isMuted: await this.channelsService.isMuted(channelName, client.login),
-            unmuteDate: data.unmuteDate,
+            unmuteDate: data.unbanDate > new Date().getTime() ? data.unmuteDate : 0,
             messages: messages,
         })
     }

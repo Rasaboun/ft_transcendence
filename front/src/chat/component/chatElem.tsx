@@ -115,6 +115,10 @@ export default function ChatElem()
         {
             setMessagesList(data.messages)
         }
+        console
+        if (data.unmuteDate)
+            setMutedTime(Math.trunc(data.unmuteDate / 1000 - new Date().getTime() / 1000))
+        
     }
 
     const handleAddAdmin = () => {
@@ -130,14 +134,13 @@ export default function ChatElem()
         const message = data.targetId === storage.login ? 
             "You have been banned from the chat" :
             `${data.targetId} has been banned from the chat`
-
         setMessagesList((oldMessagesList) => (
             oldMessagesList === undefined ? [{content: message, isInfo: true}] :
                 [...oldMessagesList, {content: message, isInfo: true}]
         ))
         setUserState((oldUserState) => ({
             ...oldUserState!,
-            unmuteDate: data.duration,
+            unbanDate: data.duration,
         }))
         if (data.targetId === storage.login)
             navigate("/chat")
@@ -147,10 +150,9 @@ export default function ChatElem()
 
     const handleMutedFromChannel = (data: ActionOnUser) => {
         const message = data.targetId === storage.login ? 
-            "You have been muted 60 sec" :
-            `${data.targetId} has been muted for 60 sec`
-        if (data.targetId === storage.login)
-            setMutedTime(data.duration)
+            `You have been muted` :
+            `${data.targetId} has been muted for ${userState?.unmuteDate} sec`
+            console.log(data.duration, new Date().getTime())
         setMessagesList((oldMessagesList) => (
             oldMessagesList === undefined ? [{content: message, isInfo: true}] :
                 [...oldMessagesList, {content: message, isInfo: true}]
@@ -159,9 +161,11 @@ export default function ChatElem()
         {
             setUserState((oldUserState) => ({
                 ...oldUserState!,
-                isMuted: true
+                isMuted: true,
+                unmuteDate: data.duration
                 })
             )
+            setMutedTime(Math.trunc(data.duration / 1000 - new Date().getTime() / 1000))
         }
     }
 
@@ -222,9 +226,10 @@ export default function ChatElem()
     }, [messagesList])
 
     useEffect(() => {
+        console.log(mutedTime, userState?.unmuteDate)
 		if (mutedTime > 0)
 		{
-			const intervalId = setInterval(() => setMutedTime((oldTime) => oldTime - 1), 1000)
+			const intervalId = setInterval(() => setMutedTime((oldMutedTime) => oldMutedTime - 1), 1000)
 			return () => clearInterval(intervalId)
 		}	
 	}, [mutedTime])
@@ -241,7 +246,7 @@ export default function ChatElem()
                         <div ref={lastMessageRef}/>
                     </div>
                 </div>
-                <MessageInput mutedTime={userState ? userState.unmuteDate : 0} handleChange={handleChange} handleSubmitMessage={handleSubmitMessage} value={form.message}/>
+                <MessageInput mutedTime={mutedTime} handleChange={handleChange} handleSubmitMessage={handleSubmitMessage} value={form.message}/>
             </div>           
         </div>
     )
