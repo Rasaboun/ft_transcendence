@@ -9,12 +9,29 @@ interface Iuser {
   photoUrl: string;
 }
 
+function TabElement() {
+  return (
+    <tr className="bg-white border-b w-full">
+      <th
+        scope="row"
+        className="py-4 px-6 font-medium text-gray-900"
+      >
+        1
+      </th>
+      <td className="py-4 px-6">Rasaboun</td>
+      <td className="py-4 px-6">1</td>
+      <td className="py-4 px-6">0</td>
+      <td className="py-4 px-6">21</td>
+    </tr>
+  );
+}
+
 function Tabulation() {
   return (
-    <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
-      <table className="w-full text-sm text-left text-gray-500 ">
-        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-          <tr>
+    <div className="relative h-2/4 overflow-y-scroll shadow-md sm:rounded-lg">
+      <table className=" w-full text-sm text-left text-gray-500 ">
+        <thead className="w-full text-xs text-gray-700 uppercase bg-gray-50">
+          <tr className="w-full">
             <th scope="col" className="py-3 px-6 bg-indigo-200 text-gray">
               Rank
             </th>
@@ -27,48 +44,63 @@ function Tabulation() {
             <th scope="col" className="py-3 px-6 bg-indigo-300 text-gray">
               Loose
             </th>
-            <th scope="col" className="py-3 px-6 bg-indigo-300 text-gray">
+            <th scope="col" className="py-3 px-6 bg-indigo-200 text-gray">
               lvl
             </th>
           </tr>
         </thead>
-        <tbody>
-          <tr className="bg-white border-b ">
-            <th
-              scope="row"
-              className="py-4 px-6 font-medium text-gray-900 whitespace-nowrap "
-            >
-              1
-            </th>
-            <td className="py-4 px-6">Rasaboun</td>
-            <td className="py-4 px-6">1</td>
-            <td className="py-4 px-6">0</td>
-            <td className="py-4 px-6">21</td>
-          </tr>
-          <tr className="bg-white border-b ">
-            <th
-              scope="row"
-              className="py-4 px-6 font-medium text-gray-900 whitespace-nowrap "
-            >
-              2
-            </th>
-            <td className="py-4 px-6">Rasaboun</td>
-            <td className="py-4 px-6">0</td>
-            <td className="py-4 px-6">1</td>
-            <td className="py-4 px-6">21</td>
-          </tr>
-          <tr className="bg-white ">
-            <th
-              scope="row"
-              className="py-4 px-6 font-medium text-gray-900 whitespace-nowrap"
-            >
-              3
-            </th>
-            <td className="py-4 px-6">Rasaboun</td>
-            <td className="py-4 px-6">2</td>
-            <td className="py-4 px-6">5</td>
-            <td className="py-4 px-6">21</td>
-          </tr>
+        <tbody className=" w-full">
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
+          <TabElement/>
         </tbody>
       </table>
     </div>
@@ -94,12 +126,11 @@ export default function Dashboard() {
         </div>
       </header>
       <main>
-        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="max-w-7xl h-screen mx-auto py-6 sm:px-6 lg:px-8">
           {/* Replace with your content */}
-          
-             
-			  <Tabulation/>
-        
+
+          <Tabulation />
+
           {/* /End replace */}
         </div>
       </main>
