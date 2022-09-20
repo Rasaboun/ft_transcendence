@@ -30,6 +30,7 @@ export class SessionManager
             client.sessionId = v4();
             client.roomId = v4();
             client.login = client.handshake.auth.login;
+            console.log("Client login", client.login);
             client.lobby = null;
             this.saveSession(client.sessionId, {
                 connected: true,
@@ -43,6 +44,7 @@ export class SessionManager
             sessionId: client.sessionId,
             roomId: client.roomId,
         })
+        console.log("emitted session to", client.id);
 
     }
 

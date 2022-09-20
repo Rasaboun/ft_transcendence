@@ -12,7 +12,7 @@ import userEvent from "@testing-library/user-event";
 export default function ChatMenu()
 {
 	const {storage} = useLocalStorage("user")
-	const {storage2} = useLocalStorage("sessionId")
+	//const {storage2} = useLocalStorage("sessionId")
 	const {setStorage} = useLocalStorage()
 	const navigate = useNavigate();
 	const {socket, setSocket} = useContext(ChatContext)
@@ -20,6 +20,10 @@ export default function ChatMenu()
 	const [channelForm, setChannelForm] = useState<channelFormT>({
 		name: "",
 		mode: ChannelModes.Public,
+	})
+	const [errorMsg, setErrorMsg] = useState({
+		isShow: false,
+		msg: ""
 	})
 	const newChannel = (channelForm:channelFormT) => {
 		createChannel(channelForm)
@@ -68,7 +72,10 @@ export default function ChatMenu()
     }
 
 	const handleError = (message:string) => {
-		window.alert(message)
+		setErrorMsg({
+			isShow: true,
+			msg: message
+		})
 	}
 
 	const handleInvitation = (message:string) => {
@@ -76,7 +83,7 @@ export default function ChatMenu()
 	}
 
 	const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, sock:Socket) => {
-		console.log(sock)
+		console.log("In chat session");
 		if (sock)
 		{
 			setStorage("sessionId", sessionInfo.sessionId);
@@ -110,6 +117,13 @@ export default function ChatMenu()
 			handleSession)
 	}, [])
 
+	useEffect(() => {
+		const timeoutID = setTimeout(() => setErrorMsg({
+			isShow: false,
+			msg: ""
+		}), 5000);
+		return clearTimeout(timeoutID)
+	}, [errorMsg])
 	const channelsElem = channels?.map((elem, index) => (
 		<ChannelItem key={index}
 			channel={elem}
@@ -119,6 +133,13 @@ export default function ChatMenu()
 
     return (
         <div>
+			{
+				errorMsg.isShow && 
+					<div className="bg-blue-100 border-t border-b border-blue-500 text-blue-700 px-4 py-3" role="alert">
+						<p className="font-bold">ERROR</p>
+						<p className="text-sm">{errorMsg.msg}</p>
+					</div>
+			}
 			<div>
 				<form className="channel-form" onSubmit={handleSubmit}>
 					<input name="name" style={{

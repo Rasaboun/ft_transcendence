@@ -65,12 +65,13 @@ export function spectacteGame(id:string)
 // 	})
 // }
 
-export function GameMenuHandler(handleAvailableLobbies:any, handleGoalScored:any)
+export function GameMenuHandler(handleAvailableLobbies:any, handleGoalScored:any, handleSession:any)
 {
 	socket.on("connect", () => {
 		socket.on('activeGames',(availableLobbies:availableLobbiesT) => handleAvailableLobbies(availableLobbies))
 		})
 		socket.on('goalScored', (players: any) => handleGoalScored(players));
+		socket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, socket));
 
 }
 

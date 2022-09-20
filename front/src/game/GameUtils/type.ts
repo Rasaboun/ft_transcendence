@@ -10,9 +10,9 @@ export enum GameState {
 
 export type gameDataT = {
 	time:string,
-    scoreToWin:number,
-    player1id:number,
-    player2id:number,
+  scoreToWin:number,
+  player1id:number,
+  player2id:number,
 	player1score:number,
 	player2score:number
 }

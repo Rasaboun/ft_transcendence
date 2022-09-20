@@ -15,10 +15,13 @@ import Settings from "./Settings";
 
 export default function App()
 {
-	// const { setStorage } = useLocalStorage()
+	const { storage } = useLocalStorage("token");
 
 	useEffect(() => {
-		console.log("app.tsx")
+		if (storage)
+		{
+			
+		}
 	}, [])
     return (
 		<BrowserRouter>

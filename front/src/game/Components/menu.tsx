@@ -40,7 +40,7 @@ export default function Menu()
         spectacteGame(id)
 	}
     const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, sock:Socket) => {
-		console.log(sock)
+		console.log("In session menu", sessionInfo)
 		if (sock)
 		{
 			setStorage("sessionId", sessionInfo.sessionId);
@@ -65,8 +65,9 @@ export default function Menu()
 		}
         if (!socket)
             initiateSocket("http://localhost:8002/game", value.setSocket, sessioninfo, storage.login)        
-        getActiveGames()
-		GameMenuHandler(handleAvailableLobbies, handleGoalScored)
+        console.log("Socket id in menu", socket?.id);
+            getActiveGames()
+		GameMenuHandler(handleAvailableLobbies, handleGoalScored, handleSession)
 		socket = getSocket()
         value?.setSocket(socket)
         return (() => Menucleaner(handleAvailableLobbies, handleGoalScored))

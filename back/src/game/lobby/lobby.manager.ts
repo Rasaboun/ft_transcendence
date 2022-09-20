@@ -24,12 +24,11 @@ export class LobbyManager
 
     public initializeSocket(client: AuthenticatedSocket): void
     {
-        client.data.lobby = null;
     }
 
     public terminateSocket(client: AuthenticatedSocket): void
     {
-        client.data.lobby?.removeClient(client);
+        //client.data.lobby?.removeClient(client);
     }
 
     public createLobby(/*options: GameOptions*/): Lobby
@@ -48,14 +47,17 @@ export class LobbyManager
    
         for (let i = 0; i < this.avalaibleLobbies.length; i++)
         {
-            if (!lobby.isClient(client.login) && lobby.inviteMode == false)
+            if (this.avalaibleLobbies[i].isClient(client.login) === false)//&& this.avalaibleLobbies[i].inviteMode == false)
+            {
                 lobby = this.avalaibleLobbies.splice(i, 1).at(0);
+            }
         }
-        if (lobby == null)
+        if (lobby === null)
         {
             lobby = this.createLobby();
             this.avalaibleLobbies.push(lobby);
         }
+        console.log("Client login", client.login)
         lobby.addClient(client);
     }
 

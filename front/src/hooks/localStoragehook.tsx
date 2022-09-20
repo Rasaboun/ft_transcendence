@@ -6,7 +6,7 @@ export default function useLocalStorage(key?:string) {
 		return undefined
 	const storageString = localStorage.getItem(key);
 	let storage;
-	if (storageString) 
+	if (storageString != null || storageString != undefined) 
 		storage = JSON.parse(storageString);
 	else
 		storage = undefined

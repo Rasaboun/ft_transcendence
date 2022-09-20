@@ -4,6 +4,7 @@ import { GameData, GameState, Player } from "../types/game.type";
 import { GameInstance } from "../game.instance";
 import { Socket } from "dgram";
 import { AuthenticatedSocket } from "src/sessions/sessions.type";
+import { ConsoleLogger } from "@nestjs/common";
 
 export class Lobby
 {
@@ -21,9 +22,10 @@ export class Lobby
 
     public addClient(client: AuthenticatedSocket): void
     {
+        console.log("New client login", client.login);
         this.clients.set(client.login, client.roomId);
         client.join(this.id);
-        client.data.lobby = this;
+        client.lobby = this;
         console.log(this.id)
         
         if (this.nbPlayers < 2)
@@ -49,14 +51,13 @@ export class Lobby
 		if (this.state == GameState.Started)
 			return ;
 		this.state = GameState.Started;
-        console.log('In startGame');	
         this.gameInstance.resetRound();
 		this.gameInstance.gameLoop();
     }
 
     public removeClient(client: AuthenticatedSocket)
     {
-        client.data.lobby = null;
+        client.lobby = null;
         client.leave(this.id);
         this.clients.delete(client.login);
 		this.gameInstance.stop();
@@ -82,7 +83,10 @@ export class Lobby
 		this.server.to(firstClient).emit(event, data); 
     }
 
-    public sendToUsers(event: string, data: any) { this.server.to(this.id).emit(event, data); }
+    public async sendToUsers(event: string, data: any)
+    {
+        this.server.to(this.id).emit(event, data);
+    }
 
 	public getPlayer(clientLogin: string)
 	{
@@ -91,6 +95,7 @@ export class Lobby
 
     public isClient(clientLogin: string): boolean
     {
-        return this.clients.get(clientLogin) == undefined ? false : true;
+        console.log("Get client", this.clients.get(clientLogin));
+        return this.clients.get(clientLogin) === undefined ? false : true;
     }
 }

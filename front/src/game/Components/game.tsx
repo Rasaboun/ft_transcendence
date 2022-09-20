@@ -2,13 +2,12 @@ import React, {useState, useEffect, useRef} from "react"
 import Score from "../Elements/score"
 import * as utils from "../GameUtils/GameUtils"
 import "../game.css"
-import { playerT, playersT, ballInfoT, gameCollionInfoT, updateInfoT, gameDataT, GameSettings, GameData, GameState, Player, Ball} from "../GameUtils/type"
+import { GameSettings, GameData, GameState, Player, Ball} from "../GameUtils/type"
 // import {ThreeDots} from "react-loader-spinner";
 import { Socket } from 'socket.io-client'
 import { GameContext } from "../GameContext/gameContext"
 import useLocalStorage from "../../hooks/localStoragehook"
-import { setSocketManager } from "../../chat/ChatUtils/socketManager"
-import { GameRoutineHandler, initiateSocket, startGame } from "../GameUtils/socketManager"
+import { GameCleaner, GameRoutineHandler, initiateSocket, startGame } from "../GameUtils/socketManager"
 
 let socket:Socket
 let canvas:HTMLCanvasElement
@@ -17,7 +16,7 @@ export default function Game()
 {
 	const {storage, setStorage} = useLocalStorage("user")
 	const {storage2} = useLocalStorage("sessionId")
-	const value = React.useContext(GameContext)
+	const {socket, setSocket, setGameInfo} = React.useContext(GameContext)
 	let context: CanvasRenderingContext2D;
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	
@@ -53,6 +52,7 @@ export default function Game()
 	});
 
 	const handleWait = () => {
+		console.log("In waitingfoopponent");
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			state: GameState.Waiting
@@ -117,7 +117,7 @@ export default function Game()
 		})
 	}
 	const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, sock:Socket) => {
-		console.log(sock)
+		console.log("In game session")
 		if (sock)
 		{
 			setStorage("sessionId", sessionInfo.sessionId);
@@ -128,6 +128,7 @@ export default function Game()
 	}
 
 	const handleGameReady = (data: GameData) => {
+		console.log("In game ready")
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			ball: data.ball,
@@ -185,7 +186,7 @@ export default function Game()
 		{
 			console.log(`${winnerId} won the match`);
 		}
-		socket.emit('destroyLobby');
+		socket?.emit('destroyLobby');
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			winnerId: winnerId
@@ -224,12 +225,13 @@ export default function Game()
 			
 			value = utils.toScale(value, gameSettings.height / canvas.height);			
 
-			socket.emit("playerMoved", value);
+			socket?.emit("playerMoved", value);
 
 		}
 	}
 
 	function draw() {
+		console.log(canvas)
 		const context  = canvas.getContext("2d")!;
 
 		if (!context)
@@ -289,18 +291,17 @@ export default function Game()
 			if (sessionId && roomId)
 				sessioninfo = {sessionId: sessionId, roomId: roomId}
 		}
+		console.log(socket)
         if (!socket)
-            initiateSocket("http://localhost:8002/game", value.setSocket, sessioninfo, storage.login)
+            initiateSocket("http://localhost:8002/game", setSocket, sessioninfo, storage.login)
+		
+		canvas = canvasRef.current!;
+
 		if (!canvas)
 			return ;
 
 		context = canvas.getContext("2d")!;
 		console.log(context)
-		if (!context)
-			return ;
-
-		handleResize();
-		initializeGame();
 		GameRoutineHandler(handleWait,
 			handleUpdateBall,
 			updatePaddle,
@@ -309,16 +310,30 @@ export default function Game()
 			handleSpectateSuccess,
 			handleGameOver,
 			handleSession)
+		if (!context)
+			return ;
+
+		handleResize();
+		console.log()
+		initializeGame();
 		window.addEventListener('resize', handleResize);
-		socket = value?.socket!
 		console.log(socket)
-		return () => window.removeEventListener('resize', handleResize)
+		return (() => {window.removeEventListener('resize', handleResize)
+						GameCleaner(handleWait,
+							handleUpdateBall,
+							updatePaddle,
+							handleGameReady,
+							handleGoalScored,
+							handleSpectateSuccess,
+							handleGameOver,
+							handleSession)})
 	}, [])
 
 	useEffect(() => {
+		console.log("gamedata state", gameData.state);
 		if (gameData.state == GameState.Started || gameData.state == GameState.Spectacte)
 			draw()
-		value.setGameInfo({
+		setGameInfo({
 			players: [
 				{id: gameData.players[0].id, score: gameData.players[0].score},
 				{id: gameData.players[1].id, score: gameData.players[1].score}
