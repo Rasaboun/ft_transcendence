@@ -124,7 +124,6 @@ export default function ChannelBoard({userState}:PropsT)
         !elem.isAdmin && !elem.isOwner && othersList.push(elem)
     })
 
-    console.log("admin, other", storage2.clients)
     return (
         <div className="chat-left">
             {

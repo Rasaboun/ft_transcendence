@@ -17,10 +17,9 @@ export default function App()
 {
 	// const { setStorage } = useLocalStorage()
 
-	// useEffect(() => {
-	// 	setStorage("token", undefined)
-	// 	setStorage("user", undefined)
-	// }, [])
+	useEffect(() => {
+		console.log("app.tsx")
+	}, [])
     return (
 		<BrowserRouter>
 			<NavBar />
