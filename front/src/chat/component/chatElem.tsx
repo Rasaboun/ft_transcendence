@@ -115,7 +115,7 @@ export default function ChatElem()
         {
             setMessagesList(data.messages)
         }
-        if (data.unmuteDate)
+        if (data.unmuteDate !== 0)
             setMutedTime(Math.trunc(data.unmuteDate / 1000 - new Date().getTime() / 1000))
         
     }
