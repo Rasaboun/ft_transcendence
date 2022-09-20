@@ -131,6 +131,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		catch (error) { client.emit('error', error.message ) }
 	}
 
+	@SubscribeMessage('channelInfo')
+	async getChannelInfo(client: AuthenticatedSocket, channelName: string)
+	{
+		try
+		{
+			await this.channelManager.sendChannelInfo(client, channelName);
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
 	@SubscribeMessage('getActiveChannels')
 	getActiveChannels(client: AuthenticatedSocket)
 	{
@@ -180,6 +190,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async inviteClient(client: AuthenticatedSocket, data: InviteClient)
 	{
 		try {
+			console.log("Invited client ", data.clientId);
 			await this.channelManager.inviteClient(client.login, data);
 		}
 		catch (error) { client.emit('error', error.message ) }

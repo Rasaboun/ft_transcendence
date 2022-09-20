@@ -84,4 +84,9 @@ export class Lobby
 	{
 		return this.gameInstance.getPlayer(client.id);
 	}
+
+    public isClient(clientLogin: string): boolean
+    {
+        return this.clients.get(clientLogin) == undefined ? false : true;
+    }
 }

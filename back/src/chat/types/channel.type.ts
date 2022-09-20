@@ -8,6 +8,7 @@ export type AuthenticatedSocket = Socket & {
 	sessionId: string,
 	roomId: string,
 	login: string,
+	lobby: string,
 }
 
 export class ChannelClient {

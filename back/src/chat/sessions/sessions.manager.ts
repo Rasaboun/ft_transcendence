@@ -22,6 +22,7 @@ export class SessionManager
 			client.sessionId = sessionId;
 			client.roomId = session.roomId;
 			client.login = session.login;
+            client.lobby = session.lobby;
 		  }
 		}
         else
@@ -29,10 +30,12 @@ export class SessionManager
             client.sessionId = v4();
             client.roomId = v4();
             client.login = client.handshake.auth.login;
+            client.lobby = null;
             this.saveSession(client.sessionId, {
                 connected: true,
                 roomId: client.roomId,
                 login: client.login,
+                lobby: client.lobby,
                 })
         }
         client.join(client.roomId);

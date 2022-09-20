@@ -2,16 +2,19 @@ import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessa
 import { Socket, Server } from 'socket.io';
 import { LobbyManager } from './lobby/lobby.manager';
 import { AuthenticatedSocket, Player } from './game.type';
+import { SessionManager } from 'src/chat/sessions/sessions.manager';
 
 
 @WebSocketGateway(8002, { cors: '*' })
 export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
 
-	constructor( private lobbyManager: LobbyManager) {	}
+	constructor( 	private lobbyManager: LobbyManager,
+					private sessionManager: SessionManager,
+				) {	}
 
 	@WebSocketServer()
-	server;
+	server: Server;
 
 
 	afterInit(server: Server) {
@@ -21,9 +24,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	handleConnection(client: Socket){
-		console.log(`Client ${client.id} joined server`);
 		
 		this.lobbyManager.initializeSocket(client as AuthenticatedSocket);
+		//this.sessionManager.initializeSocket(client as AuthenticatedSocket);
+		//await this.lobbyManager.joinLobbies(client as AuthenticatedSocket);
+		console.log(`Client ${client.id} joined pong socket`);
 		
 	}
 

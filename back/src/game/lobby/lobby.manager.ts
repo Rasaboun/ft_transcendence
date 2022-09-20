@@ -65,6 +65,18 @@ export class LobbyManager
         else
             console.log('Spectacte success');
     }
+
+    // public joinLobbies(client: AuthenticatedSocket)
+    // {
+    //     for (const [lobbyId, lobby] of this.lobbies)
+    //     {
+    //         if (lobby.isClient(client.login))
+    //         {
+    //             client.join(lobbyId);
+    //         }
+    //     }
+    // }
+
     /*
     * Retourne l'id de tous les lobbies en game et l'id des 2 joueurs
     * Va servir pour afficher toutes les parties en cours et les regarder

@@ -330,6 +330,7 @@ export class ChannelManager
             let target = await this.userService.findOneByUsername(data.clientId);
             if (!target)
                 throw new NotFoundException("This user does not exist");
+            console.log("Target", target);
             data.clientId = target.intraLogin;
             // Send notification ?
             await this.channelsService.inviteClient(data);
