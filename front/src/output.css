@@ -671,12 +671,12 @@ video {
   height: 24rem;
 }
 
-.h-40 {
-  height: 10rem;
+.h-2\/4 {
+  height: 50%;
 }
 
-.h-1\/4 {
-  height: 25%;
+.h-3\/4 {
+  height: 75%;
 }
 
 .h-16 {
@@ -711,28 +711,16 @@ video {
   height: 2.5rem;
 }
 
-.h-full {
-  height: 100%;
-}
-
-.h-2\/4 {
-  height: 50%;
-}
-
-.h-64 {
-  height: 16rem;
-}
-
-.h-80 {
-  height: 20rem;
-}
-
 .h-screen {
   height: 100vh;
 }
 
-.min-h-screen {
-  min-height: 100vh;
+.h-4\/5 {
+  height: 80%;
+}
+
+.h-full {
+  height: 100%;
 }
 
 .w-full {
@@ -867,10 +855,6 @@ video {
 
 .overflow-y-scroll {
   overflow-y: scroll;
-}
-
-.whitespace-nowrap {
-  white-space: nowrap;
 }
 
 .rounded-xl {

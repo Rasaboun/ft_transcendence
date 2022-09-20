@@ -28,7 +28,7 @@ function TabElement() {
 
 function Tabulation() {
   return (
-    <div className="relative h-2/4 overflow-y-scroll shadow-md sm:rounded-lg">
+    <div className="relative h-full overflow-y-scroll shadow-md sm:rounded-lg">
       <table className=" w-full text-sm text-left text-gray-500 ">
         <thead className="w-full text-xs text-gray-700 uppercase bg-gray-50">
           <tr className="w-full">
@@ -117,7 +117,7 @@ export default function Dashboard() {
   });
 
   return (
-    <div id="Dashboard" className="flex-1">
+    <div id="Dashboard" className="flex-1 h-3/4">
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl tracking-tight font-bold text-gray-900">
@@ -125,8 +125,8 @@ export default function Dashboard() {
           </h1>
         </div>
       </header>
-      <main>
-        <div className="max-w-7xl h-screen mx-auto py-6 sm:px-6 lg:px-8">
+      <main className="h-full">
+        <div className="max-w-7xl h-4/5 mx-auto py-6 sm:px-6 lg:px-8">
           {/* Replace with your content */}
 
           <Tabulation />
