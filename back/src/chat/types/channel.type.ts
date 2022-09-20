@@ -2,12 +2,7 @@ import { HttpException } from "@nestjs/common";
 import { Socket } from "socket.io"
 import { Channel } from "../channel/channel"
 
-export type AuthenticatedSocket = Socket & {
-	sessionId: string,
-	roomId: string,
-	login: string,
-}
-
+export const uuidRegexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
 export class ChannelClient {
 	public isOwner: boolean = false;
 	public isAdmin: boolean = false;
@@ -41,6 +36,7 @@ export type Message = {
 		login: string,
 		username: string,
 	},
+	channelName?: string,
 	content: string,
 	date?: string,
 	isInfo: boolean,
@@ -77,6 +73,7 @@ export type ClientInfo = {
 	username: string,
 	isOwner: boolean,
 	isAdmin: boolean,
+	isMuted: boolean,
 }
 
 export type CreateChannel = {

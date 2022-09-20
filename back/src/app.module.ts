@@ -11,8 +11,6 @@ import { DataSource } from "typeorm"
 import { MatchModule } from './match/match.module';
 import { ChatModule } from './chat/chat.module';
 import { GameModule } from './game/game.module';
-import { RawBodyMiddleware } from './raw-body.middleware';
-import { JsonBodyMiddleware } from './jsonboymiddlewae';
 
 @Module({
   imports: [
@@ -40,20 +38,10 @@ import { JsonBodyMiddleware } from './jsonboymiddlewae';
   providers: [AppService],
   exports: [AppService]
 })
-export class AppModule implements NestModule {
+export class AppModule{
     constructor(private dataSource: DataSource) {}
   
     getDataSource() {
       return this.dataSource;
-    }
-    public configure(consumer: MiddlewareConsumer): void {
-        consumer
-            .apply(RawBodyMiddleware)
-            .forRoutes({
-                path: '/uploadExportFile',
-                method: RequestMethod.POST,
-            })
-            .apply(JsonBodyMiddleware)
-            .forRoutes('*');
     }
 }

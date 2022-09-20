@@ -1,10 +1,10 @@
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
+import { SessionManager } from 'src/sessions/sessions.manager';
 import { Channel } from './channel/channel';
 import { ChannelManager } from './channel/channel.manager';
-import { SessionManager } from './sessions/sessions.manager';
-import { ActionOnUser, AddAdmin, AuthenticatedSocket, CreateChannel, InviteClient, JoinChannel, SetChannelPassword } from './types/channel.type';
-
+import { ActionOnUser, AddAdmin, CreateChannel, InviteClient, JoinChannel, SetChannelPassword } from './types/channel.type';
+import { AuthenticatedSocket } from 'src/sessions/sessions.type';
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -16,7 +16,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{}
 
 	@WebSocketServer()
-	server;
+	server: Server;
 
 
 	afterInit(server: Server) {
@@ -67,19 +67,17 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try {
 			const channel = await this.channelManager.createChannel(client, data);
 			channel.addClient(client.login, client.roomId);
-			//client.emit("channelCreated", channel.getInfo());
 			this.server.emit('activeChannels', this.channelManager.getActiveChannels());
 		}
 		catch (error) { return client.emit('error', error.message)}
 	}
 
 	@SubscribeMessage('deleteChannel')
-	deleteChannel(client: AuthenticatedSocket, channelId: string)
+	async deleteChannel(client: AuthenticatedSocket, channelId: string)
 	{
 		try
 		{
-			this.channelManager.deleteChannel(channelId);
-			this.server.emit('activeChannels', this.channelManager.getActiveChannels());
+			await this.channelManager.deleteChannel(channelId);
 			console.log(`Client ${client.id} deleted channel ${channelId}`)
 		}
 		catch (error) { client.emit('error', error.message ) }
@@ -133,6 +131,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		catch (error) { client.emit('error', error.message ) }
 	}
 
+	@SubscribeMessage('channelInfo')
+	async getChannelInfo(client: AuthenticatedSocket, channelName: string)
+	{
+		try
+		{
+			await this.channelManager.sendChannelInfo(client, channelName);
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
 	@SubscribeMessage('getActiveChannels')
 	getActiveChannels(client: AuthenticatedSocket)
 	{
@@ -182,6 +190,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async inviteClient(client: AuthenticatedSocket, data: InviteClient)
 	{
 		try {
+			console.log("Invited client ", data.clientId);
 			await this.channelManager.inviteClient(client.login, data);
 		}
 		catch (error) { client.emit('error', error.message ) }

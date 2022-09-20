@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { Server } from "socket.io";
-import { AuthenticatedSocket, ChannelInfo, ChannelModes, ClientInfo, Message } from "../types/channel.type";
+import { ChannelInfo, ChannelModes, ClientInfo, Message } from "../types/channel.type";
 
 export class Channel
 {
@@ -59,10 +59,10 @@ export class Channel
     }
 
 
-    public sendToUsers(event: string, data: any)
+    public async sendToUsers(event: string, data: any, exclude?: string)
     {
         this.clients.forEach((roomId, client) => {
-            if (roomId != null)
+            if (roomId != null && roomId != exclude)
                 this.server.to(roomId).emit(event, data);
         })
     }

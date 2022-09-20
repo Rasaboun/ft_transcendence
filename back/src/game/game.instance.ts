@@ -1,5 +1,5 @@
 import { Lobby } from "./lobby/lobby";
-import { GameData, GameSettings, GameState, Player } from "./game.type";
+import { GameData, GameSettings, GameState, Player } from "./types/game.type";
 
 
 export class GameInstance

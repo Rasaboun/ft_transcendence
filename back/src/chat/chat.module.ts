@@ -5,9 +5,9 @@ import { Channel } from '../typeorm/Channel';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChannelsService } from './channel/channel.service';
 import { ChatController } from './chat.controller';
-import { SessionManager } from './sessions/sessions.manager';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/typeorm';
+import { SessionManager } from 'src/sessions/sessions.manager';
 
 @Module({
     imports: [

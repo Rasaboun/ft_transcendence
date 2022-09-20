@@ -2,8 +2,9 @@ import { NotFoundException } from "@nestjs/common";
 import { Cron, Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
 import { Server } from "socket.io";
+import { AuthenticatedSocket } from 'src/sessions/sessions.type';
 import { GameInstance } from "../game.instance";
-import { AuthenticatedSocket, GameState, Player } from "../game.type";
+import { GameState, Player } from "../types/game.type";
 import { Lobby } from "./lobby";
 
 type availableLobbiesT = [{
@@ -31,7 +32,7 @@ export class LobbyManager
         client.data.lobby?.removeClient(client);
     }
 
-    public createLobby(): Lobby
+    public createLobby(/*options: GameOptions*/): Lobby
     {
         let lobby = new Lobby(this.server);
 
@@ -42,16 +43,19 @@ export class LobbyManager
 
     public joinQueue(client: AuthenticatedSocket)
     {
-        let lobby: Lobby;
+        let lobby: Lobby = null;
 
-        if (this.avalaibleLobbies.length > 0)
-            lobby = this.avalaibleLobbies.shift();
-        else
+   
+        for (let i = 0; i < this.avalaibleLobbies.length; i++)
+        {
+            if (!lobby.isClient(client.login) && lobby.inviteMode == false)
+                lobby = this.avalaibleLobbies.splice(i, 1).at(0);
+        }
+        if (lobby == null)
         {
             lobby = this.createLobby();
             this.avalaibleLobbies.push(lobby);
         }
-
         lobby.addClient(client);
     }
 
@@ -65,6 +69,18 @@ export class LobbyManager
         else
             console.log('Spectacte success');
     }
+
+    public async joinLobbies(client: AuthenticatedSocket)
+    {
+        for (const [lobbyId, lobby] of this.lobbies)
+        {
+            if (lobby.isClient(client.login))
+            {
+                client.join(lobbyId);
+            }
+        }
+    }
+
     /*
     * Retourne l'id de tous les lobbies en game et l'id des 2 joueurs
     * Va servir pour afficher toutes les parties en cours et les regarder
