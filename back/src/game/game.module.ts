@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { SessionManager } from 'src/chat/sessions/sessions.manager';
+import { SessionManager } from 'src/sessions/sessions.manager';
 import { GameGateway } from './game.gateway';
 import { LobbyManager } from './lobby/lobby.manager';
 

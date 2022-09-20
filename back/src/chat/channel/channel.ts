@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { Server } from "socket.io";
-import { AuthenticatedSocket, ChannelInfo, ChannelModes, ClientInfo, Message } from "../types/channel.type";
+import { ChannelInfo, ChannelModes, ClientInfo, Message } from "../types/channel.type";
 
 export class Channel
 {

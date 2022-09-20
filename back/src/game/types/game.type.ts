@@ -1,5 +1,6 @@
 import { Socket } from "socket.io";
-import { Lobby } from "./lobby/lobby";
+import { GameModule } from "../game.module";
+import { Lobby } from "../lobby/lobby";
 
 export interface Player 
 { 
@@ -32,15 +33,16 @@ export interface GameSettings {
   paddleWidth:	number,
   paddleHeight:	number,
   width: number,
-  height: number,
-  
+  height: number,  
 }
 
+export interface GameOptions {
+  inviteMode: boolean,
+  mode : GameMode,
+}
 
-export type AuthenticatedSocket = Socket & {
-	data: {
-		lobby: null | Lobby;
-	}
+export enum GameMode {
+  Normal,
 }
 
 export enum GameState {

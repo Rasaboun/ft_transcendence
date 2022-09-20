@@ -1,11 +1,12 @@
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { LobbyManager } from './lobby/lobby.manager';
-import { AuthenticatedSocket, Player } from './game.type';
-import { SessionManager } from 'src/chat/sessions/sessions.manager';
+import { Player } from './types/game.type';
+import { SessionManager } from 'src/sessions/sessions.manager';
+import { AuthenticatedSocket } from 'src/sessions/sessions.type';
 
 
-@WebSocketGateway(8002, { cors: '*' })
+@WebSocketGateway(8002, { cors: '*', namespace: 'game' })
 export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
 
@@ -23,11 +24,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	
 	}
 
-	handleConnection(client: Socket){
+	async handleConnection(client: Socket){
 		
-		this.lobbyManager.initializeSocket(client as AuthenticatedSocket);
-		//this.sessionManager.initializeSocket(client as AuthenticatedSocket);
-		//await this.lobbyManager.joinLobbies(client as AuthenticatedSocket);
+		//this.lobbyManager.initializeSocket(client as AuthenticatedSocket);
+		this.sessionManager.initializeSocket(client as AuthenticatedSocket);
+		await this.lobbyManager.joinLobbies(client as AuthenticatedSocket);
 		console.log(`Client ${client.id} joined pong socket`);
 		
 	}
@@ -81,11 +82,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('playerMoved')
 	handlePlayerPosition(client: AuthenticatedSocket, newPos: number) {
 
-		const player: Player = client.data.lobby?.getUser(client);
+		const player: Player = client.data.lobby?.getPlayer(client.login);
 		if (!player)
 			return ;
 		player.pos = newPos;
-		client.data.lobby.sendToUsers('updatePaddle', {playerId: client.id, newPos: newPos});
+		client.lobby.sendToUsers('updatePaddle', {playerId: client.login, newPos: newPos});
 
 	}
 }

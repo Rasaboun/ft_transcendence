@@ -1,32 +1,34 @@
 import { v4 } from "uuid";
 import { Server } from "socket.io";
-import { AuthenticatedSocket, GameData, GameState, Player } from "../game.type";
+import { GameData, GameState, Player } from "../types/game.type";
 import { GameInstance } from "../game.instance";
 import { Socket } from "dgram";
+import { AuthenticatedSocket } from "src/sessions/sessions.type";
 
 export class Lobby
 {
     public readonly id:             string = v4();
     public          nbPlayers:      number = 0;
     public          state:          GameState = GameState.Stopped;
-    public readonly inviteMode:     boolean;
+    public readonly inviteMode:     boolean = false;
 
     public readonly gameInstance:   GameInstance = new GameInstance(this);
 
-    public         clients:        	Map<string, AuthenticatedSocket> = new Map<string, AuthenticatedSocket>();
+    //public         clients:        	Map<string, AuthenticatedSocket> = new Map<string, AuthenticatedSocket>();
+    public         clients:        	Map<string, string> = new Map<string, string>();
 
     constructor    ( private server: Server ) {}
 
     public addClient(client: AuthenticatedSocket): void
     {
-        this.clients.set(client.id, client);
+        this.clients.set(client.login, client.roomId);
         client.join(this.id);
         client.data.lobby = this;
         console.log(this.id)
         
         if (this.nbPlayers < 2)
         {
-            this.gameInstance.addPlayer(client.id);
+            this.gameInstance.addPlayer(client.login);
             this.nbPlayers++;
             
             if (this.nbPlayers == 1)
@@ -40,6 +42,7 @@ export class Lobby
         }
         console.log("lobby client ", this.clients.size)
     }
+
 
     public startGame()
     {
@@ -55,9 +58,9 @@ export class Lobby
     {
         client.data.lobby = null;
         client.leave(this.id);
-        this.clients.delete(client.id);
+        this.clients.delete(client.login);
 		this.gameInstance.stop();
-        if (this.gameInstance.isPlayer(client.id))
+        if (this.gameInstance.isPlayer(client.login))
         {
             this.clients.forEach((user, id) => {
                 this.clients.delete(id);
@@ -68,6 +71,7 @@ export class Lobby
             this.sendToUsers('gameStopped', "");  
         }          
     }
+         
 
     public playersId(): string[] { return this.gameInstance.playersId(); }
 
@@ -80,9 +84,9 @@ export class Lobby
 
     public sendToUsers(event: string, data: any) { this.server.to(this.id).emit(event, data); }
 
-	public getUser(client: AuthenticatedSocket)
+	public getPlayer(clientLogin: string)
 	{
-		return this.gameInstance.getPlayer(client.id);
+		return this.gameInstance.getPlayer(clientLogin);
 	}
 
     public isClient(clientLogin: string): boolean

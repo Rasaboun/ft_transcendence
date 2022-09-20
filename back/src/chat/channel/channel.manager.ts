@@ -3,8 +3,9 @@ import { Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
 import { createClient } from "redis";
 import { Server } from "socket.io";
+import { AuthenticatedSocket } from "src/sessions/sessions.type";
 import { UsersService } from "src/users/users.service";
-import { ActionOnUser, AddAdmin, AuthenticatedSocket, ChannelClient, ChannelInfo, ChannelModes, ClientInfo, CreateChannel, InviteClient, JoinChannel, Message, MutedException, SetChannelPassword, uuidRegexExp } from "../types/channel.type";
+import { ActionOnUser, AddAdmin, ChannelClient, ChannelInfo, ChannelModes, ClientInfo, CreateChannel, InviteClient, JoinChannel, Message, MutedException, SetChannelPassword, uuidRegexExp } from "../types/channel.type";
 import { Channel } from "./channel";
 import { ChannelsService } from "./channel.service";
 
@@ -152,8 +153,8 @@ export class ChannelManager
             if (channel.getNbClients() == 0)
             {
                 await this.deleteChannel(channelName);
-                this.channels.delete(channelName);
-                await this.channelsService.deleteChannel(channelName);
+                //this.channels.delete(channelName);
+                //await this.channelsService.deleteChannel(channelName);
                 return ;
             }
             if (channel.owner != client.login)
