@@ -2,18 +2,21 @@ import React, {useState, useEffect, useRef} from "react"
 import Score from "../Elements/score"
 import * as utils from "../GameUtils/GameUtils"
 import "../game.css"
-import { playerT, playersT, ballInfoT, gameCollionInfoT, updateInfoT, gameDataT, GameSettings, GameData, GameState, Player} from "../GameUtils/type"
+import { playerT, playersT, ballInfoT, gameCollionInfoT, updateInfoT, gameDataT, GameSettings, GameData, GameState, Player, Ball} from "../GameUtils/type"
 // import {ThreeDots} from "react-loader-spinner";
-import * as socketManager from "../GameUtils/socketManager"
-import { io, Socket } from 'socket.io-client'
+import { Socket } from 'socket.io-client'
 import { GameContext } from "../GameContext/gameContext"
-import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript"
+import useLocalStorage from "../../hooks/localStoragehook"
+import { setSocketManager } from "../../chat/ChatUtils/socketManager"
+import { GameRoutineHandler, initiateSocket, startGame } from "../GameUtils/socketManager"
 
 let socket:Socket
 let canvas:HTMLCanvasElement
 
 export default function Game()
 {
+	const {storage, setStorage} = useLocalStorage("user")
+	const {storage2} = useLocalStorage("sessionId")
 	const value = React.useContext(GameContext)
 	let context: CanvasRenderingContext2D;
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -113,87 +116,56 @@ export default function Game()
 			height: 1080,
 		})
 	}
+	const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, sock:Socket) => {
+		console.log(sock)
+		if (sock)
+		{
+			setStorage("sessionId", sessionInfo.sessionId);
+			setStorage("roomId", sessionInfo.roomId);
+			sock.auth = { sessionId: sessionInfo.sessionId } ;		
+			//socket.userID = userID;
+		}
+	}
 
-	useEffect(() => {
-		canvas = canvasRef.current!;
-		if (!canvas)
-			return ;
+	const handleGameReady = (data: GameData) => {
+		setGameData((oldGameData) => ({
+			...oldGameData,
+			ball: data.ball,
+			players: data.players,
+			state: GameState.Started
+		}))
+		startGame()
+	}
 
-		context = canvas.getContext("2d")!;
-		console.log(context)
-		if (!context)
-			return ;
+	const handleSpectateSuccess = (players: Player[]) => {
+		setGameData((oldGameData) => ({
+			...oldGameData,
+			players: players,
+			state: GameState.Spectacte
+		}))
+	}
 
-		const handleResize = () => {
-			console.log(canvas.height, canvas.width)
-			canvas.height = utils.getCanvasDiv().height
-			canvas.width = utils.getCanvasDiv().width;
-		}	
-		handleResize();
-		initializeGame()
-		window.addEventListener('resize', handleResize);
-		socket = value?.socket!
-		console.log(socket)
-		socket?.on('waitingForOpponent', handleWait)
+	const handleGoalScored = (players: Player[]) => {
+		setGameData((oldGameData) => ({
+			...oldGameData,
+			players: players,
+		}));
+	}
 
-		socket?.on('updateBall', (ball) => {
-			const newBall = {
-				x:	utils.toScale(ball.x, canvas.width / gameSettings.width),
-				y: utils.toScale(ball.y, canvas.height / gameSettings.height),
-				speed: ball.speed,
-				radius: ball.radius,
-				delta:	ball.delta,
+	const handleUpdateBall = (ball:Ball) => {
+		const newBall = {
+			x:	utils.toScale(ball.x, canvas.width / gameSettings.width),
+			y: utils.toScale(ball.y, canvas.height / gameSettings.height),
+			speed: ball.speed,
+			radius: ball.radius,
+			delta:	ball.delta,
 
-			}
-			setGameData((oldGameData) => ({
-				...oldGameData,
-				ball: newBall,
-			}));
-		})
-		socket?.on('updatePaddle', ({playerId, newPos}) => {
-			updatePaddle(playerId, newPos);
-		})
-		socket?.on('gameReady', (data: GameData) => {
-			setGameData((oldGameData) => ({
-				...oldGameData,
-				ball: data.ball,
-				players: data.players,
-				state: GameState.Started
-			}));
-			socket?.emit("startGame");
-		})
-
-		socket?.on('goalScored', (players: Player[]) => {
-			setGameData((oldGameData) => ({
-				...oldGameData,
-				players: players,
-			}));
-		})
-
-		socket?.on('spectateSuccess', (players) => {
-			setGameData((oldGameData) => ({
-				...oldGameData,
-				players: players,
-				state: GameState.Spectacte
-			}))
-		})
-		socket?.on('gameOver', (winnerId: string) => {
-			handleGameOver(winnerId);
-		})
-		return () => window.removeEventListener('resize', handleResize)
-	}, [])
-
-	useEffect(() => {
-		if (gameData.state == GameState.Started || gameData.state == GameState.Spectacte)
-			draw()
-		value.setGameInfo({
-			players: [
-				{id: gameData.players[0].id, score: gameData.players[0].score},
-				{id: gameData.players[1].id, score: gameData.players[1].score}
-			],
-			isPlaying: (GameState.Started || GameState.Spectacte) ? true : false
-		})
-	}, [gameData])
+		}
+		setGameData((oldGameData) => ({
+			...oldGameData,
+			ball: newBall,
+		}));
+	}
 
 	function handleGameOver(winnerId: string)
 	{
@@ -201,11 +173,11 @@ export default function Game()
 			...oldGameData,
 			state: GameState.Stopped
 		}))
-		if (winnerId == socket.id)
+		if (winnerId == storage.login)
 		{
 			console.log("You win");
 		}
-		else if (gameData.players[0].id == socket.id || gameData.players[0].id == socket.id)
+		else if (gameData.players[0].id == storage.login || gameData.players[0].id == storage.login)
 		{
 			console.log("You lose");
 		}
@@ -230,6 +202,12 @@ export default function Game()
 					return player
 				}),
 			}))
+	}
+
+	const handleResize = () => {
+		console.log(canvas.height, canvas.width)
+		canvas.height = utils.getCanvasDiv().height
+		canvas.width = utils.getCanvasDiv().width;
 	}
 
 	function handleMouseMove(event:React.MouseEvent<HTMLCanvasElement>)
@@ -281,7 +259,7 @@ export default function Game()
 		context?.closePath();
 
 	}
-
+	
 	function clearCanvas(): boolean
 	{
 
@@ -298,6 +276,57 @@ export default function Game()
 		return true;
 	}
 
+	useEffect(() => {
+		let sessionId = localStorage.getItem("sessionId");
+		let roomId = localStorage.getItem("roomId");
+		let sessioninfo;
+		if (sessionId && roomId)
+		{
+			sessionId = JSON.parse(sessionId);
+			roomId = JSON.parse(roomId);
+			console.log("sessionId", sessionId)
+			console.log("roomId", roomId)
+			if (sessionId && roomId)
+				sessioninfo = {sessionId: sessionId, roomId: roomId}
+		}
+        if (!socket)
+            initiateSocket("http://localhost:8002/game", value.setSocket, sessioninfo, storage.login)
+		if (!canvas)
+			return ;
+
+		context = canvas.getContext("2d")!;
+		console.log(context)
+		if (!context)
+			return ;
+
+		handleResize();
+		initializeGame();
+		GameRoutineHandler(handleWait,
+			handleUpdateBall,
+			updatePaddle,
+			handleGameReady,
+			handleGoalScored,
+			handleSpectateSuccess,
+			handleGameOver,
+			handleSession)
+		window.addEventListener('resize', handleResize);
+		socket = value?.socket!
+		console.log(socket)
+		return () => window.removeEventListener('resize', handleResize)
+	}, [])
+
+	useEffect(() => {
+		if (gameData.state == GameState.Started || gameData.state == GameState.Spectacte)
+			draw()
+		value.setGameInfo({
+			players: [
+				{id: gameData.players[0].id, score: gameData.players[0].score},
+				{id: gameData.players[1].id, score: gameData.players[1].score}
+			],
+			isPlaying: (GameState.Started || GameState.Spectacte) ? true : false
+		})
+	}, [gameData])
+
 	return (
 		<div id="canvasDiv">
 			{
@@ -313,7 +342,7 @@ export default function Game()
 					gameData.state == GameState.Stopped && clearCanvas() &&
 					<div className="game-display">
 						{(socket?.id === gameData.winnerId) ? "YOU WIN" : 
-						(((gameData.players[0].id == socket.id || gameData.players[0].id == socket.id)) ?
+						(((gameData.players[0].id == storage.login || gameData.players[0].id == storage.login)) ?
 							"YOU LOSE" : `${gameData.winnerId} WIN`)}
 						{}
 						</div>

@@ -1,11 +1,19 @@
 import { io, Socket } from 'socket.io-client'
-import {playerT, gameCollionInfoT, availableLobbiesT} from "./type"
+import {playerT, gameCollionInfoT, availableLobbiesT, Ball, GameData, Player} from "./type"
 
 let socket:Socket
 
-export function initiateSocket(url:string)
+export function initiateSocket(url:string, setSocket:any, sessioninfo?:{sessionId:string, roomId:string}, login?:string)
 {
-	socket = io(url);
+	socket = io(url, { autoConnect: false });
+	console.log(socket)
+	setSocket(socket)
+	console.log("sessionInfo", sessioninfo);
+	if (sessioninfo)
+		socket.auth = sessioninfo;
+	else
+		socket.auth = { login } 
+	socket.connect();
 }
 
 export function joinQueue(player:playerT) {
@@ -21,10 +29,9 @@ export function sendCollisionInfo(collisionInfo:gameCollionInfoT) {
 	socket?.emit("gameCollisionChange", collisionInfo);
 }
 
-export function startGame(gameCollisionInfo:gameCollionInfoT)
+export function startGame()
 {
-
-	socket?.emit("startGame", gameCollisionInfo);
+	socket?.emit("startGame");
 }
 
 export function spectacteGame(id:string)
@@ -67,18 +74,56 @@ export function GameMenuHandler(handleAvailableLobbies:any, handleGoalScored:any
 
 }
 
+export function GameRoutineHandler(handleWait:any,
+									handleUpdateBall:any,
+									updatePaddle:any,
+									handleGameReady:any,
+									handleGoalScored:any,
+									handleSpectateSuccess:any,
+									handleGameOver:any,
+									handleSession:any) 
+{	
+	socket.on('waitingForOpponent', handleWait)
+	socket.on('updateBall', (ball:Ball) => handleUpdateBall(ball))
+	socket.on('updatePaddle', ({playerId, newPos}) => updatePaddle(playerId, newPos))
+	socket.on('gameReady', (data: GameData) => handleGameReady(data))
+	socket.on('goalScored', (players: Player[]) => handleGoalScored(players))
+	socket.on('spectateSuccess', (players: Player[]) => handleSpectateSuccess(players))
+	socket.on('gameOver', (winnerId: string) => handleGameOver(winnerId))
+	socket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, socket));
+
+}
 
 export function getActiveGames()
 {
 	socket?.emit("getActiveGames")
 }
 
-export function cleanUp() {
-	socket.off('connect');
-	socket.off('watingForOpponent');
-	socket.off('gameReady');
-	socket.off('stateUpdate');
-	socket.off('collisionUpdate');
+export function Menucleaner(handleAvailableLobbies:any,
+							handleGoalScored:any) {
+	socket.off("connect", () => {
+		socket.off('activeGames',(availableLobbies:availableLobbiesT) => handleAvailableLobbies(availableLobbies))
+		})
+		socket.off('goalScored', (players: any) => handleGoalScored(players));
+}
+
+export function GameCleaner(handleWait:any,
+							handleUpdateBall:any,
+							updatePaddle:any,
+							handleGameReady:any,
+							handleGoalScored:any,
+							handleSpectateSuccess:any,
+							handleGameOver:any,
+							handleSession:any)
+{
+	socket.off('waitingForOppoffent', handleWait)
+	socket.off('updateBall', (ball:Ball) => handleUpdateBall(ball))
+	socket.off('updatePaddle', ({playerId, newPos}) => updatePaddle(playerId, newPos))
+	socket.off('gameReady', (data: GameData) => handleGameReady(data))
+	socket.off('goalScored', (players: Player[]) => handleGoalScored(players))
+	socket.off('spectateSuccess', (players: Player[]) => handleSpectateSuccess(players))
+	socket.off('gameOver', (winnerId: string) => handleGameOver(winnerId))
+	socket.off("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, socket));
 }
 
 export function getSocket()

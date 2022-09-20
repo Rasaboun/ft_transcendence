@@ -1,22 +1,26 @@
-import React from 'react'
-import * as socketManager from "../GameUtils/socketManager"
+import React, { useEffect } from 'react'
 import { io, Socket } from 'socket.io-client'
 import { playerT, availableLobbiesT } from "../GameUtils/type"
 import LobbyItem from '../Elements/lobbyItem'
 import { Link } from "react-router-dom";
 import { GameContext } from "../GameContext/gameContext"
+import useLocalStorage from '../../hooks/localStoragehook'
+import { GameMenuHandler, getActiveGames, getSocket, initiateSocket, joinQueue, Menucleaner, spectacteGame } from '../GameUtils/socketManager';
 
 let socket:Socket
 
 export default function Menu()
 {
+    const {storage, setStorage} = useLocalStorage("user")
+	const {storage2} = useLocalStorage("sessionId")
+	const {storage3} = useLocalStorage("channel")
     const value = React.useContext(GameContext)
     const [availableLobbies, setAvailableLobbies] = React.useState<availableLobbiesT>()
 
 
     function newGame(player:playerT)
 	{
-		socketManager.joinQueue(player)
+		joinQueue(player)
 	}
 
     function handleAvailableLobbies(availableLobbies:availableLobbiesT)
@@ -33,15 +37,39 @@ export default function Menu()
 
     function spectateMode(id:string)
 	{		
-        socketManager.spectacteGame(id)
+        spectacteGame(id)
+	}
+    const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, sock:Socket) => {
+		console.log(sock)
+		if (sock)
+		{
+			setStorage("sessionId", sessionInfo.sessionId);
+			setStorage("roomId", sessionInfo.roomId);
+			sock.auth = { sessionId: sessionInfo.sessionId } ;		
+			//socket.userID = userID;
+		}
 	}
 
-    React.useEffect(() => {
-        socketManager.initiateSocket("http://localhost:8002")
-        socketManager.getActiveGames()
-		socketManager.GameMenuHandler(handleAvailableLobbies, handleGoalScored)
-		socket = socketManager.getSocket()
+	useEffect(() => {
+		let sessionId = localStorage.getItem("sessionId");
+		let roomId = localStorage.getItem("roomId");
+		let sessioninfo;
+		if (sessionId && roomId)
+		{
+			sessionId = JSON.parse(sessionId);
+			roomId = JSON.parse(roomId);
+			console.log("sessionId", sessionId)
+			console.log("roomId", roomId)
+			if (sessionId && roomId)
+				sessioninfo = {sessionId: sessionId, roomId: roomId}
+		}
+        if (!socket)
+            initiateSocket("http://localhost:8002/game", value.setSocket, sessioninfo, storage.login)        
+        getActiveGames()
+		GameMenuHandler(handleAvailableLobbies, handleGoalScored)
+		socket = getSocket()
         value?.setSocket(socket)
+        return (() => Menucleaner(handleAvailableLobbies, handleGoalScored))
     }, [])
 
     console.log(value)
