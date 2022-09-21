@@ -20,7 +20,7 @@ async function bootstrap() {
     .get(AppModule)
     .getDataSource()
     .getRepository(TypeORMSession);
-
+    app.enableCors();
   app.useGlobalPipes(new ValidationPipe()) //Don't need to use validation in controller
 /*
   app.use(session({

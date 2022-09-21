@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SessionSerializer = void 0;
 const common_1 = require("@nestjs/common");
 const passport_1 = require("@nestjs/passport");
-const typeorm_1 = require("../../typeorm");
 const users_service_1 = require("../../users/users.service");
 let SessionSerializer = class SessionSerializer extends passport_1.PassportSerializer {
     constructor(userService) {

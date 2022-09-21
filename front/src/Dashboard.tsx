@@ -2,31 +2,44 @@ import React, { useEffect } from "react";
 import axios from "axios";
 import "./output.css";
 
-const url: string = "http://localhost:3001/users";
+const url: string = "http://localhost:3002/users/";
 
 interface Iuser {
   id: number;
   photoUrl: string;
+  username: string;
+  victories: number;
+  defeats: number;
 }
 
-function TabElement() {
+function TabElement(props:any) {
   return (
     <tr className="bg-white border-b w-full">
-      <th
-        scope="row"
-        className="py-4 px-6 font-medium text-gray-900"
-      >
-        1
+      <th scope="row" className="py-4 px-6 font-medium text-gray-900">
+        *
       </th>
-      <td className="py-4 px-6">Rasaboun</td>
-      <td className="py-4 px-6">1</td>
-      <td className="py-4 px-6">0</td>
-      <td className="py-4 px-6">21</td>
+      <td className="py-4 px-6">{props.user.username}</td>
+      <td className="py-4 px-6">{props.user.victories}</td>
+      <td className="py-4 px-6">{props.user.defeats}</td>
     </tr>
   );
 }
 
 function Tabulation() {
+  const [users, setUsers] = React.useState<Iuser[]>([]);
+
+  useEffect(() => {
+    axios
+      .get(url)
+      .then((response) => {
+        setUsers(response.data);
+        console.log(response);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
   return (
     <div className="relative h-full overflow-y-scroll shadow-md sm:rounded-lg">
       <table className=" w-full text-sm text-left text-gray-500 ">
@@ -44,63 +57,12 @@ function Tabulation() {
             <th scope="col" className="py-3 px-6 bg-indigo-300 text-gray">
               Loose
             </th>
-            <th scope="col" className="py-3 px-6 bg-indigo-200 text-gray">
-              lvl
-            </th>
           </tr>
         </thead>
         <tbody className=" w-full">
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
-          <TabElement/>
+        {users.map((user) => (
+            <TabElement key={user.id} user={user}/>
+          ))}
         </tbody>
       </table>
     </div>
@@ -108,14 +70,6 @@ function Tabulation() {
 }
 
 export default function Dashboard() {
-  const [users, setUsers] = React.useState<Iuser[]>([]);
-
-  useEffect(() => {
-    axios.get(url).then((response) => {
-      setUsers(response.data);
-    });
-  });
-
   return (
     <div id="Dashboard" className="flex-1 h-3/4">
       <header className="bg-white shadow">
@@ -127,11 +81,7 @@ export default function Dashboard() {
       </header>
       <main className="h-full">
         <div className="max-w-7xl h-4/5 mx-auto py-6 sm:px-6 lg:px-8">
-          {/* Replace with your content */}
-
-          <Tabulation />
-
-          {/* /End replace */}
+          <Tabulation/>
         </div>
       </main>
     </div>

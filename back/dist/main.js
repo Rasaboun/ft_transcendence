@@ -10,6 +10,7 @@ async function bootstrap() {
         .get(app_module_1.AppModule)
         .getDataSource()
         .getRepository(typeorm_1.TypeORMSession);
+    app.enableCors();
     app.useGlobalPipes(new common_1.ValidationPipe());
     await app.listen(3002);
 }
