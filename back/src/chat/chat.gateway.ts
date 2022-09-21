@@ -98,7 +98,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async muteUser(client: AuthenticatedSocket, data: ActionOnUser)
 	{
 		try {
-			await this.channelManager.muteUser(client.login, data);
+			await this.channelManager.muteUser(client, data);
 		}
 		catch (error) { client.emit('error', error.message) }
 	}
@@ -107,7 +107,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async banUser(client: AuthenticatedSocket, data: ActionOnUser)
 	{
 		try {
-			await this.channelManager.banUser(client.login, data);
+			await this.channelManager.banUser(client, data);
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}

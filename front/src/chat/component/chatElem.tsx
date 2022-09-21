@@ -76,17 +76,22 @@ export default function ChatElem()
         console.log(data.channelInfo)
         setStorage("channel", data.channelInfo)
 	}
-    const upgradeToOwner = (channelName:string) => {
+    const newOwner = (data: {target: string, channelInfo: ChannelT}) => {
         const message = `You are now Owner`;
-        setUserState((oldUserState) => ({
-            ...oldUserState!,
-            isOwner: true,
-            isAdmin: true
-            }));
-        setMessagesList((oldMessagesList) => (
-            oldMessagesList === undefined ? [{content: message, isInfo: true}] :
-                [...oldMessagesList, {content: message, isInfo: true}]
-        ));
+        
+        setStorage("channel", data.channelInfo)
+        if (storage.login == data.target)
+        {
+            setUserState((oldUserState) => ({
+                ...oldUserState!,
+                isOwner: true,
+                isAdmin: true
+                }));
+            setMessagesList((oldMessagesList) => (
+                oldMessagesList === undefined ? [{content: message, isInfo: true}] :
+                    [...oldMessagesList, {content: message, isInfo: true}]
+            ));
+        }
     }
 
     const handleIsAlreadyAdmin = () => {
@@ -104,7 +109,6 @@ export default function ChatElem()
     }
 
     const handleClientInfo = (data:ClientInfoT) => {
-        console.log("Dataaa", data)
         setUserState({
             isOwner: data.isOwner,
             isAdmin: data.isAdmin,
@@ -121,13 +125,16 @@ export default function ChatElem()
         
     }
 
-    const handleAddAdmin = () => {
-        console.log("dsfkshkjfhsdjkh")
-        setUserState((oldUserState) => ({
-            ...oldUserState!,
-            isAdmin: true
-            })
-        )
+    const handleAddAdmin = (data: {target: string, channelInfo: ChannelT}) => {
+        setStorage("channel", data.channelInfo)
+        if (data.target == storage.login)
+        {       
+            setUserState((oldUserState) => ({
+                ...oldUserState!,
+                isAdmin: true
+                })
+            )
+        }
     }
 
     const handleBannedFromChannel = (data:ActionOnUser) => {
@@ -214,7 +221,7 @@ export default function ChatElem()
                     handleMutedFromChannel,
                     handleAddAdmin,
                     handleLeftChannel,
-                    upgradeToOwner,
+                    newOwner,
                     handleIsAlreadyAdmin,
                     handleSession,
                     handleChannelJoined
