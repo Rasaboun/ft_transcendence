@@ -156,9 +156,11 @@ export default function Game()
 
 	const handleGoalScored = (players: Player[]) => {
 		console.log("Players", players);
+		players[0].pos = utils.toScale(players[0].pos, canvas.height / gameSettings.height)
+		players[1].pos = utils.toScale(players[1].pos, canvas.height / gameSettings.height)
 		setGameData((oldGameData) => ({
 			...oldGameData,
-			players: players,
+			players
 		}));
 	}
 
@@ -251,7 +253,7 @@ export default function Game()
 			1080,
 		);
 		context.beginPath();
-
+		//console.log("Players pos", gameData.players[0].pos, gameData.players[1].pos,)
 		context.fillRect(0,
 			gameData.players[0].pos -  gameSettings.paddleHeight / 2,
 			gameSettings.paddleWidth,
@@ -322,10 +324,8 @@ export default function Game()
 			return ;
 
 		handleResize();
-		console.log()
 		initializeGame();
 		window.addEventListener('resize', handleResize);
-		console.log(socket)
 		return (() => {window.removeEventListener('resize', handleResize)
 						GameCleaner(handleWait,
 							handleUpdateBall,
