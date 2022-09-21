@@ -155,8 +155,6 @@ export default function Game()
 	}
 
 	const handleGoalScored = (players: Player[]) => {
-		players[0].pos = utils.toScale(players[0].pos, canvas.height / gameSettings.height)
-		players[1].pos = utils.toScale(players[1].pos, canvas.height / gameSettings.height)
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			players
@@ -349,7 +347,9 @@ export default function Game()
 	}, [gameData])
 
 	return (
-		<div id="canvasDiv">
+		<div id="canvasDiv" style={{
+			maxHeight: "50vh"
+		}}>
 			{
 			gameData.state === GameState.Waiting &&
 				<div className="game-display">
@@ -362,22 +362,15 @@ export default function Game()
 			{
 					gameData.state == GameState.Stopped && clearCanvas() &&
 					<div className="game-display">
-						{(socket?.id === gameData.winnerId) ? "YOU WIN" : 
-						(((gameData.players[0].id == storage.login || gameData.players[0].id == storage.login)) ?
+						{(storage.login === gameData.winnerId) ? "YOU WIN" : 
+						(((gameData.players[0].id === storage.login || gameData.players[1].id == storage.login)) ?
 							"YOU LOSE" : `${gameData.winnerId} WIN`)}
 						{}
 						</div>
 					
 			}
-		<canvas
-		className="pong"
-		ref={canvasRef}
-		onMouseMove={handleMouseMove}
-		/>
-		{
-			(gameData.state == GameState.Started || gameData.state == GameState.Spectacte) &&
-			<Score  player1Score={gameData.players?.at(0)?.score!} player2Score={gameData.players?.at(1)?.score!}></Score>
-		}
+		<canvas className="pong" ref={canvasRef} onMouseMove={handleMouseMove}/>
+		<Score gameData={gameData}/>
 		</div>
 	);
 	
