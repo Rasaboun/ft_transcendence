@@ -128,7 +128,7 @@ export default function Game()
 	}
 
 	const handleGameReady = (data: {gameData: GameData, gameSettings: GameSettings }) => {
-		console.log("In game ready")
+		console.log("In game ready", data.gameData.ball)
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			ball: data.gameData.ball,
@@ -265,7 +265,7 @@ export default function Game()
 			gameSettings.paddleHeight);
 
 		context.fillStyle = "white";
-		context?.arc(gameData.ball.x, gameData.ball.y, 20, 0, 2 * Math.PI)
+		context?.arc(gameData.ball.x, gameData.ball.y, gameData.ball.radius, 0, 2 * Math.PI)
 
 		context?.fill();
 		context?.closePath();

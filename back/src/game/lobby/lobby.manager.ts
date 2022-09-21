@@ -65,7 +65,7 @@ export class LobbyManager
         if (lobby === null)
         {	
             const options: GameOptions = {
-                mode: GameMode.Speed,
+                mode: GameMode.Mini,
                 inviteMode: false,
             }
             lobby = this.createLobby(options);

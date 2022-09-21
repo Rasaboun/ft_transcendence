@@ -20,13 +20,14 @@ export class GameInstance
 		else if (mode == GameMode.Mini)
 		{
 			this.settings = getMiniModeSettings();
-			this.gameData.ball.radius /= 2;
+			this.gameData.ball.radius = this.gameData.ball.radius / 5;
 		}
 		else if (mode == GameMode.Speed)
 		{
 			this.settings = getNormalModeSettings();
 			this.gameData.ball.speed *= 2;
 		}
+		console.log("Ball in constructor", this.gameData.ball);
 	}
 
     handleGoal(nextPos)
@@ -34,9 +35,7 @@ export class GameInstance
         this.gameData.state = GameState.Goal;
         const winner = nextPos.x - this.gameData.ball.radius < 0 ? 1 : 0;
         this.gameData.players[winner].score += 1;
-		console.log("Players before", this.gameData.players);
 		this.lobby.sendToUsers("goalScored", this.gameData.players);
-        console.log(this.gameData.players[winner].score, this.settings.scoreToWin);
         
 		if (this.gameData.players[winner].score === this.settings.scoreToWin)
         {
@@ -143,7 +142,6 @@ export class GameInstance
 			this.settings.height / 2,
 			radian)
 		this.gameData.state = GameState.Started;
-		console.log("Players after", this.gameData.players);
 	}
 
     public stop()
@@ -162,7 +160,8 @@ export class GameInstance
         this.gameData.players.push(newPlayer);
     }
 
-	public sendReady()	{ this.lobby.sendToUsers("gameReady", { gameData: this.gameData, gameSettings: this.settings }); }
+	public sendReady()	{ 
+		console.log("Ball in sendReady", this.gameData.ball);this.lobby.sendToUsers("gameReady", { gameData: this.gameData, gameSettings: this.settings }); }
 
     public isPlayer(clientId: string): boolean
     {  
