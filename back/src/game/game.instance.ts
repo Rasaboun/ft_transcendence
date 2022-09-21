@@ -27,7 +27,6 @@ export class GameInstance
 			this.settings = getNormalModeSettings();
 			this.gameData.ball.speed *= 2;
 		}
-		console.log("Ball in constructor", this.gameData.ball);
 	}
 
     handleGoal(nextPos)
@@ -160,8 +159,7 @@ export class GameInstance
         this.gameData.players.push(newPlayer);
     }
 
-	public sendReady()	{ 
-		console.log("Ball in sendReady", this.gameData.ball);this.lobby.sendToUsers("gameReady", { gameData: this.gameData, gameSettings: this.settings }); }
+	public sendReady()	{ this.lobby.sendToUsers("gameReady", { gameData: this.gameData, gameSettings: this.settings }); }
 
     public isPlayer(clientId: string): boolean
     {  

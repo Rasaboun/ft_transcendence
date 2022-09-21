@@ -10,16 +10,14 @@ export class SessionService
 {
     private         sessions: Map<string, Session> = new  Map<string, Session>;
 
-    constructor() { console.log("Constructed SessionService")};
+    constructor() { };
 
     initializeSocket(client: AuthenticatedSocket)
     {
 		const sessionId = client.handshake.auth.sessionId;
-        console.log("auth", client.handshake.auth)
 		if (sessionId)
         {
 		  const session = this.findSession(sessionId);
-          console.log("session", session)
 		  if (session)
           {
 			client.sessionId = sessionId;
@@ -33,7 +31,6 @@ export class SessionService
             client.sessionId = v4();
             client.roomId = v4();
             client.login = client.handshake.auth.login;
-            console.log("Client login", client.login);
             client.lobby = null;
             this.saveSession(client.sessionId, {
                 connected: true,
@@ -47,7 +44,6 @@ export class SessionService
             sessionId: client.sessionId,
             roomId: client.roomId,
         })
-        console.log("emitted session to", client.id);
 
     }
 

@@ -155,7 +155,6 @@ export default function Game()
 	}
 
 	const handleGoalScored = (players: Player[]) => {
-		console.log("Players", players);
 		players[0].pos = utils.toScale(players[0].pos, canvas.height / gameSettings.height)
 		players[1].pos = utils.toScale(players[1].pos, canvas.height / gameSettings.height)
 		setGameData((oldGameData) => ({
