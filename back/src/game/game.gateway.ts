@@ -2,8 +2,8 @@ import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessa
 import { Socket, Server } from 'socket.io';
 import { LobbyManager } from './lobby/lobby.manager';
 import { Player } from './types/game.type';
-import { SessionManager } from 'src/sessions/sessions.manager';
 import { AuthenticatedSocket } from 'src/sessions/sessions.type';
+import { SessionService } from 'src/sessions/sessions.service';
 
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'game' })
@@ -11,7 +11,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 {
 
 	constructor( 	private lobbyManager: LobbyManager,
-					private sessionManager: SessionManager,
+					private sessionManager: SessionService
 				) {	}
 
 	@WebSocketServer()

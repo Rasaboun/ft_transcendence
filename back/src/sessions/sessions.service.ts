@@ -1,13 +1,16 @@
+import { Injectable } from "@nestjs/common";
 import { Socket } from "socket.io";
 import { Lobby } from "src/game/lobby/lobby";
 import { User } from "src/typeorm";
 import { v4 } from "uuid";
 import { AuthenticatedSocket, Session } from "./sessions.type";
 
-export class SessionManager
+@Injectable()
+export class SessionService
 {
     private         sessions: Map<string, Session> = new  Map<string, Session>;
 
+    constructor() { console.log("Constructed SessionService")};
 
     initializeSocket(client: AuthenticatedSocket)
     {

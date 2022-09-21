@@ -7,13 +7,16 @@ import { ChannelsService } from './channel/channel.service';
 import { ChatController } from './chat.controller';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/typeorm';
-import { SessionManager } from 'src/sessions/sessions.manager';
+import { SessionService } from 'src/sessions/sessions.service';
+import { SessionModule } from 'src/sessions/sessions.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Channel]),
-        TypeOrmModule.forFeature([User])],
-    providers: [UsersService, ChannelsService, ChannelManager, ChatGateway, SessionManager],
+        TypeOrmModule.forFeature([User]),
+        SessionModule,
+    ],
+    providers: [UsersService, ChannelsService, ChannelManager, ChatGateway],
     controllers: [ChatController]
 })
 export class ChatModule {}

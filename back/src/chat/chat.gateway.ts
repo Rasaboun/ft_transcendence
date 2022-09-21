@@ -1,6 +1,6 @@
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { SessionManager } from 'src/sessions/sessions.manager';
+import { SessionService } from 'src/sessions/sessions.service';
 import { Channel } from './channel/channel';
 import { ChannelManager } from './channel/channel.manager';
 import { ActionOnUser, AddAdmin, CreateChannel, InviteClient, JoinChannel, SetChannelPassword } from './types/channel.type';
@@ -11,7 +11,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 {
 	constructor(
 				private channelManager: ChannelManager,
-				private sessionManager: SessionManager,
+				private sessionManager: SessionService,
 			)
 	{}
 

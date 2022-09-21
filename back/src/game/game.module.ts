@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
-import { SessionManager } from 'src/sessions/sessions.manager';
+import { SessionModule } from 'src/sessions/sessions.module';
+import { SessionService } from 'src/sessions/sessions.service';
 import { GameGateway } from './game.gateway';
 import { LobbyManager } from './lobby/lobby.manager';
 
 @Module({
-    providers: [LobbyManager, GameGateway, SessionManager]
+    imports: [
+        SessionModule,
+    ],
+    providers: [LobbyManager, GameGateway]
 })
 export class GameModule {}
