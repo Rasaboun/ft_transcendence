@@ -127,13 +127,21 @@ export default function Game()
 		}
 	}
 
-	const handleGameReady = (data: GameData) => {
+	const handleGameReady = (data: {gameData: GameData, gameSettings: GameSettings }) => {
 		console.log("In game ready")
 		setGameData((oldGameData) => ({
 			...oldGameData,
-			ball: data.ball,
-			players: data.players,
+			ball: data.gameData.ball,
+			players: data.gameData.players,
 			state: GameState.Started
+		}))
+		setGameSettings((oldGameSettings) => ({
+			...oldGameSettings,
+			scoreToWin: data.gameSettings.scoreToWin,
+			width: data.gameSettings.width,
+			height: data.gameSettings.height,
+			paddleHeight: utils.toScale(data.gameSettings.paddleHeight, canvas.height / 1080),
+			paddleWidth: utils.toScale(data.gameSettings.paddleWidth, canvas.width / 1920),
 		}))
 		startGame()
 	}
@@ -147,6 +155,7 @@ export default function Game()
 	}
 
 	const handleGoalScored = (players: Player[]) => {
+		console.log("Players", players);
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			players: players,
@@ -231,7 +240,6 @@ export default function Game()
 	}
 
 	function draw() {
-		console.log(canvas)
 		const context  = canvas.getContext("2d")!;
 
 		if (!context)
@@ -330,7 +338,6 @@ export default function Game()
 	}, [])
 
 	useEffect(() => {
-		console.log("gamedata state", gameData.state);
 		if (gameData.state == GameState.Started || gameData.state == GameState.Spectacte)
 			draw()
 		setGameInfo({

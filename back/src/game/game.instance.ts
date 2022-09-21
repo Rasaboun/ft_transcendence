@@ -1,5 +1,7 @@
+import { Module } from "@nestjs/core/injector/module";
 import { Lobby } from "./lobby/lobby";
-import { GameData, GameSettings, GameState, Player } from "./types/game.type";
+import { GameData, GameMode, GameSettings, GameState, Player } from "./types/game.type";
+import { getMiniModeSettings, getNormalModeSettings, initGameData } from "./utils/game.settings";
 
 
 export class GameInstance
@@ -7,25 +9,24 @@ export class GameInstance
 	private gameData:       GameData;
     private settings:       GameSettings;
 
-    constructor(public lobby: Lobby) {
-        this.gameData = {
-            players: [],
-            ball: {
-                x: 50,
-                y: 50,
-                speed: 10,
-				radius: 20,
-				delta: {x: 0, y: 0},
-            },
-			state: GameState.Waiting,
-        }
-        this.settings = {
-            scoreToWin: 3,
-			paddleHeight: 200,
-			paddleWidth: 50,
-			width: 1920,
-			height: 1080,
-        }
+    constructor(public lobby: Lobby, public mode: GameMode)
+	{
+        this.gameData = initGameData();
+
+		if (mode == GameMode.Normal)
+		{
+			this.settings = getNormalModeSettings();
+		}
+		else if (mode == GameMode.Mini)
+		{
+			this.settings = getMiniModeSettings();
+			this.gameData.ball.radius /= 2;
+		}
+		else if (mode == GameMode.Speed)
+		{
+			this.settings = getNormalModeSettings();
+			this.gameData.ball.speed *= 2;
+		}
 	}
 
     handleGoal(nextPos)
@@ -33,7 +34,7 @@ export class GameInstance
         this.gameData.state = GameState.Goal;
         const winner = nextPos.x - this.gameData.ball.radius < 0 ? 1 : 0;
         this.gameData.players[winner].score += 1;
-        
+		console.log("Players before", this.gameData.players);
 		this.lobby.sendToUsers("goalScored", this.gameData.players);
         console.log(this.gameData.players[winner].score, this.settings.scoreToWin);
         
@@ -142,6 +143,7 @@ export class GameInstance
 			this.settings.height / 2,
 			radian)
 		this.gameData.state = GameState.Started;
+		console.log("Players after", this.gameData.players);
 	}
 
     public stop()
@@ -160,7 +162,7 @@ export class GameInstance
         this.gameData.players.push(newPlayer);
     }
 
-	public sendReady()	{ this.lobby.sendToUsers("gameReady", this.gameData); }
+	public sendReady()	{ this.lobby.sendToUsers("gameReady", { gameData: this.gameData, gameSettings: this.settings }); }
 
     public isPlayer(clientId: string): boolean
     {  

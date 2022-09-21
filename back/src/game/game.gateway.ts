@@ -1,7 +1,7 @@
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { LobbyManager } from './lobby/lobby.manager';
-import { Player } from './types/game.type';
+import { GameMode, GameOptions, Player } from './types/game.type';
 import { AuthenticatedSocket } from 'src/sessions/sessions.type';
 import { SessionService } from 'src/sessions/sessions.service';
 
@@ -34,15 +34,19 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	handleDisconnect(client: AuthenticatedSocket) {
-		console.log(`Client ${client.id} left server`);
 		this.lobbyManager.terminateSocket(client);
+		console.log(`Client ${client.id} left pong socket`);
 		
 	}
 
 	@SubscribeMessage('createLobby')
-	createLobby(client: AuthenticatedSocket)
+	createLobby(client: AuthenticatedSocket, /*options: GameOptions*/)
 	{
-		let lobby = this.lobbyManager.createLobby();
+		const options: GameOptions = {
+			mode: GameMode.Normal,
+			inviteMode: false,
+		}
+		let lobby = this.lobbyManager.createLobby(options);
 		lobby.addClient(client);
 
 		client.emit("lobbyCreated", "Successful creation");
@@ -53,6 +57,15 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		console.log(`Client ${client.id} joined queue`)
 		this.lobbyManager.joinQueue(client);
+	}
+
+	@SubscribeMessage('joinInvitation')
+	joinInvitation(client: AuthenticatedSocket, playerLogin: string)
+	{
+		try
+		{
+			this.lobbyManager.joinInvitation(client, playerLogin);
+		} catch (error) { client.emit("error", error.message) };
 	}
 
 	@SubscribeMessage('spectacteGame')

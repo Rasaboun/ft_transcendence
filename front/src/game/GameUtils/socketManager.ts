@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client'
-import {playerT, gameCollionInfoT, availableLobbiesT, Ball, GameData, Player} from "./type"
+import {playerT, gameCollionInfoT, availableLobbiesT, Ball, GameData, Player, GameSettings} from "./type"
 
 let socket:Socket
 
@@ -87,7 +87,7 @@ export function GameRoutineHandler(handleWait:any,
 	socket.on('waitingForOpponent', handleWait)
 	socket.on('updateBall', (ball:Ball) => handleUpdateBall(ball))
 	socket.on('updatePaddle', ({playerId, newPos}) => updatePaddle(playerId, newPos))
-	socket.on('gameReady', (data: GameData) => handleGameReady(data))
+	socket.on('gameReady', (data: {gameData: GameData, gameSettings: GameSettings}) => handleGameReady(data))
 	socket.on('goalScored', (players: Player[]) => handleGoalScored(players))
 	socket.on('spectateSuccess', (players: Player[]) => handleSpectateSuccess(players))
 	socket.on('gameOver', (winnerId: string) => handleGameOver(winnerId))
