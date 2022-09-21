@@ -7,7 +7,7 @@ import { GameContext } from "../GameContext/gameContext"
 import useLocalStorage from '../../hooks/localStoragehook'
 import { GameMenuHandler, getActiveGames, getSocket, initiateSocket, joinQueue, Menucleaner, spectacteGame } from '../GameUtils/socketManager';
 
-//let socket:Socket
+let socket:Socket
 
 export default function Menu()
 {

@@ -109,6 +109,9 @@ export default function ChatMenu()
 		console.log("Storage", storage);
 		if (!socket)
 			initiateSocket("http://localhost:8002/chat", setSocket, sessioninfo, storage.login)
+		console.log("connected", socket?.connected);
+		if (socket?.connected)
+			console.log("connected");
 		getActiveChannels()
 		chatMenuHandler(handleActiveChannels,
 			handleChannelJoined,

@@ -115,6 +115,7 @@ export default function ChatElem()
         {
             setMessagesList(data.messages)
         }
+        console.log(data.unmuteDate);
         if (data.unmuteDate !== 0)
             setMutedTime(Math.trunc(data.unmuteDate / 1000 - new Date().getTime() / 1000))
         
@@ -150,9 +151,8 @@ export default function ChatElem()
 
     const handleMutedFromChannel = (data: ActionOnUser) => {
         const message = data.targetId === storage.login ? 
-            `You have been muted` :
-            `${data.targetId} has been muted for ${userState?.unmuteDate} sec`
-            console.log(data.duration, new Date().getTime())
+            `You have been muted for ${data.duration} sec` :
+            `${data.targetId} has been muted for ${data.duration} sec`
         setMessagesList((oldMessagesList) => (
             oldMessagesList === undefined ? [{content: message, isInfo: true}] :
                 [...oldMessagesList, {content: message, isInfo: true}]
@@ -165,7 +165,7 @@ export default function ChatElem()
                 unmuteDate: data.duration
                 })
             )
-            setMutedTime(Math.trunc(data.duration / 1000 - new Date().getTime() / 1000))
+            setMutedTime(data.duration)
         }
     }
 

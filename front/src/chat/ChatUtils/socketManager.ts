@@ -7,7 +7,6 @@ let socket:Socket
 export function initiateSocket(url:string, setSocket:any, sessioninfo?:{sessionId:string, roomId:string}, login?:string)
 {
 	socket = io(url, { autoConnect: false });
-	console.log(socket)
 	setSocket(socket)
 	console.log("sessionInfo", sessioninfo);
 	if (sessioninfo)
@@ -89,6 +88,9 @@ export function unsetPrivateMode(channelName: string) {
 
 export function chatMenuHandler(handleActiveChannels:any, handleChannelJoined:any, handleError:any, handleInvitation:any, handleSession:any)
 {
+	console.log(`Server is down`);
+		socket.on("connect_error", (err) => {
+		})
 		socket.on('activeChannels', (channels:ChannelT) => handleActiveChannels(channels));
         socket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
         socket.on('error', (message:string) => handleError(message))

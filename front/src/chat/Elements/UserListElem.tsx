@@ -74,7 +74,7 @@ export default function UserListElem({ client, userState }:UserElemPropsT)
 		 muteUser({
 			channelName: storage!.channelId,
 			targetId: client.login,
-			duration: new Date().getTime() + parseInt(form.muteTime) * 1000
+			duration: parseInt(form.muteTime)
 		})
 	}
 
