@@ -50,7 +50,7 @@ export class LobbyManager
         return lobby;
     }
 
-    public joinQueue(client: AuthenticatedSocket)
+    public joinQueue(client: AuthenticatedSocket, mode:GameMode)
     {
         let lobby: Lobby = null;
 
@@ -65,7 +65,7 @@ export class LobbyManager
         if (lobby === null)
         {	
             const options: GameOptions = {
-                mode: GameMode.Speed,
+                mode: mode,
                 inviteMode: false,
             }
             lobby = this.createLobby(options);

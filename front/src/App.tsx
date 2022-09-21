@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./authPage/component/LogPage";
 import Chat from "./Chat";
 import { ChatContextProvider } from "./chat/ChatContext/chatContext";
+import { Context } from "./Context/context";
 import Dashboard from "./Dashboard";
 import Footer from "./Footer";
 import { GameContextProvider } from "./game/GameContext/gameContext";
@@ -12,15 +13,43 @@ import NavBar from "./NavBar";
 import Pong from "./Pong";
 import { PrivateRoute } from "./PrivateRoute";
 import Settings from "./Settings";
+import { appSocketRoutine, getSocket, initiateSocket } from "./Utils/socketManager";
 
 export default function App()
 {
-	const { storage } = useLocalStorage("token");
+	const {socket, setSocket} = useContext(Context)
+	const { storage, setStorage } = useLocalStorage("token");
+
+	const handleSession = (sessionInfo:{ sessionId:string, roomId:string }) => {
+		console.log("In session menu", sessionInfo)
+		if (socket)
+		{
+			setStorage("sessionId", sessionInfo.sessionId);
+			setStorage("roomId", sessionInfo.roomId);
+			socket.auth = { sessionId: sessionInfo.sessionId } ;		
+			//socket.userID = userID;
+		}
+	}
 
 	useEffect(() => {
 		if (storage)
 		{
-			
+			let sessionId = localStorage.getItem("sessionId");
+			let roomId = localStorage.getItem("roomId");
+			let sessioninfo;
+			if (sessionId && roomId)
+			{
+				sessionId = JSON.parse(sessionId);
+				roomId = JSON.parse(roomId);
+				console.log("sessionId", sessionId)
+				console.log("roomId", roomId)
+				if (sessionId && roomId)
+					sessioninfo = {sessionId: sessionId, roomId: roomId}
+			}
+			if (!socket)
+				initiateSocket("http://localhost:8002/", sessioninfo, storage.login)
+			setSocket(getSocket())
+			appSocketRoutine(handleSession);
 		}
 	}, [])
     return (
