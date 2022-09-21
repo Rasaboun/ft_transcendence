@@ -94,6 +94,7 @@ export default function ChatMenu()
 	}
 
 	useEffect(() => {
+
 		let sessionId = localStorage.getItem("sessionId");
 		let roomId = localStorage.getItem("roomId");
 		let sessioninfo;
@@ -106,12 +107,13 @@ export default function ChatMenu()
 			if (sessionId && roomId)
 				sessioninfo = {sessionId: sessionId, roomId: roomId}
 		}
-		console.log("Storage", storage);
+		console.log("socket", socket);
 		if (!socket)
 			initiateSocket("http://localhost:8002/chat", setSocket, sessioninfo, storage.login)
 		console.log("connected", socket?.connected);
 		if (socket?.connected)
 			console.log("connected");
+		setSocket(getSocket())
 		getActiveChannels()
 		chatMenuHandler(handleActiveChannels,
 			handleChannelJoined,
