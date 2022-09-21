@@ -34,7 +34,7 @@ export class GameInstance
         this.gameData.state = GameState.Goal;
         const winner = nextPos.x - this.gameData.ball.radius < 0 ? 1 : 0;
         this.gameData.players[winner].score += 1;
-		this.lobby.sendToUsers("goalScored", this.gameData.players);
+		this.lobby.sendToUsers("goalScored", {player1: this.gameData.players[0].score, player2: this.gameData.players[1].score});
         
 		if (this.gameData.players[winner].score === this.settings.scoreToWin)
         {

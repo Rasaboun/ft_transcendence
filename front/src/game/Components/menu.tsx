@@ -25,7 +25,6 @@ export default function Menu()
 
     function handleAvailableLobbies(availableLobbies:availableLobbiesT)
     {
-        console.log(availableLobbies)
         setAvailableLobbies(availableLobbies)
     }
     
