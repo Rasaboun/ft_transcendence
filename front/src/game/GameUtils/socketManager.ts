@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client'
-import {playerT, gameCollionInfoT, availableLobbiesT, Ball, GameData, Player, GameSettings} from "./type"
+import {playerT, gameCollionInfoT, availableLobbiesT, Ball, GameData, Player, GameSettings, GameMode} from "./type"
 
 let socket:Socket
 
@@ -16,8 +16,8 @@ export function initiateSocket(url:string, setSocket:any, sessioninfo?:{sessionI
 	socket.connect();
 }
 
-export function joinQueue(player:playerT) {
-	socket?.emit("joinedQueue", player);
+export function joinQueue(mode:GameMode) {
+	socket?.emit("joinedQueue", mode);
 	
 }
 

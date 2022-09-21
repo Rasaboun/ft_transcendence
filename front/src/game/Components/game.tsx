@@ -154,9 +154,13 @@ export default function Game()
 		}))
 	}
 
+<<<<<<< HEAD
 	const handleGoalScored = (scores: {player1: number, player2: number}) => {
 		console.log("gameData", gameData);
 		let newPlayers = gameData.players;
+=======
+	const handleGoalScored = (players: Player[]) => {
+>>>>>>> 5b8eb48ba411c4f2f8ff72e73630aeb4a32660d9
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			players: [
@@ -362,7 +366,9 @@ export default function Game()
 	}, [gameData])
 
 	return (
-		<div id="canvasDiv">
+		<div id="canvasDiv" style={{
+			maxHeight: "50vh"
+		}}>
 			{
 			gameData.state === GameState.Waiting &&
 				<div className="game-display">
@@ -375,22 +381,15 @@ export default function Game()
 			{
 					gameData.state == GameState.Stopped && clearCanvas() &&
 					<div className="game-display">
-						{(socket?.id === gameData.winnerId) ? "YOU WIN" : 
-						(((gameData.players[0].id == storage.login || gameData.players[0].id == storage.login)) ?
+						{(storage.login === gameData.winnerId) ? "YOU WIN" : 
+						(((gameData.players[0].id === storage.login || gameData.players[1].id == storage.login)) ?
 							"YOU LOSE" : `${gameData.winnerId} WIN`)}
 						{}
 						</div>
 					
 			}
-		<canvas
-		className="pong"
-		ref={canvasRef}
-		onMouseMove={handleMouseMove}
-		/>
-		{
-			(gameData.state == GameState.Started || gameData.state == GameState.Spectacte) &&
-			<Score  player1Score={gameData.players?.at(0)?.score!} player2Score={gameData.players?.at(1)?.score!}></Score>
-		}
+		<canvas className="pong" ref={canvasRef} onMouseMove={handleMouseMove}/>
+		<Score gameData={gameData}/>
 		</div>
 	);
 	
