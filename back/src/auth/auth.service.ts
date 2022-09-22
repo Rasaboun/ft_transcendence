@@ -55,6 +55,7 @@ export class AuthService {
     {
         const session = await this.findSession(client.handshake.auth.sessionId);
         console.log(client.handshake.auth);
+        console.log("findSession", session);
         if (session && session.expiresAt > new Date().getTime())
         {
             client.sessionId = client.handshake.auth.sessionId;
@@ -91,7 +92,12 @@ export class AuthService {
 
     async findSession(sessionId: string)
     {
-        return await this.sessionsRepository.findOneBy({sessionId});
+        if (!sessionId)
+            return null;
+        return await this.sessionsRepository.findOne({
+            where: 
+                { sessionId: sessionId},     
+        })
     }
 
     async saveSession(dto: newSessionDto)
