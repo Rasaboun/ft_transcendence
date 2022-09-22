@@ -3,7 +3,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as session from 'express-session'
 import * as passport from 'passport'
-import { TypeORMSession } from './typeorm';
 import { TypeormStore } from 'connect-typeorm/out';
 import { NestApplication, } from '@nestjs/core';
 import { WsAdapter } from '@nestjs/platform-ws';
@@ -19,7 +18,6 @@ async function bootstrap() {
   const sessionRepo = app
     .get(AppModule)
     .getDataSource()
-    .getRepository(TypeORMSession);
 
   app.useGlobalPipes(new ValidationPipe()) //Don't need to use validation in controller
   app.use(session({
@@ -30,7 +28,6 @@ async function bootstrap() {
       secret: process.env.COOKIE_SECRET,
       resave: false,
       saveUninitialized: false,
-      store: new TypeormStore().connect(sessionRepo),
     })
   );
   app.use(passport.initialize());

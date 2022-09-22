@@ -3,7 +3,7 @@ import { Server } from "socket.io";
 import { GameData, GameOptions, GameState, Player } from "../types/game.type";
 import { GameInstance } from "../game.instance";
 import { Socket } from "dgram";
-import { AuthenticatedSocket } from "src/sessions/sessions.type";
+import { AuthenticatedSocket } from 'src/auth/types/auth.type';
 import { ConsoleLogger } from "@nestjs/common";
 
 export class Lobby

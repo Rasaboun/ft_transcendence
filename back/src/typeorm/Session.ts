@@ -1,18 +1,24 @@
-import { ISession } from "connect-typeorm/out";
-import { Column, Entity, Index, PrimaryColumn, DeleteDateColumn } from "typeorm";
+import { Lobby } from "src/game/lobby/lobby";
+import { Column, Entity,  PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('sessions')
-export class TypeORMSession implements ISession {
-    @Index()
+@Entity()
+export class Session {
+
+    @PrimaryGeneratedColumn('increment')
+    id: number;
+
+    @Column()
+    sessionId: string;
+
+    @Column()
+    roomId: string;
+
+    @Column()
+    login: string;
+
+    @Column({nullable: true,})
+    lobbyId: string;
+
     @Column('bigint')
-    expiredAt: number;
-
-    @PrimaryColumn('varchar', { length: 255 })
-    id: string;
-
-    @DeleteDateColumn({name: 'deleted_at'})
-    destroyedAt?: Date;
-
-    @Column('text')
-    json: string;
+    expiresAt: number;
 }

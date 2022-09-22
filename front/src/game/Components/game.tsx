@@ -154,10 +154,22 @@ export default function Game()
 		}))
 	}
 
-	const handleGoalScored = (players: Player[]) => {
+	const handleGoalScored = (scores: {player1: number, player2: number}) => {
+		console.log("gameData", gameData);
+		let newPlayers = gameData.players;
 		setGameData((oldGameData) => ({
 			...oldGameData,
-			players
+			players: [
+				{
+				id: gameData.players[0].id,
+				pos: gameData.players[0].pos,
+				score: scores.player1,
+			},
+			{
+				id: gameData.players[1].id,
+				pos: gameData.players[1].pos,
+				score: scores.player2
+			}]
 		}));
 	}
 
@@ -226,11 +238,12 @@ export default function Game()
 		{
 			let value: number = event.clientY - utils.getCanvasDiv().y;
 
+			console.log("before")
 			if (value + (gameSettings.paddleHeight / 2) >= canvas.height)
 				value = canvas.height - (gameSettings.paddleHeight / 2);
 			else if (value - (gameSettings.paddleHeight / 2) <= 0)
 				value = gameSettings.paddleHeight / 2;
-			
+			console.log("after")
 			value = utils.toScale(value, gameSettings.height / canvas.height);			
 
 			socket?.emit("playerMoved", value);
@@ -241,6 +254,7 @@ export default function Game()
 	function draw() {
 		const context  = canvas.getContext("2d")!;
 
+
 		if (!context)
 			return ;
 		context.clearRect(
@@ -249,6 +263,7 @@ export default function Game()
 			1920,
 			1080,
 		);
+		console.log(gameData.players);
 		context.beginPath();
 		//console.log("Players pos", gameData.players[0].pos, gameData.players[1].pos,)
 		context.fillRect(0,

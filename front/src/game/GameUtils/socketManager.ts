@@ -88,7 +88,7 @@ export function GameRoutineHandler(handleWait:any,
 	socket.on('updateBall', (ball:Ball) => handleUpdateBall(ball))
 	socket.on('updatePaddle', ({playerId, newPos}) => updatePaddle(playerId, newPos))
 	socket.on('gameReady', (data: {gameData: GameData, gameSettings: GameSettings}) => handleGameReady(data))
-	socket.on('goalScored', (players: Player[]) => handleGoalScored(players))
+	socket.on('goalScored', (scores: {player1: number, player2: number}) => handleGoalScored(scores))
 	socket.on('spectateSuccess', (players: Player[]) => handleSpectateSuccess(players))
 	socket.on('gameOver', (winnerId: string) => handleGameOver(winnerId))
 	socket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, socket));

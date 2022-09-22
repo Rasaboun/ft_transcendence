@@ -95,7 +95,7 @@ export class UsersService {
         }
 
         const newUser = this.userRepository.create(userDto);
-        return this.userRepository.save(newUser);
+        return await this.userRepository.save(newUser);
     }
     
     async removeById(id: number): Promise<void> {

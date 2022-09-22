@@ -1,17 +1,18 @@
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { SessionService } from 'src/sessions/sessions.service';
-import { Channel } from './channel/channel';
 import { ChannelManager } from './channel/channel.manager';
 import { ActionOnUser, AddAdmin, CreateChannel, InviteClient, JoinChannel, SetChannelPassword } from './types/channel.type';
-import { AuthenticatedSocket } from 'src/sessions/sessions.type';
+import { AuthenticatedSocket } from 'src/auth/types/auth.type';
+import { AuthService } from 'src/auth/auth.service';
+import { forwardRef, Inject } from '@nestjs/common';
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
 	constructor(
 				private channelManager: ChannelManager,
-				private sessionManager: SessionService,
+				@Inject(forwardRef(() => AuthService))
+				private authService: AuthService,
 			)
 	{}
 
@@ -28,7 +29,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	async handleConnection(client: Socket){
 		console.log(`Client ${client.handshake.auth.login} joined chat socket`);
-		this.sessionManager.initializeSocket(client as AuthenticatedSocket);
+		this.authService.initializeSocket(client as AuthenticatedSocket);
 		await this.channelManager.joinChannels(client as AuthenticatedSocket);
 		//console.log(client);
 	}
@@ -98,7 +99,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async muteUser(client: AuthenticatedSocket, data: ActionOnUser)
 	{
 		try {
-			await this.channelManager.muteUser(client.login, data);
+			await this.channelManager.muteUser(client, data);
 		}
 		catch (error) { client.emit('error', error.message) }
 	}
@@ -107,7 +108,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async banUser(client: AuthenticatedSocket, data: ActionOnUser)
 	{
 		try {
-			await this.channelManager.banUser(client.login, data);
+			await this.channelManager.banUser(client, data);
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}

@@ -29,8 +29,8 @@ export class Channel
         })
         return clientsIdArray;
     }
-
     public getInfo(clients?: ClientInfo[]): ChannelInfo
+
     {
         const res: ChannelInfo = {
             channelId: this.id,

@@ -35,4 +35,9 @@ export class Channel {
         array: true,
     })
     inviteList: string[];
+
+    @Column('json', {
+        default: [],
+    })
+    mutedList: ChannelClient[];
 }
