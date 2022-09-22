@@ -8,6 +8,7 @@ import useLocalStorage from "../../hooks/localStoragehook";
 import { Session } from "inspector";
 import { Socket } from "socket.io-client";
 import userEvent from "@testing-library/user-event";
+import { setInterval } from "timers/promises";
 
 export default function ChatMenu()
 {
@@ -118,11 +119,18 @@ export default function ChatMenu()
 	}, [])
 
 	useEffect(() => {
-		const timeoutID = setTimeout(() => setErrorMsg({
-			isShow: false,
-			msg: ""
-		}), 5000);
-		return clearTimeout(timeoutID)
+		let timeoutID
+		console.log(errorMsg)
+		if (errorMsg.isShow)
+		{
+			timeoutID = setTimeout(() => setErrorMsg({
+				isShow: false,
+				msg: ""
+			}), 2500);
+			if (!errorMsg.isShow)
+				return clearInterval(timeoutID)
+		}
+			
 	}, [errorMsg])
 	const channelsElem = channels?.map((elem, index) => (
 		<ChannelItem key={index}
