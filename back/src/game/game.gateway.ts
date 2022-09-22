@@ -82,7 +82,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('getActiveGames')
 	getActiveGames(client: AuthenticatedSocket)
 	{
-		//console.log(this.lobbyManager.getActiveLobbies())
 		client.emit('activeGames', this.lobbyManager.getActiveLobbies());
 	}
 
@@ -97,9 +96,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	handlePlayerPosition(client: AuthenticatedSocket, newPos: number) {
 
 		const player: Player = client.lobby?.getPlayer(client.login);
-		
-		if (!player)
-			console.log("is not player");
 		if (!player)
 			return ;
 		player.pos = newPos;

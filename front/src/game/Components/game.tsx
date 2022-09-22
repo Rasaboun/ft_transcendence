@@ -52,7 +52,6 @@ export default function Game()
 	});
 
 	const handleWait = () => {
-		console.log("In waitingfoopponent");
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			state: GameState.Waiting
@@ -117,7 +116,6 @@ export default function Game()
 		})
 	}
 	const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, sock:Socket) => {
-		console.log("In game session")
 		if (sock)
 		{
 			setStorage("sessionId", sessionInfo.sessionId);
@@ -128,7 +126,6 @@ export default function Game()
 	}
 
 	const handleGameReady = (data: {gameData: GameData, gameSettings: GameSettings }) => {
-		console.log("In game ready", data.gameData.ball)
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			ball: data.gameData.ball,
@@ -155,21 +152,25 @@ export default function Game()
 	}
 
 	const handleGoalScored = (scores: {player1: number, player2: number}) => {
-		console.log("gameData", gameData);
 		let newPlayers = gameData.players;
 		setGameData((oldGameData) => ({
 			...oldGameData,
-			players: [
-				{
-				id: gameData.players[0].id,
-				pos: gameData.players[0].pos,
-				score: scores.player1,
-			},
-			{
-				id: gameData.players[1].id,
-				pos: gameData.players[1].pos,
-				score: scores.player2
-			}]
+			players: oldGameData.players.map((player) => {
+				if (player.id === gameData.players[0].id)
+					return {...player, score: scores.player1}
+				return {...player, score: scores.player2}
+			}),
+			// players: [
+			// 	{
+			// 	id: gameData.players[0].id,
+			// 	pos: gameData.players[0].pos,
+			// 	score: scores.player1,
+			// },
+			// {
+			// 	id: gameData.players[1].id,
+			// 	pos: gameData.players[1].pos,
+			// 	score: scores.player2
+			// }]
 		}));
 	}
 
@@ -215,6 +216,8 @@ export default function Game()
 
 	function updatePaddle(playerId: string, newPos: number)
 	{
+			if (newPos == 540)
+				console.log("Hereeeeeeeeee");
 			setGameData((oldGameData) => ({
 				...oldGameData,
 				players: oldGameData.players.map((player) => {
@@ -226,7 +229,6 @@ export default function Game()
 	}
 
 	const handleResize = () => {
-		console.log(canvas.height, canvas.width)
 		canvas.height = utils.getCanvasDiv().height
 		canvas.width = utils.getCanvasDiv().width;
 	}
@@ -238,13 +240,11 @@ export default function Game()
 		{
 			let value: number = event.clientY - utils.getCanvasDiv().y;
 
-			console.log("before")
 			if (value + (gameSettings.paddleHeight / 2) >= canvas.height)
 				value = canvas.height - (gameSettings.paddleHeight / 2);
 			else if (value - (gameSettings.paddleHeight / 2) <= 0)
 				value = gameSettings.paddleHeight / 2;
-			console.log("after")
-			value = utils.toScale(value, gameSettings.height / canvas.height);			
+			value = utils.toScale(value, gameSettings.height / canvas.height);
 
 			socket?.emit("playerMoved", value);
 
@@ -263,9 +263,7 @@ export default function Game()
 			1920,
 			1080,
 		);
-		console.log(gameData.players);
 		context.beginPath();
-		//console.log("Players pos", gameData.players[0].pos, gameData.players[1].pos,)
 		context.fillRect(0,
 			gameData.players[0].pos -  gameSettings.paddleHeight / 2,
 			gameSettings.paddleWidth,
@@ -308,12 +306,9 @@ export default function Game()
 		{
 			sessionId = JSON.parse(sessionId);
 			roomId = JSON.parse(roomId);
-			console.log("sessionId", sessionId)
-			console.log("roomId", roomId)
 			if (sessionId && roomId)
 				sessioninfo = {sessionId: sessionId, roomId: roomId}
 		}
-		console.log(socket)
         if (!socket)
             initiateSocket("http://localhost:8002/game", setSocket, sessioninfo, storage.login)
 		
@@ -323,7 +318,6 @@ export default function Game()
 			return ;
 
 		context = canvas.getContext("2d")!;
-		console.log(context)
 		GameRoutineHandler(handleWait,
 			handleUpdateBall,
 			updatePaddle,
@@ -352,13 +346,13 @@ export default function Game()
 	useEffect(() => {
 		if (gameData.state == GameState.Started || gameData.state == GameState.Spectacte)
 			draw()
-		setGameInfo({
-			players: [
-				{id: gameData.players[0].id, score: gameData.players[0].score},
-				{id: gameData.players[1].id, score: gameData.players[1].score}
-			],
-			isPlaying: (GameState.Started || GameState.Spectacte) ? true : false
-		})
+		// setGameInfo({
+		// 	players: [
+		// 		{id: gameData.players[0].id, score: gameData.players[0].score},
+		// 		{id: gameData.players[1].id, score: gameData.players[1].score}
+		// 	],
+		// 	isPlaying: (GameState.Started || GameState.Spectacte) ? true : false
+		// })
 	}, [gameData])
 
 	return (

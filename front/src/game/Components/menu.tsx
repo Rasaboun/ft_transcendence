@@ -30,9 +30,26 @@ export default function Menu()
         setAvailableLobbies(availableLobbies)
     }
     
-    function handleGoalScored(players: any)
+    function handleGoalScored(scores: {player1: number, player2: number})
     {
-        console.log(gameInfo)
+        // Jsp comment faire sa grand mere
+        // let newPlayers = gameInfo?.players;
+        // if (!newPlayers || newPlayers == undefined)
+        //     return ;
+		// setGameData((oldGameInfo) => ({
+		// 	...oldGameInfo,
+		// 	players: [
+		// 		{
+		// 		id: newPlayers[0].id,
+		// 		pos: newPlayers[0].pos,
+		// 		score: scores.player1,
+		// 	},
+		// 	{
+		// 		id: newPlayers[1].id,
+		// 		pos: newPlayers[1].pos,
+		// 		score: scores.player2
+		// 	}]
+        // }))
     }
 
     function spectateMode(id:string)

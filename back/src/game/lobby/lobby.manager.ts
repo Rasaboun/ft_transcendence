@@ -71,7 +71,6 @@ export class LobbyManager
             lobby = this.createLobby(options);
             this.avalaibleLobbies.push(lobby);
         }
-        console.log("Client login", client.login)
         lobby.addClient(client);
     }
 

@@ -143,7 +143,6 @@ export class ChannelsService {
         channel.clients[clientIndex].unmuteDate = 0;
         channel.mutedList.splice(clientIndex, 1);
         await this.channelRepository.update(channel.id, channel);
-        
     }
 
     async isMuted(channelName: string, clientId: string): Promise<boolean>

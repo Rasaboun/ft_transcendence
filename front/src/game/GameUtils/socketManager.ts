@@ -70,7 +70,7 @@ export function GameMenuHandler(handleAvailableLobbies:any, handleGoalScored:any
 	socket.on("connect", () => {
 		socket.on('activeGames',(availableLobbies:availableLobbiesT) => handleAvailableLobbies(availableLobbies))
 		})
-		socket.on('goalScored', (players: any) => handleGoalScored(players));
+		//socket.on('goalScored', (scores: {player1: number, player2: number}) => handleGoalScored(scores));
 		socket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, socket));
 
 }
