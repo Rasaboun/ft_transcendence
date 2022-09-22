@@ -1,29 +1,26 @@
 import { io, Socket } from 'socket.io-client'
-import { channelFormT } from './chatType';
-import { ActionOnUser, AddAdminT, ChannelT, ClientInfoT, InviteClientT, JoinChannelT, messageT, SetChannelPasswordT } from './chatType';
+import { ActionOnUser, AddAdminT, channelFormT, ChannelT, ClientInfoT, InviteClientT, JoinChannelT, messageT, SetChannelPasswordT } from '../chat/ChatUtils/chatType';
 
 let socket:Socket
 
-export function initiateSocket(url:string, setSocket:any, sessioninfo?:{sessionId:string, roomId:string}, login?:string)
+export function initiateSocket(url:string, sessioninfo?:{sessionId:string, roomId:string}, login?:string)
 {
-	socket = io(url, { autoConnect: false });
-	setSocket(socket)
-	console.log("sessionInfo", sessioninfo);
-	if (sessioninfo)
-		socket.auth = sessioninfo;
-	else
-		socket.auth = { login } 
-	socket.connect();
+	console.log(login)
+	if (!socket)
+	{
+		socket = io(url, { autoConnect: false , transports: ['websocket']});
+		if (sessioninfo)
+			socket.auth = sessioninfo;
+		else
+			socket.auth = { login }
+		socket.connect();
+	}
+	
 }
 
 export function getSocket()
 {
 	return socket
-}
-
-export function setSocketManager(socket:Socket)
-{
-	socket = socket
 }
 
 export function createChannel(channelForm:channelFormT) {
@@ -88,9 +85,9 @@ export function unsetPrivateMode(channelName: string) {
 
 export function chatMenuHandler(handleActiveChannels:any, handleChannelJoined:any, handleError:any, handleInvitation:any, handleSession:any)
 {
-	console.log(`Server is down`);
-		socket.on("connect_error", (err) => {
-		})
+	console.log(socket)
+
+	//console.log(`Server is down`);
 		socket.on('activeChannels', (channels:ChannelT) => handleActiveChannels(channels));
         socket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
         socket.on('error', (message:string) => handleError(message))
@@ -107,9 +104,10 @@ export function chatHandler(handleMessageReceived:any,
 							handleLeftChannel:any,
 							handleUpgradeToOwner:any,
 							handleIsAlreadyAdmin:any,
-							handleSession:any,
 							handleChannelJoined:any)
 {
+	console.log(socket)
+
         socket.on("msgToChannel", (msg:messageT) => handleMessageReceived(msg))      
         socket.on('channelDeleted', (message:string) => handleChannelDeleted(message))
         socket.on('clientInfo', (data:ClientInfoT) => handleClientInfo(data))
@@ -120,6 +118,16 @@ export function chatHandler(handleMessageReceived:any,
         socket.on('leftChannel', (channelInfo:ChannelT) => handleLeftChannel(channelInfo))
         socket.on('upgradeToOwner', (channelName:string) => handleUpgradeToOwner(channelName))
         socket.on('isAlreadyAdmin', handleIsAlreadyAdmin)
-		socket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, socket));
+
+}
+
+export function appSocketRoutine(handleSession:any) {
+	socket.on('connection', (socket) => {console.log('a user connected on socket', socket)});
+	socket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, socket));
+	socket.on("connect_error", (err) => {console.log(`connect_error due to ${err.message}`)});
+	socket.on("Connect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
+	socket.on("Error", (err) => {console.log(`connect_error due to ${err.message}`)});
+	socket.on("Reconnect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
+	socket.on("msgToChannel", (msg:messageT) => {console.log(`message receive from ${msg.sender?.username}`)})      
 
 }

@@ -37,7 +37,7 @@ export default function LoginElem ()
 						setStorage("user", res.data.user)
 						setChatSocket(getSocket())
 					}	
-					navigate("/home")
+					navigate("/")
 				}
 			  }).catch(e => console.log)
 		}

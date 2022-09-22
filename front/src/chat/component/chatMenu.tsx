@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { chatMenuHandler, createChannel, getActiveChannels, getSocket, initiateSocket, joinChannel } from "../ChatUtils/socketManager";
+import { chatMenuHandler, createChannel, getActiveChannels, getSocket, initiateSocket, joinChannel } from "../../Utils/socketManager";
 import { channelFormT, ChannelModes, ChannelT, JoinChannelT } from "../ChatUtils/chatType";
 import { ChatContext } from "../ChatContext/chatContext";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,8 @@ import useLocalStorage from "../../hooks/localStoragehook";
 import { Session } from "inspector";
 import { Socket } from "socket.io-client";
 import userEvent from "@testing-library/user-event";
+import { SocketContext } from "../../Context/socketContext";
+import { getSession } from "../../Utils/utils";
 
 export default function ChatMenu()
 {
@@ -15,7 +17,7 @@ export default function ChatMenu()
 	//const {storage2} = useLocalStorage("sessionId")
 	const {setStorage} = useLocalStorage()
 	const navigate = useNavigate();
-	const {socket, setSocket} = useContext(ChatContext)
+	const {chatSocket, setChatSocket} = useContext(SocketContext)
 	const [channels, setChannels] = useState<ChannelT[]>()
 	const [channelForm, setChannelForm] = useState<channelFormT>({
 		name: "",
@@ -94,26 +96,13 @@ export default function ChatMenu()
 	}
 
 	useEffect(() => {
-
-		let sessionId = localStorage.getItem("sessionId");
-		let roomId = localStorage.getItem("roomId");
-		let sessioninfo;
-		if (sessionId && roomId)
+		if (!chatSocket)
 		{
-			sessionId = JSON.parse(sessionId);
-			roomId = JSON.parse(roomId);
-			console.log("sessionId", sessionId)
-			console.log("roomId", roomId)
-			if (sessionId && roomId)
-				sessioninfo = {sessionId: sessionId, roomId: roomId}
+			initiateSocket("http://localhost:8002/chat", getSession(), storage.login)
+			setChatSocket(getSocket())
 		}
-		console.log("socket", socket);
-		if (!socket)
-			initiateSocket("http://localhost:8002/chat", setSocket, sessioninfo, storage.login)
-		console.log("connected", socket?.connected);
-		if (socket?.connected)
-			console.log("connected");
-		setSocket(getSocket())
+		console.log("chaat menu chatSocket", chatSocket)
+		console.log("connected", chatSocket?.connected);
 		getActiveChannels()
 		chatMenuHandler(handleActiveChannels,
 			handleChannelJoined,

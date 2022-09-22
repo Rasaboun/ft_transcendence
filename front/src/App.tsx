@@ -1,5 +1,6 @@
 import React, { useContext, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Socket } from "socket.io-client";
 import Login from "./authPage/component/LogPage";
 import Chat from "./Chat";
 import { ChatContextProvider } from "./chat/ChatContext/chatContext";
@@ -14,19 +15,21 @@ import Pong from "./Pong";
 import { PrivateRoute } from "./PrivateRoute";
 import Settings from "./Settings";
 import { appSocketRoutine, getSocket, initiateSocket } from "./Utils/socketManager";
+import { getSession } from "./Utils/utils";
 
 export default function App()
 {
 	const {chatSocket, setChatSocket} = useContext(SocketContext)
 	const { storage, setStorage } = useLocalStorage("token");
+	const { storage2 } = useLocalStorage("user");
 
-	const handleSession = (sessionInfo:{ sessionId:string, roomId:string }) => {
-		console.log("In session menu", sessionInfo)
-		if (chatSocket)
+	const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, socket:Socket) => {
+		console.log("In session menu", sessionInfo, chatSocket)
+		if (socket)
 		{
 			setStorage("sessionId", sessionInfo.sessionId);
 			setStorage("roomId", sessionInfo.roomId);
-			chatSocket.auth = { sessionId: sessionInfo.sessionId } ;		
+			socket.auth = { sessionId: sessionInfo.sessionId } ;		
 			//socket.userID = userID;
 		}
 	}
@@ -34,22 +37,14 @@ export default function App()
 	useEffect(() => {
 		if (storage)
 		{
-			let sessionId = localStorage.getItem("sessionId");
-			let roomId = localStorage.getItem("roomId");
-			let sessioninfo;
-			if (sessionId && roomId)
-			{
-				sessionId = JSON.parse(sessionId);
-				roomId = JSON.parse(roomId);
-				console.log("sessionId", sessionId)
-				console.log("roomId", roomId)
-				if (sessionId && roomId)
-					sessioninfo = {sessionId: sessionId, roomId: roomId}
-			}
 			if (!chatSocket)
-				initiateSocket("http://localhost:8002/chat", sessioninfo, storage.login)
-			setChatSocket(getSocket())
+			{
+				console.log(getSession())
+				initiateSocket("http://localhost:8002/chat", getSession(), storage2.login)
+				setChatSocket(getSocket())
+			}
 			appSocketRoutine(handleSession);
+			console.log(chatSocket)
 		}
 	}, [])
     return (

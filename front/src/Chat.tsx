@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import ChatElem from './chat/component/chatElem';
 import ChatMenu from './chat/component/chatMenu';
+import { SocketContext } from './Context/socketContext';
+import useLocalStorage from './hooks/localStoragehook';
 import './output.css';
+import { getSocket, initiateSocket } from './Utils/socketManager';
+import { getSession } from './Utils/utils';
 
 
 export default function Chat() {

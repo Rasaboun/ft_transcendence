@@ -14,6 +14,7 @@ export class SessionService
 
     initializeSocket(client: AuthenticatedSocket)
     {
+        console.log(client.handshake.auth.login)
 		const sessionId = client.handshake.auth.sessionId;
 		if (sessionId)
         {
