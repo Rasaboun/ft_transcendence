@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./authPage/component/LogPage";
 import Chat from "./Chat";
 import { ChatContextProvider } from "./chat/ChatContext/chatContext";
-import { Context } from "./Context/context";
+import { SocketContext } from "./Context/socketContext";
 import Dashboard from "./Dashboard";
 import Footer from "./Footer";
 import { GameContextProvider } from "./game/GameContext/gameContext";
@@ -17,16 +17,16 @@ import { appSocketRoutine, getSocket, initiateSocket } from "./Utils/socketManag
 
 export default function App()
 {
-	const {socket, setSocket} = useContext(Context)
+	const {chatSocket, setChatSocket} = useContext(SocketContext)
 	const { storage, setStorage } = useLocalStorage("token");
 
 	const handleSession = (sessionInfo:{ sessionId:string, roomId:string }) => {
 		console.log("In session menu", sessionInfo)
-		if (socket)
+		if (chatSocket)
 		{
 			setStorage("sessionId", sessionInfo.sessionId);
 			setStorage("roomId", sessionInfo.roomId);
-			socket.auth = { sessionId: sessionInfo.sessionId } ;		
+			chatSocket.auth = { sessionId: sessionInfo.sessionId } ;		
 			//socket.userID = userID;
 		}
 	}
@@ -46,9 +46,9 @@ export default function App()
 				if (sessionId && roomId)
 					sessioninfo = {sessionId: sessionId, roomId: roomId}
 			}
-			if (!socket)
-				initiateSocket("http://localhost:8002/", sessioninfo, storage.login)
-			setSocket(getSocket())
+			if (!chatSocket)
+				initiateSocket("http://localhost:8002/chat", sessioninfo, storage.login)
+			setChatSocket(getSocket())
 			appSocketRoutine(handleSession);
 		}
 	}, [])

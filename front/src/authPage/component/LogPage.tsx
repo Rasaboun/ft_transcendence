@@ -5,11 +5,11 @@ import axios from "axios";
 import useLocalStorage from "../../hooks/localStoragehook";
 import { useNavigate } from "react-router-dom";
 import { getSocket, initiateSocket } from "../../Utils/socketManager";
-import { Context } from "../../Context/context";
+import { SocketContext } from "../../Context/socketContext";
 
 export default function LoginElem ()
 {
-	const { setSocket } = useContext(Context)
+	const { setChatSocket } = useContext(SocketContext)
 	const navigate = useNavigate()
 	const {storage, setStorage} = useLocalStorage()
 	const [authForm, setAuthForm] = useState<AuthFormT>({
@@ -32,10 +32,10 @@ export default function LoginElem ()
 				{
 					if (res.data.user)
 					{
-						initiateSocket("http://localhost:8002", res.data.user.login)
+						initiateSocket("http://localhost:8002/chat", res.data.user.login)
 						setStorage("token", res.data.access_token)
 						setStorage("user", res.data.user)
-						setSocket(getSocket())
+						setChatSocket(getSocket())
 					}	
 					navigate("/home")
 				}
