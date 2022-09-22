@@ -154,13 +154,9 @@ export default function Game()
 		}))
 	}
 
-<<<<<<< HEAD
 	const handleGoalScored = (scores: {player1: number, player2: number}) => {
 		console.log("gameData", gameData);
 		let newPlayers = gameData.players;
-=======
-	const handleGoalScored = (players: Player[]) => {
->>>>>>> 5b8eb48ba411c4f2f8ff72e73630aeb4a32660d9
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			players: [

@@ -2,7 +2,7 @@ import { NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { Cron, Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
 import { Server } from "socket.io";
-import { AuthenticatedSocket } from 'src/sessions/sessions.type';
+import { AuthenticatedSocket } from 'src/auth/types/auth.type';
 import { GameInstance } from "../game.instance";
 import { GameMode, GameOptions, GameState, Player } from "../types/game.type";
 import { Lobby } from "./lobby";
@@ -88,6 +88,10 @@ export class LobbyManager
 
     public async joinLobbies(client: AuthenticatedSocket)
     {
+        if (client.lobbyId)
+        {
+            client.lobby = this.lobbies.get(client.lobbyId);
+        }
         for (const [lobbyId, lobby] of this.lobbies)
         {
             if (lobby.isClient(client.login))
