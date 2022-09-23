@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from "react"
+import React, {useState, useEffect, useRef, useContext} from "react"
 import Score from "../Elements/score"
 import * as utils from "../GameUtils/GameUtils"
 import "../game.css"
@@ -7,7 +7,9 @@ import { GameSettings, GameData, GameState, Player, Ball} from "../GameUtils/typ
 import { Socket } from 'socket.io-client'
 import { GameContext } from "../GameContext/gameContext"
 import useLocalStorage from "../../hooks/localStoragehook"
-import { GameCleaner, GameRoutineHandler, initiateSocket, startGame } from "../GameUtils/socketManager"
+import { getSession } from "../../Utils/utils"
+import { GameCleaner, GameRoutineHandler, getChatSocket, getGameSocket, initiateSocket, startGame } from "../../Utils/socketManager"
+import { SocketContext } from "../../Context/socketContext"
 
 let socket:Socket
 let canvas:HTMLCanvasElement
@@ -15,8 +17,7 @@ let canvas:HTMLCanvasElement
 export default function Game()
 {
 	const {storage, setStorage} = useLocalStorage("user")
-	const {storage2} = useLocalStorage("sessionId")
-	const {socket, setSocket, setGameInfo} = React.useContext(GameContext)
+	const {gameSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
 	let context: CanvasRenderingContext2D;
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	
@@ -127,13 +128,21 @@ export default function Game()
 		}
 	}
 
-	const handleGameReady = (data: GameData) => {
-		console.log("In game ready")
+	const handleGameReady = (data: {gameData: GameData, gameSettings: GameSettings }) => {
+		console.log("In game ready", data.gameData.ball)
 		setGameData((oldGameData) => ({
 			...oldGameData,
-			ball: data.ball,
-			players: data.players,
+			ball: data.gameData.ball,
+			players: data.gameData.players,
 			state: GameState.Started
+		}))
+		setGameSettings((oldGameSettings) => ({
+			...oldGameSettings,
+			scoreToWin: data.gameSettings.scoreToWin,
+			width: data.gameSettings.width,
+			height: data.gameSettings.height,
+			paddleHeight: utils.toScale(data.gameSettings.paddleHeight, canvas.height / 1080),
+			paddleWidth: utils.toScale(data.gameSettings.paddleWidth, canvas.width / 1920),
 		}))
 		startGame()
 	}
@@ -146,10 +155,22 @@ export default function Game()
 		}))
 	}
 
-	const handleGoalScored = (players: Player[]) => {
+	const handleGoalScored = (scores: {player1: number, player2: number}) => {
+		console.log("gameData", gameData);
+		let newPlayers = gameData.players;
 		setGameData((oldGameData) => ({
 			...oldGameData,
-			players: players,
+			players: [
+				{
+				id: gameData.players[0].id,
+				pos: gameData.players[0].pos,
+				score: scores.player1,
+			},
+			{
+				id: gameData.players[1].id,
+				pos: gameData.players[1].pos,
+				score: scores.player2
+			}]
 		}));
 	}
 
@@ -218,11 +239,12 @@ export default function Game()
 		{
 			let value: number = event.clientY - utils.getCanvasDiv().y;
 
+			console.log("before")
 			if (value + (gameSettings.paddleHeight / 2) >= canvas.height)
 				value = canvas.height - (gameSettings.paddleHeight / 2);
 			else if (value - (gameSettings.paddleHeight / 2) <= 0)
 				value = gameSettings.paddleHeight / 2;
-			
+			console.log("after")
 			value = utils.toScale(value, gameSettings.height / canvas.height);			
 
 			socket?.emit("playerMoved", value);
@@ -231,8 +253,8 @@ export default function Game()
 	}
 
 	function draw() {
-		console.log(canvas)
 		const context  = canvas.getContext("2d")!;
+
 
 		if (!context)
 			return ;
@@ -242,8 +264,9 @@ export default function Game()
 			1920,
 			1080,
 		);
+		console.log(gameData.players);
 		context.beginPath();
-
+		//console.log("Players pos", gameData.players[0].pos, gameData.players[1].pos,)
 		context.fillRect(0,
 			gameData.players[0].pos -  gameSettings.paddleHeight / 2,
 			gameSettings.paddleWidth,
@@ -255,7 +278,7 @@ export default function Game()
 			gameSettings.paddleHeight);
 
 		context.fillStyle = "white";
-		context?.arc(gameData.ball.x, gameData.ball.y, 20, 0, 2 * Math.PI)
+		context?.arc(gameData.ball.x, gameData.ball.y, gameData.ball.radius, 0, 2 * Math.PI)
 
 		context?.fill();
 		context?.closePath();
@@ -279,21 +302,9 @@ export default function Game()
 	}
 
 	useEffect(() => {
-		let sessionId = localStorage.getItem("sessionId");
-		let roomId = localStorage.getItem("roomId");
-		let sessioninfo;
-		if (sessionId && roomId)
-		{
-			sessionId = JSON.parse(sessionId);
-			roomId = JSON.parse(roomId);
-			console.log("sessionId", sessionId)
-			console.log("roomId", roomId)
-			if (sessionId && roomId)
-				sessioninfo = {sessionId: sessionId, roomId: roomId}
-		}
-		console.log(socket)
-        if (!socket)
-            initiateSocket("http://localhost:8002/game", setSocket, sessioninfo, storage.login)
+		initiateSocket("http://localhost:8002", getSession(), storage.login)
+		setChatSocket(getChatSocket())
+		setGameSocket(getGameSocket())
 		
 		canvas = canvasRef.current!;
 
@@ -314,10 +325,8 @@ export default function Game()
 			return ;
 
 		handleResize();
-		console.log()
 		initializeGame();
 		window.addEventListener('resize', handleResize);
-		console.log(socket)
 		return (() => {window.removeEventListener('resize', handleResize)
 						GameCleaner(handleWait,
 							handleUpdateBall,
@@ -330,20 +339,14 @@ export default function Game()
 	}, [])
 
 	useEffect(() => {
-		console.log("gamedata state", gameData.state);
 		if (gameData.state == GameState.Started || gameData.state == GameState.Spectacte)
 			draw()
-		setGameInfo({
-			players: [
-				{id: gameData.players[0].id, score: gameData.players[0].score},
-				{id: gameData.players[1].id, score: gameData.players[1].score}
-			],
-			isPlaying: (GameState.Started || GameState.Spectacte) ? true : false
-		})
 	}, [gameData])
 
 	return (
-		<div id="canvasDiv">
+		<div id="canvasDiv" style={{
+			maxHeight: "50vh"
+		}}>
 			{
 			gameData.state === GameState.Waiting &&
 				<div className="game-display">
@@ -356,22 +359,15 @@ export default function Game()
 			{
 					gameData.state == GameState.Stopped && clearCanvas() &&
 					<div className="game-display">
-						{(socket?.id === gameData.winnerId) ? "YOU WIN" : 
-						(((gameData.players[0].id == storage.login || gameData.players[0].id == storage.login)) ?
+						{(storage.login === gameData.winnerId) ? "YOU WIN" : 
+						(((gameData.players[0].id === storage.login || gameData.players[1].id == storage.login)) ?
 							"YOU LOSE" : `${gameData.winnerId} WIN`)}
 						{}
 						</div>
 					
 			}
-		<canvas
-		className="pong"
-		ref={canvasRef}
-		onMouseMove={handleMouseMove}
-		/>
-		{
-			(gameData.state == GameState.Started || gameData.state == GameState.Spectacte) &&
-			<Score  player1Score={gameData.players?.at(0)?.score!} player2Score={gameData.players?.at(1)?.score!}></Score>
-		}
+		<canvas className="pong" ref={canvasRef} onMouseMove={handleMouseMove}/>
+		<Score gameData={gameData}/>
 		</div>
 	);
 	

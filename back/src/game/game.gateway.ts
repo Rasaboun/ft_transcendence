@@ -1,9 +1,10 @@
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { LobbyManager } from './lobby/lobby.manager';
-import { Player } from './types/game.type';
-import { SessionManager } from 'src/sessions/sessions.manager';
-import { AuthenticatedSocket } from 'src/sessions/sessions.type';
+import { GameMode, GameOptions, Player } from './types/game.type';
+import { AuthenticatedSocket } from 'src/auth/types/auth.type';
+import { AuthService } from 'src/auth/auth.service';
+import { forwardRef, Inject } from '@nestjs/common';
 
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'game' })
@@ -11,7 +12,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 {
 
 	constructor( 	private lobbyManager: LobbyManager,
-					private sessionManager: SessionManager,
+					@Inject(forwardRef(() => AuthService))
+					private authService: AuthService,
 				) {	}
 
 	@WebSocketServer()
@@ -28,31 +30,44 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		
 		//this.lobbyManager.initializeSocket(client as AuthenticatedSocket);
 		console.log(`Client ${client.id} joined pong socket`);
-		this.sessionManager.initializeSocket(client as AuthenticatedSocket);
+		this.authService.initializeSocket(client as AuthenticatedSocket);
 		await this.lobbyManager.joinLobbies(client as AuthenticatedSocket);
 		
 	}
 
 	handleDisconnect(client: AuthenticatedSocket) {
-		console.log(`Client ${client.id} left server`);
 		this.lobbyManager.terminateSocket(client);
+		console.log(`Client ${client.id} left pong socket`);
 		
 	}
 
 	@SubscribeMessage('createLobby')
-	createLobby(client: AuthenticatedSocket)
+	createLobby(client: AuthenticatedSocket, /*options: GameOptions*/)
 	{
-		let lobby = this.lobbyManager.createLobby();
+		const options: GameOptions = {
+			mode: GameMode.Normal,
+			inviteMode: false,
+		}
+		let lobby = this.lobbyManager.createLobby(options);
 		lobby.addClient(client);
 
 		client.emit("lobbyCreated", "Successful creation");
 	}
 
 	@SubscribeMessage('joinedQueue')
-	joiningQueue(client: AuthenticatedSocket, player:Player)
+	joiningQueue(client: AuthenticatedSocket, mode:GameMode)
 	{
 		console.log(`Client ${client.id} joined queue`)
-		this.lobbyManager.joinQueue(client);
+		this.lobbyManager.joinQueue(client, mode);
+	}
+
+	@SubscribeMessage('joinInvitation')
+	joinInvitation(client: AuthenticatedSocket, playerLogin: string)
+	{
+		try
+		{
+			this.lobbyManager.joinInvitation(client, playerLogin);
+		} catch (error) { client.emit("error", error.message) };
 	}
 
 	@SubscribeMessage('spectacteGame')
@@ -60,7 +75,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try {
 			this.lobbyManager.joinLobby(lobbyId, client);
-			console.log('Joined lobby');
 		}
 		catch (error) { client.emit('lobbyNotFound', error.message ) }
 	}
@@ -83,6 +97,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	handlePlayerPosition(client: AuthenticatedSocket, newPos: number) {
 
 		const player: Player = client.lobby?.getPlayer(client.login);
+		
+		if (!player)
+			console.log("is not player");
 		if (!player)
 			return ;
 		player.pos = newPos;

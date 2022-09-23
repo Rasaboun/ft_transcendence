@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { chatMenuHandler, createChannel, getActiveChannels, getSocket, initiateSocket, joinChannel } from "../ChatUtils/socketManager";
+import { chatMenuHandler, createChannel, getActiveChannels, getChatSocket, getGameSocket, initiateSocket, joinChannel } from "../../Utils/socketManager";
 import { channelFormT, ChannelModes, ChannelT, JoinChannelT } from "../ChatUtils/chatType";
 import { ChatContext } from "../ChatContext/chatContext";
 import { useNavigate } from "react-router-dom";
@@ -8,15 +8,15 @@ import useLocalStorage from "../../hooks/localStoragehook";
 import { Session } from "inspector";
 import { Socket } from "socket.io-client";
 import userEvent from "@testing-library/user-event";
-import { setInterval } from "timers/promises";
+import { SocketContext } from "../../Context/socketContext";
+import { getSession } from "../../Utils/utils";
 
 export default function ChatMenu()
 {
 	const {storage} = useLocalStorage("user")
-	//const {storage2} = useLocalStorage("sessionId")
 	const {setStorage} = useLocalStorage()
 	const navigate = useNavigate();
-	const {socket, setSocket} = useContext(ChatContext)
+	const {chatSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
 	const [channels, setChannels] = useState<ChannelT[]>()
 	const [channelForm, setChannelForm] = useState<channelFormT>({
 		name: "",
@@ -39,11 +39,12 @@ export default function ChatMenu()
 	}
 
 	const handleChannelJoined = (data:{clientId:string, channelInfo:ChannelT}) => {
-        console.log(data.channelInfo)
+        console.log(storage.login, data.clientId)
 		if (storage.login === data.clientId)
 		{
+			console.log(data.channelInfo)
 			setStorage("channel", data.channelInfo)
-			navigate("message")
+			navigate("/chat/message")
 		}
 	}
 
@@ -95,21 +96,12 @@ export default function ChatMenu()
 	}
 
 	useEffect(() => {
-		let sessionId = localStorage.getItem("sessionId");
-		let roomId = localStorage.getItem("roomId");
-		let sessioninfo;
-		if (sessionId && roomId)
-		{
-			sessionId = JSON.parse(sessionId);
-			roomId = JSON.parse(roomId);
-			console.log("sessionId", sessionId)
-			console.log("roomId", roomId)
-			if (sessionId && roomId)
-				sessioninfo = {sessionId: sessionId, roomId: roomId}
-		}
-		console.log("Storage", storage);
-		if (!socket)
-			initiateSocket("http://localhost:8002/chat", setSocket, sessioninfo, storage.login)
+
+		initiateSocket("http://localhost:8002", getSession(), storage.login)
+		setChatSocket(getChatSocket())
+		setGameSocket(getGameSocket())
+		console.log("chaat menu chatSocket", chatSocket)
+		console.log("connected", chatSocket?.connected);
 		getActiveChannels()
 		chatMenuHandler(handleActiveChannels,
 			handleChannelJoined,
@@ -119,18 +111,11 @@ export default function ChatMenu()
 	}, [])
 
 	useEffect(() => {
-		let timeoutID
-		console.log(errorMsg)
-		if (errorMsg.isShow)
-		{
-			timeoutID = setTimeout(() => setErrorMsg({
-				isShow: false,
-				msg: ""
-			}), 2500);
-			if (!errorMsg.isShow)
-				return clearInterval(timeoutID)
-		}
-			
+		const timeoutID = setTimeout(() => setErrorMsg({
+			isShow: false,
+			msg: ""
+		}), 5000);
+		return clearTimeout(timeoutID)
 	}, [errorMsg])
 	const channelsElem = channels?.map((elem, index) => (
 		<ChannelItem key={index}

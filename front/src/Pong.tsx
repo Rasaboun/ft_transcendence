@@ -8,7 +8,6 @@ import './output.css';
 
 
 export default function Pong() {
-	const value = useContext(GameContext);
 	return (
 	
 		<div id="Pong" className="flex-1">
@@ -29,17 +28,6 @@ export default function Pong() {
 						</Routes>
 					</div>
 				</div>
-			<div className=" px-4 py-6 sm:px-0">
-			
-				{<div className="border-2 border-line border-gray-200 rounded-lg h-96">
-				{
-					value.gameInfo !== undefined && value.gameInfo.isPlaying &&
-					<div className='score--container'>
-						<h1 className='score--elem'> {value.gameInfo.players[0].score} : {value.gameInfo.players[1].score}</h1>
-					</div>
-				}
-				</div>}
-			</div>
 			{/* /End replace */}
 			</div>
 			</main>

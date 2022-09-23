@@ -113,7 +113,8 @@ export class ChannelsService {
     }
 
     async muteClient(data: ActionOnUser) {
-        const channel: Channel = await this.findOneById(data.channelName);  
+        const channel: Channel = await this.findOneById(data.channelName);
+         
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
         
@@ -122,7 +123,8 @@ export class ChannelsService {
                 throw new NotFoundException("This user is not member of the channel");
         
         client.isMuted = true;
-        client.unmuteDate = (new Date().getTime() / 1000) + data.duration;
+        client.unmuteDate = (new Date().getTime()) + data.duration * 1000;
+        channel.mutedList.push(client);
         await this.channelRepository.update(channel.id, channel);
         
     }
@@ -139,6 +141,7 @@ export class ChannelsService {
         
         channel.clients[clientIndex].isMuted = false;
         channel.clients[clientIndex].unmuteDate = 0;
+        channel.mutedList.splice(clientIndex, 1);
         await this.channelRepository.update(channel.id, channel);
         
     }
@@ -152,7 +155,14 @@ export class ChannelsService {
         const client = channel.clients[this.getClientIndex(channel.clients, clientId)]
         if (client == undefined)
                 throw new NotFoundException("This user is not member of the channel");
-        if (client.isMuted && new Date().getTime() / 1000 >= client.unmuteDate)
+
+        const clientInMuted = channel.mutedList[this.getClientIndex(channel.mutedList, client.id)];
+        if (clientInMuted)
+        {
+            client.isMuted = true,
+            client.unmuteDate = clientInMuted.unmuteDate;
+        }
+        if (client.isMuted && new Date().getTime() >= client.unmuteDate)
         {
             await this.unmuteClient(channelName, client.id)
             return false;
@@ -183,7 +193,7 @@ export class ChannelsService {
                 throw new NotFoundException("This user is not member of the channel");
         
         client.isBanned = true;
-        client.unbanDate = (new Date().getTime() / 1000) + data.duration;
+        client.unbanDate = (new Date().getTime()) + data.duration * 1000;
         await this.channelRepository.update(channel.id, channel);        
     }
 
@@ -272,7 +282,7 @@ export class ChannelsService {
         if (client == undefined)
                 return false;
 
-        if (client.isBanned && new Date().getTime() / 1000 > client.unbanDate)
+        if (client.isBanned && new Date().getTime() > client.unbanDate)
         {
             this.unbanClient(channelName, client.id)
             return false;

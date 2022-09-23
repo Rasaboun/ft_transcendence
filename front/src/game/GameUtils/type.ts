@@ -100,3 +100,13 @@ export type GameInfoT = {
 	],
 	isPlaying: boolean
 }
+
+export enum GameMode {
+  Normal,
+  Mini,
+  Speed,
+}
+export interface GameOptions {
+  inviteMode: boolean,
+  mode : GameMode,
+}

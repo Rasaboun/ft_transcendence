@@ -17,7 +17,7 @@ export default function MessageInput(props:MessageInputPropsT)
 				marginRight: "15px"
 			}}
 			name='message' type="text"
-			value={!props.mutedTime ? props.value : `You are banned : ${props.mutedTime} left`}
+			value={!props.mutedTime ? props.value : `You are muted : ${props.mutedTime} secs left`}
 			onChange={props.handleChange}
 			disabled={props.mutedTime ? true : false}/>
 

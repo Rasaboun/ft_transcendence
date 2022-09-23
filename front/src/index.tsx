@@ -3,6 +3,7 @@ import './output.css';
 
 import reportWebVitals from './reportWebVitals';
 import App from './App';
+import { SocketContextProvider } from './Context/socketContext';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -12,7 +13,9 @@ rootdiv?.classList.add("flex");
 rootdiv?.classList.add("flex-col"); 
 rootdiv?.classList.add("min-h-screen");
 root.render(
-	<App />
+	<SocketContextProvider>
+		<App />
+	</SocketContextProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

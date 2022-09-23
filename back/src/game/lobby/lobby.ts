@@ -1,9 +1,9 @@
 import { v4 } from "uuid";
 import { Server } from "socket.io";
-import { GameData, GameState, Player } from "../types/game.type";
+import { GameData, GameOptions, GameState, Player } from "../types/game.type";
 import { GameInstance } from "../game.instance";
 import { Socket } from "dgram";
-import { AuthenticatedSocket } from "src/sessions/sessions.type";
+import { AuthenticatedSocket } from 'src/auth/types/auth.type';
 import { ConsoleLogger } from "@nestjs/common";
 
 export class Lobby
@@ -11,14 +11,17 @@ export class Lobby
     public readonly id:             string = v4();
     public          nbPlayers:      number = 0;
     public          state:          GameState = GameState.Stopped;
-    public readonly inviteMode:     boolean = false;
 
-    public readonly gameInstance:   GameInstance = new GameInstance(this);
+    public readonly gameInstance:   GameInstance;
 
     //public         clients:        	Map<string, AuthenticatedSocket> = new Map<string, AuthenticatedSocket>();
     public         clients:        	Map<string, string> = new Map<string, string>();
 
-    constructor    ( private server: Server ) {}
+    constructor    ( private server: Server, private options: GameOptions)
+    {
+        console.log("options", options);
+        this.gameInstance = new GameInstance(this, options.mode);
+    }
 
     public addClient(client: AuthenticatedSocket): void
     {
@@ -95,7 +98,8 @@ export class Lobby
 
     public isClient(clientLogin: string): boolean
     {
-        console.log("Get client", this.clients.get(clientLogin));
         return this.clients.get(clientLogin) === undefined ? false : true;
     }
+
+    public isPrivate(): boolean { return this.options.inviteMode; }
 }

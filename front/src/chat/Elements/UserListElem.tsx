@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import useLocalStorage from "../../hooks/localStoragehook";
 import { ClientElem, ClientInfoT, UserStateT } from "../ChatUtils/chatType";
-import { addAdmin, banUser, muteUser } from "../ChatUtils/socketManager";
-
+import { addAdmin, banUser, muteUser } from "../../Utils/socketManager";
 type UserElemPropsT = {
 	client: ClientElem;
 	userState?:UserStateT;
@@ -74,7 +73,7 @@ export default function UserListElem({ client, userState }:UserElemPropsT)
 		 muteUser({
 			channelName: storage!.channelId,
 			targetId: client.login,
-			duration: new Date().getTime() + parseInt(form.muteTime) * 1000
+			duration: parseInt(form.muteTime)
 		})
 	}
 

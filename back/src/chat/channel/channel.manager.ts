@@ -3,7 +3,7 @@ import { Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
 import { createClient } from "redis";
 import { Server } from "socket.io";
-import { AuthenticatedSocket } from "src/sessions/sessions.type";
+import { AuthenticatedSocket } from 'src/auth/types/auth.type';
 import { UsersService } from "src/users/users.service";
 import { ActionOnUser, AddAdmin, ChannelClient, ChannelInfo, ChannelModes, ClientInfo, CreateChannel, InviteClient, JoinChannel, Message, MutedException, SetChannelPassword, uuidRegexExp } from "../types/channel.type";
 import { Channel } from "./channel";
@@ -87,6 +87,7 @@ export class ChannelManager
     {
         try
         {
+            console.log("data", data);
             const channel: Channel = this.channels.get(data.channelName);
 
             if (channel == undefined)
@@ -105,6 +106,7 @@ export class ChannelManager
                 client.join(channel.id);
                 client.emit("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
                 //channel.sendToClient(client.login, "joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
+                
                 return ;
             }
             if (channel.isPrivate() && !(await this.channelsService.isInvited(data.channelName, client.login)))
@@ -159,14 +161,12 @@ export class ChannelManager
             }
             if (channel.owner != client.login)
                 return ;
-            let newOwnerRoomId: string = null;
             let newOwnerUsername: string = null;
 
             
             channel.clients.forEach((roomId, id) => {
                 if (this.channelsService.isAdmin(channelName, id) && id != client.login)
                 {
-                    newOwnerRoomId = roomId;
                     newOwnerUsername = id;
                 }
             })
@@ -175,16 +175,15 @@ export class ChannelManager
                 channel.clients.forEach((roomId, id) => {
                     if (id != client.login)
                     {
-                        newOwnerRoomId = roomId;
                         newOwnerUsername = id;
                     }
                 })
             }
-            channel.owner = newOwnerUsername;
-            if (newOwnerRoomId)
-                this.server.to(newOwnerRoomId).emit("upgradeToOwner", channel.id);
+            channel.owner = newOwnerUsername
             //add new owner in admin
             await this.channelsService.setNewOwner(channelName, newOwnerUsername);
+            channel.sendToUsers("newOwner", {target: newOwnerUsername, channelInfo: channel.getInfo(await this.getChannelClients(channel.id)) });
+        
 
         } catch (error) { throw error }
     }
@@ -257,38 +256,58 @@ export class ChannelManager
                 isInfo: true,
             }
             this.channels.get(channelId).sendMessage(message);
-            //this.server.to(channelId).emit("messageReceived", message);
             await this.channelsService.addMessage(channelId, message);
         }
         catch (error) { throw error; }
     }
 
-    public async muteUser(clientId: string, data: ActionOnUser)
+    public async createAndSaveInfoMessage(client: AuthenticatedSocket, channelId: string, content: string)
     {
-        console.log("Mute data", data);
+        try
+        {
+            const message: Message = {
+                sender: {
+                    login: client.login,
+                    username: client.login,
+                },
+                channelName: channelId,
+                date: new Date().toString(),
+                content: content,
+                isInfo: true,
+            }
+            await this.channelsService.addMessage(channelId, message);
+        }
+        catch (error) { throw error; }
+
+    }
+
+    public async muteUser(client: AuthenticatedSocket, data: ActionOnUser)
+    {
         let caller: ChannelClient;
         try {
-            caller = await this.channelsService.getClientById(data.channelName, clientId);
+            caller = await this.channelsService.getClientById(data.channelName, client.login);
             if (caller == undefined || caller.isAdmin == false || this.channels.get(data.channelName).owner == data.targetId)
                 throw new ForbiddenException("You are not allowed to do this");
             await this.channelsService.muteClient(data);
 
+            this.createAndSaveInfoMessage(client, data.channelName, `${data.targetId} has been muted for ${data.duration} secs`);
             this.channels.get(data.channelName).sendToUsers("mutedInChannel", data);  
         } catch (error) {
             throw error;
         }
     }
     
-    public async banUser(clientId: string, data: ActionOnUser)
+    public async banUser(client: AuthenticatedSocket, data: ActionOnUser)
     {
-        console.log("Ban data", data);
         let caller: ChannelClient;
         try {
-            caller = await this.channelsService.getClientById(data.channelName, clientId);
+            caller = await this.channelsService.getClientById(data.channelName, client.login);
 
             if (caller == undefined || caller.isAdmin == false || this.channels.get(data.channelName).owner == data.targetId)
                 throw new ForbiddenException("You are not allowed to do this");
             await this.channelsService.banClient(data);
+
+            this.createAndSaveInfoMessage(client, data.channelName, `${data.targetId} has been banned for ${data.duration} secs`);
             this.channels.get(data.channelName).sendToUsers("bannedFromChannel", data);    
         } catch (error) {
             throw error;
@@ -311,9 +330,7 @@ export class ChannelManager
                 return ;
             }
             await this.channelsService.addAdmin(data.channelName, data.clientId);
-            const usr = await this.channelsService.getClientById(data.channelName, data.clientId);
-            console.log(usr);
-            channel.sendToClient(data.clientId, "addAdmin");
+            channel.sendToUsers("addAdmin", {target: data.clientId, channelInfo: channel.getInfo(await this.getChannelClients(channel.id)) });
         }
         catch (error) {
             throw error;
@@ -443,7 +460,7 @@ export class ChannelManager
     {
         let clients: ClientInfo[] = [];
 
-        const channel = this.channels.get(channelName);
+        const channel = this.channels.get(channelName); 
         if (!channel)
             throw new NotFoundException("This channel does not exist anymore");
 
@@ -459,6 +476,7 @@ export class ChannelManager
                 isMuted: await this.channelsService.isMuted(channelName, clientLogin),
             })
         }
+        console.log("Clients", clients);
         return clients;
     }
 

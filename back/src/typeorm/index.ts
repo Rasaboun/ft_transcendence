@@ -1,10 +1,10 @@
 import { Match } from "./Match";
 import { User } from "./User";
 import { Channel } from "./Channel";
-import { TypeORMSession } from "./Session";
+import { Session } from "./Session";
 
-const entities = [User, Match, Channel, TypeORMSession];
+const entities = [User, Match, Channel, Session];
 
-export { User, Match, Channel, TypeORMSession };
+export { User, Match, Channel, Session};
 
 export default entities;
