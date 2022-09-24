@@ -1,9 +1,8 @@
 import { ForbiddenException, forwardRef, Inject, NotFoundException } from "@nestjs/common";
-import { AuthenticatedSocket } from "src/sessions/sessions.type";
 import { Interval } from "@nestjs/schedule";
 import { Server } from "socket.io";
 import { WebSocketServer } from "@nestjs/websockets";
-
+import { AuthenticatedSocket } from "src/auth/types/auth.type";
 import { Message } from "../types/channel.type";
 import { PrivChat } from "./privChat";
 import { ActionOnUser, ChannelClient } from "../types/channel.type";
@@ -12,7 +11,6 @@ import { User } from "src/typeorm";
 import { PrivChatNewMessageDto } from "../types/privChat.types";
 import { map } from "rxjs";
 import { UsersService } from "src/users/users.service";
-
 
 export class PrivChatManager
 {
