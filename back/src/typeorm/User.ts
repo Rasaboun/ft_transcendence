@@ -8,7 +8,7 @@ export class User {
     id: number;
 
     @Column()
-    intraId: number;
+    intraLogin: string;
 
     @Column()
     username: string;
@@ -35,7 +35,7 @@ export class User {
         array: true,
         default: []
     })
-    blockedUsers: number[];
+    blockedUsers: string[];
 
     @Column({
         default: 0,

@@ -16,8 +16,8 @@ export class UsersService {
     private readonly configService: ConfigService
     ) { }
 
-    async blockUser(idToBlock: number) {
-        const user = this.findOneById(idToBlock);
+    async blockUser(loginToBlock: string) {
+        const user = this.findOneByIntraLogin(loginToBlock);
 
         if (!user)
             throw new NotFoundException('User to block does not exist');
@@ -26,15 +26,15 @@ export class UsersService {
         // Remplace with real caller id
         const caller = await this.findOneById(1);
         
-        caller.blockedUsers.push(idToBlock);
+        caller.blockedUsers.push(loginToBlock);
         await this.userRepository.update(
             caller.id,
             caller,
             )
     }
 
-    async unblockUser(idToBlock: number) {
-        const user = this.findOneById(idToBlock);
+    async unblockUser(loginToBlock: string) {
+        const user = this.findOneByIntraLogin(loginToBlock);
 
         if (!user)
             throw new NotFoundException('User to unblock does not exist');
@@ -43,7 +43,7 @@ export class UsersService {
         // Remplace with real caller id
         const caller = await this.findOneById(1);
         
-        const index = caller.blockedUsers.indexOf(idToBlock);
+        const index = caller.blockedUsers.indexOf(loginToBlock);
         if (index == -1)
             return ;
         console.log(index);
@@ -55,12 +55,10 @@ export class UsersService {
 
     }
 
-    async isBlocked(userId: number): Promise<boolean> {
-        //Temporary
-        // Remplace with real caller id
-        const caller = await this.findOneById(1);
+    async isBlocked(callerLogin: string, targetLogin: string): Promise<boolean> {
+        const caller = await this.findOneByIntraLogin(callerLogin);
         
-        return caller.blockedUsers.indexOf(userId) == -1 ? false : true;
+        return caller.blockedUsers.indexOf(targetLogin) == -1 ? false : true;
         
     }
 
@@ -69,16 +67,21 @@ export class UsersService {
     }
 
     findOneById(id: number) {
-        return this.userRepository.findOneBy({ id });
-    }
-
-    findOneByIntraId(id: number) {
         return this.userRepository.findOne({
             where: [
-                { intraId: id},
+                { id: id},
             ],
         })
     }
+
+    findOneByIntraLogin(login: string) {
+        return this.userRepository.findOne({
+            where: [
+                { intraLogin: login},
+            ],
+        })
+    }
+
 
     findOneByUsername(username: string){
 

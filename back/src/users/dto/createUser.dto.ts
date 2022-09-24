@@ -3,7 +3,7 @@ import { UserStatus } from "../type/users.type";
 
 export class createUserDto {
     @IsNotEmpty()
-    intraId: number;
+    intraLogin: string;
     
     @IsNotEmpty()
     username: string;

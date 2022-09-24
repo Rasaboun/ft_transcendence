@@ -17,21 +17,21 @@ export class UsersController {
         return this.usersService.createUser(userDto);
     }
 
-    @Put('block/:id')
-    blockUser(@Param('id') idToBlock: number)
+    @Put('block/:login')
+    blockUser(@Param('login') loginToBlock: string)
     {
-        return this.usersService.blockUser(idToBlock)
+        return this.usersService.blockUser(loginToBlock)
     }
     
-    @Put('unblock/:id')
-    unblockUser(@Param('id') idToBlock: number)
+    @Put('unblock/:login')
+    unblockUser(@Param('login') loginToBlock: string)
     {
-        return this.usersService.unblockUser(idToBlock)
+        return this.usersService.unblockUser(loginToBlock)
     }
 
-    @Get('isblocked/:id')
-    isBlocked(@Param('id') userId: number) {
-        return this.usersService.isBlocked(userId);
+    @Get('isblocked/:login')
+    isBlocked(@Body() dto/* tmp */: any) {
+        return this.usersService.isBlocked(dto.callerLogin, dto.login);
     }
 
     @Get()
