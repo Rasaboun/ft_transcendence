@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Token } from 'client-oauth2';
 import { AuthenticatedSocket, newSessionDto } from 'src/auth/types/auth.type';
-import { Session, User } from 'src/typeorm';
+import { Session } from 'src/typeorm/Session';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { v4 } from 'uuid';
@@ -57,6 +57,7 @@ export class AuthService {
         console.log("Found session", session);
         if (session != null && session.expiresAt > new Date().getTime())
         {
+            console.log(client.handshake.auth.login)
             client.sessionId = client.handshake.auth.sessionId;
             client.roomId = session.roomId;
             client.login = session.login;

@@ -61,10 +61,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('joinedQueue')
-	joiningQueue(client: AuthenticatedSocket, player:Player)
+	joiningQueue(client: AuthenticatedSocket, mode: GameMode)
 	{
 		console.log(`Client ${client.id} joined queue`)
-		this.lobbyManager.joinQueue(client);
+		this.lobbyManager.joinQueue(client, mode);
 	}
 
 	@SubscribeMessage('joinInvitation')

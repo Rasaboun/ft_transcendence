@@ -57,7 +57,7 @@ export class LobbyManager
         this.lobbies.delete(lobbyId);
     }
 
-    public joinQueue(client: AuthenticatedSocket)
+    public joinQueue(client: AuthenticatedSocket, mode:GameMode)
     {
         let lobby: Lobby = null;
 
@@ -72,7 +72,7 @@ export class LobbyManager
         if (lobby === null)
         {	
             const options: GameOptions = {
-                mode: GameMode.Normal,
+                mode: mode,
                 inviteMode: false,
             }
             lobby = this.createLobby(options);

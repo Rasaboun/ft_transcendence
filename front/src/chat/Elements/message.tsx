@@ -2,7 +2,6 @@ import React, { useContext, useState } from "react";
 import "../chat.css"
 import { ChatContext } from "../ChatContext/chatContext";
 import { messageT } from "../ChatUtils/chatType";
-import MessageOption from "./messageOption";
 
 type MessagePropsT = {
     className: string,

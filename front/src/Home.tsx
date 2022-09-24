@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './output.css';
 
 
 export default function Home() {
+	useEffect (() => {
+		console.log("HOME")
+	})
 	return (
 	<div id="Home" className="flex-1">
 	<header className="bg-white shadow">

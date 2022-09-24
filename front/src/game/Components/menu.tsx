@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 import { playerT, availableLobbiesT, GameMode } from "../GameUtils/type"
 import LobbyItem from '../Elements/lobbyItem'
 import { Link, useNavigate } from "react-router-dom";
-import { GameContext } from "../GameContext/gameContext"
 import useLocalStorage from '../../hooks/localStoragehook'
-import { GameMenuHandler, getActiveGames, getSocket, initiateSocket, joinQueue, Menucleaner, spectacteGame } from '../GameUtils/socketManager';
+import { SocketContext } from '../../Context/socketContext';
+import { GameMenuHandler, getActiveGames, getChatSocket, getGameSocket, initiateSocket, joinQueue, Menucleaner, spectacteGame } from '../../Utils/socketManager';
+import { getSession } from '../../Utils/utils';
 
 let socket:Socket
 
@@ -13,9 +14,7 @@ export default function Menu()
 {
     const navigate = useNavigate()
     const {storage, setStorage} = useLocalStorage("user")
-	const {storage2} = useLocalStorage("sessionId")
-	const {storage3} = useLocalStorage("channel")
-    const {socket, setSocket, gameInfo} = React.useContext(GameContext)
+    const {gameSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
     const [availableLobbies, setAvailableLobbies] = useState<availableLobbiesT>()
     const [gameMode, setGameMode] = useState(GameMode.Normal)
 
@@ -32,30 +31,13 @@ export default function Menu()
     
     function handleGoalScored(scores: {player1: number, player2: number})
     {
-        // Jsp comment faire sa grand mere
-        // let newPlayers = gameInfo?.players;
-        // if (!newPlayers || newPlayers == undefined)
-        //     return ;
-		// setGameData((oldGameInfo) => ({
-		// 	...oldGameInfo,
-		// 	players: [
-		// 		{
-		// 		id: newPlayers[0].id,
-		// 		pos: newPlayers[0].pos,
-		// 		score: scores.player1,
-		// 	},
-		// 	{
-		// 		id: newPlayers[1].id,
-		// 		pos: newPlayers[1].pos,
-		// 		score: scores.player2
-		// 	}]
-        // }))
     }
 
     function spectateMode(id:string)
 	{		
         spectacteGame(id)
 	}
+    
     const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, sock:Socket) => {
 		console.log("In session menu", sessionInfo)
 		if (sock)
@@ -79,24 +61,11 @@ export default function Menu()
     }
 
 	useEffect(() => {
-		let sessionId = localStorage.getItem("sessionId");
-		let roomId = localStorage.getItem("roomId");
-		let sessioninfo;
-		if (sessionId && roomId)
-		{
-			sessionId = JSON.parse(sessionId);
-			roomId = JSON.parse(roomId);
-			console.log("sessionId", sessionId)
-			console.log("roomId", roomId)
-			if (sessionId && roomId)
-				sessioninfo = {sessionId: sessionId, roomId: roomId}
-		}
-        if (!socket)
-            initiateSocket("http://localhost:8002/game", setSocket, sessioninfo, storage.login)        
-
-            getActiveGames()
+        initiateSocket("http://localhost:8002", getSession(), storage.login)
+		setChatSocket(getChatSocket())
+		setGameSocket(getGameSocket())
+        getActiveGames()
 		GameMenuHandler(handleAvailableLobbies, handleGoalScored, handleSession)
-        setSocket(getSocket())
         return (() => Menucleaner(handleAvailableLobbies, handleGoalScored))
     }, [])
 
