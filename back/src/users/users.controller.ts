@@ -2,8 +2,8 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseFilte
 import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
 import { AuthFilter } from 'src/auth/utils/auth.filter';
 import { User } from 'src/typeorm';
-import { createUserDto } from './dto/createUser.dto';
-import { UserStatus } from './types/UserStatus';
+import { blockUserDto, createUserDto, updateStatusDto } from './dto/users.dto';
+import { UserStatus } from './type/users.type';
 import { UsersService } from './users.service';
 
 //@UseGuards(AuthenticatedGuard)
@@ -17,21 +17,26 @@ export class UsersController {
         return this.usersService.createUser(userDto);
     }
 
-    @Put('block/:login')
-    blockUser(@Param('login') loginToBlock: string)
+    @Put('block')
+    blockUser(@Body() dto: blockUserDto)
     {
-        return this.usersService.blockUser(loginToBlock)
+        return this.usersService.blockUser(dto.callerLogin, dto.targetLogin)
     }
     
-    @Put('unblock/:login')
-    unblockUser(@Param('login') loginToBlock: string)
+    @Put('unblock')
+    unblockUser(@Body() dto: blockUserDto)
     {
-        return this.usersService.unblockUser(loginToBlock)
+        return this.usersService.unblockUser(dto.callerLogin, dto.targetLogin)
     }
 
-    @Get('isblocked/:login')
-    isBlocked(@Body() dto/* tmp */: any) {
-        return this.usersService.isBlocked(dto.callerLogin, dto.login);
+    @Put('status')
+    setUserStatus(@Body() dto: updateStatusDto) {
+        return this.usersService.setUserStatus(dto.login, dto.status);
+    }
+
+    @Get('isblocked')
+    isBlocked(@Body() dto: blockUserDto) {
+        return this.usersService.isBlocked(dto.callerLogin, dto.targetLogin);
     }
 
     @Get()
@@ -39,18 +44,19 @@ export class UsersController {
         return this.usersService.findAll();
     }
 
-    @Get(':username')
-    findOneByUsername(@Param('username') username: string): Promise<User> {
-        return this.usersService.findOneByUsername(username);
+    @Get('profile')
+    findOneBylogin(@Body('') dto: {login: string} ): Promise<User> {
+        return this.usersService.findOneByIntraLogin(dto.login);
     }
 
-    @Get('status/:id')
-    getUserStatus(@Param('id') userId: number): Promise<UserStatus> {
-        return this.usersService.getUserStatus(userId);
+    @Get('status')
+    async getUserStatus(@Body('') dto: {login: string}): Promise<UserStatus> {
+        return await this.usersService.getUserStatus(dto.login);
     }
 
-    @Delete(':username')
-    removeByUsername(@Param('username') username: string): Promise<void> {
-        return this.usersService.removeByUsername(username);
+
+    @Delete(':login')
+    removeBylogin(@Param('login') login: string): Promise<void> {
+        return this.usersService.removeByIntraLogin(login);
     }
 }

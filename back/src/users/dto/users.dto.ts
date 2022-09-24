@@ -15,10 +15,20 @@ export class createUserDto {
 
 export class updateStatusDto {
     @IsNotEmpty()
-    @IsNumber()
-    userId: number;
+    @IsString()
+    login: string;
 
     @IsNotEmpty()
     @IsNumber()
     status: UserStatus;
+}
+
+export class blockUserDto {
+    @IsNotEmpty()
+    @IsString()
+    callerLogin: string;
+
+    @IsNotEmpty()
+    @IsString()
+    targetLogin: string;
 }

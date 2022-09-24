@@ -2,7 +2,7 @@ import { HttpService } from "@nestjs/axios";
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy } from "passport-42";
-import { createUserDto } from "src/users/dto/createUser.dto";
+import { createUserDto } from "src/users/dto/users.dto";
 import { Code } from "typeorm";
 import { AuthService } from "../auth.service";
 

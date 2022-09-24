@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { createUserDto, updateStatusDto } from 'src/users/dto/createUser.dto';
+import { InjectRepository } from '@nestjs/typeorm';;
 import { User } from 'src/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import { UserStatus } from './types/UserStatus';
+import { UserStatus } from './type/users.type';
+import { createUserDto } from './dto/users.dto';
 
 @Injectable()
 export class UsersService {
@@ -16,37 +16,32 @@ export class UsersService {
     private readonly configService: ConfigService
     ) { }
 
-    async blockUser(loginToBlock: string) {
-        const user = this.findOneByIntraLogin(loginToBlock);
+    async blockUser(callerLogin: string, targetLogin: string) {
+        const user = await this.findOneByIntraLogin(targetLogin);
 
         if (!user)
             throw new NotFoundException('User to block does not exist');
+      
+        const caller = await this.findOneByIntraLogin(callerLogin);
         
-        //Temporary
-        // Remplace with real caller id
-        const caller = await this.findOneById(1);
-        
-        caller.blockedUsers.push(loginToBlock);
+        caller.blockedUsers.push(targetLogin);
         await this.userRepository.update(
             caller.id,
             caller,
             )
     }
 
-    async unblockUser(loginToBlock: string) {
-        const user = this.findOneByIntraLogin(loginToBlock);
+    async unblockUser(callerLogin: string, targetLogin: string) {
+        const user = this.findOneByIntraLogin(targetLogin);
 
         if (!user)
             throw new NotFoundException('User to unblock does not exist');
         
-        //Temporary
-        // Remplace with real caller id
-        const caller = await this.findOneById(1);
+        const caller = await this.findOneByIntraLogin(callerLogin);
         
-        const index = caller.blockedUsers.indexOf(loginToBlock);
+        const index = caller.blockedUsers.indexOf(targetLogin);
         if (index == -1)
             return ;
-        console.log(index);
         caller.blockedUsers.splice(index, 1);
         await this.userRepository.update(
             caller.id,
@@ -101,8 +96,9 @@ export class UsersService {
         return this.userRepository.save(newUser);
     }
     
-    async removeById(id: number): Promise<void> {
-        await this.userRepository.delete(id);
+    async removeByIntraLogin(login: string): Promise<void> {
+        const user = await this.findOneByIntraLogin(login);
+        await this.userRepository.delete(user.id);
     }
 
     async removeByUsername(username: string): Promise<void> {
@@ -132,8 +128,19 @@ export class UsersService {
         );
     }
 
-    async getUserStatus(id: number): Promise<UserStatus> {
-        return await (await this.findOneById(id)).status;
+    async setUserStatus(login: string, status: UserStatus)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        if (!user)
+            return ;
+        user.status = status;
+        await this.userRepository.update(user.id, user);
+    }
+
+    async getUserStatus(login: string): Promise<UserStatus> {
+
+        const user = await this.findOneByIntraLogin(login);
+        return user.status;
     }
 
 }
