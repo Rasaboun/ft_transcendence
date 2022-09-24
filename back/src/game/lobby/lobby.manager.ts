@@ -77,9 +77,20 @@ export class LobbyManager
             }
             lobby = this.createLobby(options);
             this.avalaibleLobbies.push(lobby);
-            console.log("Lobbies", this.lobbies);
         }
         lobby.addClient(client);
+    }
+
+    public leaveQueue(client: AuthenticatedSocket)
+    {
+        for (let i = 0; i < this.avalaibleLobbies.length; i++)
+        {
+            if (this.avalaibleLobbies[i].isClient(client.login))
+            {
+                this.avalaibleLobbies[i].destroy();
+                client.lobby = null;
+            }
+        }
     }
 
     public joinLobby(lobbyId: string, client: AuthenticatedSocket)
