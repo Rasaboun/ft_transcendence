@@ -3,7 +3,7 @@ import { Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
 import { createClient } from "redis";
 import { Server } from "socket.io";
-import { AuthenticatedSocket } from "src/sessions/sessions.type";
+import { AuthenticatedSocket } from 'src/auth/types/auth.type';
 import { UsersService } from "src/users/users.service";
 import { ActionOnUser, AddAdmin, ChannelClient, ChannelInfo, ChannelModes, ClientInfo, CreateChannel, InviteClient, JoinChannel, Message, MutedException, SetChannelPassword, uuidRegexExp } from "../types/channel.type";
 import { Channel } from "./channel";
@@ -87,6 +87,7 @@ export class ChannelManager
     {
         try
         {
+            console.log("data", data);
             const channel: Channel = this.channels.get(data.channelName);
 
             if (channel == undefined)
@@ -105,6 +106,7 @@ export class ChannelManager
                 client.join(channel.id);
                 client.emit("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
                 //channel.sendToClient(client.login, "joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
+                
                 return ;
             }
             if (channel.isPrivate() && !(await this.channelsService.isInvited(data.channelName, client.login)))

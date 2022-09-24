@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AuthFormT } from "../authUtils/AuthTypes";
 import "../auth.css"
 import axios from "axios";
 import useLocalStorage from "../../hooks/localStoragehook";
 import { useNavigate } from "react-router-dom";
+import { getChatSocket, getGameSocket, initiateSocket } from "../../Utils/socketManager";
+import { SocketContext } from "../../Context/socketContext";
 
 export default function LoginElem ()
 {
+	const { chatSocket, setChatSocket, gameSocket, setGameSocket } = useContext(SocketContext)
 	const navigate = useNavigate()
 	const {storage, setStorage} = useLocalStorage()
 	const [authForm, setAuthForm] = useState<AuthFormT>({
@@ -27,9 +30,17 @@ export default function LoginElem ()
 			axios.post(url, { ...authForm }).then(res => {
 				if (button)
 				{
-					setStorage("token", res.data.access_token)
-					setStorage("user", res.data.user)
-					navigate("/chat")
+					if (res.data.user)
+					{
+						console.log(res.data.user)
+						initiateSocket("http://localhost:8002",undefined ,res.data.user.login)
+						setStorage("token", res.data.access_token)
+						setStorage("user", res.data.user)
+						setChatSocket(getChatSocket())
+						setGameSocket(getGameSocket())
+
+					}	
+					navigate("/")
 				}
 			  }).catch(e => console.log)
 		}
@@ -43,6 +54,9 @@ export default function LoginElem ()
 	}
 
 	useEffect(() => {
+		console.log(chatSocket, gameSocket)
+		chatSocket?.close()
+		gameSocket?.close()
 		localStorage.clear()
 	}, [])
 	return (

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from "react"
+import React, {useState, useEffect, useRef, useContext} from "react"
 import Score from "../Elements/score"
 import * as utils from "../GameUtils/GameUtils"
 import "../game.css"
@@ -7,7 +7,9 @@ import { GameSettings, GameData, GameState, Player, Ball} from "../GameUtils/typ
 import { Socket } from 'socket.io-client'
 import { GameContext } from "../GameContext/gameContext"
 import useLocalStorage from "../../hooks/localStoragehook"
-import { GameCleaner, GameRoutineHandler, initiateSocket, startGame } from "../GameUtils/socketManager"
+import { getSession } from "../../Utils/utils"
+import { GameCleaner, GameRoutineHandler, getChatSocket, getGameSocket, initiateSocket, startGame } from "../../Utils/socketManager"
+import { SocketContext } from "../../Context/socketContext"
 
 let socket:Socket
 let canvas:HTMLCanvasElement
@@ -15,8 +17,7 @@ let canvas:HTMLCanvasElement
 export default function Game()
 {
 	const {storage, setStorage} = useLocalStorage("user")
-	const {storage2} = useLocalStorage("sessionId")
-	const {socket, setSocket, setGameInfo} = React.useContext(GameContext)
+	const {gameSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
 	let context: CanvasRenderingContext2D;
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	
@@ -301,21 +302,9 @@ export default function Game()
 	}
 
 	useEffect(() => {
-		let sessionId = localStorage.getItem("sessionId");
-		let roomId = localStorage.getItem("roomId");
-		let sessioninfo;
-		if (sessionId && roomId)
-		{
-			sessionId = JSON.parse(sessionId);
-			roomId = JSON.parse(roomId);
-			console.log("sessionId", sessionId)
-			console.log("roomId", roomId)
-			if (sessionId && roomId)
-				sessioninfo = {sessionId: sessionId, roomId: roomId}
-		}
-		console.log(socket)
-        if (!socket)
-            initiateSocket("http://localhost:8002/game", setSocket, sessioninfo, storage.login)
+		initiateSocket("http://localhost:8002", getSession(), storage.login)
+		setChatSocket(getChatSocket())
+		setGameSocket(getGameSocket())
 		
 		canvas = canvasRef.current!;
 
@@ -352,13 +341,6 @@ export default function Game()
 	useEffect(() => {
 		if (gameData.state == GameState.Started || gameData.state == GameState.Spectacte)
 			draw()
-		setGameInfo({
-			players: [
-				{id: gameData.players[0].id, score: gameData.players[0].score},
-				{id: gameData.players[1].id, score: gameData.players[1].score}
-			],
-			isPlaying: (GameState.Started || GameState.Spectacte) ? true : false
-		})
 	}, [gameData])
 
 	return (

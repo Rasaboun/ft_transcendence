@@ -2,8 +2,9 @@ import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessa
 import { Socket, Server } from 'socket.io';
 import { LobbyManager } from './lobby/lobby.manager';
 import { GameMode, GameOptions, Player } from './types/game.type';
-import { AuthenticatedSocket } from 'src/sessions/sessions.type';
-import { SessionService } from 'src/sessions/sessions.service';
+import { AuthenticatedSocket } from 'src/auth/types/auth.type';
+import { AuthService } from 'src/auth/auth.service';
+import { forwardRef, Inject } from '@nestjs/common';
 
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'game' })
@@ -11,7 +12,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 {
 
 	constructor( 	private lobbyManager: LobbyManager,
-					private sessionManager: SessionService
+					@Inject(forwardRef(() => AuthService))
+					private authService: AuthService,
 				) {	}
 
 	@WebSocketServer()
@@ -28,7 +30,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		
 		//this.lobbyManager.initializeSocket(client as AuthenticatedSocket);
 		console.log(`Client ${client.id} joined pong socket`);
-		this.sessionManager.initializeSocket(client as AuthenticatedSocket);
+		this.authService.initializeSocket(client as AuthenticatedSocket);
 		await this.lobbyManager.joinLobbies(client as AuthenticatedSocket);
 		
 	}
@@ -53,10 +55,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('joinedQueue')
-	joiningQueue(client: AuthenticatedSocket, player:Player)
+	joiningQueue(client: AuthenticatedSocket, mode:GameMode)
 	{
 		console.log(`Client ${client.id} joined queue`)
-		this.lobbyManager.joinQueue(client);
+		this.lobbyManager.joinQueue(client, mode);
 	}
 
 	@SubscribeMessage('joinInvitation')

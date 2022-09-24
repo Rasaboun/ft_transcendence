@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import useLocalStorage from "../../hooks/localStoragehook";
 import { ChatContext } from "../ChatContext/chatContext";
 import { ChannelModes, ClientElem, UserStateT } from "../ChatUtils/chatType";
-import { inviteClient, leaveChannel, setChannelPassword, setPrivateMode, unsetChannelPassword, unsetPrivateMode } from "../ChatUtils/socketManager";
+import { inviteClient, leaveChannel, setChannelPassword, setPrivateMode, unsetChannelPassword, unsetPrivateMode } from "../../Utils/socketManager";
 import UserListElem from "./UserListElem";
 
 type PropsT = {

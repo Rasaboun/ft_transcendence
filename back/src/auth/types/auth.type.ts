@@ -1,12 +1,12 @@
 import { Socket } from "socket.io"
-import { ReservedOrUserEventNames } from "socket.io/dist/typed-events"
 import { Lobby } from "src/game/lobby/lobby"
 
-export type Session = {
+export type newSessionDto = {
+    sessionId: string
     roomId: string,
     login: string,
-    connected: boolean,
-    lobby?: Lobby,
+    expiresAt: number,
+    lobbyId?: string,
 }
 
 export type AuthenticatedSocket = Socket & {
@@ -14,5 +14,6 @@ export type AuthenticatedSocket = Socket & {
 	roomId: string,
 	login: string,
     dbId: number,
-	lobby: Lobby,
+	lobbyId: string,
+    lobby: Lobby
 }

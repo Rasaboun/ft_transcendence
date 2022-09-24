@@ -1,14 +1,21 @@
 import { HttpService } from '@nestjs/axios';
 import { ForbiddenException, HttpException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Token } from 'client-oauth2';
+import { AuthenticatedSocket, newSessionDto } from 'src/auth/types/auth.type';
+import { Session, User } from 'src/typeorm';
 import { UsersService } from 'src/users/users.service';
+import { Repository } from 'typeorm';
+import { v4 } from 'uuid';
 
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly userService: UsersService,
-                private readonly http: HttpService,
+    constructor(
+                @InjectRepository(Session)
+                private readonly sessionsRepository: Repository<Session>,
+                private readonly userService: UsersService,
                 private readonly jwtService: JwtService,
                 ) {}
 
@@ -42,6 +49,65 @@ export class AuthService {
                 username: user.username,
             }
         }
+    }
+
+    async initializeSocket(client: AuthenticatedSocket)
+    {
+        const session = await this.findSession(client.handshake.auth.sessionId);
+        // console.log(client.handshake.auth);
+        // console.log("findSession", session);
+        // console.log(client.handshake.auth.login, session?.login)
+
+        if (session && session.expiresAt > new Date().getTime())
+        {
+            console.log(client.handshake.auth.login)
+            client.sessionId = client.handshake.auth.sessionId;
+            client.roomId = session.roomId;
+            client.login = session.login;
+            client.lobbyId = session.lobbyId;
+        }
+        else 
+        {
+            client.sessionId = v4();
+            client.roomId = v4();
+            client.login = client.handshake.auth.login;
+            client.lobbyId = null;
+            client.lobby = null;
+            this.saveSession({
+                    sessionId: client.sessionId,
+                    roomId: client.roomId,
+                    login: client.login,
+                    lobbyId: client.lobbyId,
+                    expiresAt: new Date().getTime() + Number(process.env.COOKIE_LIFETIME_IN_MS),
+                })
+        }
+        client.join(client.roomId);
+        // console.log("Session", {
+        //     sessionId: client.sessionId,
+        //     roomId: client.roomId,
+        //     login: client.login
+        // })
+        client.emit("session", {
+            sessionId: client.sessionId,
+            roomId: client.roomId,
+        })
+
+    }
+
+    async findSession(sessionId: string)
+    {
+        if (!sessionId)
+            return null;
+        return await this.sessionsRepository.findOne({
+            where: 
+                { sessionId: sessionId},     
+        })
+    }
+
+    async saveSession(dto: newSessionDto)
+    {
+        const newSession = this.sessionsRepository.create(dto);
+        await this.sessionsRepository.save(newSession);
     }
 
 }

@@ -106,3 +106,7 @@ export enum GameMode {
   Mini,
   Speed,
 }
+export interface GameOptions {
+  inviteMode: boolean,
+  mode : GameMode,
+}

@@ -1,8 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Socket } from "socket.io-client";
 import Login from "./authPage/component/LogPage";
 import Chat from "./Chat";
 import { ChatContextProvider } from "./chat/ChatContext/chatContext";
+import { SocketContext } from "./Context/socketContext";
 import Dashboard from "./Dashboard";
 import Footer from "./Footer";
 import { GameContextProvider } from "./game/GameContext/gameContext";
@@ -12,15 +14,34 @@ import NavBar from "./NavBar";
 import Pong from "./Pong";
 import { PrivateRoute } from "./PrivateRoute";
 import Settings from "./Settings";
+import { appSocketRoutine, getChatSocket, getGameSocket, initiateSocket } from "./Utils/socketManager";
+import { getSession } from "./Utils/utils";
 
 export default function App()
 {
-	const { storage } = useLocalStorage("token");
+	const {chatSocket, setChatSocket, gameSocket, setGameSocket} = useContext(SocketContext)
+	const { storage, setStorage } = useLocalStorage("token");
+	const { storage2 } = useLocalStorage("user");
+
+	const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, socket:Socket) => {
+		console.log("In session menu", sessionInfo, chatSocket)
+		if (socket)
+		{
+			setStorage("sessionId", sessionInfo.sessionId);
+			setStorage("roomId", sessionInfo.roomId);
+			socket.auth = { sessionId: sessionInfo.sessionId } ;		
+			//socket.userID = userID;
+		}
+	}
 
 	useEffect(() => {
 		if (storage)
 		{
-			
+			initiateSocket("http://localhost:8002", getSession(), storage2.login)
+			setChatSocket(getChatSocket())
+			setGameSocket(getGameSocket())
+			appSocketRoutine(handleSession);
+			console.log(chatSocket)
 		}
 	}, [])
     return (
