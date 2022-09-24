@@ -10,7 +10,7 @@ export class AuthService {
                 private readonly http: HttpService) {}
 
     async validateUser(details) {
-        const user = await this.userService.findOneByIntraId(details.intraId);
+        const user = await this.userService.findOneByIntraLogin(details.intraId);
 
         if (!user)
         {

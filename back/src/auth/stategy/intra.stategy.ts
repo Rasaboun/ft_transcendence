@@ -21,7 +21,7 @@ export class IntraStrategy extends PassportStrategy(Strategy, 'intra') {
 
     async validate(accessToken: string, refreshToken: string, profile: any): Promise<any> {
         const details: createUserDto = {
-            intraId: profile.id,
+            intraLogin: profile.id,
             username: profile.username,
             photoUrl: profile.photos[0].value
         };
