@@ -11,31 +11,89 @@ import { PrivChatService } from "./chat.service";
 import { User } from "src/typeorm";
 import { PrivChatNewMessageDto } from "../types/privChat.types";
 import { map } from "rxjs";
+import { UsersService } from "src/users/users.service";
 
 
 export class PrivChatManager
 {
 	constructor(
         @Inject(forwardRef(() => PrivChatService))
-        private privChatService: PrivChatService) {}
+        private privChatService: PrivChatService,
+		@Inject(forwardRef(() => UsersService))
+        private userService: UsersService,) {}
 
 	@WebSocketServer()
 	public server: Server;
 	// array of private chat or users, only thing that counts is the users online
 	private readonly onlineChats: Array<PrivChat> = new Array<PrivChat>();
 
-	public async initPrivChat(){
+	public async initPrivChat()
+	{
 		const privChatInDb = await this.privChatService.findAll()
 		for (let i = 0; privChatInDb.length; i++)
 		{
-			const currPrivChat = new PrivChat(this.server, )
+			const currPrivChat = new PrivChat(this.server,
+								privChatInDb[i].UserIdFirstSender,
+								privChatInDb[i].UserIdFirstReciever,
+								privChatInDb[i].mess);
+			this.onlineChats.push(currPrivChat);
 		}
 	}
-	public initializeSocket(client: AuthenticatedSocket): void
+
+	private async privateChatExists(senderId: number , recieverId: number)
 	{
-		client.data.privChat = null;
+		try {
+			//check in list
+			// check in bsd
+			this.onlineChats.forEach(element => {
+				if ((element._recieverId == recieverId && element._senderId == senderId) ||
+					element._senderId == recieverId && element._senderId == recieverId)	
+				{
+					return element;
+				}	
+			});
+			if (this.privChatService.findOneBySenderReciever(senderId, recieverId) != undefined)
+			{
+				// add the chat in the list if it is already registered
+				var e: any = await this.privChatService.findOneBySenderReciever(senderId, recieverId)
+				var s: PrivChat = new PrivChat(this.server, e.userIdFirstSender, e.userIdFirstReciever, e.mess);
+				this.onlineChats.push(s)
+				return s;
+			}
+		}
+		catch( error )
+		{
+			throw new ForbiddenException(error);	
+		}
+		return undefined;
 	}
 
+	public async createPrivateChat(senderId: number, recieverId: number, firstMess: string)
+	{
+		if (this.privateChatExists(senderId, recieverId))	
+			throw new ForbiddenException("Cannot create a chat that already exists");
+		try {
+			var senderUser: User = await this.userService.findOneById(senderId);
+			var recieverUser: User = await this.userService.findOneById(recieverId);
+			
+			var messStruct: Message = {
+				"sender": {"login": senderUser.intraLogin, "username": senderUser.username},
+				"reciever": {"login": recieverUser.intraLogin, "username": recieverUser.username},
+				"content": firstMess,
+				"isInfo": false,
+				};
+			this.privChatService.createNewChat({"Sender": senderId, 
+			"Reciever": recieverId, "mess": [messStruct, ]})
+			const chat = new PrivChat(this.server, senderId, recieverId, [messStruct, ]);	
+			this.onlineChats.push(chat);
+		}
+		catch (error)
+		{
+			throw error;	
+		}
+	}
+
+	/*
 	public terminateSocket(client: AuthenticatedSocket): void
 	{
 		client.data.privChat?.terminateConnection(client);
@@ -49,65 +107,14 @@ export class PrivChatManager
 		}
 		this.socketList.pop()
 	}
+	*/
 
 	///
 	// chat operations
 	///
-	public async createPrivChat(chatSocket: AuthenticatedSocket, idSender: number, idReciever: number): Promise<PrivChat>
-	{
-		let chat = new PrivChat(this.server, idSender, idReciever);
-		var messList: Message[] = [{"senderId": idSender, "mess": ""}];
-		try {
-			this.privChatService.createNewChat({"UserIdFirstSender":idSender, "UserIdFirstReciever": idReciever, "mess": messList});
-		} catch (error)
-		{
-			throw Error("Chat creation did not work");
-		}
-		return (chat);
-		//todo need to check if the user is connected to the website
-	}
-
-	public chatInList(senderId: number, recieverId: number)
-	{
-		for (var i in this.onlineChats)
-		{
-			if ((this.onlineChats[i]._senderId == senderId && this.onlineChats[i]._recieverId == recieverId) 
-				|| (this.onlineChats[i]._recieverId == senderId && this.onlineChats[i]._senderId == recieverId))
-			{
-				return (this.onlineChats[i]);
-			}
-		}
-		return (null);
-	}
-
-	public async chatExists(senderId: number, recieverId: number)
-	{
-		return (this.privChatService.findOneBySenderReciever(senderId, recieverId) != null);
-	}
-
-	public async loadChatObj(client: AuthenticatedSocket,senderId: number, recieverId: number): Promise<PrivChat>
-	{
-		if (!this.chatExists(senderId, recieverId))
-			return (null);
-		var ret_val: PrivChat = null;
-		try {
-			this.createPrivChat(client, senderId, recieverId);
-			this.loadMessages(senderId, recieverId).then((result) => {
-				ret_val._messList  = result;
-			}) 
-			ret_val._senderId = senderId;
-			ret_val._recieverId = recieverId;
-		}
-		catch(error)
-		{
-			throw Error("Could not create private chat")
-		}	
-		return ret_val;
-	}
-
 	public async loadMessages(senderId: number, recieverId: number): Promise<Message[]>
 	{
-		if (this.chatExists(senderId, recieverId))
+		if (this.privateChatExists(senderId, recieverId))
 		{
 			var messageList: Message[] = await this.privChatService.getMessageList(senderId, recieverId);
 			return (messageList);
@@ -122,18 +129,26 @@ export class PrivChatManager
 	{
 		// case the two id are the same
 		let chat: PrivChat;  
-		if ((chat = this.chatInList(senderId, recieverId)) == null)
+		if ((this.privateChatExists(senderId, recieverId)) == undefined)
 		{
-			if (!this.chatExists(senderId, recieverId))
-			{
-				this.privChatService.createNewChat({"UserIdFirstSender": senderId, "UserIdFirstReciever": recieverId, "mess": []});
+			try {
+				this.createPrivateChat(senderId, recieverId, mess);
 			}
-			var messageList: Message[] = await this.loadMessages(senderId, recieverId);
-			chat = new PrivChat(this.server, senderId, recieverId, messageList);
-			this.onlineChats.push(chat);
+			catch (error)
+			{
+				throw error;
+			}
 		}
-		this.privChatService.sendMessage({"Sender" : senderId, "Reciever": recieverId, "mess": {"senderId": senderId, "mess": mess}})
+		var senderUser: User = await this.userService.findOneById(senderId);
+		var recieverUser: User = await this.userService.findOneById(recieverId);
+		var messStruct: Message = {
+			"sender": {"login": senderUser.intraLogin, "username": senderUser.username},
+			"reciever": {"login": recieverUser.intraLogin, "username": recieverUser.username},
+			"content": mess,
+			"isInfo": false,
+			};	
 		chat.sendMessage(client.roomId, senderId, mess);
+		this.privChatService.sendMessage(messStruct);
 	}	
 
 	public getOpennedPrivChat(clientId: number): Array<PrivChat>
@@ -154,8 +169,9 @@ export class PrivChatManager
 
 	}
 
-	public listUsers()
+	/*public listUsers()
 	{
 		return (this.socketList.toString());
 	}
+	*/
 }

@@ -1,5 +1,5 @@
+import { Message } from 'src/chat/types/channel.type';
 import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
-import { Message } from 'src/chat/chat.type';
 
 @Entity()
 export class PrivChat extends BaseEntity {

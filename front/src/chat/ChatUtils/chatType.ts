@@ -83,3 +83,14 @@ export type MessageInfoT = {
 	channelName: string,
 	
 }
+
+export type privChatP = {
+	PrivChatId: number,
+	caller: number,
+handleJoinPrivateChat: (connectedUsers: privChatP[]) => void
+}
+
+export type privMessageT = {
+sender : number,
+content : string
+}

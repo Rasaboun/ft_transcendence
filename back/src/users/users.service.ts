@@ -72,7 +72,7 @@ export class UsersService {
         return this.userRepository.findOneBy({ id });
     }
 
-    findOneByIntraLogin(login: string) {
+    findOneByIntraLogin(login: string): Promise<User> {
         return this.userRepository.findOne({
             where: [
                 { intraLogin: login},

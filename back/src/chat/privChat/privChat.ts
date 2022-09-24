@@ -1,7 +1,6 @@
 import { v4 } from "uuid";
 import { Server } from "socket.io";
-import { AuthenticatedSocket} from "../types/channel.type";
-import { Message } from "../chat.type";
+import { Message } from "../types/channel.type";
 
 export class PrivChat
 {
@@ -19,12 +18,6 @@ export class PrivChat
 			this._RecieverConnected = true;
 		//check if previous message saved ... if already exists etc
 	}
-
-    public terminateConnection(client: AuthenticatedSocket)
-    {
-        client.data.privChat = null;
-		// delete the socket or whatever should be done					
-    }
 
     public sendToUsers(event: string, data: any)
 	{

@@ -11,6 +11,7 @@ import { SessionService } from 'src/sessions/sessions.service';
 import { SessionModule } from 'src/sessions/sessions.module';
 import { PrivChatService } from './privChat/chat.service';
 import { PrivChat } from './privChat/privChat';
+import { PrivChatManager } from './privChat/privChat.manager';
 
 @Module({
     imports: [
@@ -18,7 +19,7 @@ import { PrivChat } from './privChat/privChat';
         TypeOrmModule.forFeature([User]),
         SessionModule,
     ],
-    providers: [UsersService, ChannelsService, ChannelManager, ChatGateway, PrivChatService],
+    providers: [UsersService, ChannelsService, ChannelManager, PrivChatManager, ChatGateway, PrivChatService],
     controllers: [ChatController]
 })
 export class ChatModule {}

@@ -5,6 +5,7 @@ import { Channel } from './channel/channel';
 import { ChannelManager } from './channel/channel.manager';
 import { ActionOnUser, AddAdmin, CreateChannel, InviteClient, JoinChannel, SetChannelPassword } from './types/channel.type';
 import { AuthenticatedSocket } from 'src/sessions/sessions.type';
+import { PrivChatManager } from './privChat/privChat.manager';
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -12,6 +13,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	constructor(
 				private channelManager: ChannelManager,
 				private sessionManager: SessionService,
+				private privChatManage: PrivChatManager,
 			)
 	{}
 
@@ -192,6 +194,33 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try {
 			console.log("Invited client ", data.clientId);
 			await this.channelManager.inviteClient(client.login, data);
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('privChatCreateChat')
+	async createPrivChat(client :AuthenticatedSocket, recieverId: number, content: string)
+	{
+		try {
+			this.privChatManage.createPrivateChat(client.dbId, recieverId, content)
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('privChatLoadMessages')
+	async privChatLoadMessage(client :AuthenticatedSocket, recieverId: number)
+	{
+		try {
+			client.emit('privChatLoadMessages', this.privChatManage.loadMessages(client.dbId, recieverId));
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('privChatSendMessage')
+	async privChatSendMessage(client :AuthenticatedSocket, recieverId: number, message: string)
+	{
+		try {
+			client.emit('privChatSendMessage', this.privChatManage.sendMessage(client, client.dbId, recieverId, message));
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}

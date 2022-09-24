@@ -10,3 +10,11 @@ import { Message } from "./channel.type";
 
     mess: Message;
 }
+
+ export class newPrivatChat{
+    Sender: number;
+
+    Reciever: number;
+
+    mess: Message[];
+}
