@@ -8,16 +8,15 @@ import { Socket } from 'socket.io-client'
 import { GameContext } from "../GameContext/gameContext"
 import useLocalStorage from "../../hooks/localStoragehook"
 import { getSession } from "../../Utils/utils"
-import { GameCleaner, GameRoutineHandler, getChatSocket, getGameSocket, initiateSocket, startGame } from "../../Utils/socketManager"
+import { GameCleaner, GameRoutineHandler, getChatSocket, getGameSocket, initiateSocket, leftPong, playerMoved, startGame } from "../../Utils/socketManager"
 import { SocketContext } from "../../Context/socketContext"
 
-let socket:Socket
 let canvas:HTMLCanvasElement
 
 export default function Game()
 {
 	const {storage, setStorage} = useLocalStorage("user")
-	const {gameSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
+	const {gameState, setGameState, gameSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
 	let context: CanvasRenderingContext2D;
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	
@@ -40,8 +39,8 @@ export default function Game()
 			delta: {x: 0, y: 0},
 			radius: 10,
 		},
-		state: GameState.Waiting,
 		winnerId: ""
+		//state: GameState.Waiting,
 	});
 
 	const [gameSettings, setGameSettings] = useState<GameSettings>({
@@ -53,11 +52,12 @@ export default function Game()
 	});
 
 	const handleWait = () => {
-		setGameData((oldGameData) => ({
-			...oldGameData,
-			state: GameState.Waiting
-			})
-		)
+		setGameState(GameState.Waiting)
+		// setGameData((oldGameData) => ({
+		// 	...oldGameData,
+		// 	state: GameState.Waiting
+		// 	})
+		// )
 	}
 
 	// async function sendData ()
@@ -88,7 +88,7 @@ export default function Game()
 	{
 		setGameData({
 			players: [{
-				id: "",
+				id: '',
 				pos: canvas.height / 2,
 				score: 0,
 			}, 
@@ -105,7 +105,7 @@ export default function Game()
 				delta: {x: 0, y: 0},
 				radius: 10,
 			},
-			state: GameState.Waiting,
+			//state: GameState.Waiting,
 			winnerId: ""
 		})
 		setGameSettings({
@@ -115,6 +115,7 @@ export default function Game()
 			width: 1920,
 			height: 1080,
 		})
+		setGameState(GameState.Waiting)
 	}
 	const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, sock:Socket) => {
 		if (sock)
@@ -122,20 +123,20 @@ export default function Game()
 			setStorage("sessionId", sessionInfo.sessionId);
 			setStorage("roomId", sessionInfo.roomId);
 			sock.auth = { sessionId: sessionInfo.sessionId } ;		
-			//socket.userID = userID;
 		}
 	}
 
 	const handleGameReady = (data: {gameData: GameData, gameSettings: GameSettings }) => {
+		console.log(data.gameData)
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			ball: data.gameData.ball,
-			players: oldGameData.players.map((player) => {
-				if (player === gameData.players[0])
-					return {...player, pos: utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height)}
-				return {...player, pos: utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height)}
+			players: oldGameData.players.map((player, index) => {
+				if (index === 0)
+					return {...player, id: data.gameData.players[index].id, pos: utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height)}
+				return {...player, id: data.gameData.players[index].id, pos: utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height)}
 			}),
-			state: GameState.Started
+			//state: GameState.Started
 		}))
 		setGameSettings((oldGameSettings) => ({
 			...oldGameSettings,
@@ -146,6 +147,7 @@ export default function Game()
 			paddleWidth: utils.toScale(data.gameSettings.paddleWidth, canvas.width / 1920),
 		}))
 		startGame()
+		setGameState(GameState.Started)
 	}
 
 	const handleSpectateSuccess = (data: {gameData: GameData, gameSettings: GameSettings }) => {
@@ -157,7 +159,7 @@ export default function Game()
 					return {...player, pos: utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height)}
 				return {...player, pos: utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height)}
 			}),
-			state: GameState.Spectacte
+			//state: GameState.Spectacte
 		}))
 		setGameSettings((oldGameSettings) => ({
 			...oldGameSettings,
@@ -167,6 +169,7 @@ export default function Game()
 			paddleHeight: utils.toScale(data.gameSettings.paddleHeight, canvas.height / 1080),
 			paddleWidth: utils.toScale(data.gameSettings.paddleWidth, canvas.width / 1920),
 		}))
+		setGameState(GameState.Spectacte)
 	}
 
 	const joinedLobby = (data: {gameData: GameData, gameSettings: GameSettings }) =>
@@ -176,7 +179,7 @@ export default function Game()
 			...oldGameData,
 			ball: data.gameData.ball,
 			players: data.gameData.players,
-			state: GameState.Started
+			//state: GameState.Started
 		}))
 
 	}
@@ -185,8 +188,8 @@ export default function Game()
 		let newPlayers = gameData.players;
 		setGameData((oldGameData) => ({
 			...oldGameData,
-			players: oldGameData.players.map((player) => {
-				if (player.id === gameData.players[0].id)
+			players: oldGameData.players.map((player, index) => {
+				if (index === 0)
 					return {...player, score: scores.player1}
 				return {...player, score: scores.player2}
 			}),
@@ -223,7 +226,7 @@ export default function Game()
 	{
 		setGameData((oldGameData) => ({
 			...oldGameData,
-			state: GameState.Stopped
+			//state: GameState.Stopped
 		}))
 		if (winnerId == storage.login)
 		{
@@ -241,15 +244,17 @@ export default function Game()
 			...oldGameData,
 			winnerId: winnerId
 		}))
+		setGameState(GameState.Stopped)
 	}
 
-	function updatePaddle(playerId: string, newPos: number)
+	function updatePaddle(data:{playerId:string, newPos:number})
 	{
+		console.log(gameData.players)
 			setGameData((oldGameData) => ({
 				...oldGameData,
 				players: oldGameData.players.map((player) => {
-					if (player.id === playerId)
-						return {...player, pos: utils.toScale(newPos, canvas.height / gameSettings.height)}
+					if (player.id === data.playerId)
+						return {...player, pos: utils.toScale(data.newPos, canvas.height / gameSettings.height)}
 					return player
 				}),
 			}))
@@ -263,7 +268,7 @@ export default function Game()
 	function handleMouseMove(event:React.MouseEvent<HTMLCanvasElement>)
 	{
 		//HANDLE THE MOUSE MOVE EVENT ON THE GAME AREA
-		if (gameData.state == GameState.Started)
+		if (gameState == GameState.Started)
 		{
 			let value: number = event.clientY - utils.getCanvasDiv().y;
 
@@ -272,9 +277,7 @@ export default function Game()
 			else if (value - (gameSettings.paddleHeight / 2) <= 0)
 				value = gameSettings.paddleHeight / 2;
 			value = utils.toScale(value, gameSettings.height / canvas.height);
-
-			socket?.emit("playerMoved", value);
-
+			playerMoved(value)	
 		}
 	}
 
@@ -350,7 +353,8 @@ export default function Game()
 		handleResize();
 		initializeGame();
 		window.addEventListener('resize', handleResize);
-		return (() => {window.removeEventListener('resize', handleResize)
+		return (() => {leftPong()
+						window.removeEventListener('resize', handleResize)
 						GameCleaner(handleWait,
 							handleUpdateBall,
 							updatePaddle,
@@ -362,7 +366,7 @@ export default function Game()
 	}, [])
 
 	useEffect(() => {
-		if (gameData.state == GameState.Started || gameData.state == GameState.Spectacte)
+		if (gameState === GameState.Started || gameState === GameState.Spectacte)
 			draw()
 	}, [gameData])
 
@@ -371,7 +375,7 @@ export default function Game()
 			maxHeight: "50vh"
 		}}>
 			{
-			gameData.state === GameState.Waiting &&
+			gameState === GameState.Waiting &&
 				<div className="game-display">
 					<h1 style={{
 						color: "white"
@@ -380,14 +384,13 @@ export default function Game()
 					
 			}
 			{
-					gameData.state == GameState.Stopped && clearCanvas() &&
-					<div className="game-display">
-						{(storage.login === gameData.winnerId) ? "YOU WIN" : 
-						(((gameData.players[0].id === storage.login || gameData.players[1].id == storage.login)) ?
-							"YOU LOSE" : `${gameData.winnerId} WIN`)}
-						{}
-						</div>
-					
+				gameState === GameState.Stopped && clearCanvas() &&
+				<div className="game-display">
+					{(storage.login === gameData.winnerId) ? "YOU WIN" : 
+					(((gameData.players[0].id === storage.login || gameData.players[1].id === storage.login)) ?
+						"YOU LOSE" : `${gameData.winnerId} WIN`)}
+					{}
+					</div>
 			}
 		<canvas className="pong" ref={canvasRef} onMouseMove={handleMouseMove}/>
 		<Score gameData={gameData}/>

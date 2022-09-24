@@ -103,6 +103,7 @@ export default function ChatMenu()
 		console.log("chaat menu chatSocket", chatSocket)
 		console.log("connected", chatSocket?.connected);
 		getActiveChannels()
+		console.log("connected", chatSocket?.connected);
 		chatMenuHandler(handleActiveChannels,
 			handleChannelJoined,
 			handleError,

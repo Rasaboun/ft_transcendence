@@ -36,7 +36,6 @@ export class LobbyManager
                 this.avalaibleLobbies.splice(i, 1);
                 client.leave(this.avalaibleLobbies[i]?.id);
             }
-
         }
         client.leave(client.roomId);
     }

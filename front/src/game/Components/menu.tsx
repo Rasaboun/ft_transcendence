@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
-import { playerT, availableLobbiesT, GameMode } from "../GameUtils/type"
+import { playerT, availableLobbiesT, GameMode, GameState } from "../GameUtils/type"
 import LobbyItem from '../Elements/lobbyItem'
 import { Link, useNavigate } from "react-router-dom";
 import useLocalStorage from '../../hooks/localStoragehook'
@@ -14,7 +14,7 @@ export default function Menu()
 {
     const navigate = useNavigate()
     const {storage, setStorage} = useLocalStorage("user")
-    const {gameSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
+    const {gameState, gameSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
     const [availableLobbies, setAvailableLobbies] = useState<availableLobbiesT>()
     const [gameMode, setGameMode] = useState(GameMode.Normal)
 
@@ -61,11 +61,17 @@ export default function Menu()
     }
 
 	useEffect(() => {
+        console.log(gameState)
         initiateSocket("http://localhost:8002", getSession(), storage.login)
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
-        getActiveGames()
-		GameMenuHandler(handleAvailableLobbies, handleGoalScored, handleSession)
+        if (gameState === GameState.Started)
+            navigate("game")
+        if (gameSocket)
+        {
+            getActiveGames()
+            GameMenuHandler(handleAvailableLobbies, handleGoalScored, handleSession)
+        }
         return (() => Menucleaner(handleAvailableLobbies, handleGoalScored))
     }, [])
 

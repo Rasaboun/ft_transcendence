@@ -431,6 +431,7 @@ export class ChannelManager
     {
         try
         {
+            console.log("send client info", client.login)
             const data: ChannelClient = await this.channelsService.getClientById(channelName, client.login)
             const messages: Message[] = await this.channelsService.getClientMessages(channelName, client.login);
             client.emit("clientInfo", {

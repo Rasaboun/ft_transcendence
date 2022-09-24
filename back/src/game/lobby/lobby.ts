@@ -63,6 +63,8 @@ export class Lobby
 		this.state = GameState.Started;
         this.gameInstance.resetRound();
 		this.gameInstance.gameLoop();
+        this.server.emit('activeGames', this.lobbyManager.getActiveLobbies());
+
     }
 
     public removeClient(client: AuthenticatedSocket)
@@ -101,6 +103,8 @@ export class Lobby
         })
 
         this.lobbyManager.destroyLobby(this.id);
+        this.server.emit('activeGames', this.lobbyManager.getActiveLobbies());
+
     }
 
     public playersId(): string[] { return this.gameInstance.playersId(); }

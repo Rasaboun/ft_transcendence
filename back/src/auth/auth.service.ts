@@ -57,7 +57,6 @@ export class AuthService {
         console.log("Found session", session);
         if (session != null && session.expiresAt > new Date().getTime())
         {
-            console.log(client.handshake.auth.login)
             client.sessionId = client.handshake.auth.sessionId;
             client.roomId = session.roomId;
             client.login = session.login;
@@ -83,7 +82,7 @@ export class AuthService {
             sessionId: client.sessionId,
             roomId: client.roomId,
         })
-
+        console.log(client.login)
     }
 
     async findSession(sessionId: string)

@@ -121,7 +121,7 @@ export default function ChatElem()
     }
 
     const handleClientInfo = (data:ClientInfoT) => {
-        console.log("mais pk pk", data)
+        console.log("data Client info", data)
         setUserState({
             isOwner: data.isOwner,
             isAdmin: data.isAdmin,
@@ -189,6 +189,16 @@ export default function ChatElem()
         }
     }
 
+    const handleConnected = () => {
+        console.log("handleConnected")
+        const channel = storage2
+        if (channel)
+        {
+            console.log(channel)
+            getClientInfo(channel.channelId)
+        }
+    }
+
     const messageElem = messagesList?.map((elem, index) => (
         elem.isInfo ? 
             <InfoMessage key={index} message={elem}/> :
@@ -198,7 +208,10 @@ export default function ChatElem()
                 message={elem}
             />
     ))
+
+
     useEffect(() => {
+        const channel = storage2;
         initiateSocket("http://localhost:8002", getSession(), storage.login)
         setChatSocket(getChatSocket())
         setGameSocket(getGameSocket())
@@ -213,16 +226,11 @@ export default function ChatElem()
                 handleLeftChannel,
                 upgradeToOwner,
                 handleIsAlreadyAdmin,
-                handleChannelJoined
-                )
+                handleChannelJoined,
+                handleConnected)
         }
-        const channel = storage2
-        if (channel)
-        {
-            console.log(channel)
-            getClientInfo(channel.channelId)
-        }
-        
+        getClientInfo(channel.channelId)
+
     }, [])
 
     useEffect(() => {
@@ -238,8 +246,6 @@ export default function ChatElem()
 		}	
 	}, [mutedTime])
 
-    console.log(chatSocket)
-    console.log("channel", storage2)
     return (
         <div className="chat">
             <ChannelBoard userState={userState}/>

@@ -8,6 +8,7 @@ import { SocketContext } from "./Context/socketContext";
 import Dashboard from "./Dashboard";
 import Footer from "./Footer";
 import { GameContextProvider } from "./game/GameContext/gameContext";
+import { GameState } from "./game/GameUtils/type";
 import Home from "./Home";
 import useLocalStorage from "./hooks/localStoragehook";
 import NavBar from "./NavBar";
@@ -19,7 +20,7 @@ import { getSession } from "./Utils/utils";
 
 export default function App()
 {
-	const {chatSocket, setChatSocket, gameSocket, setGameSocket} = useContext(SocketContext)
+	const {gameState, setGameState, chatSocket, setChatSocket, gameSocket, setGameSocket} = useContext(SocketContext)
 	const { storage, setStorage } = useLocalStorage("token");
 	const { storage2 } = useLocalStorage("user");
 
@@ -34,13 +35,20 @@ export default function App()
 		}
 	}
 
+	function handleGameOver(winnerId: string)
+	{
+		const message = winnerId === storage2.login ? "YOU WIN" : "YOU LOSE"
+		console.log(message)
+		setGameState(GameState.None)
+	}
+
 	useEffect(() => {
 		if (storage)
 		{
 			initiateSocket("http://localhost:8002", getSession(), storage2.login)
 			setChatSocket(getChatSocket())
 			setGameSocket(getGameSocket())
-			appSocketRoutine(handleSession);
+			appSocketRoutine(handleSession, handleGameOver);
 			console.log(chatSocket)
 		}
 	}, [])

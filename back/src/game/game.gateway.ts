@@ -100,7 +100,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@SubscribeMessage('playerMoved')
 	handlePlayerPosition(client: AuthenticatedSocket, newPos: number) {
-
+		console.log(newPos)
 		const player: Player = client.lobby?.getPlayer(client.login);
 		if (!player)
 			return ;
