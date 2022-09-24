@@ -1,6 +1,6 @@
 import { GameData, GameSettings, GameState } from "../types/game.type";
 
-const scoreToWin = 3;
+const scoreToWin = 10;
 
 export function getNormalModeSettings(): GameSettings
 {
@@ -19,7 +19,7 @@ export function getMiniModeSettings(): GameSettings
         scoreToWin: scoreToWin,
         paddleHeight: 50,
         paddleWidth: 10,
-        width: 1920,
+        width: 1920,    
         height: 1080,
     }
 }
