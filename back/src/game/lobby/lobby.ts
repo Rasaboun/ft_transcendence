@@ -5,6 +5,8 @@ import { GameInstance } from "../game.instance";
 import { Socket } from "dgram";
 import { AuthenticatedSocket } from 'src/auth/types/auth.type';
 import { ConsoleLogger } from "@nestjs/common";
+import { LobbyManager } from "./lobby.manager";
+import { isJWT } from "class-validator";
 
 export class Lobby
 {
@@ -17,19 +19,21 @@ export class Lobby
     //public         clients:        	Map<string, AuthenticatedSocket> = new Map<string, AuthenticatedSocket>();
     public         clients:        	Map<string, string> = new Map<string, string>();
 
-    constructor    ( private server: Server, private options: GameOptions)
+    constructor    (
+                private server: Server,
+                private options: GameOptions,
+                private lobbyManager: LobbyManager,
+        )
     {
-        console.log("options", options);
         this.gameInstance = new GameInstance(this, options.mode);
     }
 
     public addClient(client: AuthenticatedSocket): void
     {
-        console.log("New client login", client.login);
         this.clients.set(client.login, client.roomId);
         client.join(this.id);
         client.lobby = this;
-        console.log(this.id)
+        console.log(`Client ${client.login} joined`, this.id)
         
         if (this.nbPlayers < 2)
         {
@@ -45,7 +49,10 @@ export class Lobby
                 this.gameInstance.sendReady();
             }
         }
-        console.log("lobby client ", this.clients.size)
+        else
+        {
+            client.emit("spectateSuccess", this.gameInstance.getSpectateData());
+        }
     }
 
 
@@ -63,7 +70,7 @@ export class Lobby
         client.lobby = null;
         client.leave(this.id);
         this.clients.delete(client.login);
-		this.gameInstance.stop();
+		//this.gameInstance.stop();
         if (this.gameInstance.isPlayer(client.login))
         {
             this.clients.forEach((user, id) => {
@@ -72,10 +79,29 @@ export class Lobby
 
             this.nbPlayers = 0;
             this.state = GameState.Stopped;          
-            this.sendToUsers('gameStopped', "");  
+            this.sendToUsers('gameStopped', "");
         }          
     }
-         
+    
+    public async destroy()
+    {
+        this.gameInstance.stop();
+        this.nbPlayers = 0;
+        this.state = GameState.Stopped;    
+
+        this.sendToUsers('gameStopped', ""); 
+
+        this.clients.forEach((user, id) => {
+            this.clients.delete(id);
+        })
+
+        const clientSockets = await this.server.in(this.id).fetchSockets();
+        clientSockets.forEach((socket) => {
+            socket.leave(this.id);
+        })
+
+        this.lobbyManager.destroyLobby(this.id);
+    }
 
     public playersId(): string[] { return this.gameInstance.playersId(); }
 
@@ -89,6 +115,11 @@ export class Lobby
     public async sendToUsers(event: string, data: any)
     {
         this.server.to(this.id).emit(event, data);
+    }
+
+    public playerMoved(playerLogin: string, newPos: number)
+    {
+        this.gameInstance.updatePlayer(playerLogin, newPos);
     }
 
 	public getPlayer(clientLogin: string)

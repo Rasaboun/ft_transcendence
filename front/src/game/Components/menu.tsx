@@ -93,7 +93,7 @@ export default function Menu()
 		}
         if (!socket)
             initiateSocket("http://localhost:8002/game", setSocket, sessioninfo, storage.login)        
-        console.log("Socket id in menu", socket?.id);
+
             getActiveGames()
 		GameMenuHandler(handleAvailableLobbies, handleGoalScored, handleSession)
         setSocket(getSocket())

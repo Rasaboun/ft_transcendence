@@ -54,9 +54,8 @@ export class AuthService {
     async initializeSocket(client: AuthenticatedSocket)
     {
         const session = await this.findSession(client.handshake.auth.sessionId);
-        console.log(client.handshake.auth);
-        console.log("findSession", session);
-        if (session && session.expiresAt > new Date().getTime())
+        console.log("Found session", session);
+        if (session != null && session.expiresAt > new Date().getTime())
         {
             client.sessionId = client.handshake.auth.sessionId;
             client.roomId = session.roomId;
@@ -79,10 +78,6 @@ export class AuthService {
                 })
         }
         client.join(client.roomId);
-        console.log("Session", {
-            sessionId: client.sessionId,
-            roomId: client.roomId,
-        })
         client.emit("session", {
             sessionId: client.sessionId,
             roomId: client.roomId,

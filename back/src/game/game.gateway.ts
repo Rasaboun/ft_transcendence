@@ -99,6 +99,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (!player)
 			return ;
 		player.pos = newPos;
+		client.lobby.playerMoved(client.login, newPos);
 		client.lobby.sendToUsers('updatePaddle', {playerId: client.login, newPos: newPos});
 
 	}

@@ -129,7 +129,11 @@ export default function Game()
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			ball: data.gameData.ball,
-			players: data.gameData.players,
+			players: oldGameData.players.map((player) => {
+				if (player === gameData.players[0])
+					return {...player, pos: utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height)}
+				return {...player, pos: utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height)}
+			}),
 			state: GameState.Started
 		}))
 		setGameSettings((oldGameSettings) => ({
@@ -143,12 +147,37 @@ export default function Game()
 		startGame()
 	}
 
-	const handleSpectateSuccess = (players: Player[]) => {
+	const handleSpectateSuccess = (data: {gameData: GameData, gameSettings: GameSettings }) => {
 		setGameData((oldGameData) => ({
 			...oldGameData,
-			players: players,
+			ball: data.gameData.ball,
+			players: oldGameData.players.map((player) => {
+				if (player === gameData.players[0])
+					return {...player, pos: utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height)}
+				return {...player, pos: utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height)}
+			}),
 			state: GameState.Spectacte
 		}))
+		setGameSettings((oldGameSettings) => ({
+			...oldGameSettings,
+			scoreToWin: data.gameSettings.scoreToWin,
+			width: data.gameSettings.width,
+			height: data.gameSettings.height,
+			paddleHeight: utils.toScale(data.gameSettings.paddleHeight, canvas.height / 1080),
+			paddleWidth: utils.toScale(data.gameSettings.paddleWidth, canvas.width / 1920),
+		}))
+	}
+
+	const joinedLobby = (data: {gameData: GameData, gameSettings: GameSettings }) =>
+	{
+		console.log("data in joinedLobby", data.gameData);
+		setGameData((oldGameData) => ({
+			...oldGameData,
+			ball: data.gameData.ball,
+			players: data.gameData.players,
+			state: GameState.Started
+		}))
+
 	}
 
 	const handleGoalScored = (scores: {player1: number, player2: number}) => {
@@ -207,7 +236,6 @@ export default function Game()
 		{
 			console.log(`${winnerId} won the match`);
 		}
-		socket?.emit('destroyLobby');
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			winnerId: winnerId
@@ -216,8 +244,6 @@ export default function Game()
 
 	function updatePaddle(playerId: string, newPos: number)
 	{
-			if (newPos == 540)
-				console.log("Hereeeeeeeeee");
 			setGameData((oldGameData) => ({
 				...oldGameData,
 				players: oldGameData.players.map((player) => {

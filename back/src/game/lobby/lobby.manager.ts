@@ -43,11 +43,18 @@ export class LobbyManager
 
     public createLobby(options: GameOptions): Lobby
     {
-        let lobby = new Lobby(this.server, options);
+        let lobby = new Lobby(this.server, options, this);
 
         this.lobbies.set(lobby.id, lobby);
 
         return lobby;
+    }
+
+    public destroyLobby(lobbyId: string)
+    {
+        console.log("Inside lobby manager destroy, id :", lobbyId);
+        console.log("Lobbies", this.lobbies);
+        this.lobbies.delete(lobbyId);
     }
 
     public joinQueue(client: AuthenticatedSocket)
@@ -70,6 +77,7 @@ export class LobbyManager
             }
             lobby = this.createLobby(options);
             this.avalaibleLobbies.push(lobby);
+            console.log("Lobbies", this.lobbies);
         }
         lobby.addClient(client);
     }
@@ -79,9 +87,9 @@ export class LobbyManager
         console.log(`Spectacte lobby ${lobbyId}`);
         
         const lobby: Lobby = this.lobbies.get(lobbyId);
-        if (lobby?.addClient(client) == undefined)
-            throw new NotFoundException("This lobby does not exist anymore");
-        else
+        if (!lobby)
+           throw new NotFoundException("This lobby does not exist anymore");
+        lobby.addClient(client);
             console.log('Spectacte success');
     }
 
