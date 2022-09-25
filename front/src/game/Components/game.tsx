@@ -52,13 +52,7 @@ export default function Game()
 	});
 
 	const handleWait = () => {
-		console.log("in handle wait");
 		setGameState(GameState.Waiting)
-		// setGameData((oldGameData) => ({
-		// 	...oldGameData,
-		// 	state: GameState.Waiting
-		// 	})
-		// )
 	}
 
 	// async function sendData ()
@@ -123,16 +117,9 @@ export default function Game()
 		})
 		//setGameState(GameState.Waiting)
 	}
-	const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, sock:Socket) => {
-		if (sock)
-		{
-			setStorage("sessionId", sessionInfo.sessionId);
-			setStorage("roomId", sessionInfo.roomId);
-			sock.auth = { sessionId: sessionInfo.sessionId } ;		
-		}
-	}
 
-	const handleGameData = (data: {gameData: GameData, gameSettings: GameSettings }) => {
+	const updateGame = (data: {gameData: GameData, gameSettings: GameSettings }) =>
+	{
 		//console.log("In game data", data.gameData)
 		const newPlayers = [
 			{
@@ -165,41 +152,24 @@ export default function Game()
 			paddleHeight: utils.toScale(data.gameSettings.paddleHeight, canvas.height / 1080),
 			paddleWidth: utils.toScale(data.gameSettings.paddleWidth, canvas.width / 1920),
 		}))
+
+	}
+
+	const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, sock:Socket) => {
+		if (sock)
+		{
+			setStorage("sessionId", sessionInfo.sessionId);
+			setStorage("roomId", sessionInfo.roomId);
+			sock.auth = { sessionId: sessionInfo.sessionId } ;		
+		}
+	}
+
+	const handleGameData = (data: {gameData: GameData, gameSettings: GameSettings }) => {
+		updateGame(data);
 	}
 
 	const handleGameReady = (data: {gameData: GameData, gameSettings: GameSettings }) => {
-		//console.log("game ready", data.gameData)
-		const newPlayers = [
-			{
-				id: data.gameData.players[0].id,
-				pos : utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height),
-				score: 0,
-			},
-			{
-				id: data.gameData.players[1].id,
-				pos : utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height),
-				score: 0,
-			}
-			]
-
-		setGameData((oldGameData) => ({
-			...oldGameData,
-			ball: data.gameData.ball,
-			players: newPlayers, //oldGameData.players.map((player, index) => {
-			// 	if (index === 0)
-			// 		return {...player, id: data.gameData.players[index].id, pos: utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height)}
-			// 	return {...player, id: data.gameData.players[index].id, pos: utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height)}
-			// }),
-			//state: GameState.Started
-		}))
-		setGameSettings((oldGameSettings) => ({
-			...oldGameSettings,
-			scoreToWin: data.gameSettings.scoreToWin,
-			width: data.gameSettings.width,
-			height: data.gameSettings.height,
-			paddleHeight: utils.toScale(data.gameSettings.paddleHeight, canvas.height / 1080),
-			paddleWidth: utils.toScale(data.gameSettings.paddleWidth, canvas.width / 1920),
-		}))
+		updateGame(data);
 		startGame()
 		setGameState(GameState.Started)
 	}
@@ -227,20 +197,7 @@ export default function Game()
 		setGameState(GameState.Spectacte)
 	}
 
-	const joinedLobby = (data: {gameData: GameData, gameSettings: GameSettings }) =>
-	{
-		//console.log("data in joinedLobby", data.gameData);
-		setGameData((oldGameData) => ({
-			...oldGameData,
-			ball: data.gameData.ball,
-			players: data.gameData.players,
-			//state: GameState.Started
-		}))
-
-	}
-
 	const handleGoalScored = (scores: {player1: number, player2: number}) => {
-		let newPlayers = gameData.players;
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			players: oldGameData.players.map((player, index) => {
@@ -248,17 +205,6 @@ export default function Game()
 					return {...player, score: scores.player1}
 				return {...player, score: scores.player2}
 			}),
-			// players: [
-			// 	{
-			// 	id: gameData.players[0].id,
-			// 	pos: gameData.players[0].pos,
-			// 	score: scores.player1,
-			// },
-			// {
-			// 	id: gameData.players[1].id,
-			// 	pos: gameData.players[1].pos,
-			// 	score: scores.player2
-			// }]
 		}));
 	}
 
@@ -283,18 +229,6 @@ export default function Game()
 			...oldGameData,
 			//state: GameState.Stopped
 		}))
-		if (winnerId == storage.login)
-		{
-			console.log("You win");
-		}
-		else if (gameData.players[0].id == storage.login || gameData.players[0].id == storage.login)
-		{
-			console.log("You lose");
-		}
-		else
-		{
-			console.log(`${winnerId} won the match`);
-		}
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			winnerId: winnerId
@@ -304,15 +238,6 @@ export default function Game()
 
 	function updatePaddle(data:{playerId:string, newPos:number})
 	{	
-		//  let newPlayers = gameData.players;
-		
-		// if (data.playerId == gameData.players[0].id)
-		// 	 newPlayers[0].pos = utils.toScale(data.newPos, canvas.height / gameSettings.height);
-		// else
-		//  newPlayers[1].pos = utils.toScale(data.gameData.players[1].pos, canvas.height / gameSettings.height);
-
-		 //console.log("gamedata", gameData.players)
-		// console.log("update data", data)
 			setGameData((oldGameData) => ({
 				...oldGameData,
 				players: oldGameData.players.map((player, index) => {

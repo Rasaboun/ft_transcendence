@@ -100,7 +100,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		{
 			if (!client.lobby)
 				return ;
-			console.log("sending Game Data");
 			client.emit('gameData', client.lobby.getGameData())
 		}
 		catch (error) { throw error; }
