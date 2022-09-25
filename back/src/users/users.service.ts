@@ -143,4 +143,34 @@ export class UsersService {
         return user.status;
     }
 
+    async setUserPhoto(login: string, newPhotoUrl: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        if (!user)
+            return ;
+        user.photoUrl = newPhotoUrl;
+        await this.userRepository.update(user.id, user);
+    }
+
+    async getUserPhoto(login: string): Promise<string> {
+
+        const user = await this.findOneByIntraLogin(login);
+        return user.photoUrl;
+    }
+
+    async setUserUsername(login: string, newUsername: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        if (!user)
+            return ;
+        user.username = newUsername;
+        await this.userRepository.update(user.id, user);
+    }
+
+    async getUserUsername(login: string): Promise<string> {
+
+        const user = await this.findOneByIntraLogin(login);
+        return user.username;
+    }
+
 }

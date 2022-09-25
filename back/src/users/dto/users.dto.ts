@@ -23,6 +23,27 @@ export class updateStatusDto {
     status: UserStatus;
 }
 
+export class updatePhotoDto {
+    @IsNotEmpty()
+    @IsString()
+    login: string;
+
+    @IsNotEmpty()
+    @IsString()
+    photoUrl: string;
+}
+
+export class updateUsernameDto {
+    @IsNotEmpty()
+    @IsString()
+    login: string;
+
+    @IsNotEmpty()
+    @IsString()
+    username: string;
+}
+
+
 export class blockUserDto {
     @IsNotEmpty()
     @IsString()

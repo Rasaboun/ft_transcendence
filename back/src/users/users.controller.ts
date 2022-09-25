@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseFilte
 import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
 import { AuthFilter } from 'src/auth/utils/auth.filter';
 import { User } from 'src/typeorm';
-import { blockUserDto, createUserDto, updateStatusDto } from './dto/users.dto';
+import { blockUserDto, createUserDto, updatePhotoDto, updateStatusDto, updateUsernameDto } from './dto/users.dto';
 import { UserStatus } from './type/users.type';
 import { UsersService } from './users.service';
 
@@ -34,6 +34,16 @@ export class UsersController {
         return this.usersService.setUserStatus(dto.login, dto.status);
     }
 
+    @Put('photo')
+    setUserPhoto(@Body() dto: updatePhotoDto) {
+        return this.usersService.setUserPhoto(dto.login, dto.photoUrl);
+    }
+
+    @Put('username')
+    setUserUsername(@Body() dto: updateUsernameDto) {
+        return this.usersService.setUserUsername(dto.login, dto.username);
+    }
+
     @Get('isblocked')
     isBlocked(@Body() dto: blockUserDto) {
         return this.usersService.isBlocked(dto.callerLogin, dto.targetLogin);
@@ -54,6 +64,15 @@ export class UsersController {
         return await this.usersService.getUserStatus(dto.login);
     }
 
+    @Get('photo')
+    async getUserPhoto(@Body('') dto: {login: string}): Promise<string> {
+        return await this.usersService.getUserPhoto(dto.login);
+    }
+
+    @Get('username')
+    async getUserUsername(@Body('') dto: {login: string}): Promise<string> {
+        return await this.usersService.getUserUsername(dto.login);
+    }
 
     @Delete(':login')
     removeBylogin(@Param('login') login: string): Promise<void> {
