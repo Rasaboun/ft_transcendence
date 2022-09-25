@@ -85,7 +85,8 @@ export class LobbyManager
         {
             if (this.avalaibleLobbies[i].isClient(client.login))
             {
-                this.avalaibleLobbies[i].destroy();
+                this.avalaibleLobbies.splice(i, 1);
+                this.destroyLobby(this.avalaibleLobbies[i]?.id);
                 client.lobby = null;
             }
         }

@@ -45,6 +45,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('leftPong')
 	leftPong(client: AuthenticatedSocket)
 	{
+		console.log("client leftPong");
 		this.lobbyManager.leaveQueue(client);
 	}
 
