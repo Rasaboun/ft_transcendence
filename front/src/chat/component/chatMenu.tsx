@@ -49,6 +49,12 @@ export default function ChatMenu()
 			navigate("/chat/message")
 		}
 	}
+	
+	const handlePrivChatJoined = () => {
+		 console.log("Connection par handlePrivChatJoine")
+			setStorage("intraLogin", "asd")
+			navigate("/chat/privMessage");
+	}
 
     const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
 		setChannelForm((oldChannelForm) => ({
@@ -103,7 +109,6 @@ export default function ChatMenu()
 
 	const loadConnectedUser = (connectedUsers:connectedUsersT[])=>
 	{
-		console.log("loadin Connected Users");
 		setConnectedUsers(connectedUsers);
 	}
 
@@ -121,7 +126,8 @@ export default function ChatMenu()
 			handleError,
 			handleInvitation,
 			handleSession,
-			loadConnectedUser)
+			loadConnectedUser,
+			handlePrivChatJoined)
 	}, [])
 
 	useEffect(() => {

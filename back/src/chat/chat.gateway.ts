@@ -203,11 +203,20 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('privChatCreateChat')
-	@SubscribeMessage('joinPrivateChat')
 	async createPrivChat(client :AuthenticatedSocket, recieverId: number, content: string)
 	{
 		try {
 			this.privChatManage.createPrivateChat(client.dbId, recieverId, content)
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('joinPrivateChat')
+	async testJoinedPrivChat(client :AuthenticatedSocket, intraLogin: string)
+	{
+		try{
+			console.log("The login : " + intraLogin + " just connected itself to it")
+			client.emit("joinedPrivChat")
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}

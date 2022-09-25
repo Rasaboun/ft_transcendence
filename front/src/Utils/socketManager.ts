@@ -144,7 +144,8 @@ export function chatMenuHandler(handleActiveChannels:any,
 								handleError:any,
 								handleInvitation:any,
 								handleSession:any,
-								loadConnectedUser:any)
+								loadConnectedUser:any,
+								handlePrivChatJoined:any)
 {
 	//console.log(`Server is down`);
 	chatSocket.on('activeChannels', (channels:ChannelT) => handleActiveChannels(channels));
@@ -153,6 +154,7 @@ export function chatMenuHandler(handleActiveChannels:any,
 	chatSocket.on('InvitedToChannel', (message:string) => handleInvitation(message))
 	chatSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, chatSocket));
 	chatSocket.on("listOfConnectedUsers", (userList:{intraLogin: string, username: string}[]) => loadConnectedUser(userList));
+	chatSocket.on("joinedPrivChat", () => handlePrivChatJoined());
 }
 
 export function chatHandler(handleMessageReceived:any,

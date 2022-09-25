@@ -9,7 +9,6 @@ type PrivChatPropsT = {
 
 export default function PrivChatItem({ connectedUsers, handleJoinPrivChat }:PrivChatPropsT  )
 {
-    console.log("Passe par ici lol");
     const handleSubmit = (e:React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
     }
@@ -27,7 +26,9 @@ export default function PrivChatItem({ connectedUsers, handleJoinPrivChat }:Priv
                             backgroundColor: "#00ffff",
                             borderRadius: "20px"
                         }} 
-                  >
+                   onClick={() =>
+                        handleJoinPrivChat(connectedUsers.intraLogin)
+                    }>
                             Send Message
                         </button>
 

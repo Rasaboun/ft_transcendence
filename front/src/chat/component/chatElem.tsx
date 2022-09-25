@@ -57,7 +57,6 @@ export default function ChatElem()
                     [...oldMessagesList, {content: mutedMessage, isInfo: true}]
             ))
         }
-
     }
 
     const handleMessageReceived = (msg:messageT) => {
@@ -251,7 +250,7 @@ export default function ChatElem()
                     </div>
                 </div>
                 <MessageInput mutedTime={mutedTime} handleChange={handleChange} handleSubmitMessage={handleSubmitMessage} value={form.message}/>
-            </div>           
+            </div>
         </div>
     )
 }

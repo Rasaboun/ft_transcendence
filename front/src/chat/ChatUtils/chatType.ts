@@ -98,6 +98,8 @@ export type connectedUsersT = {
 }
 
 export type privMessageT = {
-sender : number,
-content : string
+	sender : number,
+	content : string,
+	date?:Date,
+	isInfo?: boolean
 }
