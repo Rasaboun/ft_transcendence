@@ -42,6 +42,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		
 	}
 
+	
 	@SubscribeMessage('joinChannel')
 	async joinChannel(client: AuthenticatedSocket, data: JoinChannel)
 	{
@@ -127,7 +128,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('clientInfo')
 	async getClientInfoOnChannel(client: AuthenticatedSocket, channelName: string)
 	{
-		console.log("heeeeeeerrrr")
 		try
 		{
 			await this.channelManager.sendClientInfo(client, channelName);
