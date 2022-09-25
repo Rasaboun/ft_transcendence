@@ -11,12 +11,13 @@ import { getSession } from "../../Utils/utils"
 import { GameCleaner, GameRoutineHandler, getChatSocket, getGameSocket, initiateSocket, leftPong, loadGame, playerMoved, startGame } from "../../Utils/socketManager"
 import { SocketContext } from "../../Context/socketContext"
 
-let canvas:HTMLCanvasElement
+let canvas:HTMLCanvasElement;
 
 export default function Game()
 {
 	const {storage, setStorage} = useLocalStorage("user")
-	const {gameState, setGameState, gameSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
+	const {storage2} = useLocalStorage("gameState")
+	const { gameSocket, setChatSocket, setGameSocket } = useContext(SocketContext)
 	let context: CanvasRenderingContext2D;
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	
@@ -52,7 +53,7 @@ export default function Game()
 	});
 
 	const handleWait = () => {
-		setGameState(GameState.Waiting)
+		setStorage("gameState", GameState.Waiting)
 	}
 
 	// async function sendData ()
@@ -81,7 +82,8 @@ export default function Game()
 	// }
 	function initializeGame()
 	{
-		if (gameState == GameState.Started)
+		console.log(parseInt(storage2) === GameState.Started)
+		if (parseInt(storage2) === GameState.Started)
 		{
 			loadGame();
 			return ;
@@ -165,13 +167,14 @@ export default function Game()
 	}
 
 	const handleGameData = (data: {gameData: GameData, gameSettings: GameSettings }) => {
+		console.log(data)
 		updateGame(data);
 	}
 
 	const handleGameReady = (data: {gameData: GameData, gameSettings: GameSettings }) => {
 		updateGame(data);
 		startGame()
-		setGameState(GameState.Started)
+		setStorage("gameState", GameState.Started)
 	}
 
 	const handleSpectateSuccess = (data: {gameData: GameData, gameSettings: GameSettings }) => {
@@ -194,7 +197,7 @@ export default function Game()
 			paddleHeight: utils.toScale(data.gameSettings.paddleHeight, canvas.height / 1080),
 			paddleWidth: utils.toScale(data.gameSettings.paddleWidth, canvas.width / 1920),
 		}))
-		setGameState(GameState.Spectacte)
+		setStorage("gameState", GameState.Spectacte)
 	}
 
 	const handleGoalScored = (scores: {player1: number, player2: number}) => {
@@ -233,7 +236,7 @@ export default function Game()
 			...oldGameData,
 			winnerId: winnerId
 		}))
-		setGameState(GameState.Stopped)
+		setStorage("gameState", GameState.Stopped)
 	}
 
 	function updatePaddle(data:{playerId:string, newPos:number})
@@ -257,7 +260,7 @@ export default function Game()
 	function handleMouseMove(event:React.MouseEvent<HTMLCanvasElement>)
 	{
 		//HANDLE THE MOUSE MOVE EVENT ON THE GAME AREA
-		if (gameState == GameState.Started)
+		if (parseInt(storage2) === GameState.Started)
 		{
 			let value: number = event.clientY - utils.getCanvasDiv().y;
 
@@ -339,11 +342,11 @@ export default function Game()
 			handleSession)
 		if (!context)
 			return ;
-
+		
 		handleResize();
 		initializeGame();
 		window.addEventListener('resize', handleResize);
-		return (() => {leftPong()
+		return (() => {	leftPong()
 						window.removeEventListener('resize', handleResize)
 						GameCleaner(handleWait,
 							handleUpdateBall,
@@ -354,10 +357,10 @@ export default function Game()
 							handleSpectateSuccess,
 							handleGameOver,
 							handleSession)})
-	}, [])
+	}, [gameSocket?.connected])
 
 	useEffect(() => {
-		if (gameState === GameState.Started || gameState === GameState.Spectacte)
+		if (parseInt(storage2) === GameState.Started || parseInt(storage2) === GameState.Spectacte)
 			draw()
 	}, [gameData])
 
@@ -366,7 +369,7 @@ export default function Game()
 			maxHeight: "50vh"
 		}}>
 			{
-			gameState === GameState.Waiting &&
+			parseInt(storage2) === GameState.Waiting &&
 				<div className="game-display">
 					<h1 style={{
 						color: "white"
@@ -375,7 +378,7 @@ export default function Game()
 					
 			}
 			{
-				gameState === GameState.Stopped && clearCanvas() &&
+				parseInt(storage2) === GameState.Stopped && clearCanvas() &&
 				<div className="game-display">
 					{(storage.login === gameData.winnerId) ? "YOU WIN" : 
 					(((gameData.players[0].id === storage.login || gameData.players[1].id === storage.login)) ?

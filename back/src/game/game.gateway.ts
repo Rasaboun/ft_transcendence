@@ -31,7 +31,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		
 		//this.lobbyManager.initializeSocket(client as AuthenticatedSocket);
 		console.log(`Client ${client.id} joined pong socket`);
-		this.authService.initializeSocket(client as AuthenticatedSocket);
+		await this.authService.initializeSocket(client as AuthenticatedSocket);
 		await this.lobbyManager.joinLobbies(client as AuthenticatedSocket);
 		
 	}
@@ -50,12 +50,12 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('createLobby')
-	createLobby(client: AuthenticatedSocket, /*options: GameOptions*/)
+	createLobby(client: AuthenticatedSocket, options: GameOptions)
 	{
-		const options: GameOptions = {
-			mode: GameMode.Normal,
-			inviteMode: false,
-		}
+		// const option: GameOptions = {
+		// 	mode: options.mode,
+		// 	inviteMode: options.inviteMode,
+		// }
 		let lobby = this.lobbyManager.createLobby(options);
 		lobby.addClient(client);
 
@@ -98,6 +98,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try
 		{
+			console.log("client.lobby", client.lobby)
 			if (!client.lobby)
 				return ;
 			client.emit('gameData', client.lobby.getGameData())

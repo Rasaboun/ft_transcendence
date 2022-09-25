@@ -212,10 +212,15 @@ export default function ChatElem()
 
     useEffect(() => {
         const channel = storage2;
+        console.log("CHANNEL NAME", channel.channelId)
         initiateSocket("http://localhost:8002", getSession(), storage.login)
         setChatSocket(getChatSocket())
         setGameSocket(getGameSocket())
-        if (chatSocket)
+        chatSocket?.on("connect", () => {
+            console.log("CHAT ONNECTED")
+            
+        })
+        if (chatSocket?.connected)
         {
             chatHandler(handleMessageReceived,
                 handleChannelDeleted,
@@ -228,10 +233,10 @@ export default function ChatElem()
                 handleIsAlreadyAdmin,
                 handleChannelJoined,
                 handleConnected)
-        }
-        getClientInfo(channel.channelId)
-
-    }, [])
+        } 
+        if (channel)
+                getClientInfo(channel.channelId)
+    }, [chatSocket?.connected])
 
     useEffect(() => {
        scrollToBottom()

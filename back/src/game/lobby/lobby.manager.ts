@@ -105,6 +105,7 @@ export class LobbyManager
 
     public async joinLobbies(client: AuthenticatedSocket)
     {
+        console.log("cleint.lobbyId", client.lobbyId)
         if (client.lobbyId)
         {
             client.lobby = this.lobbies.get(client.lobbyId);

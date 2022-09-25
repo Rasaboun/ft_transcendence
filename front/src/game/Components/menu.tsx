@@ -7,6 +7,7 @@ import useLocalStorage from '../../hooks/localStoragehook'
 import { SocketContext } from '../../Context/socketContext';
 import { GameMenuHandler, getActiveGames, getChatSocket, getGameSocket, initiateSocket, joinQueue, Menucleaner, spectacteGame } from '../../Utils/socketManager';
 import { getSession } from '../../Utils/utils';
+import GameRadioForm from '../../Elements/gameRadioForm';
 
 let socket:Socket
 
@@ -87,38 +88,10 @@ export default function Menu()
     return (
         <div>
             <form className="channel-form" onSubmit={handleSubmit}>
-                <div className="form-radio">
-                    <label>
-                        <input name="mode"
-                            type="radio" 
-                            value={GameMode.Normal}
-                            checked={gameMode === GameMode.Normal}
-                            onChange={handleChange}
-                            />
-                        Normal
-                    </label>
-                    <label>
-                        <input name="mode"
-                            type="radio" 
-                            value={GameMode.Mini}
-                            checked={gameMode === GameMode.Mini}
-                            onChange={handleChange}
-                            />
-                            Mini
-                    </label>
-                    <label>
-                    <input name="mode"
-                            type="radio" 
-                            value={GameMode.Speed}
-                            checked={gameMode === GameMode.Speed}
-                            onChange={handleChange}
-                            />
-                            Speed
-                    </label>
-                </div>
-					<button type="submit" className="button-action" >
-						Start Game
-					</button>
+                <GameRadioForm gameMode={gameMode} setGameMode={setGameMode}/>
+                <button type="submit" className="button-action" >
+                    Start Game
+                </button>
 				</form>           
             <ul>
                 {lobbiesElements}

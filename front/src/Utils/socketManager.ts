@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client'
 import { ActionOnUser, AddAdminT, channelFormT, ChannelT, ClientInfoT, InviteClientT, JoinChannelT, messageT, SetChannelPasswordT } from '../chat/ChatUtils/chatType';
-import { availableLobbiesT, Ball, gameCollionInfoT, GameData, GameMode, GameSettings, Player, playerT } from '../game/GameUtils/type';
+import { availableLobbiesT, Ball, gameCollionInfoT, GameData, GameMode, GameOptions, GameSettings, Player, playerT } from '../game/GameUtils/type';
 
 let socket:Socket
 let chatSocket:Socket
@@ -12,18 +12,19 @@ export async function initiateSocket(url:string, sessioninfo?:{sessionId:string,
 	if (!chatSocket)
 	{
 		chatSocket = io(`${url}/chat`, {
-			//transports: ['websocket'],
 			 auth: sessioninfo ? sessioninfo : { login }
-			}).connect()
+			})
 		console.log(chatSocket, gameSocket)
+		console.log(chatSocket, new Date().getTime())
+
 
 	}
 	if (!gameSocket)
 	{
 		gameSocket = io(`${url}/game`, {
-			//transports: ['websocket'],
+			autoConnect: true,
 			auth: sessioninfo ? sessioninfo : { login }
-			}).connect()
+			})
 		console.log(chatSocket, gameSocket)
 
 	}
@@ -42,7 +43,11 @@ export function getGameSocket()
 
 export function appSocketRoutine(handleSession:any,
 								handleGameOver:any) {
-	chatSocket.on('connection', (chatSocket) => {console.log('a user connected on chatSocket', chatSocket)});
+
+	chatSocket.on("connect", () => {
+		console.log("In connect", new Date());
+		chatSocket.emit("session");
+	})
 	chatSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, chatSocket));
 	chatSocket.on("connect_error", (err) => {console.log(`connect_error due to ${err.message}`)});
 	chatSocket.on("Connect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
@@ -137,6 +142,7 @@ export function chatHandler(handleMessageReceived:any,
 							handleChannelJoined:any,
 							handleConnected:any)
 {
+		
         chatSocket.on("msgToChannel", (msg:messageT) => handleMessageReceived(msg))      
         chatSocket.on('channelDeleted', (message:string) => handleChannelDeleted(message))
         chatSocket.on('clientInfo', (data:ClientInfoT) => handleClientInfo(data))
@@ -187,15 +193,6 @@ export function spectacteGame(id:string)
 	gameSocket?.emit("spectacteGame", id);
 }
 
-export function GameMenuHandler(handleAvailableLobbies:any, handleGoalScored:any, handleSession:any)
-{
-	console.log(gameSocket)
-	gameSocket.on('activeGames',(availableLobbies:availableLobbiesT) => handleAvailableLobbies(availableLobbies))
-	gameSocket.on('goalScored', (players: any) => handleGoalScored(players));
-	gameSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, gameSocket));
-
-}
-
 export function getActiveGames()
 {
 	gameSocket?.emit("getActiveGames")
@@ -206,6 +203,21 @@ export function leftPong()
 {
 	gameSocket?.emit("leftPong")
 }
+
+export function createLobby(options:GameOptions) 
+{
+	gameSocket?.emit("createLobby", options)
+}
+
+export function GameMenuHandler(handleAvailableLobbies:any, handleGoalScored:any, handleSession:any)
+{
+	console.log(gameSocket)
+	gameSocket.on('activeGames',(availableLobbies:availableLobbiesT) => handleAvailableLobbies(availableLobbies))
+	gameSocket.on('goalScored', (players: any) => handleGoalScored(players));
+	gameSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, gameSocket));
+
+}
+
 
 export function GameRoutineHandler(handleWait:any,
 									handleUpdateBall:any,

@@ -43,15 +43,16 @@ export default function App()
 	}
 
 	useEffect(() => {
+		console.log("APP RENDER")
 		if (storage)
 		{
 			initiateSocket("http://localhost:8002", getSession(), storage2.login)
 			setChatSocket(getChatSocket())
 			setGameSocket(getGameSocket())
 			appSocketRoutine(handleSession, handleGameOver);
-			console.log(chatSocket)
+			console.log("LA")
 		}
-	}, [])
+	}, [storage])
     return (
 		<BrowserRouter>
 			<NavBar />
