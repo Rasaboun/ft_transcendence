@@ -125,12 +125,12 @@ export default function Game()
 			{
 				id: data.gameData.players[0].id,
 				pos : utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height),
-				score: 0,
+				score: data.gameData.players[0].score,
 			},
 			{
 				id: data.gameData.players[1].id,
 				pos : utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height),
-				score: 0,
+				score: data.gameData.players[1].score,
 			}
 			]
 
