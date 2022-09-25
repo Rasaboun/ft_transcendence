@@ -6,6 +6,8 @@ import { AuthenticatedSocket } from 'src/auth/types/auth.type';
 import { AuthService } from 'src/auth/auth.service';
 import { PrivChatManager } from './privChat/privChat.manager';
 import { forwardRef, Inject } from '@nestjs/common';
+import { User } from 'src/typeorm';
+import { UsersService } from 'src/users/users.service';
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -15,6 +17,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				@Inject(forwardRef(() => AuthService))
 				private authService: AuthService,
 				private privChatManage: PrivChatManager,
+				private userService: UsersService,
 			)
 	{}
 
@@ -200,6 +203,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('privChatCreateChat')
+	@SubscribeMessage('joinPrivateChat')
 	async createPrivChat(client :AuthenticatedSocket, recieverId: number, content: string)
 	{
 		try {
@@ -224,5 +228,26 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			client.emit('privChatSendMessage', this.privChatManage.sendMessage(client, client.dbId, recieverId, message));
 		}
 		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('loadConnectedUsers')
+	async loadConnectedUsers(client: AuthenticatedSocket)
+	{
+		try {
+			// on filtre et on envoie uniquement ce qu'il faut
+			var connectedList = await this.userService.findAll();
+			type tse = {
+				intraLogin:string,
+				username: string
+			}
+			var s: tse[] = [];
+			var e: tse;
+			connectedList.forEach((element) => {
+				e = { intraLogin: element.intraLogin, username: element.username};
+				s.push(e)
+			})
+			client.emit('listOfConnectedUsers', s);
+		}
+		catch (error) { client.emit('error', error.message); }
 	}
 }

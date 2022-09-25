@@ -90,6 +90,13 @@ export type privChatP = {
 handleJoinPrivateChat: (connectedUsers: privChatP[]) => void
 }
 
+export type connectedUsersT = {
+	intraLogin: string,
+	username: string,
+	lasMess?: string,
+	handleJoinPrivateChat: (connectedUsers: privChatP[]) => void
+}
+
 export type privMessageT = {
 sender : number,
 content : string
