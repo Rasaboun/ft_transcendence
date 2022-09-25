@@ -5,6 +5,7 @@ import { GameMode, GameOptions, Player } from './types/game.type';
 import { AuthenticatedSocket } from 'src/auth/types/auth.type';
 import { AuthService } from 'src/auth/auth.service';
 import { forwardRef, Inject } from '@nestjs/common';
+import { isJWT } from 'class-validator';
 
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'game' })
@@ -91,6 +92,18 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		client.emit('activeGames', this.lobbyManager.getActiveLobbies());
 	}
 
+	@SubscribeMessage('loadGame')
+	getGameInfo(client: AuthenticatedSocket)
+	{
+		try
+		{
+			if (!client.lobby)
+				return ;
+			console.log("sending Game Data");
+			client.emit('gameData', client.lobby.getGameData())
+		}
+		catch (error) { throw error; }
+	}
 
 	@SubscribeMessage('startGame')
 	launchGame(client: AuthenticatedSocket)
@@ -100,12 +113,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@SubscribeMessage('playerMoved')
 	handlePlayerPosition(client: AuthenticatedSocket, newPos: number) {
-		console.log(newPos)
 		const player: Player = client.lobby?.getPlayer(client.login);
 		if (!player)
 			return ;
 		player.pos = newPos;
-		client.lobby.playerMoved(client.login, newPos);
 		client.lobby.sendToUsers('updatePaddle', {playerId: client.login, newPos: newPos});
 
 	}

@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import LogPage from './authPage/component/LogPage';
 import './output.css';
 
 
+
 export default function Dashboard() {
+
 	return (
 	<div id="Dashboard" className="flex-1">
 	<header className="bg-white shadow">

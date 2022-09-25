@@ -79,6 +79,7 @@ export function GameRoutineHandler(handleWait:any,
 									handleUpdateBall:any,
 									updatePaddle:any,
 									handleGameReady:any,
+									handlegameData:any,
 									handleGoalScored:any,
 									handleSpectateSuccess:any,
 									handleGameOver:any,
@@ -88,6 +89,7 @@ export function GameRoutineHandler(handleWait:any,
 	socket.on('updateBall', (ball:Ball) => handleUpdateBall(ball))
 	socket.on('updatePaddle', ({playerId, newPos}) => updatePaddle(playerId, newPos))
 	socket.on('gameReady', (data: {gameData: GameData, gameSettings: GameSettings}) => handleGameReady(data))
+	socket.on('gameData', (data: {gameData: GameData, gameSettings: GameSettings}) => handlegameData(data))
 	socket.on('goalScored', (scores: {player1: number, player2: number}) => handleGoalScored(scores))
 	socket.on('spectateSuccess', (data: {gameData: GameData, gameSettings: GameSettings }) => handleSpectateSuccess(data))
 	socket.on('gameOver', (winnerId: string) => handleGameOver(winnerId))
@@ -112,6 +114,7 @@ export function GameCleaner(handleWait:any,
 							handleUpdateBall:any,
 							updatePaddle:any,
 							handleGameReady:any,
+							handlegameData:any,
 							handleGoalScored:any,
 							handleSpectateSuccess:any,
 							handleGameOver:any,
@@ -120,7 +123,8 @@ export function GameCleaner(handleWait:any,
 	socket.off('waitingForOppoffent', handleWait)
 	socket.off('updateBall', (ball:Ball) => handleUpdateBall(ball))
 	socket.off('updatePaddle', ({playerId, newPos}) => updatePaddle(playerId, newPos))
-	socket.off('gameReady', (data: GameData) => handleGameReady(data))
+	socket.off('gameReady', (data: {gameData: GameData, gameSettings: GameSettings}) => handleGameReady(data))
+	socket.off('gameData', (data: {gameData: GameData, gameSettings: GameSettings}) => handlegameData(data))
 	socket.off('goalScored', (players: Player[]) => handleGoalScored(players))
 	socket.off('spectateSuccess', (players: Player[]) => handleSpectateSuccess(players))
 	socket.off('gameOver', (winnerId: string) => handleGameOver(winnerId))

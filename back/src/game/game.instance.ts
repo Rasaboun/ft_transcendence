@@ -192,7 +192,7 @@ export class GameInstance
 		return res;
 	}
 
-	public getSpectateData()
+	public getGameData()
 	{
 		return {gameData: this.gameData, gameSettings: this.settings};
 	}

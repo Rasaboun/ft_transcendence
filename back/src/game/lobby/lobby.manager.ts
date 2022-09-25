@@ -51,8 +51,6 @@ export class LobbyManager
 
     public destroyLobby(lobbyId: string)
     {
-        console.log("Inside lobby manager destroy, id :", lobbyId);
-        console.log("Lobbies", this.lobbies);
         this.lobbies.delete(lobbyId);
     }
 
@@ -66,6 +64,7 @@ export class LobbyManager
             if (this.avalaibleLobbies[i].isClient(client.login) === false && !this.avalaibleLobbies[i].isPrivate())
             {
                 lobby = this.avalaibleLobbies.splice(i, 1).at(0);
+                client.lobbyId = lobby.id;
             }
         }
         if (lobby === null)
@@ -100,7 +99,7 @@ export class LobbyManager
         if (!lobby)
            throw new NotFoundException("This lobby does not exist anymore");
         lobby.addClient(client);
-            console.log('Spectacte success');
+        console.log('Spectacte success');
     }
 
     public async joinLobbies(client: AuthenticatedSocket)
@@ -138,6 +137,13 @@ export class LobbyManager
     * Va servir pour afficher toutes les parties en cours et les regarder
     * Gerer le cas ou il n'y a pas de parties en cours
     */ 
+
+    public getLobby(lobbyId: string)
+    {
+        if (!lobbyId)
+            return null;
+        return this.lobbies.get(lobbyId);
+    }
 
     public getActiveLobbies()
     {

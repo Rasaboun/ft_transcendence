@@ -176,6 +176,12 @@ export function startGame()
 	gameSocket?.emit("startGame");
 }
 
+export function loadGame()
+{
+	console.log("EMITTED LOAD GAME")
+	gameSocket?.emit("loadGame");
+}
+
 export function spectacteGame(id:string)
 {
 	gameSocket?.emit("spectacteGame", id);
@@ -195,6 +201,7 @@ export function getActiveGames()
 	gameSocket?.emit("getActiveGames")
 }
 
+
 export function leftPong()
 {
 	gameSocket?.emit("leftPong")
@@ -204,6 +211,7 @@ export function GameRoutineHandler(handleWait:any,
 									handleUpdateBall:any,
 									updatePaddle:any,
 									handleGameReady:any,
+									handleGameData:any,
 									handleGoalScored:any,
 									handleSpectateSuccess:any,
 									handleGameOver:any,
@@ -213,6 +221,7 @@ export function GameRoutineHandler(handleWait:any,
 	gameSocket.on('updateBall', (ball:Ball) => handleUpdateBall(ball))
 	gameSocket.on('updatePaddle', (data:{playerId:string, newPos:number}) => updatePaddle(data))
 	gameSocket.on('gameReady', (data: {gameData: GameData, gameSettings: GameSettings}) => handleGameReady(data))
+	gameSocket.on('gameData', (data: {gameData: GameData, gameSettings: GameSettings}) => handleGameData(data))
 	gameSocket.on('goalScored', (scores: {player1: number, player2: number}) => handleGoalScored(scores))
 	gameSocket.on('spectateSuccess', (players: Player[]) => handleSpectateSuccess(players))
 	gameSocket.on('gameOver', (winnerId: string) => handleGameOver(winnerId))
@@ -230,6 +239,7 @@ export function GameCleaner(handleWait:any,
 							handleUpdateBall:any,
 							updatePaddle:any,
 							handleGameReady:any,
+							handleGameData:any,
 							handleGoalScored:any,
 							handleSpectateSuccess:any,
 							handleGameOver:any,
@@ -239,6 +249,7 @@ export function GameCleaner(handleWait:any,
 	gameSocket.off('updateBall', (ball:Ball) => handleUpdateBall(ball))
 	gameSocket.off('updatePaddle', ({playerId, newPos}) => updatePaddle(playerId, newPos))
 	gameSocket.off('gameReady', (data: GameData) => handleGameReady(data))
+	gameSocket.off('gameData', (data: {gameData: GameData, gameSettings: GameSettings}) => handleGameData(data))
 	gameSocket.off('goalScored', (players: Player[]) => handleGoalScored(players))
 	gameSocket.off('spectateSuccess', (players: Player[]) => handleSpectateSuccess(players))
 	gameSocket.off('gameOver', (winnerId: string) => handleGameOver(winnerId))

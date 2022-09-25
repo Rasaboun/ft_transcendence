@@ -8,7 +8,7 @@ import { Socket } from 'socket.io-client'
 import { GameContext } from "../GameContext/gameContext"
 import useLocalStorage from "../../hooks/localStoragehook"
 import { getSession } from "../../Utils/utils"
-import { GameCleaner, GameRoutineHandler, getChatSocket, getGameSocket, initiateSocket, leftPong, playerMoved, startGame } from "../../Utils/socketManager"
+import { GameCleaner, GameRoutineHandler, getChatSocket, getGameSocket, initiateSocket, leftPong, loadGame, playerMoved, startGame } from "../../Utils/socketManager"
 import { SocketContext } from "../../Context/socketContext"
 
 let canvas:HTMLCanvasElement
@@ -52,6 +52,7 @@ export default function Game()
 	});
 
 	const handleWait = () => {
+		console.log("in handle wait");
 		setGameState(GameState.Waiting)
 		// setGameData((oldGameData) => ({
 		// 	...oldGameData,
@@ -86,6 +87,11 @@ export default function Game()
 	// }
 	function initializeGame()
 	{
+		if (gameState == GameState.Started)
+		{
+			loadGame();
+			return ;
+		}
 		setGameData({
 			players: [{
 				id: '',
@@ -115,7 +121,7 @@ export default function Game()
 			width: 1920,
 			height: 1080,
 		})
-		setGameState(GameState.Waiting)
+		//setGameState(GameState.Waiting)
 	}
 	const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, sock:Socket) => {
 		if (sock)
@@ -126,16 +132,64 @@ export default function Game()
 		}
 	}
 
-	const handleGameReady = (data: {gameData: GameData, gameSettings: GameSettings }) => {
-		console.log(data.gameData)
+	const handleGameData = (data: {gameData: GameData, gameSettings: GameSettings }) => {
+		//console.log("In game data", data.gameData)
+		const newPlayers = [
+			{
+				id: data.gameData.players[0].id,
+				pos : utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height),
+				score: 0,
+			},
+			{
+				id: data.gameData.players[1].id,
+				pos : utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height),
+				score: 0,
+			}
+			]
+
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			ball: data.gameData.ball,
-			players: oldGameData.players.map((player, index) => {
-				if (index === 0)
-					return {...player, id: data.gameData.players[index].id, pos: utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height)}
-				return {...player, id: data.gameData.players[index].id, pos: utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height)}
-			}),
+			players: newPlayers, //oldGameData.players.map((player, index) => {
+			// 	if (index === 0)
+			// 		return {...player, id: data.gameData.players[index].id, pos: utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height)}
+			// 	return {...player, id: data.gameData.players[index].id, pos: utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height)}
+			// }),
+			//state: GameState.Started
+		}))
+		setGameSettings((oldGameSettings) => ({
+			...oldGameSettings,
+			scoreToWin: data.gameSettings.scoreToWin,
+			width: data.gameSettings.width,
+			height: data.gameSettings.height,
+			paddleHeight: utils.toScale(data.gameSettings.paddleHeight, canvas.height / 1080),
+			paddleWidth: utils.toScale(data.gameSettings.paddleWidth, canvas.width / 1920),
+		}))
+	}
+
+	const handleGameReady = (data: {gameData: GameData, gameSettings: GameSettings }) => {
+		//console.log("game ready", data.gameData)
+		const newPlayers = [
+			{
+				id: data.gameData.players[0].id,
+				pos : utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height),
+				score: 0,
+			},
+			{
+				id: data.gameData.players[1].id,
+				pos : utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height),
+				score: 0,
+			}
+			]
+
+		setGameData((oldGameData) => ({
+			...oldGameData,
+			ball: data.gameData.ball,
+			players: newPlayers, //oldGameData.players.map((player, index) => {
+			// 	if (index === 0)
+			// 		return {...player, id: data.gameData.players[index].id, pos: utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height)}
+			// 	return {...player, id: data.gameData.players[index].id, pos: utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height)}
+			// }),
 			//state: GameState.Started
 		}))
 		setGameSettings((oldGameSettings) => ({
@@ -151,14 +205,15 @@ export default function Game()
 	}
 
 	const handleSpectateSuccess = (data: {gameData: GameData, gameSettings: GameSettings }) => {
+		let newPlayers = data.gameData.players;
+		
+		newPlayers[0].pos = utils.toScale(data.gameData.players[0].pos, canvas.height / gameSettings.height);
+		newPlayers[1].pos = utils.toScale(data.gameData.players[1].pos, canvas.height / gameSettings.height);
+
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			ball: data.gameData.ball,
-			players: oldGameData.players.map((player) => {
-				if (player === gameData.players[0])
-					return {...player, pos: utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height)}
-				return {...player, pos: utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height)}
-			}),
+			players: newPlayers,
 			//state: GameState.Spectacte
 		}))
 		setGameSettings((oldGameSettings) => ({
@@ -174,7 +229,7 @@ export default function Game()
 
 	const joinedLobby = (data: {gameData: GameData, gameSettings: GameSettings }) =>
 	{
-		console.log("data in joinedLobby", data.gameData);
+		//console.log("data in joinedLobby", data.gameData);
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			ball: data.gameData.ball,
@@ -248,11 +303,20 @@ export default function Game()
 	}
 
 	function updatePaddle(data:{playerId:string, newPos:number})
-	{
-		console.log(gameData.players)
+	{	
+		//  let newPlayers = gameData.players;
+		
+		// if (data.playerId == gameData.players[0].id)
+		// 	 newPlayers[0].pos = utils.toScale(data.newPos, canvas.height / gameSettings.height);
+		// else
+		//  newPlayers[1].pos = utils.toScale(data.gameData.players[1].pos, canvas.height / gameSettings.height);
+
+		 //console.log("gamedata", gameData.players)
+		// console.log("update data", data)
 			setGameData((oldGameData) => ({
 				...oldGameData,
-				players: oldGameData.players.map((player) => {
+				players: oldGameData.players.map((player, index) => {
+					//console.log("player in map", player);
 					if (player.id === data.playerId)
 						return {...player, pos: utils.toScale(data.newPos, canvas.height / gameSettings.height)}
 					return player
@@ -343,6 +407,7 @@ export default function Game()
 			handleUpdateBall,
 			updatePaddle,
 			handleGameReady,
+			handleGameData,
 			handleGoalScored,
 			handleSpectateSuccess,
 			handleGameOver,
@@ -359,6 +424,7 @@ export default function Game()
 							handleUpdateBall,
 							updatePaddle,
 							handleGameReady,
+							handleGameData,
 							handleGoalScored,
 							handleSpectateSuccess,
 							handleGameOver,

@@ -3,6 +3,7 @@ import { ForbiddenException, HttpException, Injectable, UnauthorizedException } 
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Token } from 'client-oauth2';
+import { ConnectableObservable } from 'rxjs';
 import { AuthenticatedSocket, newSessionDto } from 'src/auth/types/auth.type';
 import { Session } from 'src/typeorm/Session';
 import { UsersService } from 'src/users/users.service';
@@ -64,12 +65,13 @@ export class AuthService {
         }
         else 
         {
+            console.log("handshake login", client.handshake.auth.login)
             client.sessionId = v4();
             client.roomId = v4();
             client.login = client.handshake.auth.login;
             client.lobbyId = null;
             client.lobby = null;
-            this.saveSession({
+            await this.saveSession({
                     sessionId: client.sessionId,
                     roomId: client.roomId,
                     login: client.login,
@@ -79,6 +81,10 @@ export class AuthService {
         }
         client.join(client.roomId);
         client.emit("session", {
+            sessionId: client.sessionId,
+            roomId: client.roomId,
+        })
+        console.log("Emitted session :", {
             sessionId: client.sessionId,
             roomId: client.roomId,
         })
@@ -99,6 +105,14 @@ export class AuthService {
     {
         const newSession = this.sessionsRepository.create(dto);
         await this.sessionsRepository.save(newSession);
+    }
+
+    async updateLobby(sessionId: string, lobbyId: string)
+    {
+        let session = await this.findSession(sessionId);
+        session.lobbyId = lobbyId;
+        await this.sessionsRepository.update(session.id, session);
+
     }
 
 }

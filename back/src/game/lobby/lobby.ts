@@ -33,6 +33,7 @@ export class Lobby
         this.clients.set(client.login, client.roomId);
         client.join(this.id);
         client.lobby = this;
+        
         console.log(`Client ${client.login} joined`, this.id)
         
         if (this.nbPlayers < 2)
@@ -51,7 +52,9 @@ export class Lobby
         }
         else
         {
-            client.emit("spectateSuccess", this.gameInstance.getSpectateData());
+            const data = this.getGameData();
+            client.emit("spectateSuccess", data);
+            console.log("Spectate data", data.gameData.players);
         }
     }
 
@@ -130,6 +133,11 @@ export class Lobby
 	{
 		return this.gameInstance.getPlayer(clientLogin);
 	}
+
+    public getGameData()
+    {
+        return this.gameInstance.getGameData();
+    }
 
     public isClient(clientLogin: string): boolean
     {
