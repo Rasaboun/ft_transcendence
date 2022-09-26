@@ -5,6 +5,7 @@ import { ActionOnUser, AddAdmin, CreateChannel, InviteClient, JoinChannel, SetCh
 import { AuthenticatedSocket } from 'src/auth/types/auth.type';
 import { AuthService } from 'src/auth/auth.service';
 import { forwardRef, Inject } from '@nestjs/common';
+import { GameMode } from 'src/game/types/game.type';
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -145,6 +146,17 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			await this.channelManager.sendChannelInfo(client, channelName);
 		}
 		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('sendInvitation')
+	async sendInvitation(client: AuthenticatedSocket, channelName: string, mode: GameMode)
+	{
+		try
+		{
+			await this.channelManager.sendInvitation(client, channelName, mode);
+		}
+		catch (error) { client.emit('error', error.message ) }
+
 	}
 
 	@SubscribeMessage('getActiveChannels')

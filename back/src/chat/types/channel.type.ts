@@ -22,6 +22,12 @@ export enum ChannelModes {
 	Password,
 }
 
+export enum MessageTypes {
+	Invitation,
+	Info,
+	Message,
+}
+
 export class MutedException extends HttpException
 {
 
@@ -39,7 +45,7 @@ export type Message = {
 	channelName?: string,
 	content: string,
 	date?: string,
-	isInfo: boolean,
+	type: MessageTypes,
 }
 
 export type ActionOnUser = {
