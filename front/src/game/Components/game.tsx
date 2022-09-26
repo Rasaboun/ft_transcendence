@@ -5,9 +5,7 @@ import "../game.css"
 import { GameSettings, GameData, GameState, Player, Ball} from "../GameUtils/type"
 // import {ThreeDots} from "react-loader-spinner";
 import { Socket } from 'socket.io-client'
-import { GameContext } from "../GameContext/gameContext"
 import useLocalStorage from "../../hooks/localStoragehook"
-import { getSession, getToken } from "../../Utils/utils"
 import { GameCleaner, GameRoutineHandler, getChatSocket, getGameSocket, initiateSocket, leftPong, loadGame, playerMoved, startGame } from "../../Utils/socketManager"
 import { SocketContext } from "../../Context/socketContext"
 
@@ -82,7 +80,7 @@ export default function Game()
 	// }
 	function initializeGame()
 	{
-		console.log(parseInt(storage2) === GameState.Started)
+		console.log("Is in game?", parseInt(storage2) === GameState.Started)
 		if (parseInt(storage2) === GameState.Started)
 		{
 			loadGame();
@@ -307,6 +305,8 @@ export default function Game()
 	function clearCanvas(): boolean
 	{
 
+		if (!canvas)
+			return false;
 		const context  = canvas.getContext("2d")!;
 
 		if (!context)
@@ -321,7 +321,7 @@ export default function Game()
 	}
 
 	useEffect(() => {
-		initiateSocket("http://localhost:8002", getToken())
+		initiateSocket("http://localhost:8002")
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
 		
@@ -340,6 +340,7 @@ export default function Game()
 			handleSpectateSuccess,
 			handleGameOver,
 			handleSession)
+		
 		if (!context)
 			return ;
 		

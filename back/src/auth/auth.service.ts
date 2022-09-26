@@ -58,12 +58,9 @@ export class AuthService {
 
     async initializeSocket(client: AuthenticatedSocket)
     {
-        const session = await this.findSession(client.handshake.auth.sessionId);
         const token = client.handshake.auth.token
-        console.log("auth", client.handshake.auth);
         const tokenData: TokenPayload = this.jwtService.decode(token) as TokenPayload;
-        console.log("tokenData", tokenData);
-        console.log("Found session", session);
+
         
         client.login = tokenData.login;
         client.roomId = tokenData.roomId;
@@ -71,39 +68,6 @@ export class AuthService {
         client.lobbyId = null; //Get in database;
 
         client.join(client.roomId);
-        console.log("Client login", client.login)
-        // if (session != null && session.expiresAt > new Date().getTime())
-        // {
-        //     client.sessionId = client.handshake.auth.sessionId;
-        //     client.roomId = session.roomId;
-        //     client.login = session.login;
-        //     client.lobbyId = session.lobbyId;
-        // }
-        // else 
-        // {
-        //     console.log("handshake login", client.handshake.auth.login)
-        //     client.sessionId = v4();
-        //     client.roomId = v4();
-        //     client.login = client.handshake.auth.login;
-        //     client.lobbyId = null;
-        //     client.lobby = null;
-        //     await this.saveSession({
-        //             sessionId: client.sessionId,
-        //             roomId: client.roomId,
-        //             login: client.login,
-        //             lobbyId: client.lobbyId,
-        //             expiresAt: new Date().getTime() + Number(process.env.COOKIE_LIFETIME_IN_MS),
-        //         })
-        // }
-
-        // client.emit("session", {
-        //     sessionId: client.sessionId,
-        //     roomId: client.roomId,
-        // })
-        // console.log("Emitted session :", {
-        //     sessionId: client.sessionId,
-        //     roomId: client.roomId,
-        // })
     }
 
     async findSession(sessionId: string)

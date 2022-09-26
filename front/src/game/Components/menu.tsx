@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { io, Socket } from 'socket.io-client'
-import { playerT, availableLobbiesT, GameMode, GameState } from "../GameUtils/type"
+import { Socket } from 'socket.io-client'
+import { availableLobbiesT, GameMode, GameState } from "../GameUtils/type"
 import LobbyItem from '../Elements/lobbyItem'
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useLocalStorage from '../../hooks/localStoragehook'
 import { SocketContext } from '../../Context/socketContext';
 import { GameMenuHandler, getActiveGames, getChatSocket, getGameSocket, initiateSocket, joinQueue, Menucleaner, spectacteGame } from '../../Utils/socketManager';
-import { getSession, getToken } from '../../Utils/utils';
 import GameRadioForm from '../../Elements/gameRadioForm';
 
 let socket:Socket
@@ -14,8 +13,9 @@ let socket:Socket
 export default function Menu()
 {
     const navigate = useNavigate()
-    const {storage, setStorage} = useLocalStorage("user")
-    const {gameState, gameSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
+    const {setStorage} = useLocalStorage("user")
+	const {storage2} = useLocalStorage("gameState")
+    const {gameSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
     const [availableLobbies, setAvailableLobbies] = useState<availableLobbiesT>()
     const [gameMode, setGameMode] = useState(GameMode.Normal)
 
@@ -62,11 +62,10 @@ export default function Menu()
     }
 
 	useEffect(() => {
-        console.log(gameState)
-        initiateSocket("http://localhost:8002", getToken())
+        initiateSocket("http://localhost:8002")
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
-        if (gameState === GameState.Started)
+        if (parseInt(storage2) === GameState.Started)
             navigate("game")
         if (gameSocket)
         {

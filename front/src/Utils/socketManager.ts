@@ -7,26 +7,26 @@ let socket:Socket
 let chatSocket:Socket
 let gameSocket:Socket
 
-export async function initiateSocket(url:string, token: string | null)
+export async function initiateSocket(url:string)
 {
-	
+	let token = getToken();
+	if (!token)
+		return;
+	token = JSON.parse(token);	
 	if (!chatSocket)
 	{
 		chatSocket = io(`${url}/chat`, {
-			 auth:	{ token }
-			})
-		console.log(chatSocket, gameSocket)
-		console.log(chatSocket, new Date().getTime())
-
-
+			autoConnect: true,
+			auth:	{ token },
+			}).connect();
 	}
+
 	if (!gameSocket)
 	{
 		gameSocket = io(`${url}/game`, {
 			autoConnect: true,
 			auth:	{ token }
 			})
-		console.log(chatSocket, gameSocket)
 
 	}
 }
@@ -83,7 +83,7 @@ export function getActiveChannels() {
 }
 
 export function getClientInfo(channelName:string) {
-	console.log(chatSocket)
+	console.log("In client info", chatSocket.connected)
 	chatSocket?.emit("clientInfo", channelName);
 }
 

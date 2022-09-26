@@ -31,16 +31,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		 console.log(`Client ${client.handshake.auth.login} joined chat socket`);
 		await this.authService.initializeSocket(client as AuthenticatedSocket);
 		await this.channelManager.joinChannels(client as AuthenticatedSocket);
-		console.log("client.handshake.auth.login")
-		console.log("In connect", new Date());
-		//client.emit("connected")
-		//console.log(client);
 	}
 
 	async handleDisconnect(client: AuthenticatedSocket) {
 		console.log(`Client ${client.login} left server`);
 		this.channelManager.terminateSocket(client);
-		
 	}
 
 	@SubscribeMessage("session")

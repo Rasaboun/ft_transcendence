@@ -43,8 +43,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		console.log(`Client ${client.id} left pong socket`);
 		
 	}
-	@SubscribeMessage('leftPong')
 
+	@SubscribeMessage('leftPong')
 	leftPong(client: AuthenticatedSocket)
 	{
 		console.log("client leftPong");

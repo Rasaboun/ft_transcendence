@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { setAuthToken } from "./authPage/authUtils/AuthUtils";
@@ -17,12 +17,13 @@ import Pong from "./Pong";
 import { PrivateRoute } from "./PrivateRoute";
 import Settings from "./Settings";
 import { appSocketRoutine, getChatSocket, getGameSocket, initiateSocket } from "./Utils/socketManager";
-import { getSession, getToken } from "./Utils/utils";
+import { getToken } from "./Utils/utils";
 
 const token = localStorage.getItem("token");
 if (token) {
      setAuthToken(token);
- }
+}
+
 export default function App()
 {
 	const {gameState, setGameState, chatSocket, setChatSocket, gameSocket, setGameSocket} = useContext(SocketContext)
@@ -48,10 +49,9 @@ export default function App()
 	}
 
 	useEffect(() => {
-		console.log("APP RENDER")
 		if (getToken())
 		{
-			initiateSocket("http://localhost:8002", getToken())
+			initiateSocket("http://localhost:8002")
 			setChatSocket(getChatSocket())
 			setGameSocket(getGameSocket())
 			appSocketRoutine(handleSession, handleGameOver);

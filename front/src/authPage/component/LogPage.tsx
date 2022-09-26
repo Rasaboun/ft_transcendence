@@ -12,7 +12,7 @@ export default function LoginElem ()
 {
 	const { chatSocket, setChatSocket, gameSocket, setGameSocket } = useContext(SocketContext)
 	const navigate = useNavigate()
-	const {storage, setStorage} = useLocalStorage()
+	const {setStorage} = useLocalStorage()
 	const [authForm, setAuthForm] = useState<AuthFormT>({
 		username: "",
 		password: ""
@@ -34,9 +34,11 @@ export default function LoginElem ()
 					if (res.data.user)
 					{
 						console.log(res.data.user)
-						initiateSocket("http://localhost:8002", res.data.access_token)
 						setStorage("token", res.data.access_token)
 						setStorage("user", res.data.user);
+
+						initiateSocket("http://localhost:8002")
+						
 						setChatSocket(getChatSocket())
 						setGameSocket(getGameSocket())
 						setAuthToken(res.data.access_token);

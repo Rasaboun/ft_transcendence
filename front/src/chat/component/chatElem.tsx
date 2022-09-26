@@ -1,14 +1,13 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
 import { chatHandler, getChatSocket, getClientInfo, getGameSocket, initiateSocket, sendMessage } from "../../Utils/socketManager";
 import Message from "../Elements/message";
-import {ActionOnUser, ChannelModes, ChannelT, ClientInfoT, messageT, UserStateT} from "../ChatUtils/chatType"
+import {ActionOnUser, ChannelT, ClientInfoT, messageT, UserStateT} from "../ChatUtils/chatType"
 import { useNavigate } from "react-router-dom";
 import InfoMessage from "../Elements/InfoMessage";
 import ChannelBoard from "../Elements/ChannelBoard";
 import useLocalStorage from "../../hooks/localStoragehook";
 import MessageInput from "./MessageInput";
 import { SocketContext } from "../../Context/socketContext";
-import { getSession, getToken } from "../../Utils/utils";
 
 export default function ChatElem()
 {
@@ -213,7 +212,7 @@ export default function ChatElem()
     useEffect(() => {
         const channel = storage2;
         console.log("CHANNEL NAME", channel.channelId)
-        initiateSocket("http://localhost:8002", getToken())
+        initiateSocket("http://localhost:8002")
         setChatSocket(getChatSocket())
         setGameSocket(getGameSocket())
         chatSocket?.on("connect", () => {
