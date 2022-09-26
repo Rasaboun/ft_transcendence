@@ -81,5 +81,21 @@ export type channelFormT = {
 
 export type MessageInfoT = {
 	channelName: string,
-	
+}
+
+export enum MessageTypes {
+    Invitation,
+    Info,
+    Message,
+}
+
+export type Message = {
+    sender: {
+        login: string,
+        username: string,
+    },
+    channelName?: string,
+    content: string,
+    date?: string,
+    type: MessageTypes,
 }

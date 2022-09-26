@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import useLocalStorage from "../../hooks/localStoragehook";
 import { ClientElem, ClientInfoT, UserStateT } from "../ChatUtils/chatType";
-import { addAdmin, banUser, createLobby, muteUser } from "../../Utils/socketManager";
+import { addAdmin, banUser, createLobby, muteUser, sendInvitation } from "../../Utils/socketManager";
 import GameRadioForm from "../../Elements/gameRadioForm";
 import { GameMode } from "../../game/GameUtils/type";
 type UserElemPropsT = {
@@ -87,6 +87,7 @@ export default function UserListElem({ client, userState }:UserElemPropsT)
 		e.preventDefault()
 		//INITED ID ?
 		createLobby({inviteMode: true, mode: gameMode})
+		sendInvitation(storage!.channelId, gameMode)
 	}
 
 	const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {

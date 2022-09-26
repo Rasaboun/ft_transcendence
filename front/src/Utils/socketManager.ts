@@ -37,6 +37,7 @@ export function getChatSocket()
 	return chatSocket
 }
 
+
 export function getGameSocket()
 {
 	return gameSocket
@@ -117,6 +118,10 @@ export function setPrivateMode(channelName: string) {
 
 export function unsetPrivateMode(channelName: string) {
 	chatSocket?.emit("unsetPrivateMode", channelName);
+}
+
+export function sendInvitation(channelName: string, mode:GameMode) {
+	chatSocket?.emit("sendInvitation", channelName, mode);
 }
 
 export function chatMenuHandler(handleActiveChannels:any, handleChannelJoined:any, handleError:any, handleInvitation:any, handleSession:any)

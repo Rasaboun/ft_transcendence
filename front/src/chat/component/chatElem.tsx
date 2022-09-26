@@ -1,13 +1,15 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
 import { chatHandler, getChatSocket, getClientInfo, getGameSocket, initiateSocket, sendMessage } from "../../Utils/socketManager";
 import Message from "../Elements/message";
-import {ActionOnUser, ChannelT, ClientInfoT, messageT, UserStateT} from "../ChatUtils/chatType"
+import {ActionOnUser, ChannelModes, ChannelT, ClientInfoT, messageT, UserStateT} from "../ChatUtils/chatType"
 import { useNavigate } from "react-router-dom";
 import InfoMessage from "../Elements/InfoMessage";
 import ChannelBoard from "../Elements/ChannelBoard";
 import useLocalStorage from "../../hooks/localStoragehook";
 import MessageInput from "./MessageInput";
 import { SocketContext } from "../../Context/socketContext";
+import { getSession } from "../../Utils/utils";
+import InviteMessage from "../Elements/InviteMessage";
 
 export default function ChatElem()
 {
@@ -215,10 +217,6 @@ export default function ChatElem()
         initiateSocket("http://localhost:8002")
         setChatSocket(getChatSocket())
         setGameSocket(getGameSocket())
-        chatSocket?.on("connect", () => {
-            console.log("CHAT ONNECTED")
-            
-        })
         if (chatSocket?.connected)
         {
             chatHandler(handleMessageReceived,
@@ -257,11 +255,21 @@ export default function ChatElem()
                 <div className="h-96">
                     <div className="message-container">
                         {messageElem}
+                        <InviteMessage 
+                            className="message message-right"
+                            message={{
+                                sender:{
+                                    login: storage.login,
+                                    username: storage.username
+                                },
+                                content: "invites you to a mode party"
+                            }}
+                        />
                         <div ref={lastMessageRef}/>
                     </div>
                 </div>
                 <MessageInput mutedTime={mutedTime} handleChange={handleChange} handleSubmitMessage={handleSubmitMessage} value={form.message}/>
-            </div>           
+            </div>          
         </div>
     )
 }
