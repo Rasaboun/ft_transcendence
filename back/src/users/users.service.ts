@@ -130,7 +130,19 @@ export class UsersService {
     }
 
     async getUserStatus(id: number): Promise<UserStatus> {
-        return await (await this.findOneById(id)).status;
+        return (await this.findOneById(id)).status;
     }
 
+    async getUserLobby(login: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        return user.lobbyId;
+    }
+
+    async setUserLobby(login: string, newLobby: string | null)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        user.lobbyId = newLobby;
+        await this.userRepository.update(user.id, user);
+    }
 }

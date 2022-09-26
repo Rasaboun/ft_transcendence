@@ -2,10 +2,12 @@ import { ForbiddenException, forwardRef, Inject, NotFoundException } from "@nest
 import { Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
 import { createClient } from "redis";
+import { mergeScan } from "rxjs";
 import { Server } from "socket.io";
 import { AuthenticatedSocket } from 'src/auth/types/auth.type';
+import { GameMode } from "src/game/types/game.type";
 import { UsersService } from "src/users/users.service";
-import { ActionOnUser, AddAdmin, ChannelClient, ChannelInfo, ChannelModes, ClientInfo, CreateChannel, InviteClient, JoinChannel, Message, MutedException, SetChannelPassword, uuidRegexExp } from "../types/channel.type";
+import { ActionOnUser, AddAdmin, ChannelClient, ChannelInfo, ChannelModes, ClientInfo, CreateChannel, InviteClient, JoinChannel, Message, MessageTypes, MutedException, SetChannelPassword, uuidRegexExp } from "../types/channel.type";
 import { Channel } from "./channel";
 import { ChannelsService } from "./channel.service";
 
@@ -232,7 +234,7 @@ export class ChannelManager
                 channelName: channelId,
                 content: msg,
                 date: new Date().toString(),
-                isInfo: false,
+                type: MessageTypes.Message,
             };
 
             channel.sendMessage(message);
@@ -253,7 +255,7 @@ export class ChannelManager
                 channelName: channelId,
                 date: new Date().toString(),
                 content: content,
-                isInfo: true,
+                type: MessageTypes.Info,
             }
             this.channels.get(channelId).sendMessage(message);
             await this.channelsService.addMessage(channelId, message);
@@ -273,7 +275,7 @@ export class ChannelManager
                 channelName: channelId,
                 date: new Date().toString(),
                 content: content,
-                isInfo: true,
+                type: MessageTypes.Info,
             }
             await this.channelsService.addMessage(channelId, message);
         }
@@ -454,6 +456,45 @@ export class ChannelManager
             client.emit('channelInfo', channel.getInfo(await this.getChannelClients(channel.id)))
         } catch (error) { throw error }
         
+    }
+
+    public async sendInvitation(client: AuthenticatedSocket, channelName: string, mode: GameMode)
+    {
+        try
+        {
+            const channel = this.channels.get(channelName);
+            if (channel == undefined)
+                throw new NotFoundException("This channel does not exist");
+            const user = await this.userService.findOneByIntraLogin(client.login);
+            
+            let msg = `invites you to join a game. Mode: `;
+            switch (mode) {
+                case GameMode.Mini:
+                    msg += "Mini.";
+                    break;
+                case GameMode.Speed:
+                    msg += "Speed.";
+                    break;
+                default:
+                    msg += "Normal.";
+                    break;
+            }
+
+            let message: Message = {
+                sender: {
+                    login: user.intraLogin,
+                    username: user.username,
+                },
+                channelName: channelName,
+                content: msg,
+                date: new Date().toString(),
+                type: MessageTypes.Invitation,
+            };
+
+            channel.sendMessage(message);
+            await this.channelsService.addMessage(channelName, message);
+        } catch (error) { throw error }
+
     }
 
     public async getChannelClients(channelName: string)

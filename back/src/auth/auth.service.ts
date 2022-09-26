@@ -65,8 +65,7 @@ export class AuthService {
         client.login = tokenData.login;
         client.roomId = tokenData.roomId;
         client.lobby = null;
-        client.lobbyId = null; //Get in database;
-
+        client.lobbyId = await this.userService.getUserLobby(client.login);
         client.join(client.roomId);
     }
 
@@ -86,13 +85,9 @@ export class AuthService {
         await this.sessionsRepository.save(newSession);
     }
 
-    async updateLobby(sessionId: string, lobbyId: string)
+    async updateLobby(login: string, lobbyId: string | null)
     {
-        let session = await this.findSession(sessionId);
-        console.log("updating session id :", sessionId)
-        session.lobbyId = lobbyId;
-        await this.sessionsRepository.update(session.id, session);
-
+        await this.userService.setUserLobby(login, lobbyId);
     }
 
 }

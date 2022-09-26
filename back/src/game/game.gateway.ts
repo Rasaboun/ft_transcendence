@@ -47,7 +47,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('leftPong')
 	leftPong(client: AuthenticatedSocket)
 	{
-		console.log("client leftPong");
 		this.lobbyManager.leaveQueue(client);
 	}
 
@@ -72,11 +71,17 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('joinInvitation')
-	joinInvitation(client: AuthenticatedSocket, playerLogin: string)
+	joinInvitation(client: AuthenticatedSocket, channelName: string)
 	{
 		try
 		{
-			this.lobbyManager.joinInvitation(client, playerLogin);
+			const lobby = this.lobbyManager.getLobby(channelName);
+			if (!lobby)
+			{
+				client.emit("invitationExpired", "This lobby does not exist anymore");
+			}
+			lobby.addClient(client);
+			this.authService.updateLobby(client.login, lobby.id);
 		} catch (error) { client.emit("error", error.message) };
 	}
 

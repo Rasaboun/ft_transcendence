@@ -62,8 +62,6 @@ export class LobbyManager
     public joinQueue(client: AuthenticatedSocket, mode:GameMode)
     {
         let lobby: Lobby = null;
-
-        console.log("Gamemode", mode);
    
         for (let i = 0; i < this.avalaibleLobbies.length; i++)
         {
@@ -84,7 +82,7 @@ export class LobbyManager
             this.avalaibleLobbies.push(lobby);
         }
         lobby.addClient(client);
-        //this.authService.updateLobby(client.sessionId, lobby.id);
+        this.authService.updateLobby(client.login, lobby.id);
     }
 
     public leaveQueue(client: AuthenticatedSocket)
@@ -96,7 +94,7 @@ export class LobbyManager
                 this.avalaibleLobbies.splice(i, 1);
                 this.destroyLobby(this.avalaibleLobbies[i]?.id);
                 client.lobby = null;
-                //this.authService.updateLobby(client.sessionId, null);
+                this.authService.updateLobby(client.login, null);
             }
         }
     }
@@ -109,8 +107,7 @@ export class LobbyManager
         if (!lobby)
            throw new NotFoundException("This lobby does not exist anymore");
         lobby.addClient(client);
-        //this.authService.updateLobby(client.sessionId, lobby.id);
-        console.log('Spectacte success');
+        this.authService.updateLobby(client.login, lobby.id);
     }
 
     public async joinLobbies(client: AuthenticatedSocket)
@@ -127,27 +124,6 @@ export class LobbyManager
             }
         }
     }
-
-    public async joinInvitation(client: AuthenticatedSocket, playerLogin: string)
-    { 
-        for (let i = 0; i < this.avalaibleLobbies.length; i++)
-        {
-            if (this.avalaibleLobbies[i].isClient(client.login) === false && !this.avalaibleLobbies[i].isPrivate())
-            {
-                const lobby = this.avalaibleLobbies.splice(i, 1).at(0);
-                lobby.addClient(client);
-                return ;
-            }
-        }
-        throw new NotFoundException("The invitation has expired");
-
-    }
-
-    /*
-    * Retourne l'id de tous les lobbies en game et l'id des 2 joueurs
-    * Va servir pour afficher toutes les parties en cours et les regarder
-    * Gerer le cas ou il n'y a pas de parties en cours
-    */ 
 
     public getLobby(lobbyId: string)
     {
@@ -170,27 +146,6 @@ export class LobbyManager
         });
         return res;
         
-    }
-
-    //Deletes stopped lobbies every 5 minutes
-    @Interval(60 * 1000)
-    private lobbiesCleaner(): void
-    {
-        for (let i = 0; i < this.avalaibleLobbies.length; i++) {
-            if (this.avalaibleLobbies[i].nbPlayers == 0) {
-                this.avalaibleLobbies.splice(i, 1);
-            }
-            
-        }
-        console.log(`Avalaible lobbies: ${this.avalaibleLobbies.length}`);
-        this.lobbies.forEach((lobby, id) => {
-			console.log(lobby.nbPlayers);
-            if (lobby.state == GameState.Stopped && lobby.nbPlayers == 0)
-            {
-                this.lobbies.delete(id);
-            }
-        });
-        console.log(`Active lobbies: ${this.lobbies.size}`);
     }
 
 }

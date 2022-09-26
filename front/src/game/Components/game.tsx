@@ -165,7 +165,6 @@ export default function Game()
 	}
 
 	const handleGameData = (data: {gameData: GameData, gameSettings: GameSettings }) => {
-		console.log(data)
 		updateGame(data);
 	}
 

@@ -33,6 +33,12 @@ export class User {
     })
     nbGames: number;
 
+    @Column({
+        default: null,
+        nullable: true,
+    })
+    lobbyId: string;
+
     @Column('text', { 
         array: true,
         default: []
