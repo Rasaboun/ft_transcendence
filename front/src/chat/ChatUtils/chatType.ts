@@ -16,13 +16,14 @@ export type ChannelT = {
 }
 
 export type messageT = {
-    sender?: {
-		login:string,
-		username:string
-	},
-    content : string,
-	date?:Date
-	isInfo?: boolean
+	sender?: {
+        login: string,
+        username: string,
+    },
+    channelName?: string,
+    content: string,
+    date?: string,
+    type: MessageTypes,
 }
 
 export enum ChannelModes {
@@ -87,15 +88,4 @@ export enum MessageTypes {
     Invitation,
     Info,
     Message,
-}
-
-export type Message = {
-    sender: {
-        login: string,
-        username: string,
-    },
-    channelName?: string,
-    content: string,
-    date?: string,
-    type: MessageTypes,
 }

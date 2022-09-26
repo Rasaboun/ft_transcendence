@@ -1,4 +1,3 @@
-import React from "react";
 import "../chat.css"
 import { messageT } from "../ChatUtils/chatType";
 

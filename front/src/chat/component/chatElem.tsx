@@ -1,7 +1,7 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
 import { chatHandler, getChatSocket, getClientInfo, getGameSocket, initiateSocket, sendMessage } from "../../Utils/socketManager";
 import Message from "../Elements/message";
-import {ActionOnUser, ChannelModes, ChannelT, ClientInfoT, messageT, UserStateT} from "../ChatUtils/chatType"
+import {ActionOnUser, ChannelModes, ChannelT, ClientInfoT, messageT, MessageTypes, UserStateT} from "../ChatUtils/chatType"
 import { useNavigate } from "react-router-dom";
 import InfoMessage from "../Elements/InfoMessage";
 import ChannelBoard from "../Elements/ChannelBoard";
@@ -54,8 +54,8 @@ export default function ChatElem()
         }
         else {
             setMessagesList((oldMessagesList) => (
-                oldMessagesList === undefined ? [{content: mutedMessage, isInfo: true}] :
-                    [...oldMessagesList, {content: mutedMessage, isInfo: true}]
+                oldMessagesList === undefined ? [{content: mutedMessage, type: MessageTypes.Info}] :
+                    [...oldMessagesList, {content: mutedMessage, type: MessageTypes.Info}]
             ))
         }
 
@@ -76,8 +76,8 @@ export default function ChatElem()
             isAdmin: true
             }));
         setMessagesList((oldMessagesList) => (
-            oldMessagesList === undefined ? [{content: message, isInfo: true}] :
-                [...oldMessagesList, {content: message, isInfo: true}]
+            oldMessagesList === undefined ? [{content: message, type: MessageTypes.Info}] :
+                [...oldMessagesList, {content: message, type: MessageTypes.Info}]
         ));
     }
 
@@ -101,8 +101,8 @@ export default function ChatElem()
                 isAdmin: true
                 }));
             setMessagesList((oldMessagesList) => (
-                oldMessagesList === undefined ? [{content: message, isInfo: true}] :
-                    [...oldMessagesList, {content: message, isInfo: true}]
+                oldMessagesList === undefined ? [{content: message, type: MessageTypes.Info}] :
+                    [...oldMessagesList, {content: message, type: MessageTypes.Info}]
             ));
         }
     }
@@ -110,8 +110,8 @@ export default function ChatElem()
     const handleIsAlreadyAdmin = () => {
         const message = `Is already admin`
         setMessagesList((oldMessagesList) => (
-            oldMessagesList === undefined ? [{content: message, isInfo: true}] :
-                [...oldMessagesList, {content: message, isInfo: true}]
+            oldMessagesList === undefined ? [{content: message, type: MessageTypes.Info}] :
+                [...oldMessagesList, {content: message, type: MessageTypes.Info}]
         ))
     }
 
@@ -157,8 +157,8 @@ export default function ChatElem()
             "You have been banned from the chat" :
             `${data.targetId} has been banned from the chat`
         setMessagesList((oldMessagesList) => (
-            oldMessagesList === undefined ? [{content: message, isInfo: true}] :
-                [...oldMessagesList, {content: message, isInfo: true}]
+            oldMessagesList === undefined ? [{content: message, type: MessageTypes.Info}] :
+                [...oldMessagesList, {content: message, type: MessageTypes.Info}]
         ))
         setUserState((oldUserState) => ({
             ...oldUserState!,
@@ -175,8 +175,8 @@ export default function ChatElem()
             `You have been muted for ${data.duration} sec` :
             `${data.targetId} has been muted for ${data.duration} sec`
         setMessagesList((oldMessagesList) => (
-            oldMessagesList === undefined ? [{content: message, isInfo: true}] :
-                [...oldMessagesList, {content: message, isInfo: true}]
+            oldMessagesList === undefined ? [{content: message, type: MessageTypes.Info}] :
+                [...oldMessagesList, {content: message, type: MessageTypes.Info}]
         ))
         if (data.targetId === storage.login)
         {
@@ -201,13 +201,16 @@ export default function ChatElem()
     }
 
     const messageElem = messagesList?.map((elem, index) => (
-        elem.isInfo ? 
+        elem.type === MessageTypes.Info ? 
             <InfoMessage key={index} message={elem}/> :
+            (elem.type === MessageTypes.Message ?
             <Message key={index} 
                 className={elem.sender?.login ===  storage.login ?
                     "message message-right" : "message message-left"}
-                message={elem}
-            />
+                message={elem} /> :
+            <InviteMessage key={index} className={elem.sender?.login ===  storage.login ?
+                "message message-right" : "message message-left"}
+                message={elem}/>)
     ))
 
 
@@ -255,16 +258,6 @@ export default function ChatElem()
                 <div className="h-96">
                     <div className="message-container">
                         {messageElem}
-                        <InviteMessage 
-                            className="message message-right"
-                            message={{
-                                sender:{
-                                    login: storage.login,
-                                    username: storage.username
-                                },
-                                content: "invites you to a mode party"
-                            }}
-                        />
                         <div ref={lastMessageRef}/>
                     </div>
                 </div>
