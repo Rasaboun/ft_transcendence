@@ -139,7 +139,7 @@ export function joinPrivChat(intraLogin: string)
 	chatSocket?.emit("joinPrivateChat", intraLogin)
 }
 
-export function sendPrivMessage(recieverId: string, message: messageT)
+export function sendPrivMessage(recieverId: string, message: string)
 {
 	chatSocket?.emit("privChatSendMessage", recieverId, message)
 }
@@ -183,6 +183,12 @@ export function chatHandler(handleMessageReceived:any,
         chatSocket.on('leftChannel', (channelInfo:ChannelT) => handleLeftChannel(channelInfo))
         chatSocket.on('newOwner', (data: {target: string, channelInfo: ChannelT}) => newOwner(data))
         chatSocket.on('isAlreadyAdmin', handleIsAlreadyAdmin)
+
+}
+
+export function chatHandlerPrivEl(handlePrivMessageReceived:any)
+{
+        chatSocket.on("privChatSendMessage", (msg:messageT) => handlePrivMessageReceived(msg))      
 
 }
 

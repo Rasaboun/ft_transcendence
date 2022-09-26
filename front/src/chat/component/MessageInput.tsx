@@ -10,8 +10,7 @@ type MessageInputPropsT = {
 export default function MessageInput(props:MessageInputPropsT)
 {
 	console.log("mutedTime", props.mutedTime)
-	return (
-		<form onSubmit={props.handleSubmitMessage}>
+	return ( <form onSubmit={props.handleSubmitMessage}>
 			<input style={{
 				border: "1px solid black",
 				marginRight: "15px"

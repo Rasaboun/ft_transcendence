@@ -28,7 +28,7 @@ export default function ChatElem()
     
     const scrollToBottom = () => {
         lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
-      }
+    }
 
     const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         setForm((oldForm) => ({

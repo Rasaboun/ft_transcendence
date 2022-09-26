@@ -216,7 +216,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try{
 			console.log("The login : " + intraLogin + " just connected itself to it")
-			client.emit("joinedPrivChat")
+			client.emit("joinedPrivChat",  )
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
@@ -231,9 +231,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('privChatSendMessage')
-	async privChatSendMessage(client :AuthenticatedSocket, recieverId: number, message: string)
+	async privChatSendMessage(client :AuthenticatedSocket, recieverIntraLogin: string, message: string)
 	{
 		try {
+			var recieverId: number = (await this.userService.findOneByIntraLogin(recieverIntraLogin)).id;
 			client.emit('privChatSendMessage', this.privChatManage.sendMessage(client, client.dbId, recieverId, message));
 		}
 		catch (error) { client.emit('error', error.message ) }

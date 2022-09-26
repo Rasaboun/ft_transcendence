@@ -50,10 +50,8 @@ export default function ChatMenu()
 		}
 	}
 	
-	const handlePrivChatJoined = () => {
-		 console.log("Connection par handlePrivChatJoine")
-			setStorage("intraLogin", "asd")
-			navigate("/chat/privMessage");
+	const handlePrivChatJoined = (intraLogin: string) => {
+		navigate("/chat/privMessage");
 	}
 
     const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
@@ -105,6 +103,7 @@ export default function ChatMenu()
 
 	const handleJoinPrivateChat = (intraLogin:string) => {
 		joinPrivChat(intraLogin);
+		navigate("/chat/privMessage");
 	}	
 
 	const loadConnectedUser = (connectedUsers:connectedUsersT[])=>

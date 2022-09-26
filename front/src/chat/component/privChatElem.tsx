@@ -1,5 +1,5 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
-import { chatHandler, getChatSocket, getClientInfo, getGameSocket, initiateSocket, sendMessage } from "../../Utils/socketManager";
+import { chatHandler, chatHandlerPrivEl, getChatSocket, getClientInfo, getGameSocket, initiateSocket, sendMessage, sendPrivMessage } from "../../Utils/socketManager";
 import Message from "../Elements/message";
 import {ActionOnUser, ChannelModes, ChannelT, ClientInfoT, messageT, UserStateT} from "../ChatUtils/chatType"
 import { useNavigate } from "react-router-dom";
@@ -12,21 +12,27 @@ import { getSession } from "../../Utils/utils";
 
 export default function PrivChatElem()
 {
-    const {storage, setStorage} = useLocalStorage("intraLogin")
+    const {chatSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
+    const {storage} = useLocalStorage("intraLogin")
 	const [form, setForm] = useState({
         message:"",
     })
+    // rajouter fct ype socket on pr recuperer inralogin
+    const handlePrivChatJoined = (intraLogin: string) => {
+        // set intra login
+	}
 
     const [messagesList, setMessagesList] = useState<messageT[]>()
 
     const handleSubmitPrivMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
+        sendPrivMessage(storage?.intraLogin, form.message)
 		setMessagesList((oldMessagesList) => (
 			oldMessagesList === undefined ? [] :
 				[...oldMessagesList]
 		))
     }
 
-    const handleMessageReceived = (msg:messageT) => {
+    const handlePrivMessageReceived = (msg:messageT) => {
         setMessagesList((oldMessagesList) => (
             oldMessagesList === undefined ? [msg] :
                 [...oldMessagesList, msg]
@@ -50,6 +56,16 @@ export default function PrivChatElem()
             />
     ))
 
+    useEffect(() => {
+        initiateSocket("http://localhost:8002", getSession(), storage.login)
+        setChatSocket(getChatSocket())
+        if (chatSocket)
+        {
+           chatHandlerPrivEl(handlePrivMessageReceived, 
+                )
+        }
+    }, [])
+
    return (<div className="chat">
             <div className="chat-right">
                 <div className="h-96">
@@ -57,7 +73,8 @@ export default function PrivChatElem()
                         {messageElem}
                     </div>
                 </div>
-                <PrivMessageInput handleSubmitMessage={handleSubmitPrivMessage} sampleInfo={form.message} handleChange={handleChange}/>
+                <PrivMessageInput handleSubmitMessage={handleSubmitPrivMessage}
+                    sampleInfo={form.message} handleChange={handleChange}/>
             </div>           
         </div>
     )
