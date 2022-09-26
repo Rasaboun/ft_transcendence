@@ -24,7 +24,7 @@ export default function MessageInput(props:MessageInputPropsT)
 			<button type="submit" style={{
 				height: "5vh",
 				width: "20vh",
-				backgroundColor: !props.mutedTime ? "#00ffff" : "#A8A8A8"	,
+				backgroundColor: !props.mutedTime ? "#00ffff" : "#A8A8A8",
 				borderRadius: "20px"
 			}} disabled={props.mutedTime ? true : false}>
 				Send

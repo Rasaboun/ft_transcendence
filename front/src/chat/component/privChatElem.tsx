@@ -13,16 +13,17 @@ import { getSession } from "../../Utils/utils";
 export default function PrivChatElem()
 {
     const {storage, setStorage} = useLocalStorage("intraLogin")
+	const [form, setForm] = useState({
+        message:"",
+    })
 
     const [messagesList, setMessagesList] = useState<messageT[]>()
 
-    const handleSubmitMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        const mutedMessage = "you are muted: 60sec left"
-            setMessagesList((oldMessagesList) => (
-                oldMessagesList === undefined ? [{content: mutedMessage, isInfo: true}] :
-                    [...oldMessagesList, {content: mutedMessage, isInfo: true}]
-            ))
+    const handleSubmitPrivMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
+		setMessagesList((oldMessagesList) => (
+			oldMessagesList === undefined ? [] :
+				[...oldMessagesList]
+		))
     }
 
     const handleMessageReceived = (msg:messageT) => {
@@ -32,10 +33,17 @@ export default function PrivChatElem()
         ))
     }
 
+	const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+        setForm((oldForm) => ({
+            ...oldForm,
+            [e.target.name]: e.target.value
+        }))
+    }
+
     const messageElem = messagesList?.map((elem, index) => (
-        elem.isInfo ? 
+        elem.isInfo ?
             <InfoMessage key={index} message={elem}/> :
-            <Message key={index} 
+            <Message key={index}
                 className={elem.sender?.login ===  storage.login ?
                     "message message-right" : "message message-left"}
                 message={elem}
@@ -49,7 +57,7 @@ export default function PrivChatElem()
                         {messageElem}
                     </div>
                 </div>
-                <PrivMessageInput handleSubmitMessage={handleSubmitMessage} sampleInfo="Hello World"/>
+                <PrivMessageInput handleSubmitMessage={handleSubmitPrivMessage} sampleInfo={form.message} handleChange={handleChange}/>
             </div>           
         </div>
     )

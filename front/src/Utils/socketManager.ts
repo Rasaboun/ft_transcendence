@@ -139,6 +139,11 @@ export function joinPrivChat(intraLogin: string)
 	chatSocket?.emit("joinPrivateChat", intraLogin)
 }
 
+export function sendPrivMessage(recieverId: string, message: messageT)
+{
+	chatSocket?.emit("privChatSendMessage", recieverId, message)
+}
+
 export function chatMenuHandler(handleActiveChannels:any,
 								handleChannelJoined:any,
 								handleError:any,

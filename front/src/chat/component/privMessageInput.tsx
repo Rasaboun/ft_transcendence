@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 
 type PrivMessageInputPropsT = {
     sampleInfo: string,
-    handleSubmitMessage: any
+    handleSubmitMessage: any,
+    handleChange: any
 }
 
-export default function MessageInput(props:PrivMessageInputPropsT)
+export default function PrivMessageInput(props:PrivMessageInputPropsT)
 {
 	return (
 		<form onSubmit={props.handleSubmitMessage} >
@@ -13,8 +14,10 @@ export default function MessageInput(props:PrivMessageInputPropsT)
 				border: "1px solid black",
 				marginRight: "15px"
 			}}
+			name='message' type="text"
             value={props.sampleInfo}
-			name='message' type="text" />
+			onChange={props.handleChange}
+			 />
 
 			<button type="submit" style={{
 				height: "5vh",
