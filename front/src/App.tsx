@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Socket } from "socket.io-client";
+import { setAuthToken } from "./authPage/authUtils/AuthUtils";
 import Login from "./authPage/component/LogPage";
 import Chat from "./Chat";
 import { ChatContextProvider } from "./chat/ChatContext/chatContext";
@@ -16,8 +17,12 @@ import Pong from "./Pong";
 import { PrivateRoute } from "./PrivateRoute";
 import Settings from "./Settings";
 import { appSocketRoutine, getChatSocket, getGameSocket, initiateSocket } from "./Utils/socketManager";
-import { getSession } from "./Utils/utils";
+import { getSession, getToken } from "./Utils/utils";
 
+const token = localStorage.getItem("token");
+if (token) {
+     setAuthToken(token);
+ }
 export default function App()
 {
 	const {gameState, setGameState, chatSocket, setChatSocket, gameSocket, setGameSocket} = useContext(SocketContext)
@@ -43,15 +48,16 @@ export default function App()
 	}
 
 	useEffect(() => {
-		if (storage)
+		console.log("APP RENDER")
+		if (getToken())
 		{
-			initiateSocket("http://localhost:8002", getSession(), storage2.login)
+			initiateSocket("http://localhost:8002", getToken())
 			setChatSocket(getChatSocket())
 			setGameSocket(getGameSocket())
 			appSocketRoutine(handleSession, handleGameOver);
-			console.log(chatSocket)
+			console.log("LA")
 		}
-	}, [])
+	}, [storage])
     return (
 		<BrowserRouter>
 			<NavBar />

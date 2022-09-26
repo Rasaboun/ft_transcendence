@@ -6,7 +6,8 @@ import { Link, useNavigate } from "react-router-dom";
 import useLocalStorage from '../../hooks/localStoragehook'
 import { SocketContext } from '../../Context/socketContext';
 import { GameMenuHandler, getActiveGames, getChatSocket, getGameSocket, initiateSocket, joinQueue, Menucleaner, spectacteGame } from '../../Utils/socketManager';
-import { getSession } from '../../Utils/utils';
+import { getSession, getToken } from '../../Utils/utils';
+import GameRadioForm from '../../Elements/gameRadioForm';
 
 let socket:Socket
 
@@ -62,7 +63,7 @@ export default function Menu()
 
 	useEffect(() => {
         console.log(gameState)
-        initiateSocket("http://localhost:8002", getSession(), storage.login)
+        initiateSocket("http://localhost:8002", getToken())
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
         if (gameState === GameState.Started)
@@ -87,38 +88,10 @@ export default function Menu()
     return (
         <div>
             <form className="channel-form" onSubmit={handleSubmit}>
-                <div className="form-radio">
-                    <label>
-                        <input name="mode"
-                            type="radio" 
-                            value={GameMode.Normal}
-                            checked={gameMode === GameMode.Normal}
-                            onChange={handleChange}
-                            />
-                        Normal
-                    </label>
-                    <label>
-                        <input name="mode"
-                            type="radio" 
-                            value={GameMode.Mini}
-                            checked={gameMode === GameMode.Mini}
-                            onChange={handleChange}
-                            />
-                            Mini
-                    </label>
-                    <label>
-                    <input name="mode"
-                            type="radio" 
-                            value={GameMode.Speed}
-                            checked={gameMode === GameMode.Speed}
-                            onChange={handleChange}
-                            />
-                            Speed
-                    </label>
-                </div>
-					<button type="submit" className="button-action" >
-						Start Game
-					</button>
+                <GameRadioForm gameMode={gameMode} setGameMode={setGameMode}/>
+                <button type="submit" className="button-action" >
+                    Start Game
+                </button>
 				</form>           
             <ul>
                 {lobbiesElements}

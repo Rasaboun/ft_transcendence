@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import useLocalStorage from "../../hooks/localStoragehook";
 import { ClientElem, ClientInfoT, UserStateT } from "../ChatUtils/chatType";
-import { addAdmin, banUser, muteUser } from "../../Utils/socketManager";
+import { addAdmin, banUser, createLobby, muteUser } from "../../Utils/socketManager";
+import GameRadioForm from "../../Elements/gameRadioForm";
+import { GameMode } from "../../game/GameUtils/type";
 type UserElemPropsT = {
 	client: ClientElem;
 	userState?:UserStateT;
@@ -11,15 +13,18 @@ export default function UserListElem({ client, userState }:UserElemPropsT)
 {
 	const {storage} = useLocalStorage("channel")
 	const {storage2} = useLocalStorage("user")
+	const [gameMode, setGameMode] = useState(GameMode.Normal)
 	const [isHover, setIsHover] = useState<boolean>(false)
 	const [form, setForm] = useState({
 		banTime: "",
-		muteTime: "" 
+		muteTime: "",
 	})
-	const [isTimer, setIsTimer] = useState({
+	const [isSelected, setIsSelected] = useState({
 		mute: false,
-		ban: false
+		ban: false,
+		invite: false
 	})
+
 
     const handleOnMouseOver = () => {
         setIsHover(true)
@@ -27,26 +32,27 @@ export default function UserListElem({ client, userState }:UserElemPropsT)
 
     const handleMouseLeave = () => {
         setIsHover(false)
-		setIsTimer((oldTimer) => ({
+		setIsSelected((oldSelected) => ({
 			mute:false,
-			ban: false
+			ban: false,
+			invite: false
 		}))
-		setForm((oldTimer) => ({
+		setForm((oldSelected) => ({
 			banTime: "",
 			muteTime: "" 
 		}))
     }
 
 	const handleBan = () => {
-		setIsTimer((oldTimer) => ({
-			...oldTimer,
+		setIsSelected((oldSelected) => ({
+			...oldSelected,
 			ban: true
 		}))
 	}
 
 	const handleMute = () => {
-		setIsTimer((oldTimer) => ({
-			...oldTimer,
+		setIsSelected((oldSelected) => ({
+			...oldSelected,
 			mute: true
 		}))
 	}
@@ -77,11 +83,24 @@ export default function UserListElem({ client, userState }:UserElemPropsT)
 		})
 	}
 
+	const handleSubmitGameMode = (e:React.ChangeEvent<HTMLFormElement>) => {
+		e.preventDefault()
+		//INITED ID ?
+		createLobby({inviteMode: true, mode: gameMode})
+	}
+
 	const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
 		console.log()
 		setForm((oldForm) => ({
 			...oldForm,
 			[e.target.name]: e.target.value
+		}))
+	}
+
+	const handleInviteToGame = () => {
+		setIsSelected((oldSelected) => ({
+			...oldSelected,
+			invite: true
 		}))
 	}
 
@@ -93,10 +112,25 @@ export default function UserListElem({ client, userState }:UserElemPropsT)
 				<h3>{client.username} {client.isMuted && "🔇"}</h3>
 			</div>
 			{
+				isHover && storage2.login !== client.login && !isSelected.invite &&
+					<button onClick={() => handleInviteToGame()}>⚽</button>
+			}
+			{
+				
+				isSelected.invite &&
+				<form className="channel-form" onSubmit={handleSubmitGameMode}>
+					<GameRadioForm gameMode={gameMode} setGameMode={setGameMode}/>
+					<button type="submit" className="button-action" >
+						Invite
+					</button>
+				</form>
+			}
+			{
                 isHover && userState?.isAdmin && storage2.login !== client.login &&
 					<div className="user-option">
+						
 						{
-							isTimer.ban &&
+							isSelected.ban &&
 								<form action="submit" onSubmit={handleSubmitBan}>
 									<input type="number" name="banTime"
 										min="0:00" max="1:00" value={form.banTime} onChange={handleChange} required/>
@@ -105,7 +139,7 @@ export default function UserListElem({ client, userState }:UserElemPropsT)
 
 						}
 						{
-							isTimer.mute &&
+							isSelected.mute &&
 								<form action="submit" onSubmit={handleSubmitMute}>
 									<input type="number" name="muteTime"
 										min="0:00" max="1:00" value={form.muteTime} onChange={handleChange} required/>
@@ -114,7 +148,7 @@ export default function UserListElem({ client, userState }:UserElemPropsT)
 
 						}
 						{
-							(!isTimer.ban && !isTimer.mute) && 
+							(!isSelected.ban && !isSelected.mute && !isSelected.invite) && 
 								<div>
 									<button onClick={() => handleMute()}>🙊</button>
 									<button onClick={() => handleBan()}>🚫</button>

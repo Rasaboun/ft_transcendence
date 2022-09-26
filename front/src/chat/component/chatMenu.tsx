@@ -9,7 +9,7 @@ import { Session } from "inspector";
 import { Socket } from "socket.io-client";
 import userEvent from "@testing-library/user-event";
 import { SocketContext } from "../../Context/socketContext";
-import { getSession } from "../../Utils/utils";
+import { getSession, getToken } from "../../Utils/utils";
 
 export default function ChatMenu()
 {
@@ -97,7 +97,7 @@ export default function ChatMenu()
 
 	useEffect(() => {
 
-		initiateSocket("http://localhost:8002", getSession(), storage.login)
+		initiateSocket("http://localhost:8002", getToken())
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
 		console.log("chaat menu chatSocket", chatSocket)

@@ -1,7 +1,9 @@
-import { NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { forwardRef, Inject, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { Cron, Interval } from "@nestjs/schedule";
+import { InjectRepository } from "@nestjs/typeorm";
 import { WebSocketServer } from "@nestjs/websockets";
 import { Server } from "socket.io";
+import { AuthService } from "src/auth/auth.service";
 import { AuthenticatedSocket } from 'src/auth/types/auth.type';
 import { GameInstance } from "../game.instance";
 import { GameMode, GameOptions, GameState, Player } from "../types/game.type";
@@ -20,7 +22,10 @@ export class LobbyManager
     private readonly lobbies: Map<string, Lobby> = new Map<string, Lobby>();
     private readonly avalaibleLobbies: Lobby[] = [];
 
-    constructor() { }
+    constructor(
+        @Inject(forwardRef(() => AuthService))
+        private authService: AuthService,
+    ) { }
 
     public initializeSocket(client: AuthenticatedSocket): void
     {
@@ -58,10 +63,12 @@ export class LobbyManager
     {
         let lobby: Lobby = null;
 
+        console.log("Gamemode", mode);
    
         for (let i = 0; i < this.avalaibleLobbies.length; i++)
         {
-            if (this.avalaibleLobbies[i].isClient(client.login) === false && !this.avalaibleLobbies[i].isPrivate())
+            const currLobby = this.avalaibleLobbies[i];
+            if (currLobby.isClient(client.login) === false && !currLobby.isPrivate() && currLobby.getMode() == mode) 
             {
                 lobby = this.avalaibleLobbies.splice(i, 1).at(0);
                 client.lobbyId = lobby.id;
@@ -77,6 +84,7 @@ export class LobbyManager
             this.avalaibleLobbies.push(lobby);
         }
         lobby.addClient(client);
+        //this.authService.updateLobby(client.sessionId, lobby.id);
     }
 
     public leaveQueue(client: AuthenticatedSocket)
@@ -88,6 +96,7 @@ export class LobbyManager
                 this.avalaibleLobbies.splice(i, 1);
                 this.destroyLobby(this.avalaibleLobbies[i]?.id);
                 client.lobby = null;
+                //this.authService.updateLobby(client.sessionId, null);
             }
         }
     }
@@ -100,11 +109,13 @@ export class LobbyManager
         if (!lobby)
            throw new NotFoundException("This lobby does not exist anymore");
         lobby.addClient(client);
+        //this.authService.updateLobby(client.sessionId, lobby.id);
         console.log('Spectacte success');
     }
 
     public async joinLobbies(client: AuthenticatedSocket)
     {
+        console.log("client.lobbyId", client.lobbyId)
         if (client.lobbyId)
         {
             client.lobby = this.lobbies.get(client.lobbyId);

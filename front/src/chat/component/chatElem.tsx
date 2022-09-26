@@ -8,7 +8,7 @@ import ChannelBoard from "../Elements/ChannelBoard";
 import useLocalStorage from "../../hooks/localStoragehook";
 import MessageInput from "./MessageInput";
 import { SocketContext } from "../../Context/socketContext";
-import { getSession } from "../../Utils/utils";
+import { getSession, getToken } from "../../Utils/utils";
 
 export default function ChatElem()
 {
@@ -212,10 +212,15 @@ export default function ChatElem()
 
     useEffect(() => {
         const channel = storage2;
-        initiateSocket("http://localhost:8002", getSession(), storage.login)
+        console.log("CHANNEL NAME", channel.channelId)
+        initiateSocket("http://localhost:8002", getToken())
         setChatSocket(getChatSocket())
         setGameSocket(getGameSocket())
-        if (chatSocket)
+        chatSocket?.on("connect", () => {
+            console.log("CHAT ONNECTED")
+            
+        })
+        if (chatSocket?.connected)
         {
             chatHandler(handleMessageReceived,
                 handleChannelDeleted,
@@ -228,10 +233,10 @@ export default function ChatElem()
                 handleIsAlreadyAdmin,
                 handleChannelJoined,
                 handleConnected)
-        }
-        getClientInfo(channel.channelId)
-
-    }, [])
+        } 
+        if (channel)
+                getClientInfo(channel.channelId)
+    }, [chatSocket?.connected])
 
     useEffect(() => {
        scrollToBottom()

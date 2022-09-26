@@ -28,11 +28,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	async handleConnection(client: Socket){
-		console.log(`Client ${client.handshake.auth.login} joined chat socket`);
+		 console.log(`Client ${client.handshake.auth.login} joined chat socket`);
 		await this.authService.initializeSocket(client as AuthenticatedSocket);
 		await this.channelManager.joinChannels(client as AuthenticatedSocket);
 		console.log("client.handshake.auth.login")
-		client.emit("connected")
+		console.log("In connect", new Date());
+		//client.emit("connected")
 		//console.log(client);
 	}
 
@@ -42,6 +43,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		
 	}
 
+	@SubscribeMessage("session")
+	async sendSession(client: AuthenticatedSocket)
+	{
+		await this.authService.initializeSocket(client as AuthenticatedSocket);
+		await this.channelManager.joinChannels(client as AuthenticatedSocket);
+	}
 	
 	@SubscribeMessage('joinChannel')
 	async joinChannel(client: AuthenticatedSocket, data: JoinChannel)

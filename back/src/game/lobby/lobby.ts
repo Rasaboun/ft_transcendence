@@ -139,6 +139,11 @@ export class Lobby
         return this.gameInstance.getGameData();
     }
 
+    public getMode()
+    {
+        return this.options.mode;
+    }
+
     public isClient(clientLogin: string): boolean
     {
         return this.clients.get(clientLogin) === undefined ? false : true;
