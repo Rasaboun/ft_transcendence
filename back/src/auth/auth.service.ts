@@ -87,6 +87,7 @@ export class AuthService {
 
     async updateLobby(login: string, lobbyId: string | null)
     {
+        //here
         await this.userService.setUserLobby(login, lobbyId);
     }
 
