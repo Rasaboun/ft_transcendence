@@ -10,16 +10,19 @@ import { Session, User } from 'src/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
 import { AuthService } from 'src/auth/auth.service';
 import { UsersModule } from 'src/users/users.module';
+import { PrivChatService } from './privChat/chat.service';
+import { PrivChat } from './privChat/privChat';
+import { PrivChatManager } from './privChat/privChat.manager';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Channel]),
+        TypeOrmModule.forFeature([Channel, PrivChat]),
         TypeOrmModule.forFeature([User]),
         TypeOrmModule.forFeature([Session]),
         AuthModule,
         UsersModule,
     ],
-    providers: [ChannelsService, ChannelManager, ChatGateway],
+    providers: [ChannelsService, ChannelManager, ChatGateway, PrivChatManager, PrivChatService],
     controllers: [ChatController]
 })
 export class ChatModule {}

@@ -42,6 +42,10 @@ export type Message = {
 		login: string,
 		username: string,
 	},
+	reciever?: {
+		login: string,
+		username: string,
+	},
 	channelName?: string,
 	content: string,
 	date?: string,
@@ -96,3 +100,5 @@ export type ChannelInfo = {
 	mode: ChannelModes,
 	owner: string,
 }
+
+

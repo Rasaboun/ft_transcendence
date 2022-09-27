@@ -1,6 +1,7 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import ChatElem from './chat/component/chatElem';
+import PrivChatElem from './chat/component/privChatElem';
 import ChatMenu from './chat/component/chatMenu';
 import './output.css';
 
@@ -19,6 +20,7 @@ export default function Chat() {
 				<Routes>
 					<Route path="/" element={<ChatMenu/>}/>
 					<Route path="/message" element={<ChatElem/>}/>
+					<Route path="/privMessage" element={<PrivChatElem/>}/>
 				</Routes>
 				{/* </div> */}
 				{/* Replace with your Chat */}

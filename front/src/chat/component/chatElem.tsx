@@ -28,7 +28,7 @@ export default function ChatElem()
     
     const scrollToBottom = () => {
         lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
-      }
+    }
 
     const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         setForm((oldForm) => ({
@@ -45,6 +45,7 @@ export default function ChatElem()
         {
             sendMessage(storage2!.channelId, form.message)
         }
+
         setForm((oldForm) => ({
             ...oldForm,
             message: ""
@@ -260,7 +261,7 @@ export default function ChatElem()
                     </div>
                 </div>
                 <MessageInput mutedTime={mutedTime} handleChange={handleChange} handleSubmitMessage={handleSubmitMessage} value={form.message}/>
-            </div>          
+           </div>          
         </div>
     )
 }

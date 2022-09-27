@@ -10,8 +10,7 @@ type MessageInputPropsT = {
 export default function MessageInput(props:MessageInputPropsT)
 {
 	console.log("mutedTime", props.mutedTime)
-	return (
-		<form onSubmit={props.handleSubmitMessage}>
+	return ( <form onSubmit={props.handleSubmitMessage}>
 			<input style={{
 				border: "1px solid black",
 				marginRight: "15px"
@@ -24,7 +23,7 @@ export default function MessageInput(props:MessageInputPropsT)
 			<button type="submit" style={{
 				height: "5vh",
 				width: "20vh",
-				backgroundColor: !props.mutedTime ? "#00ffff" : "#A8A8A8"	,
+				backgroundColor: !props.mutedTime ? "#00ffff" : "#A8A8A8",
 				borderRadius: "20px"
 			}} disabled={props.mutedTime ? true : false}>
 				Send

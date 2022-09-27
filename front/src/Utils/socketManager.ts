@@ -120,21 +120,43 @@ export function unsetPrivateMode(channelName: string) {
 	chatSocket?.emit("unsetPrivateMode", channelName);
 }
 
+
+export function loadConnectedUsers()
+{
+	chatSocket?.emit("loadConnectedUsers");
+}
+
+export function joinPrivChat(intraLogin: string)
+{
+	chatSocket?.emit("joinPrivateChat", intraLogin)
+}
+
+export function sendPrivMessage(recieverId: string, message: string)
+{
+	chatSocket?.emit("privChatSendMessage", recieverId, message)
+}
+
 export function sendInvitation(data:{channelName: string, mode: GameMode}) {
 	console.log(data)
 	chatSocket?.emit("sendInvitation", data);
 }
 
-export function chatMenuHandler(handleActiveChannels:any, handleChannelJoined:any, handleError:any, handleInvitation:any, handleSession:any)
+export function chatMenuHandler(handleActiveChannels:any,
+								handleChannelJoined:any,
+								handleError:any,
+								handleInvitation:any,
+								handleSession:any,
+								loadConnectedUser:any,
+								handlePrivChatJoined:any)
 {
-		console.log(chatSocket)
-
 	//console.log(`Server is down`);
-		chatSocket.on('activeChannels', (channels:ChannelT) => handleActiveChannels(channels));
-        chatSocket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
-        chatSocket.on('error', (message:string) => handleError(message))
-        chatSocket.on('InvitedToChannel', (message:string) => handleInvitation(message))
-		chatSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, chatSocket));
+	chatSocket.on('activeChannels', (channels:ChannelT) => handleActiveChannels(channels));
+	chatSocket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
+	chatSocket.on('error', (message:string) => handleError(message))
+	chatSocket.on('InvitedToChannel', (message:string) => handleInvitation(message))
+	chatSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, chatSocket));
+	chatSocket.on("listOfConnectedUsers", (userList:{intraLogin: string, username: string}[]) => loadConnectedUser(userList));
+	chatSocket.on("joinedPrivChat", () => handlePrivChatJoined());
 }
 
 export function chatHandler(handleMessageReceived:any,
@@ -160,7 +182,23 @@ export function chatHandler(handleMessageReceived:any,
         chatSocket.on('leftChannel', (channelInfo:ChannelT) => handleLeftChannel(channelInfo))
         chatSocket.on('newOwner', (data: {target: string, channelInfo: ChannelT}) => newOwner(data))
         chatSocket.on('isAlreadyAdmin', handleIsAlreadyAdmin)
-        chatSocket.on('connect', handleConnected)
+
+}
+
+export function chatHandlerPrivEl(handlePrivMessageReceived:any, handlePrivMessList: any)
+{
+	chatSocket.on("privChatSendMessage", (msg:messageT) => handlePrivMessageReceived(msg))      
+	chatSocket.on("privMessageList", (msg:messageT[]) => handlePrivMessList(msg))
+}
+
+export function appSocketRoutine(handleSession:any) {
+	chatSocket.on('connection', (chatSocket) => {console.log('a user connected on chatSocket', chatSocket)});
+	chatSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, chatSocket));
+	chatSocket.on("connect_error", (err) => {console.log(`connect_error due to ${err.message}`)});
+	chatSocket.on("Connect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
+	chatSocket.on("Error", (err) => {console.log(`connect_error due to ${err.message}`)});
+	chatSocket.on("Reconnect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
+	chatSocket.on("msgToChannel", (msg:messageT) => {console.log(`message receive from ${msg.sender?.username}`)})      
 }
 
 //////////////// GAME SOCKET /////////////////////

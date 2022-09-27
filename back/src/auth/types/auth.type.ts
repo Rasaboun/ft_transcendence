@@ -13,6 +13,7 @@ export type AuthenticatedSocket = Socket & {
 	sessionId: string,
 	roomId: string,
 	login: string,
+    dbId: number,
 	lobbyId: string,
     lobby: Lobby
 }

@@ -1,11 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
-import { chatMenuHandler, createChannel, getActiveChannels, getChatSocket, getGameSocket, initiateSocket, joinChannel } from "../../Utils/socketManager";
-import { channelFormT, ChannelModes, ChannelT, JoinChannelT } from "../ChatUtils/chatType";
+
+import { chatMenuHandler, createChannel, getActiveChannels, getChatSocket, getGameSocket, initiateSocket, joinChannel, joinPrivChat, loadConnectedUsers } from "../../Utils/socketManager";
+import { channelFormT, ChannelModes, ChannelT, connectedUsersT, JoinChannelT, privChatP } from "../ChatUtils/chatType";
+import { ChatContext } from "../ChatContext/chatContext";
 import { useNavigate } from "react-router-dom";
 import ChannelItem from "../Elements/channelItem";
 import useLocalStorage from "../../hooks/localStoragehook";
 import { Socket } from "socket.io-client";
 import { SocketContext } from "../../Context/socketContext";
+import { getSession } from "../../Utils/utils";
+import PrivChatItem from "../Elements/privChatItem";
+
 
 export default function ChatMenu()
 {
@@ -14,6 +19,7 @@ export default function ChatMenu()
 	const navigate = useNavigate();
 	const {chatSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
 	const [channels, setChannels] = useState<ChannelT[]>()
+	const [connectedUsers, setConnectedUsers] = useState<connectedUsersT[]>()
 	const [channelForm, setChannelForm] = useState<channelFormT>({
 		name: "",
 		mode: ChannelModes.Public,
@@ -42,6 +48,10 @@ export default function ChatMenu()
 			setStorage("channel", data.channelInfo)
 			navigate("/chat/message")
 		}
+	}
+	
+	const handlePrivChatJoined = (intraLogin: string) => {
+		navigate("/chat/privMessage");
 	}
 
     const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
@@ -86,9 +96,19 @@ export default function ChatMenu()
 		{
 			setStorage("sessionId", sessionInfo.sessionId);
 			setStorage("roomId", sessionInfo.roomId);
-			sock.auth = { sessionId: sessionInfo.sessionId } ;		
+			sock.auth = { sessionId: sessionInfo.sessionId };
 			//socket.userID = userID;
 		}
+	}
+
+	const handleJoinPrivateChat = (intraLogin:string) => {
+		joinPrivChat(intraLogin);
+		navigate("/chat/privMessage");
+	}	
+
+	const loadConnectedUser = (connectedUsers:connectedUsersT[])=>
+	{
+		setConnectedUsers(connectedUsers);
 	}
 
 	useEffect(() => {
@@ -99,12 +119,14 @@ export default function ChatMenu()
 		console.log("chaat menu chatSocket", chatSocket)
 		console.log("connected", chatSocket?.connected);
 		getActiveChannels()
-		console.log("connected", chatSocket?.connected);
+		loadConnectedUsers()
 		chatMenuHandler(handleActiveChannels,
 			handleChannelJoined,
 			handleError,
 			handleInvitation,
-			handleSession)
+			handleSession,
+			loadConnectedUser,
+			handlePrivChatJoined)
 	}, [])
 
 	useEffect(() => {
@@ -120,6 +142,24 @@ export default function ChatMenu()
 			handleJoinChannel={handleJoinChannel}
 			/>
 	))
+	
+	const allNewpeople = connectedUsers?.map((elem, ind) => ( 
+		<PrivChatItem key={ind}
+			connectedUsers={elem}
+			handleJoinPrivChat={handleJoinPrivateChat}
+			/>
+	))
+	
+	/*<div style={{
+            padding: "1em",
+            border: "1px solid black",
+			borderRadius: "5px",
+        }}>
+		<h6>Frank Erod</h6>
+
+		connected since : 18:30
+	</div>;
+	*/
 
     return (
         <div>
@@ -191,6 +231,10 @@ export default function ChatMenu()
 			</div>
 			<div>
 				{channelsElem}
+			</div>
+			<div>
+				<h1 style={{ fontSize: "20px", margin: "40px" }}> <strong> Users connected and open to chat with you:</strong></h1>
+				{allNewpeople}
 			</div>
         </div>
     )

@@ -82,6 +82,28 @@ export type channelFormT = {
 
 export type MessageInfoT = {
 	channelName: string,
+	
+}
+
+export type privChatP = {
+	PrivChatId: number,
+	caller: number,
+handleJoinPrivateChat: (connectedUsers: privChatP[]) => void
+}
+
+export type connectedUsersT = {
+	intraLogin: string,
+	username: string,
+	lasMess?: string,
+	handleJoinPrivateChat: (connectedUsers: privChatP[]) => void
+}
+
+export type privMessageT = {
+	sender : number,
+	content : string,
+	date?:Date,
+	isInfo?: boolean
+
 }
 
 export enum MessageTypes {

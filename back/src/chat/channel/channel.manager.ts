@@ -107,7 +107,7 @@ export class ChannelManager
                 client.join(channel.id);
                 client.emit("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
                 //channel.sendToClient(client.login, "joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
-                
+                 
                 return ;
             }
             if (channel.isPrivate() && !(await this.channelsService.isInvited(data.channelName, client.login)))
@@ -120,7 +120,7 @@ export class ChannelManager
 
             channel.addClient(client.login, client.roomId);
             client.join(channel.id);
-            client.emit("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
+            client.emit("", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
             channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))}, client.roomId);
         }
         catch (error) { throw error }
