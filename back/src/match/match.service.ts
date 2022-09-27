@@ -33,7 +33,7 @@ export class MatchService {
     async getMatchesByUsername(username: string): Promise<Match[]> {
         const user = await this.userService.findOneByUsername(username);
         if (user === null)
-            throw new ForbiddenException("No such user");
+            throw new ForbiddenException("No such user"); //tmp
         return this.getMatchesById(user.id);
         
     }
