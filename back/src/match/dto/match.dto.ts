@@ -7,11 +7,11 @@ export class matchDto {
 
     @IsNotEmpty()
     @IsNumberString()
-    playerOneId: number;
+    playerOneLogin: string;
 
     @IsNotEmpty()
     @IsNumberString()
-    playerTwoId: number;
+    playerTwoLogin: string;
 
     @IsNotEmpty()
     @IsNumberString()

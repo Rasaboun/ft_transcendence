@@ -20,9 +20,9 @@ export class MatchController {
         return this.matchService.findOneById(id);
     }
 
-    @Get('user/:username')
-    getMatchsByUsername(@Param('username') username: string): Promise<Match[]> {
-        return this.matchService.getMatchesByUsername(username);
+    @Get('user')
+    getMatchsByUsername(@Body() dto: {login: string}): Promise<Match[]> {
+        return this.matchService.getMatchesByLogin(dto.login);
     }
 
     @Get()

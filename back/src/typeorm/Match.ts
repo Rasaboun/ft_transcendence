@@ -9,10 +9,10 @@ export class Match {
     date: Date;
 
     @Column()
-    playerOneId: number;
+    playerOneLogin: string;
 
     @Column()
-    playerTwoId: number;
+    playerTwoLogin: string;
 
     @Column()
     playerOneScore: number;
