@@ -1,16 +1,15 @@
-import { IsDate, IsDateString, IsNotEmpty, IsNumber, isNumberString, IsNumberString, IsString } from "class-validator";
+import { IsDate, IsDateString, IsNotEmpty, isNumber, IsNumber, isNumberString, IsNumberString, IsString } from "class-validator";
 
 export class matchDto {
     @IsNotEmpty()
-    @IsDateString()
-    date: Date;
+    date: string;
 
     @IsNotEmpty()
-    @IsNumberString()
+    @IsString()
     playerOneLogin: string;
 
     @IsNotEmpty()
-    @IsNumberString()
+    @IsString()
     playerTwoLogin: string;
 
     @IsNotEmpty()

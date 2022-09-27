@@ -6,7 +6,7 @@ export class Match {
     id: number;
 
     @Column()
-    date: Date;
+    date: string;
 
     @Column()
     playerOneLogin: string;

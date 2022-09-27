@@ -1,6 +1,6 @@
 import { GameData, GameSettings, GameState } from "../types/game.type";
 
-const scoreToWin = 10;
+const scoreToWin = 3;
 
 export function getNormalModeSettings(): GameSettings
 {

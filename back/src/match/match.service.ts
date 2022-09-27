@@ -41,7 +41,8 @@ export class MatchService {
     async matchResult(matchDto: matchDto) {
         const newMatch = this.matchRepository.create(matchDto);
 
-        let players: { winnerLogin: string, loserLogin: string};
+        let players: { winnerLogin: string, loserLogin: string} =
+                    { winnerLogin: "", loserLogin: ""}
 
         if (matchDto.playerOneScore > matchDto.playerTwoScore){
             players.winnerLogin = matchDto.playerOneLogin;

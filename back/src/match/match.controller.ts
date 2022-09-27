@@ -12,6 +12,7 @@ export class MatchController {
 
     @Post('result')
     matchResult(@Body() resultDto: matchDto) {
+        console.log("Posting match :", resultDto);
         return this.matchService.matchResult(resultDto);
     }
 
