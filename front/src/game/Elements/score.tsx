@@ -1,8 +1,6 @@
-import react, { useContext, useEffect } from "react"
-import { SocketContext } from "../../Context/socketContext"
 import useLocalStorage from "../../hooks/localStoragehook"
 import "../game.css"
-import { GameData, gameDataT, GameState } from "../GameUtils/type"
+import { GameData, GameState } from "../GameUtils/type"
 
 type propsType = {
     gameData: GameData

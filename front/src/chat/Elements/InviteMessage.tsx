@@ -1,9 +1,6 @@
-import { useContext, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import useLocalStorage from "../../hooks/localStoragehook";
 import { joinInvitation } from "../../Utils/socketManager";
 import "../chat.css"
-import { ChatContext } from "../ChatContext/chatContext";
 import { messageT } from "../ChatUtils/chatType";
 
 type MessagePropsT = {
@@ -15,7 +12,6 @@ type MessagePropsT = {
 
 export default function InviteMessage({className, message}:MessagePropsT)
 {
-    const {socket} = useContext(ChatContext)
 	const navigate = useNavigate();
 
 	const handleJoinInvitation = () => {

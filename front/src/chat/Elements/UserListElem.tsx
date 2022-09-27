@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import useLocalStorage from "../../hooks/localStoragehook";
-import { ClientElem, ClientInfoT, UserStateT } from "../ChatUtils/chatType";
+import { ClientElem, UserStateT } from "../ChatUtils/chatType";
 import { addAdmin, banUser, createLobby, muteUser, sendInvitation } from "../../Utils/socketManager";
 import GameRadioForm from "../../Elements/gameRadioForm";
 import { GameMode } from "../../game/GameUtils/type";
-import { Navigate, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 type UserElemPropsT = {
 	client: ClientElem;
 	userState?:UserStateT;
@@ -112,7 +112,7 @@ export default function UserListElem({ client, userState }:UserElemPropsT)
 		<div className="user-container" onMouseOver={handleOnMouseOver}/* onMouseLeave={handleMouseLeave}*/>
 			
 			<div className="user-info">
-				<img className="user-img" src="https://i.imgur.com/vNHtbSz.png" alt="user profil picture" />
+				<img className="user-img" src="https://i.imgur.com/vNHtbSz.png" alt="user profil" />
 				<h3>{client.username} {client.isMuted && "🔇"}</h3>
 			</div>
 			{

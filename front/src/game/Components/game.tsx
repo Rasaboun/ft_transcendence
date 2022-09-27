@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef, useContext} from "react"
 import Score from "../Elements/score"
 import * as utils from "../GameUtils/GameUtils"
 import "../game.css"
-import { GameSettings, GameData, GameState, Player, Ball} from "../GameUtils/type"
+import { GameSettings, GameData, GameState, Ball} from "../GameUtils/type"
 // import {ThreeDots} from "react-loader-spinner";
 import { Socket } from 'socket.io-client'
 import useLocalStorage from "../../hooks/localStoragehook"

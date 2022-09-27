@@ -1,14 +1,13 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
 import { chatHandler, getChatSocket, getClientInfo, getGameSocket, initiateSocket, sendMessage } from "../../Utils/socketManager";
 import Message from "../Elements/message";
-import {ActionOnUser, ChannelModes, ChannelT, ClientInfoT, messageT, MessageTypes, UserStateT} from "../ChatUtils/chatType"
+import {ActionOnUser, ChannelT, ClientInfoT, messageT, MessageTypes, UserStateT} from "../ChatUtils/chatType"
 import { useNavigate } from "react-router-dom";
 import InfoMessage from "../Elements/InfoMessage";
 import ChannelBoard from "../Elements/ChannelBoard";
 import useLocalStorage from "../../hooks/localStoragehook";
 import MessageInput from "./MessageInput";
 import { SocketContext } from "../../Context/socketContext";
-import { getSession } from "../../Utils/utils";
 import InviteMessage from "../Elements/InviteMessage";
 
 export default function ChatElem()
@@ -89,23 +88,24 @@ export default function ChatElem()
         console.log(data.channelInfo)
         setStorage("channel", data.channelInfo)
 	}
-    const newOwner = (data: {target: string, channelInfo: ChannelT}) => {
-        const message = `You are now Owner`;
+
+    // const newOwner = (data: {target: string, channelInfo: ChannelT}) => {
+    //     const message = `You are now Owner`;
         
-        setStorage("channel", data.channelInfo)
-        if (storage.login == data.target)
-        {
-            setUserState((oldUserState) => ({
-                ...oldUserState!,
-                isOwner: true,
-                isAdmin: true
-                }));
-            setMessagesList((oldMessagesList) => (
-                oldMessagesList === undefined ? [{content: message, type: MessageTypes.Info}] :
-                    [...oldMessagesList, {content: message, type: MessageTypes.Info}]
-            ));
-        }
-    }
+    //     setStorage("channel", data.channelInfo)
+    //     if (storage.login == data.target)
+    //     {
+    //         setUserState((oldUserState) => ({
+    //             ...oldUserState!,
+    //             isOwner: true,
+    //             isAdmin: true
+    //             }));
+    //         setMessagesList((oldMessagesList) => (
+    //             oldMessagesList === undefined ? [{content: message, type: MessageTypes.Info}] :
+    //                 [...oldMessagesList, {content: message, type: MessageTypes.Info}]
+    //         ));
+    //     }
+    // }
 
     const handleIsAlreadyAdmin = () => {
         const message = `Is already admin`
@@ -141,7 +141,7 @@ export default function ChatElem()
 
     const handleAddAdmin = (data: {target: string, channelInfo: ChannelT}) => {
         setStorage("channel", data.channelInfo)
-        if (data.target == storage.login)
+        if (data.target === storage.login)
         {       
             setUserState((oldUserState) => ({
                 ...oldUserState!,
