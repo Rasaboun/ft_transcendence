@@ -1,7 +1,6 @@
 import { v4 } from "uuid";
 import { Server } from "socket.io";
-import { AuthenticatedSocket} from "../types/channel.type";
-import { Message } from "../chat.type";
+import { Message } from "../types/channel.type";
 
 export class PrivChat
 {
@@ -20,12 +19,6 @@ export class PrivChat
 		//check if previous message saved ... if already exists etc
 	}
 
-    public terminateConnection(client: AuthenticatedSocket)
-    {
-        client.data.privChat = null;
-		// delete the socket or whatever should be done					
-    }
-
     public sendToUsers(event: string, data: any)
 	{
 		// add this a fct to send to single user
@@ -37,10 +30,11 @@ export class PrivChat
 
 	}
 
-	public sendMessage(senderId: number, recieverId: number, mess: string)
+	public sendMessage(client: string, senderId: number, mess: string)
 	{
 		// get the privChat entity to gt first senderandreciever and transform it into a string
-		this._server.to(this._senderId + '-' + this._recieverId).emit("privMessageToReciever", {sender: senderId, messCont: mess});
+
+		this._server.to(client).emit("privMessageToReciever", {sender: senderId, messCont: mess});
 	}
 
 	public setSenderConnected(status: boolean)
@@ -52,8 +46,6 @@ export class PrivChat
 	{
 		this._RecieverConnected = status;
 	}
-
-
 	// a function should be looking for new connections and potential connections
 	// need a function to list online persons 
 	// 

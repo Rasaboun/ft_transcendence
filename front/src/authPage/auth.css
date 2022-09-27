@@ -1,0 +1,26 @@
+.auth-container {
+	
+}
+
+.auth-form {
+	display: flex;
+	flex-direction: column;
+}
+
+.auth-input {
+	border-radius: 2%;
+	border: 1px solid black;
+	padding: 5px;
+}
+
+.auth-label {
+	display: flex;
+	flex-direction: column;
+}
+.button-div {
+	display: flex;
+	justify-content: space-around;
+}
+
+button + button {
+}

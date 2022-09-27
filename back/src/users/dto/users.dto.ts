@@ -9,8 +9,10 @@ export class createUserDto {
     username: string;
 
     @IsNotEmpty()
-    photoUrl: string;
+    password: string;
 
+    @IsNotEmpty()
+    roomId: string;
 }
 
 export class updateStatusDto {

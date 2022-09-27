@@ -1,4 +1,4 @@
-import { ChannelClient, Message } from "src/chat/types/channel.type";
+import { ChannelClient, ChannelModes, Message } from "src/chat/types/channel.type";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -17,14 +17,27 @@ export class Channel {
     })
     clients: ChannelClient[];
 
+    @Column({
+        default: ChannelModes.Public,
+    })
+    mode: ChannelModes
+    
     @Column('json', {
         default: [],
     })
     messages: Message[];
 
     @Column()
-    isPrivate: boolean;
-
-    @Column()
     password: string;
+
+    @Column('text', {
+        default: [],
+        array: true,
+    })
+    inviteList: string[];
+
+    @Column('json', {
+        default: [],
+    })
+    mutedList: ChannelClient[];
 }

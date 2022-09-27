@@ -1,5 +1,8 @@
+import { Module } from "@nestjs/core/injector/module";
+import { string } from "joi";
 import { Lobby } from "./lobby/lobby";
-import { GameData, GameSettings, GameState, Player } from "./game.type";
+import { GameData, GameMode, GameSettings, GameState, Player } from "./types/game.type";
+import { getMiniModeSettings, getNormalModeSettings, initGameData } from "./utils/game.settings";
 
 
 export class GameInstance
@@ -7,25 +10,24 @@ export class GameInstance
 	private gameData:       GameData;
     private settings:       GameSettings;
 
-    constructor(public lobby: Lobby) {
-        this.gameData = {
-            players: [],
-            ball: {
-                x: 50,
-                y: 50,
-                speed: 10,
-				radius: 20,
-				delta: {x: 0, y: 0},
-            },
-			state: GameState.Waiting,
-        }
-        this.settings = {
-            scoreToWin: 3,
-			paddleHeight: 200,
-			paddleWidth: 50,
-			width: 1920,
-			height: 1080,
-        }
+    constructor(public lobby: Lobby, public mode: GameMode)
+	{
+        this.gameData = initGameData();
+
+		if (mode == GameMode.Normal)
+		{
+			this.settings = getNormalModeSettings();
+		}
+		else if (mode == GameMode.Mini)
+		{
+			this.settings = getMiniModeSettings();
+			this.gameData.ball.radius = this.gameData.ball.radius / 4;
+		}
+		else if (mode == GameMode.Speed)
+		{
+			this.settings = getNormalModeSettings();
+			this.gameData.ball.speed *= 2;
+		}
 	}
 
     handleGoal(nextPos)
@@ -33,14 +35,13 @@ export class GameInstance
         this.gameData.state = GameState.Goal;
         const winner = nextPos.x - this.gameData.ball.radius < 0 ? 1 : 0;
         this.gameData.players[winner].score += 1;
-        
-		this.lobby.sendToUsers("goalScored", this.gameData.players);
-        console.log(this.gameData.players[winner].score, this.settings.scoreToWin);
-        
+		this.lobby.sendToUsers("goalScored", {player1: this.gameData.players[0].score, player2: this.gameData.players[1].score});
+
 		if (this.gameData.players[winner].score === this.settings.scoreToWin)
         {
             this.gameData.state = GameState.Stopped;
 			this.lobby.sendToUsers('gameOver', this.gameData.players[winner].id);
+			this.lobby.destroy();
         }
     }
 
@@ -92,7 +93,7 @@ export class GameInstance
         {
 			const nextPos = {	x: this.gameData.ball.x + this.gameData.ball.delta.x,
 								y: this.gameData.ball.y + this.gameData.ball.delta.y };
-
+			//console.log("Players", this.gameData.players);
             if (this.checkGoals(nextPos) == true)
             {
 				this.handleGoal(nextPos)
@@ -160,7 +161,7 @@ export class GameInstance
         this.gameData.players.push(newPlayer);
     }
 
-	public sendReady()	{ this.lobby.sendToUsers("gameReady", this.gameData); }
+	public sendReady()	{ this.lobby.sendToUsers("gameReady", { gameData: this.gameData, gameSettings: this.settings }); }
 
     public isPlayer(clientId: string): boolean
     {  
@@ -172,6 +173,14 @@ export class GameInstance
         return false;
     }
 
+	public updatePlayer(playerLogin: string, newPos: number)
+	{
+		if (this.gameData.players[0].id == playerLogin)
+			this.gameData.players[0].pos = newPos;
+		else
+			this.gameData.players[1].pos = newPos;
+	}
+
 	public getPlayer(playerId: string)
 	{
 		let res: Player = null;
@@ -181,6 +190,11 @@ export class GameInstance
 				res = player;
 		})
 		return res;
+	}
+
+	public getGameData()
+	{
+		return {gameData: this.gameData, gameSettings: this.settings};
 	}
 
     public playersId(): string[]

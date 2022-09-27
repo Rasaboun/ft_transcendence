@@ -1,5 +1,5 @@
+import { Message } from 'src/chat/types/channel.type';
 import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
-import { Message } from 'src/chat/chat.type';
 
 @Entity()
 export class PrivChat extends BaseEntity {
@@ -7,10 +7,10 @@ export class PrivChat extends BaseEntity {
   id: number;
 
   @Column()
-  UserIdFirstSender: number
+  UserIdFirstSender: number 
 
   @Column()
-  UserIdFirstReciever: number;
+  UserIdFirstReciever: number
 
   @Column({default: -1})
   UserIdBlocker: number;

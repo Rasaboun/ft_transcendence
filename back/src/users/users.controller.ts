@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
-import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
-import { AuthFilter } from 'src/auth/utils/auth.filter';
+//import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
+
 import { User } from 'src/typeorm';
 import { blockUserDto, createUserDto, updatePhotoDto, updateStatusDto, updateUsernameDto } from './dto/users.dto';
 import { UserStatus } from './type/users.type';

@@ -1,5 +1,4 @@
 import React from 'react'
-import * as socketManager from "../GameUtils/socketManager"
 import {LobbiesInfoT} from "../GameUtils/type"
 import { Link } from "react-router-dom";
 

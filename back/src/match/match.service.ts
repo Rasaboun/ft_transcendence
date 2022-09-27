@@ -21,35 +21,36 @@ export class MatchService {
         return this.matchRepository.findOneBy({ id });
     }
 
-    getMatchesById(id: number): Promise<Match[]> {
+    getMatchesByLogin(login: string): Promise<Match[]> {
         return this.matchRepository.find({
             where: [
-                { playerOneId: id},
-                { playerTwoId: id},
+                { playerOneLogin: login},
+                { playerTwoLogin: login},
             ],
         })
     }
 
-    async getMatchesByUsername(username: string): Promise<Match[]> {
-        const user = await this.userService.findOneByUsername(username);
-        if (user === null)
-            throw new ForbiddenException("No such user"); //tmp
-        return this.getMatchesById(user.id);
+    // async getMatchesByUsername(username: string): Promise<Match[]> {
+    //     const user = await this.userService.findOneByUsername(username);
+    //     if (user === null)
+    //         throw new ForbiddenException("No such user");
+    //     return this.getMatchesByLogin(user.id);
         
-    }
+    // }
 
     async matchResult(matchDto: matchDto) {
         const newMatch = this.matchRepository.create(matchDto);
 
-        let players: { winnerId: number, loserId: number } = {winnerId: 0, loserId: 0};
+        let players: { winnerLogin: string, loserLogin: string} =
+                    { winnerLogin: "", loserLogin: ""}
 
         if (matchDto.playerOneScore > matchDto.playerTwoScore){
-            players.winnerId = matchDto.playerOneId;
-            players.loserId = matchDto.playerTwoId;
+            players.winnerLogin = matchDto.playerOneLogin;
+            players.loserLogin = matchDto.playerTwoLogin;
         }
         else {
-            players.winnerId = matchDto.playerTwoId;
-            players.loserId = matchDto.playerOneId;
+            players.winnerLogin = matchDto.playerTwoLogin;
+            players.loserLogin = matchDto.playerOneLogin;
         }
 
         this.userService.updateGameStats(players);

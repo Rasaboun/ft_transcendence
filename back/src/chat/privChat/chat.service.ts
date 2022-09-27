@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { PrivChat } from 'src/typeorm';
-import { newChatDto, newMessageDto} from "../dto/chat.dto";
-import { Message } from "../chat.type";
+import { newPrivatChat, PrivChatNewMessageDto } from '../types/privChat.types';
+import { Message } from "../types/channel.type";
 import { log } from 'console';
 
 @Injectable()
@@ -15,42 +15,48 @@ export class PrivChatService {
 		private usersService: UsersService,
 	) {}
 
-	findAll() : Promise<PrivChat[]> {
+	async findAll() : Promise<PrivChat[]> {
 		return this.chatRepository.find();
 	}
 
-	findOneBy(id: number): Promise<PrivChat>
+	// async findOne(id: number): Promise<PrivChat>
+	// {
+	// 	// return this.chatRepository.findOne(where : { id });
+	// }
+
+	async findOneBy(id: number): Promise<PrivChat>
 	{
 		return this.chatRepository.findOneBy({ id });
 	}
 
 	async findOneBySenderId(userIdFirstSender: number)
 	{
-		const retVal: PrivChat = await PrivChat.findOne({where : {UserIdFirstSender: userIdFirstSender }});
+		const retVal: PrivChat = await this.chatRepository.findOne({where : {UserIdFirstSender: userIdFirstSender }});
 		return retVal;
 	}
 
 	async findOneBySenderReciever(userIdFirstSender: number, userIdFirstReciever: number)
 	{
 		// trying to get it in the right order : if not just returns the natural undefined from findOneBy
-		var retVal: PrivChat = await PrivChat.findOne({where: { UserIdFirstSender: userIdFirstSender, UserIdFirstReciever: userIdFirstReciever }});
+		var retVal: PrivChat = await this.chatRepository.findOne({where: { UserIdFirstSender: userIdFirstSender, UserIdFirstReciever: userIdFirstReciever }});
 		if (!retVal)
-			retVal = await PrivChat.findOne({where: { UserIdFirstSender: userIdFirstReciever , UserIdFirstReciever: userIdFirstSender}});
+			retVal = await this.chatRepository.findOne({where: { UserIdFirstSender: userIdFirstReciever , UserIdFirstReciever: userIdFirstSender}});
 		return (retVal);
 	}
 
-	async getChat(chat: newChatDto)
+	async getChat(chat: newPrivatChat)
 	{
-		const testExist: PrivChat = await this.findOneBySenderReciever(chat.UserIdFirstSender, chat.UserIdFirstReciever);
+		const testExist: PrivChat = await this.findOneBySenderReciever(chat.Sender, chat.Reciever);
 		if (testExist != null)
 			return (testExist);
 		return (this.createNewChat(chat));
 	}
 
-	async createNewChat(newChat: newChatDto) {
+	async createNewChat(newChat: newPrivatChat) {
 		// todo check if the chat repo does not already exist in a safe way
 		// query builder not working
 		// insertion might pose a probleme since it is in a json file
+		
 		const newPrivChat: PrivChat = this.chatRepository.create(newChat);
 
 		log(await this.chatRepository.save(newPrivChat));
@@ -58,26 +64,24 @@ export class PrivChatService {
 		return theResult;
 	}
 	
-	async sendMessage(newMess: newMessageDto)
+	async sendMessage(message: Message)
 	{
-		var userIdFirstSender: number = newMess.Sender;
-		var userIdFirstReciever: number = newMess.Reciever;
-
 		// check that both users exist
 		// if not return error
-		if (this.usersService.findOneById(userIdFirstSender) == null
-			|| this.usersService.findOneById(userIdFirstReciever) == null)
+		if ((this.usersService.findOneByIntraLogin(message.sender.login)) == undefined
+			|| this.usersService.findOneByIntraLogin(message.reciever.login) == undefined)
 		{
 			throw new NotFoundException("Sender or reciever of the message does not exist.");
 		}
-		var chatInsert: Message = {"senderId": userIdFirstSender, "mess": newMess.mess.mess};
-		var getChatEntry: newChatDto = {
-				"UserIdFirstSender": userIdFirstSender,
-				"UserIdFirstReciever": userIdFirstReciever,
-				"mess": [chatInsert ],
+		var senderId: number = (await this.usersService.findOneByIntraLogin(message.sender.login)).id;
+		var recieverId: number = (await this.usersService.findOneByIntraLogin(message.reciever.login)).id;
+		var getChatEntry: newPrivatChat = {
+				"Sender": senderId,
+				"Reciever": recieverId,
+				"mess": [message, ],
 		};
 		const chatMod: PrivChat = await this.getChat(getChatEntry);
-		chatMod.mess.push(chatInsert);
+		chatMod.mess.push(message);
 		return await this.chatRepository.update(chatMod.id, chatMod); 
 	}
 

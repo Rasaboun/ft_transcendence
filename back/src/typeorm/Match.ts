@@ -6,13 +6,13 @@ export class Match {
     id: number;
 
     @Column()
-    date: Date;
+    date: string;
 
     @Column()
-    playerOneId: number;
+    playerOneLogin: string;
 
     @Column()
-    playerTwoId: number;
+    playerTwoLogin: string;
 
     @Column()
     playerOneScore: number;

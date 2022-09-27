@@ -177,8 +177,9 @@ export default function NavBar() {
                       <Menu.Item>
                         {({ active }: {active: any}) => (
                           <a
-                            href="#"
+                            href="/login"
                             className={classNames(active ? 'bg-indigo-300' : '', 'block px-4 py-2 text-sm text-white')}
+                            onClick={() => localStorage.clear()}
                           >
                             Sign out
                           </a>

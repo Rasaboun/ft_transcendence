@@ -3,98 +3,169 @@ import { Socket, Server } from 'socket.io';
 import { Channel } from './channel/channel';
 import { PrivChat } from './privChat/privChat';
 import { ChannelManager } from './channel/channel.manager';
-import { Message } from './chat.type';
+import { ActionOnUser, AddAdmin, CreateChannel, InviteClient, JoinChannel, SetChannelPassword } from './types/channel.type';
+import { AuthenticatedSocket } from 'src/auth/types/auth.type';
+import { AuthService } from 'src/auth/auth.service';
 import { PrivChatManager } from './privChat/privChat.manager';
-import { ActionOnUser, AuthenticatedSocket } from './types/channel.type';
-import { isDataURI } from 'class-validator';
+import { forwardRef, Inject } from '@nestjs/common';
+import { User } from 'src/typeorm';
+import { UsersService } from 'src/users/users.service'
+import { GameMode } from 'src/game/types/game.type';
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-	constructor( private channelManager: ChannelManager, private privChatManager: PrivChatManager)
+	constructor(
+				private channelManager: ChannelManager,
+				@Inject(forwardRef(() => AuthService))
+				private authService: AuthService,
+				private privChatManager: PrivChatManager,
+				private userService: UsersService,
+			)
 	{}
 
 	@WebSocketServer()
-	server;
+	server: Server;
 
 
 	afterInit(server: Server) {
 		
 		this.channelManager.server = server;
+		this.channelManager.initChannels();
+		this.privChatManager.server = server;
 	
 	}
 
-	handleConnection(client: Socket){
-		console.log(`Client ${client.id} joined chat socket`);
-		
-		this.channelManager.initializeSocket(client as AuthenticatedSocket);
-		// todo save it in db to handle privConnection to user
-		
+	async handleConnection(client: Socket){
+		 console.log(`Client ${client.handshake.auth.login} joined chat socket`);
+		await this.authService.initializeSocket(client as AuthenticatedSocket);
+		await this.channelManager.joinChannels(client as AuthenticatedSocket);
 	}
 
-	handleDisconnect(client: AuthenticatedSocket) {
-		console.log(`Client ${client.id} left server`);
+	async handleDisconnect(client: AuthenticatedSocket) {
+		console.log(`Client ${client.login} left server`);
 		this.channelManager.terminateSocket(client);
 		// todo save it in db to handle privConnection to user
 	}
 
-	@SubscribeMessage('createChannel')
-	async createChannel(client: AuthenticatedSocket, channelName: string)
+	@SubscribeMessage("session")
+	async sendSession(client: AuthenticatedSocket)
 	{
-		let channel = await this.channelManager.createChannel(client, channelName);
-		channel.addClient(client);
-		client.emit("channelCreated", channel.id);
+		await this.authService.initializeSocket(client as AuthenticatedSocket);
+		await this.channelManager.joinChannels(client as AuthenticatedSocket);
 	}
-
+	
 	@SubscribeMessage('joinChannel')
-	joinChannel(client: AuthenticatedSocket, channelId: string)
+	async joinChannel(client: AuthenticatedSocket, data: JoinChannel)
 	{
 		try
 		{
-			this.channelManager.joinChannel(client, channelId);
+			await this.channelManager.joinChannel(client, data);
+			console.log(`Client ${client.login} joined channel ${data.channelName}`)
 		}
-		catch (error) { client.emit('channelNotFound', error.message ) }
-		console.log(`Client ${client.id} joined channel ${channelId}`)
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('leaveChannel')
+	async leaveChannel(client: AuthenticatedSocket, channelName: string)
+	{
+		try
+		{
+			await this.channelManager.leaveChannel(client, channelName);
+			console.log(`Client ${client.id} left channel ${channelName}`)
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('createChannel')
+	async createChannel(client: AuthenticatedSocket, data: CreateChannel)
+	{
+		try {
+			const channel = await this.channelManager.createChannel(client, data);
+			channel.addClient(client.login, client.roomId);
+			this.server.emit('activeChannels', this.channelManager.getActiveChannels());
+		}
+		catch (error) { return client.emit('error', error.message)}
 	}
 
 	@SubscribeMessage('deleteChannel')
-	deleteChannel(client: AuthenticatedSocket, channelId: string)
+	async deleteChannel(client: AuthenticatedSocket, channelId: string)
 	{
 		try
 		{
-			this.channelManager.deleteChannel(channelId);
+			await this.channelManager.deleteChannel(channelId);
+			console.log(`Client ${client.id} deleted channel ${channelId}`)
 		}
-		catch (error) { client.emit('channelNotFound', error.message ) }
-		console.log(`Client ${client.id} deleted channel ${channelId}`)
+		catch (error) { client.emit('error', error.message ) }
 
 	}
 
 	@SubscribeMessage('sendMessage')
-	sendMessage(client: AuthenticatedSocket, data: {channelId, message})
+	async sendMessage(client: AuthenticatedSocket, data: {channelId, message})
 	{
 		try {
-			this.channelManager.sendMessage(data.channelId, {sender: client.id, content: data.message});
+			await this.channelManager.sendMessage(data.channelId, client, data.message);
 		}
-		catch (error) { client.emit('channelNotFound', error.message ) }
+		catch (error) { client.emit('error', error.message ) }
 
 	}
 
 	@SubscribeMessage('muteUser')
-	muteUser(client: AuthenticatedSocket, data: ActionOnUser)
+	async muteUser(client: AuthenticatedSocket, data: ActionOnUser)
 	{
 		try {
-			this.channelManager.muteUser(client.id, data);
+			await this.channelManager.muteUser(client, data);
 		}
-		catch (error) { client.emit('channelNotFound', error.message ) }
+		catch (error) { client.emit('error', error.message) }
 	}
 
 	@SubscribeMessage('banUser')
-	banUser(client: AuthenticatedSocket, data: ActionOnUser)
+	async banUser(client: AuthenticatedSocket, data: ActionOnUser)
 	{
 		try {
-			this.channelManager.banUser(client.id, data);
+			await this.channelManager.banUser(client, data);
 		}
-		catch (error) { client.emit('channelNotFound', error.message ) }
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('addAdmin')
+	async addAdmin(client: AuthenticatedSocket, data: AddAdmin)
+	{
+		try {
+			await this.channelManager.addAdmin(client.login, data);
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('clientInfo')
+	async getClientInfoOnChannel(client: AuthenticatedSocket, channelName: string)
+	{
+		try
+		{
+			await this.channelManager.sendClientInfo(client, channelName);
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('channelInfo')
+	async getChannelInfo(client: AuthenticatedSocket, channelName: string)
+	{
+		try
+		{
+			await this.channelManager.sendChannelInfo(client, channelName);
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('sendInvitation')
+	async sendInvitation(client: AuthenticatedSocket, data:{channelName: string, mode: GameMode})
+	{
+		try
+		{
+			await this.channelManager.sendInvitation(client, data);
+		}
+		catch (error) { client.emit('error', error.message ) }
+
 	}
 
 	@SubscribeMessage('getActiveChannels')
@@ -103,51 +174,116 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		client.emit('activeChannels', this.channelManager.getActiveChannels());
 	}
 
-	/**
-	 * Part dedicated to PrivChat
-	 */
-	@SubscribeMessage('loadNewPrivChats')
-	listNewPrivChatsForUser(client: AuthenticatedSocket, clientId: number)
+	@SubscribeMessage('setChannelPassword')
+	async setChannelPassword(client: AuthenticatedSocket, data: SetChannelPassword)
 	{
-		// look for a room that has an id like clientId as reciever or sender
-		var listOfChats: Array<PrivChat> = this.privChatManager.getOpennedPrivChat(clientId);
-		
-		// returns all the chats the user can connect to, oppened by others
-		// all the chat list is in a string list of room names
-		// standart is 'senderId-recieverId'
-		var ret_val: Array<string> = [];
-		for (var i in listOfChats)
-			ret_val.push(listOfChats[i]._senderId + "-" + listOfChats[i]._recieverId);
-		// the reciever can now join the rooms, needs to be accepted in each of them
-		client.emit("handleNewPrivChat", ret_val);
-	}
-
-	@SubscribeMessage('privChatLoadMess')
-	privChatLoadMess(client: AuthenticatedSocket, senderId: number, recieverId: number)
-	{
-		var listOfMessages: Array<Message>;
-		this.privChatManager.loadMessages(senderId, recieverId).then((result: Message[]) => {listOfMessages = result});
-		// room missing !!
-		client.emit("handleNewPrivChatMess", {'messages': listOfMessages, "senderId": senderId, "recieverId": recieverId});
-	}
-	
-	// todo find the right function to get this
-	//	@SubscribeMessage('loadUserList')
-		
-	// room joining and sending and recieving messages over there ?
-
-	@SubscribeMessage('sendPrivateMess')
-	sendPrivateChatMess(client: AuthenticatedSocket, recieverId: number, senderId: number, mess: string)
-	{
-		// check if a private chat exist
 		try {
-			// function does it all and also sends messageBack, the rooms needs to activated though
-			// no chat exists : chat created and added to online chat array
-			this.privChatManager.sendMessage(senderId, recieverId, mess);
+			await this.channelManager.setChannelPassword(client.login, data);
+			this.server.emit('activeChannels', this.channelManager.getActiveChannels());
 		}
-		catch (error){
-			throw Error("Send message failed");
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('unsetChannelPassword')
+	async unsetChannelPassword(client: AuthenticatedSocket, channelName: string)
+	{
+		try {
+			await this.channelManager.unsetChannelPassword(client.login, channelName);
 		}
-		// return a subscirption to a room ?
+		catch (error) { client.emit('error', error.message ) }
+
+	}
+
+	@SubscribeMessage('setPrivateMode')
+	async setPrivateMode(client: AuthenticatedSocket, channelName: string)
+	{
+		try {
+			await this.channelManager.setPrivateMode(client.login, channelName);
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('unsetPrivateMode')
+	async unsetPrivateMode(client: AuthenticatedSocket, channelName: string)
+	{
+		try {
+			await this.channelManager.unsetPrivateMode(client.login, channelName);
+		}
+		catch (error) { client.emit('error', error.message ) }
+
+	}
+
+	@SubscribeMessage('inviteClient')
+	async inviteClient(client: AuthenticatedSocket, data: InviteClient)
+	{
+		try {
+			console.log("Invited client ", data.clientId);
+			await this.channelManager.inviteClient(client.login, data);
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('privChatCreateChat')
+	async createPrivChat(client :AuthenticatedSocket, recieverId: number, content: string)
+	{
+		try {
+			this.privChatManager.createPrivateChat(client.dbId, recieverId, content)
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('joinPrivateChat')
+	async testJoinedPrivChat(client :AuthenticatedSocket, intraLogin: string)
+	{
+		try{
+			console.log("The login : " + intraLogin + " just connected itself to it")
+			this.privChatManager.joinPrivChat(client, intraLogin);
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('privChatLoadMessages')
+	async privChatLoadMessage(client :AuthenticatedSocket, recieverId: number)
+	{
+		try {
+			client.emit('privChatLoadMessages', this.privChatManager.loadMessages(client.dbId, recieverId));
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('privChatSendMessage')
+	async privChatSendMessage(client :AuthenticatedSocket, recieverIntraLogin: string, message: string)
+	{
+		try {
+			var userReciever: User = (await this.userService.findOneByIntraLogin(recieverIntraLogin));
+			var recieverId: number = userReciever.id
+			// todo ERREUR faux ne peux pas fonctionnner
+			var recieverRoom: string = userReciever.intraLogin
+
+			client.to(client.roomId).to(recieverRoom).emit('privChatSendMessage',
+				(await this.privChatManager.sendMessage(client, client.dbId, recieverId, message)));
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('loadConnectedUsers')
+	async loadConnectedUsers(client: AuthenticatedSocket)
+	{
+		try {
+			// on filtre et on envoie uniquement ce qu'il faut
+			var connectedList = await this.userService.findAll();
+			type tse = {
+				intraLogin:string,
+				username: string
+			}
+			var s: tse[] = [];
+			var e: tse;
+			connectedList.forEach((element) => {
+				e = { intraLogin: element.intraLogin, username: element.username};
+				s.push(e)
+			})
+			client.emit('listOfConnectedUsers', s);
+		}
+		catch (error) { client.emit('error', error.message); }
 	}
 }

@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';;
+import { InjectRepository } from '@nestjs/typeorm';
+import { createUserDto } from 'src/users/dto/createUser.dto';
 import { User } from 'src/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { UserStatus } from './type/users.type';
-import { createUserDto } from './dto/users.dto';
+
 
 @Injectable()
 export class UsersService {
@@ -93,7 +94,7 @@ export class UsersService {
         }
 
         const newUser = this.userRepository.create(userDto);
-        return this.userRepository.save(newUser);
+        return await this.userRepository.save(newUser);
     }
     
     async removeByIntraLogin(login: string): Promise<void> {
@@ -171,6 +172,25 @@ export class UsersService {
 
         const user = await this.findOneByIntraLogin(login);
         return user.username;
+    }
+
+    async getUserLobby(login: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        return user.lobbyId;
+    }
+
+    async setUserLobby(login: string, newLobby: string | null)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        user.lobbyId = newLobby;
+        await this.userRepository.update(user.id, user);
+    }
+
+    async getUserRoomId(login: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        return user.roomId;
     }
 
 }

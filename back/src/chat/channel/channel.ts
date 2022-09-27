@@ -1,31 +1,23 @@
 import { v4 } from "uuid";
 import { Server } from "socket.io";
-import { AuthenticatedSocket, Message } from "../types/channel.type";
+import { ChannelInfo, ChannelModes, ClientInfo, Message } from "../types/channel.type";
 
 export class Channel
 {
-    public readonly isPrivate:      boolean = false;
-    private         password:       string;
-
-    public          clients:        	Map<string, AuthenticatedSocket> = new Map<string, AuthenticatedSocket>();
+    public          mode:                   ChannelModes = ChannelModes.Public;
+    public          owner:                  string = "";
+    public          clients:        	    Map<string, string> = new Map<string, string>();
 
     constructor    ( private server: Server, public id : string) {}
 
-    public addClient(client: AuthenticatedSocket): void
+    public addClient(username: string, roomId: string | null): void
     {
-        this.clients.set(client.id, client);
-        client.join(this.id);
-        client.data.channel = this;
-        console.log(this.id)
-
-        console.log("Channel clients ", this.clients.size)
+        this.clients.set(username, roomId);
     }
 
-    public removeClient(client: AuthenticatedSocket)
+    public removeClient(clientId: string)
     {
-        client.data.channel = null;
-        client.leave(this.id);
-        this.clients.delete(client.id);
+        this.clients.delete(clientId);
     }
 
     public clientsId(): string[]
@@ -37,12 +29,58 @@ export class Channel
         })
         return clientsIdArray;
     }
+    public getInfo(clients?: ClientInfo[]): ChannelInfo
 
-    public sendMessage(clientId: string, message: string) { this.server.to(this.id).emit("msgToChannel", {sender: clientId, content: message})}
+    {
+        const res: ChannelInfo = {
+            channelId: this.id,
+            clients: clients,
+            mode: this.mode,
+            nbClients: this.getNbClients(),
+            owner: this.owner,
+        }
+        return res;
+    }
 
-    public sendToUsers(event: string, data: any) { this.server.to(this.id).emit(event, data); }
-
-	public getUser(client: AuthenticatedSocket)	{ return this.clients.get(client.id); }
+	public changeMode(newChannelMode: ChannelModes)
+	{
+		this.mode = newChannelMode;
+	
+		this.sendToUsers("channelModeChanged", {channelName: this.id, mode: newChannelMode})
+	}
     
+    public sendToClient(clientId: string, event: string, data?: any)
+    {
+        const roomId = this.clients.get(clientId);
+
+        if (!roomId)
+            return ;
+        this.server.to(roomId).emit(event, data);
+    }
+
+
+    public async sendToUsers(event: string, data: any, exclude?: string)
+    {
+        this.clients.forEach((roomId, client) => {
+            if (roomId != null && roomId != exclude)
+                this.server.to(roomId).emit(event, data);
+        })
+    }
+
+    public updateClient(username: string, roomId: string) {  this.clients.set(username, roomId); }
+
+    public isClient(clientId: string): boolean { return this.clients.has(clientId); }
+
+    public isPublic(): boolean { return this.mode == ChannelModes.Public }
+
+    public isPrivate(): boolean { return this.mode == ChannelModes.Private }
+
+    public isPasswordProtected(): boolean { return this.mode == ChannelModes.Password }
+
+    public sendMessage(msg: Message) { this.server.to(this.id).emit("msgToChannel", msg)}
+
+
+	public getClientRoomId(clientId: string) { return this.clients.get(clientId); }
+
     public getNbClients(): number { return this.clients.size; }
 }

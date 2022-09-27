@@ -13,8 +13,13 @@ export class User {
     @Column()
     username: string;
 
-    @Column()
+    @Column({
+        default: "temporary",
+    })
     photoUrl: string;
+    
+    @Column()
+    password: string;
 
     @Column({
         default: 0,
@@ -30,6 +35,17 @@ export class User {
         default: 0,
     })
     nbGames: number;
+
+    @Column({
+        default: null,
+        nullable: true,
+    })
+    lobbyId: string;
+
+    @Column({
+        nullable: false,
+    })
+    roomId: string;
 
     @Column('text', { 
         array: true,

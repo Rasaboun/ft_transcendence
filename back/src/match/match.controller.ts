@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
-import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
-import { AuthFilter } from 'src/auth/utils/auth.filter';
+//import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
 import { Match } from 'src/typeorm';
 import { matchDto } from './dto/match.dto';
 import { MatchService } from './match.service';
@@ -12,8 +11,8 @@ export class MatchController {
     constructor(private readonly matchService: MatchService) {}
 
     @Post('result')
-    @UsePipes(ValidationPipe)
     matchResult(@Body() resultDto: matchDto) {
+        console.log("Posting match :", resultDto);
         return this.matchService.matchResult(resultDto);
     }
 
@@ -22,9 +21,9 @@ export class MatchController {
         return this.matchService.findOneById(id);
     }
 
-    @Get('user/:username')
-    getMatchsByUsername(@Param('username') username: string): Promise<Match[]> {
-        return this.matchService.getMatchesByUsername(username);
+    @Get('user')
+    getMatchsByUsername(@Body() dto: {login: string}): Promise<Match[]> {
+        return this.matchService.getMatchesByLogin(dto.login);
     }
 
     @Get()

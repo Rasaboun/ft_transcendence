@@ -6,6 +6,8 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "startdb": "docker-compose up --build -d",
+    "resetdb": "docker-compose down && docker-compose up --build -d",
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -37,6 +39,9 @@
     "@socket.io/redis-adapter": "^7.2.0",
     "@types/express-session": "^1.17.5",
     "@types/joi": "^17.2.3",
+    "@types/passport-local": "^1.0.34",
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.20.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "client-oauth2": "^4.3.3",
@@ -81,5 +86,8 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "devDependencies": {
+    "@types/passport-jwt": "^3.0.6"
   }
 }

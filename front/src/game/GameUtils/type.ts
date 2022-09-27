@@ -10,9 +10,9 @@ export enum GameState {
 
 export type gameDataT = {
 	time:string,
-    scoreToWin:number,
-    player1id:number,
-    player2id:number,
+  scoreToWin:number,
+  player1id:number,
+  player2id:number,
 	player1score:number,
 	player2score:number
 }
@@ -40,7 +40,7 @@ export interface Ball {
 export interface GameData{
   players: Player[],
   ball: Ball,
-  state: GameState
+  state: GameState,
   winnerId: string
 }
 
@@ -99,4 +99,14 @@ export type GameInfoT = {
 		{ id:string, score:number}
 	],
 	isPlaying: boolean
+}
+
+export enum GameMode {
+  Normal,
+  Mini,
+  Speed,
+}
+export interface GameOptions {
+  inviteMode: boolean,
+  mode : GameMode,
 }

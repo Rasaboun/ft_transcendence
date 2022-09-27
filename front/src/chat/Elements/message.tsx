@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import "../chat.css"
+import { ChatContext } from "../ChatContext/chatContext";
 import { messageT } from "../ChatUtils/chatType";
-import MessageOption from "./messageOption";
 
 type MessagePropsT = {
     className: string,
@@ -10,26 +10,14 @@ type MessagePropsT = {
 
 export default function Message({className, message}:MessagePropsT)
 {
-    const [isHover, setIsHover] = useState<boolean>(false)
-
-    const handleOnMouseOver = () => {
-        setIsHover(true)
-    }
-
-    const handleMouseLeave = () => {
-        setIsHover(false)
-    }
+    const {socket} = useContext(ChatContext)
 
     return(
         <div className={className}>
-            {
-                isHover &&
-                    <MessageOption handleMouseLeave={handleMouseLeave} sender={message.sender}/>
-            }
-            {<h4 onMouseOver={handleOnMouseOver} style={{
+            {<h4 style={{
                 color: "red"
             }}>
-                {message.sender}
+                {message.sender!.username}
             </h4>}
             {message.content}
         </div>
