@@ -8,11 +8,13 @@ import { Socket } from 'socket.io-client'
 import useLocalStorage from "../../hooks/localStoragehook"
 import { GameCleaner, GameRoutineHandler, getChatSocket, getGameSocket, initiateSocket, leftPong, loadGame, playerMoved, startGame } from "../../Utils/socketManager"
 import { SocketContext } from "../../Context/socketContext"
+import { useNavigate } from "react-router-dom"
 
 let canvas:HTMLCanvasElement;
 
 export default function Game()
 {
+	const navigate = useNavigate()
 	const {storage, setStorage} = useLocalStorage("user")
 	const {storage2} = useLocalStorage("gameState")
 	const { gameSocket, setChatSocket, setGameSocket } = useContext(SocketContext)
@@ -252,6 +254,11 @@ export default function Game()
 		}
 	}
 
+	const handleInvitationExpired = (msg:string) => {
+		console.log(msg)
+		navigate("/pong")
+	}
+
 	function draw() {
 		const context  = canvas.getContext("2d")!;
 
@@ -320,7 +327,8 @@ export default function Game()
 			handleGoalScored,
 			handleSpectateSuccess,
 			handleGameOver,
-			handleSession)
+			handleSession,
+			handleInvitationExpired)
 		
 		if (!context)
 			return ;

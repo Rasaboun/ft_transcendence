@@ -241,7 +241,8 @@ export function GameRoutineHandler(handleWait:any,
 									handleGoalScored:any,
 									handleSpectateSuccess:any,
 									handleGameOver:any,
-									handleSession:any) 
+									handleSession:any,
+									handleInvitationExpired:any) 
 {	
 	gameSocket.on('waitingForOpponent', handleWait)
 	gameSocket.on('updateBall', (ball:Ball) => handleUpdateBall(ball))
@@ -252,6 +253,7 @@ export function GameRoutineHandler(handleWait:any,
 	gameSocket.on('spectateSuccess', (players: Player[]) => handleSpectateSuccess(players))
 	gameSocket.on('gameOver', (winnerId: string) => handleGameOver(winnerId))
 	gameSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, gameSocket));
+	gameSocket.on("invitationExpired", (msg:string) => handleInvitationExpired(msg));
 
 }
 
