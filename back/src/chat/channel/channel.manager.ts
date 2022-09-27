@@ -29,7 +29,6 @@ export class ChannelManager
 
     public async createChannel(client: AuthenticatedSocket, channelName: string)
     {
-        //check if name is already taken
         let channel = new Channel(this.server, channelName);
 
         channel.addClient(client);
