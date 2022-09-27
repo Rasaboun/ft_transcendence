@@ -13,7 +13,8 @@ import { getSession } from "../../Utils/utils";
 export default function PrivChatElem()
 {
     const {chatSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
-    const {storage} = useLocalStorage("intraLogin")
+    const {storage} = useLocalStorage("user")
+	const {setStorage} = useLocalStorage()
 	const [form, setForm] = useState({
         message:"",
     })
@@ -39,6 +40,13 @@ export default function PrivChatElem()
         ))
     }
 
+    const handlePrivMessList = (msg:messageT[]) => {
+        // fct appelee uniquement pour remplir les mess initialement 
+        setMessagesList((oldMessagesList) => (
+            [...msg]
+        ))
+    }
+
 	const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         setForm((oldForm) => ({
             ...oldForm,
@@ -61,8 +69,7 @@ export default function PrivChatElem()
         setChatSocket(getChatSocket())
         if (chatSocket)
         {
-           chatHandlerPrivEl(handlePrivMessageReceived, 
-                )
+           chatHandlerPrivEl(handlePrivMessageReceived, handlePrivMessList) 
         }
     }, [])
 

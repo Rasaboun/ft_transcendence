@@ -186,10 +186,10 @@ export function chatHandler(handleMessageReceived:any,
 
 }
 
-export function chatHandlerPrivEl(handlePrivMessageReceived:any)
+export function chatHandlerPrivEl(handlePrivMessageReceived:any, handlePrivMessList: any)
 {
-        chatSocket.on("privChatSendMessage", (msg:messageT) => handlePrivMessageReceived(msg))      
-
+	chatSocket.on("privChatSendMessage", (msg:messageT) => handlePrivMessageReceived(msg))      
+	chatSocket.on("privMessageList", (msg:messageT[]) => handlePrivMessList(msg))
 }
 
 export function appSocketRoutine(handleSession:any) {
