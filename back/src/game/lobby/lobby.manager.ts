@@ -20,7 +20,7 @@ export class LobbyManager
     public server;
 
     private readonly lobbies: Map<string, Lobby> = new Map<string, Lobby>();
-    private readonly avalaibleLobbies: Lobby[] = [];
+    private readonly availableLobbies: Lobby[] = [];
 
     constructor(
         @Inject(forwardRef(() => AuthService))
@@ -34,12 +34,12 @@ export class LobbyManager
     public terminateSocket(client: AuthenticatedSocket): void
     {
        
-        for (let i = 0; i < this.avalaibleLobbies.length; i++)
+        for (let i = 0; i < this.availableLobbies.length; i++)
         {
-            if (this.avalaibleLobbies[i].isClient(client.login))
+            if (this.availableLobbies[i].isClient(client.login))
             {
-                this.avalaibleLobbies.splice(i, 1);
-                client.leave(this.avalaibleLobbies[i]?.id);
+                this.availableLobbies.splice(i, 1);
+                client.leave(this.availableLobbies[i]?.id);
             }
         }
         client.leave(client.roomId);
@@ -49,7 +49,7 @@ export class LobbyManager
     {
         let lobby = new Lobby(this.server, options, this);
 
-        this.avalaibleLobbies.push(lobby);
+        this.availableLobbies.push(lobby);
 
         return lobby;
     }
@@ -63,13 +63,16 @@ export class LobbyManager
     {
         let lobby: Lobby = null;
    
-        for (let i = 0; i < this.avalaibleLobbies.length; i++)
+        for (let i = 0; i < this.availableLobbies.length; i++)
         {
-            const currLobby = this.avalaibleLobbies[i];
+            const currLobby = this.availableLobbies[i];
+            console.log("Is client", currLobby.isClient(client.login), 'is private', currLobby.isPrivate(), 'same mode',  currLobby.getMode() == mode)
             if (currLobby.isClient(client.login) === false && !currLobby.isPrivate() && currLobby.getMode() == mode) 
             {
-                lobby = this.avalaibleLobbies.splice(i, 1).at(0);
+                lobby = this.availableLobbies.splice(i, 1).at(0);
+                console.log("available lobbies", this.availableLobbies)
                 client.lobbyId = lobby.id;
+                this.lobbies.set(lobby.id, lobby)
                 break ;
             }
         }
@@ -80,21 +83,19 @@ export class LobbyManager
                 inviteMode: false,
             }
             lobby = this.createLobby(options);
-            this.avalaibleLobbies.push(lobby);
         }
-        this.lobbies.set(lobby.id, lobby);
         lobby.addClient(client);
         this.authService.updateLobby(client.login, lobby.id);
     }
 
     public leaveQueue(client: AuthenticatedSocket)
     {
-        for (let i = 0; i < this.avalaibleLobbies.length; i++)
+        for (let i = 0; i < this.availableLobbies.length; i++)
         {
-            if (this.avalaibleLobbies[i].isClient(client.login))
+            if (this.availableLobbies[i].isClient(client.login))
             {
-                this.avalaibleLobbies.splice(i, 1);
-                this.destroyLobby(this.avalaibleLobbies[i]?.id);
+                this.availableLobbies.splice(i, 1);
+                this.destroyLobby(this.availableLobbies[i]?.id);
                 client.lobby = null;
                 this.authService.updateLobby(client.login, null);
             }
@@ -116,12 +117,12 @@ export class LobbyManager
     {
         let lobby: Lobby = null;
         console.log("joining invitation from", senderLogin);
-        for (let i = 0; i < this.avalaibleLobbies.length; i++)
+        for (let i = 0; i < this.availableLobbies.length; i++)
         {
-            const currLobby = this.avalaibleLobbies[i];
+            const currLobby = this.availableLobbies[i];
             if (currLobby.isClient(senderLogin) === true && currLobby.isPrivate()) 
             {
-                lobby = this.avalaibleLobbies.splice(i, 1).at(0);
+                lobby = this.availableLobbies.splice(i, 1).at(0);
                 client.lobbyId = lobby.id;
                 if (lobby.nbPlayers == 1)
                     this.lobbies.set(lobby.id, lobby);
