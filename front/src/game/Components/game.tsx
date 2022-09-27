@@ -165,6 +165,7 @@ export default function Game()
 	}
 
 	const handleGameData = (data: {gameData: GameData, gameSettings: GameSettings }) => {
+		console.log("Received data", gameData);
 		updateGame(data);
 	}
 
@@ -178,25 +179,6 @@ export default function Game()
 		
 		console.log("Players", data.gameData.players);
 		updateGame(data);
-		// let newPlayers = data.gameData.players;
-		
-		// newPlayers[0].pos = utils.toScale(data.gameData.players[0].pos, canvas.height / gameSettings.height);
-		// newPlayers[1].pos = utils.toScale(data.gameData.players[1].pos, canvas.height / gameSettings.height);
-
-		// setGameData((oldGameData) => ({
-		// 	...oldGameData,
-		// 	ball: data.gameData.ball,
-		// 	players: newPlayers,
-		// 	//state: GameState.Spectacte
-		// }))
-		// setGameSettings((oldGameSettings) => ({
-		// 	...oldGameSettings,
-		// 	scoreToWin: data.gameSettings.scoreToWin,
-		// 	width: data.gameSettings.width,
-		// 	height: data.gameSettings.height,
-		// 	paddleHeight: utils.toScale(data.gameSettings.paddleHeight, canvas.height / 1080),
-		// 	paddleWidth: utils.toScale(data.gameSettings.paddleWidth, canvas.width / 1920),
-		// }))
 		setStorage("gameState", GameState.Spectacte)
 	}
 
@@ -366,7 +348,6 @@ export default function Game()
 		if (parseInt(storage2) === GameState.Started || parseInt(storage2) === GameState.Spectacte)
 		{
 			draw()
-			console.log("Here, data", gameData);
 		}
 	}, [gameData])
 

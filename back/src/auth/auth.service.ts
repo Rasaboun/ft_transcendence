@@ -90,4 +90,8 @@ export class AuthService {
         await this.userService.setUserLobby(login, lobbyId);
     }
 
+    async getUserLobbyId(login: string)
+    {
+        return (await this.userService.findOneByIntraLogin(login)).lobbyId;
+    }
 }

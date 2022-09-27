@@ -153,7 +153,8 @@ export class LobbyManager
     {
         if (!lobbyId)
             return null;
-        return this.lobbies.get(lobbyId);
+        const resLobby =this.lobbies.get(lobbyId);
+        return resLobby;
     }
 
     public getActiveLobbies()

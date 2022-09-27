@@ -94,11 +94,17 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('loadGame')
-	getGameInfo(client: AuthenticatedSocket)
+	async getGameInfo(client: AuthenticatedSocket)
 	{
 		try
 		{
-			console.log("client.lobby", client.lobby)
+
+			if (!client.lobbyId)
+			{
+				client.lobbyId = await this.authService.getUserLobbyId(client.login);
+			}
+			if (!client.lobby)
+				client.lobby = this.lobbyManager.getLobby(client.lobbyId);
 			if (!client.lobby)
 				return ;
 			client.emit('gameData', client.lobby.getGameData())
