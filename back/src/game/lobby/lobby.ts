@@ -29,6 +29,7 @@ export class Lobby
     {
         this.clients.set(client.login, client.roomId);
         client.join(this.id);
+        client.lobbyId = this.id;
         client.lobby = this;
         
         console.log(`Client ${client.login} joined`, this.id)
@@ -40,7 +41,7 @@ export class Lobby
             
             if (this.nbPlayers == 1)
             {
-                client.emit("waitingForOpponent");
+                this.server.to(client.roomId).emit("waitingForOpponent");
             }
             else
             {
@@ -117,7 +118,9 @@ export class Lobby
 
     public async sendToUsers(event: string, data: any)
     {
-        this.server.to(this.id).emit(event, data);
+        this.clients.forEach((roomId, clientLogin) => {
+            this.server.to(roomId).emit(event, data);
+        })
     }
 
     public playerMoved(playerLogin: string, newPos: number)

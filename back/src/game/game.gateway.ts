@@ -60,10 +60,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('joinedQueue')
-	joiningQueue(client: AuthenticatedSocket, mode: GameMode)
+	async joiningQueue(client: AuthenticatedSocket, mode: GameMode)
 	{
 		console.log(`Client ${client.id} joined queue`)
-		this.lobbyManager.joinQueue(client, mode);
+		await this.lobbyManager.joinQueue(client, mode);
 	}
 
 	@SubscribeMessage('joinInvitation')
@@ -99,12 +99,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try
 		{
 
-			if (!client.lobbyId)
-			{
-				client.lobbyId = await this.authService.getUserLobbyId(client.login);
-			}
-			if (!client.lobby)
-				client.lobby = this.lobbyManager.getLobby(client.lobbyId);
+			await this.updateLobby(client);
 			if (!client.lobby)
 				return ;
 			client.emit('gameData', client.lobby.getGameData())
@@ -113,18 +108,31 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('startGame')
-	launchGame(client: AuthenticatedSocket)
+	async launchGame(client: AuthenticatedSocket)
 	{
+		await this.updateLobby(client);
+		if (!client.lobby)
+			return ;
 		client.lobby.startGame();
 	}
 
 	@SubscribeMessage('playerMoved')
-	handlePlayerPosition(client: AuthenticatedSocket, newPos: number) {
+	async handlePlayerPosition(client: AuthenticatedSocket, newPos: number) {
+		await this.updateLobby(client);
+		if (!client.lobby)
+			return ;
 		const player: Player = client.lobby?.getPlayer(client.login);
 		if (!player)
 			return ;
 		player.pos = newPos;
+		client.join(client.roomId);	
 		client.lobby.sendToUsers('updatePaddle', {playerId: client.login, newPos: newPos});
 
+	}
+
+	async updateLobby(client: AuthenticatedSocket)
+	{
+		client.lobbyId = await this.authService.getUserLobbyId(client.login);
+		client.lobby = this.lobbyManager.getLobby(client.lobbyId);
 	}
 }

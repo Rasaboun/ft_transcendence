@@ -56,21 +56,23 @@ export class LobbyManager
 
     public destroyLobby(lobbyId: string)
     {
+        const lobby = this.lobbies.get(lobbyId);
+        lobby.clients.forEach((roomId, clientLogin) => {
+            this.authService.updateLobby(clientLogin, null);
+        })
         this.lobbies.delete(lobbyId);
     }
 
-    public joinQueue(client: AuthenticatedSocket, mode:GameMode)
+    public async joinQueue(client: AuthenticatedSocket, mode:GameMode)
     {
         let lobby: Lobby = null;
    
         for (let i = 0; i < this.availableLobbies.length; i++)
         {
             const currLobby = this.availableLobbies[i];
-            console.log("Is client", currLobby.isClient(client.login), 'is private', currLobby.isPrivate(), 'same mode',  currLobby.getMode() == mode)
             if (currLobby.isClient(client.login) === false && !currLobby.isPrivate() && currLobby.getMode() == mode) 
             {
                 lobby = this.availableLobbies.splice(i, 1).at(0);
-                console.log("available lobbies", this.availableLobbies)
                 client.lobbyId = lobby.id;
                 this.lobbies.set(lobby.id, lobby)
                 break ;
@@ -85,7 +87,8 @@ export class LobbyManager
             lobby = this.createLobby(options);
         }
         lobby.addClient(client);
-        this.authService.updateLobby(client.login, lobby.id);
+        console.log(`Client ${client.login} joined lobby ${lobby.id}`)
+        await this.authService.updateLobby(client.login, lobby.id);
     }
 
     public leaveQueue(client: AuthenticatedSocket)
@@ -153,7 +156,7 @@ export class LobbyManager
     {
         if (!lobbyId)
             return null;
-        const resLobby =this.lobbies.get(lobbyId);
+        const resLobby = this.lobbies.get(lobbyId);
         return resLobby;
     }
 

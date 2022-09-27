@@ -80,7 +80,6 @@ export default function Game()
 	// }
 	function initializeGame()
 	{
-		console.log("Is in game?", parseInt(storage2) === GameState.Started)
 		if (parseInt(storage2) === GameState.Started)
 		{
 			loadGame();
@@ -165,7 +164,6 @@ export default function Game()
 	}
 
 	const handleGameData = (data: {gameData: GameData, gameSettings: GameSettings }) => {
-		console.log("Received data", gameData);
 		updateGame(data);
 	}
 
@@ -177,7 +175,6 @@ export default function Game()
 
 	const handleSpectateSuccess = (data: {gameData: GameData, gameSettings: GameSettings }) => {
 		
-		console.log("Players", data.gameData.players);
 		updateGame(data);
 		setStorage("gameState", GameState.Spectacte)
 	}
@@ -222,7 +219,7 @@ export default function Game()
 	}
 
 	function updatePaddle(data:{playerId:string, newPos:number})
-	{	
+	{
 			setGameData((oldGameData) => ({
 				...oldGameData,
 				players: oldGameData.players.map((player, index) => {

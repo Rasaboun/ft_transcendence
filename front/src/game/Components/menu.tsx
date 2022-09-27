@@ -54,6 +54,11 @@ export default function Menu()
 		setGameMode(parseFloat(e.target.value))
     }
 
+    const handleWaitingForOpponent = () => {
+        console.log("Received waiting");
+        navigate("game")
+    }
+
     const handleSubmit = (e:React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
         newGame(gameMode)
@@ -70,7 +75,11 @@ export default function Menu()
         if (gameSocket)
         {
             getActiveGames()
-            GameMenuHandler(handleAvailableLobbies, handleGoalScored, handleSession)
+            GameMenuHandler(
+                handleAvailableLobbies,
+                handleGoalScored,
+                handleSession,
+                handleWaitingForOpponent)
         }
         return (() => Menucleaner(handleAvailableLobbies, handleGoalScored))
     }, [])

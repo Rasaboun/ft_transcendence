@@ -219,13 +219,17 @@ export function joinInvitation(sender: string) {
 	gameSocket?.emit("joinInvitation", sender);
 }
 
-export function GameMenuHandler(handleAvailableLobbies:any, handleGoalScored:any, handleSession:any)
+export function GameMenuHandler(
+			handleAvailableLobbies:any,
+			handleGoalScored:any,
+			handleSession:any,
+			handleWaitingForOpponent:any)
 {
 	console.log(gameSocket)
 	gameSocket.on('activeGames',(availableLobbies:availableLobbiesT) => handleAvailableLobbies(availableLobbies))
 	gameSocket.on('goalScored', (players: any) => handleGoalScored(players));
 	gameSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, gameSocket));
-
+	gameSocket.on("waitingForOpponent", () => handleWaitingForOpponent());
 }
 
 
