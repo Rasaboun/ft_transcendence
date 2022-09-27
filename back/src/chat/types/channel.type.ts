@@ -1,6 +1,7 @@
 import { HttpException } from "@nestjs/common";
 import { Socket } from "socket.io"
 import { Channel } from "../channel/channel"
+import { PrivChat } from "../privChat/privChat"
 
 export const uuidRegexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
 export class ChannelClient {

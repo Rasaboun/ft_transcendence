@@ -1,5 +1,7 @@
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
+import { Channel } from './channel/channel';
+import { PrivChat } from './privChat/privChat';
 import { ChannelManager } from './channel/channel.manager';
 import { ActionOnUser, AddAdmin, CreateChannel, InviteClient, JoinChannel, SetChannelPassword } from './types/channel.type';
 import { AuthenticatedSocket } from 'src/auth/types/auth.type';
@@ -43,6 +45,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async handleDisconnect(client: AuthenticatedSocket) {
 		console.log(`Client ${client.login} left server`);
 		this.channelManager.terminateSocket(client);
+		// todo save it in db to handle privConnection to user
 	}
 
 	@SubscribeMessage("session")

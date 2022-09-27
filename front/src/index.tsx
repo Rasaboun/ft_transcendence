@@ -11,7 +11,7 @@ const root = ReactDOM.createRoot(
 let rootdiv = document.getElementById("root");
 rootdiv?.classList.add("flex");
 rootdiv?.classList.add("flex-col"); 
-rootdiv?.classList.add("min-h-screen");
+rootdiv?.classList.add("h-screen");
 root.render(
 	<SocketContextProvider>
 		<App />

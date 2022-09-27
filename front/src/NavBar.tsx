@@ -23,12 +23,12 @@ function HoverNavBar(location :String){
  
 
   for (let other of navigation){
-      document.getElementById(other.name)?.classList.remove("bg-gray-500");
-      document.getElementById(other.name + "burger")?.classList.remove("bg-gray-500");
+      document.getElementById(other.name)?.classList.remove("bg-indigo-400");
+      document.getElementById(other.name + "burger")?.classList.remove("bg-indigo-400");
   }
 
-  document.getElementById(location.replace('/',""))?.classList.add("bg-gray-500");
-  document.getElementById(location.replace('/',"") + "burger")?.classList.add("bg-gray-500");
+  document.getElementById(location.replace('/',""))?.classList.add("bg-indigo-400");
+  document.getElementById(location.replace('/',"") + "burger")?.classList.add("bg-indigo-400");
 }
 
 export default function NavBar() {
@@ -42,14 +42,14 @@ export default function NavBar() {
   return (
     <>
     <div className="flex-none">
-    <Disclosure as="nav" className="bg-blue-800">
+    <Disclosure as="nav" className="bg-indigo-300">
       {({ open} : {open: any}) => (
         <>
           <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
             <div className="relative flex items-center justify-between h-16">
               <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
                 {/* Mobile menu button*/}
-                <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-indigo-400 hover:text-white hover:bg-indigo-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
                   <span className="sr-only">Open main menu</span>
                   {open ? (
                     <XIcon className="block h-6 w-6" aria-hidden="true" />
@@ -65,7 +65,7 @@ export default function NavBar() {
                   onClick={() => {
                         for (let other of navigation){
                             let idother = document.getElementById(other.name);
-                            idother?.classList.remove("bg-gray-500");
+                            idother?.classList.remove("bg-indigo-200");
                         }
                         }}
                    >
@@ -80,7 +80,7 @@ export default function NavBar() {
                   onClick={() => {
                     for (let other of navigation){
                         let idother = document.getElementById(other.name);
-                        idother?.classList.remove("bg-gray-500");
+                        idother?.classList.remove("bg-indigo-200");
                     }
                     }}
                   >
@@ -100,7 +100,7 @@ export default function NavBar() {
                         key={item.name}
                         className={classNames(
                         
-                          'text-white hover:bg-gray-400 ',
+                          'text-white hover:bg-indigo-200 ',
                           'px-3 py-2 rounded-md text-sm font-medium'
                         )}
                         
@@ -119,7 +119,7 @@ export default function NavBar() {
                 {/* Profile dropdown */}
                 <Menu as="div" className="ml-3 relative">
                   <div>
-                    <Menu.Button className="bg-sky-600 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                    <Menu.Button className="bg-indigo-600 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                       <span className="sr-only">Open user menu</span>
                       <div className="relative">
                       <img
@@ -153,22 +153,22 @@ export default function NavBar() {
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                   >
-                    <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-blue-500 ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-indigo-400 ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <Menu.Item>
                         {({ active }: {active: any}) => (
-                          <a
-                            href="#"
-                            className={classNames(active ? 'bg-blue-600' : '', 'block px-4 py-2 text-sm text-white')}
-                          >
-                            Your Profile
-                          </a>
+                          <Link
+                          to="myProfile"
+                          className={classNames(active ? 'bg-indigo-300' : '', 'block px-4 py-2 text-sm text-white')}
+                        >
+                          Profile
+                        </Link>
                         )}
                       </Menu.Item>
                       <Menu.Item>
                         {({ active }: {active: any}) => (
                           <Link
                             to="Settings"
-                            className={classNames(active ? 'bg-blue-600' : '', 'block px-4 py-2 text-sm text-white')}
+                            className={classNames(active ? 'bg-indigo-300' : '', 'block px-4 py-2 text-sm text-white')}
                           >
                             Settings
                           </Link>
@@ -178,7 +178,7 @@ export default function NavBar() {
                         {({ active }: {active: any}) => (
                           <a
                             href="/login"
-                            className={classNames(active ? 'bg-blue-600' : '', 'block px-4 py-2 text-sm text-white')}
+                            className={classNames(active ? 'bg-indigo-300' : '', 'block px-4 py-2 text-sm text-white')}
                             onClick={() => localStorage.clear()}
                           >
                             Sign out
@@ -199,7 +199,7 @@ export default function NavBar() {
                   id={item.name + "burger"}
                   to={item.name}
                   className={classNames(
-                    'text-white hover:bg-gray-400 hover:text-white',
+                    'text-white hover:bg-indigo-200 hover:text-white',
                     'block px-3 py-2 rounded-md text-base font-medium'
                   )}
                   key={item.name}
@@ -208,10 +208,10 @@ export default function NavBar() {
                     
                     for (let other of navigation){
                         let idother = document.getElementById(other.name + "burger");
-                        idother?.classList.remove("bg-gray-500");
+                        idother?.classList.remove("bg-indigo-400");
                     }
                     let idcurrent = document.getElementById(item.name + "burger");
-                    idcurrent?.classList.add("bg-gray-500");
+                    idcurrent?.classList.add("bg-indigo-400");
                     }}
                   >
                     {item.name}

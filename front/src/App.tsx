@@ -16,6 +16,7 @@ import NavBar from "./NavBar";
 import Pong from "./Pong";
 import { PrivateRoute } from "./PrivateRoute";
 import Settings from "./Settings";
+import Profile from "./Profile";
 import { appSocketRoutine, getChatSocket, getGameSocket, initiateSocket } from "./Utils/socketManager";
 import { getToken } from "./Utils/utils";
 
@@ -80,6 +81,7 @@ export default function App()
 					<Route path="Settings" element={<Settings/>}/>
 				</Route>
 				<Route path="/login" element={<Login/> }/>
+				<Route path="myProfile" element={<Profile/>}/>
 			</Routes>
 			<Footer/>
 		</BrowserRouter>
