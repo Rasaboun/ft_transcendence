@@ -51,7 +51,6 @@ export class ChannelManager
 
     public async createChannel(client: AuthenticatedSocket, data: CreateChannel)
     {
-<<<<<<< HEAD
         try
         {       
             if (this.channels.get(data.name) != undefined)
@@ -66,9 +65,6 @@ export class ChannelManager
 
             if (data.mode != ChannelModes.Password)
                 data.password = "";
-=======
-        let channel = new Channel(this.server, channelName);
->>>>>>> main
 
             this.channels.set(channel.id, channel);
             await this.channelsService.createChannel( //change to just the name

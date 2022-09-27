@@ -39,17 +39,6 @@ export type ActionOnUser = {
 }
 
 // Priv chat part
-export type privChatP = {
-	PrivChatId: number,
-	client1: number,
-	client2: number,
-    handleNewPrivateChat: (PrivChatId: number) => void
-}
-
-export type privMessageT = {
-    sender : number,
-    content : string
-}
 
 
 export type JoinChannelT = {

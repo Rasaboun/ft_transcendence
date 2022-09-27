@@ -13,8 +13,10 @@ export class User {
     @Column()
     username: string;
 
-    // @Column()
-    // photoUrl: string;
+    @Column({
+        default: "temporary",
+    })
+    photoUrl: string;
     
     @Column()
     password: string;

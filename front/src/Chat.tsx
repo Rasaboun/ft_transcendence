@@ -26,6 +26,34 @@ function Channel() {
         id: 2,
         title: "So you've bought coffee... now what?",
       },
+      {
+        id: 3,
+        title: "So you've bought coffee... now what?",
+      },
+      {
+        id: 4,
+        title: "So you've bought coffee... now what?",
+      },
+      {
+        id: 5,
+        title: "So you've bought coffee... now what?",
+      },
+      {
+        id: 6,
+        title: "So you've bought coffee... now what?",
+      },
+      {
+        id: 7,
+        title: "So you've bought coffee... now what?",
+      },
+      {
+        id: 8,
+        title: "So you've bought coffee... now what?",
+      },
+      {
+        id: 9,
+        title: "So you've bought coffee... now what?",
+      },
     ],
     Channel: [
       {
