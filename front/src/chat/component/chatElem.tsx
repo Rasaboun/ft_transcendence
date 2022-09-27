@@ -39,24 +39,22 @@ export default function ChatElem()
 
     const handleSubmitMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
-        const mutedMessage = "you are muted: 60sec left"
-        if(!userState?.isMuted)
+        //const mutedMessage = "you are muted: 60sec left"
+     
+        if (form.message !== "")
         {
-            if (form.message !== "")
-            {
-                sendMessage(storage2!.channelId, form.message)
-            }
-            setForm((oldForm) => ({
-                ...oldForm,
-                message: ""
-            }))
+            sendMessage(storage2!.channelId, form.message)
         }
-        else {
-            setMessagesList((oldMessagesList) => (
-                oldMessagesList === undefined ? [{content: mutedMessage, type: MessageTypes.Info}] :
-                    [...oldMessagesList, {content: mutedMessage, type: MessageTypes.Info}]
-            ))
-        }
+        setForm((oldForm) => ({
+            ...oldForm,
+            message: ""
+        }))
+        // else {
+        //     setMessagesList((oldMessagesList) => (
+        //         oldMessagesList === undefined ? [{content: mutedMessage, type: MessageTypes.Info}] :
+        //             [...oldMessagesList, {content: mutedMessage, type: MessageTypes.Info}]
+        //     ))
+        // }
 
     }
 

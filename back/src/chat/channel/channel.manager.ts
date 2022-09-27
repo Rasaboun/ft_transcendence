@@ -219,7 +219,7 @@ export class ChannelManager
             
             if (channel == undefined)
                 throw new NotFoundException("This channel does not exist");
-            
+            console.log("Sending message");
             if (await this.channelsService.isMuted(channelId, client.login) == true)
             { 
                 const mutedTimeRemaining = (await this.channelsService.getClientById(channelId, client.login)).unmuteDate - new Date().getTime() / 1000;

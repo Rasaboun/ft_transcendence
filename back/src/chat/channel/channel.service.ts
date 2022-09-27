@@ -32,6 +32,14 @@ export class ChannelsService {
         }
 
         const newClient = new ChannelClient(clientId);
+        
+        const index = this.getClientIndex(channel.mutedList, clientId);
+        if (index != -1)
+        {
+            newClient.unmuteDate = channel.mutedList[index].unmuteDate;
+            newClient.isMuted = true;
+        }
+
         if (channel.ownerId == clientId)
             newClient.isOwner = true;
         channel.clients.push(newClient);
@@ -143,7 +151,7 @@ export class ChannelsService {
         channel.clients[clientIndex].isMuted = false;
         channel.clients[clientIndex].unmuteDate = 0;
         console.log(channel.mutedList)
-        channel.mutedList = channel.mutedList.filter((elem) => elem.id !== clientId);
+        channel.mutedList.splice(this.getClientIndex(channel.mutedList, clientId), 1);
         console.log(channel.mutedList)
         await this.channelRepository.update(channel.id, channel);
     }
