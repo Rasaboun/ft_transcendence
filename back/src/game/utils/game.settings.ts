@@ -18,7 +18,7 @@ export function getMiniModeSettings(): GameSettings
     return {
         scoreToWin: scoreToWin,
         paddleHeight: 50,
-        paddleWidth: 10,
+        paddleWidth: 20,
         width: 1920,    
         height: 1080,
     }

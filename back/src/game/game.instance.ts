@@ -21,7 +21,7 @@ export class GameInstance
 		else if (mode == GameMode.Mini)
 		{
 			this.settings = getMiniModeSettings();
-			this.gameData.ball.radius = this.gameData.ball.radius / 5;
+			this.gameData.ball.radius = this.gameData.ball.radius / 4;
 		}
 		else if (mode == GameMode.Speed)
 		{
