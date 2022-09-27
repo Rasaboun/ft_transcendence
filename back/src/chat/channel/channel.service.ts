@@ -129,7 +129,6 @@ export class ChannelsService {
         const client = channel.clients[this.getClientIndex(channel.clients, data.targetId)]
         if (client == undefined)
                 throw new NotFoundException("This user is not member of the channel");
-        console.log(client.id)
         client.isMuted = true;
         client.unmuteDate = (new Date().getTime()) + (data.duration * 1000);
         channel.mutedList.push(client);
@@ -144,15 +143,12 @@ export class ChannelsService {
             throw new NotFoundException("This channel does not exist");
 
         const clientIndex = this.getClientIndex(channel.clients, clientId)
-        console.log("client index", clientIndex)
         if (clientIndex == -1)
                 throw new NotFoundException("This user is not member of the channel");
         
         channel.clients[clientIndex].isMuted = false;
         channel.clients[clientIndex].unmuteDate = 0;
-        console.log(channel.mutedList)
         channel.mutedList.splice(this.getClientIndex(channel.mutedList, clientId), 1);
-        console.log(channel.mutedList)
         await this.channelRepository.update(channel.id, channel);
     }
 
@@ -163,18 +159,14 @@ export class ChannelsService {
             throw new NotFoundException("This channel does not exist");
 
         const client = channel.clients[this.getClientIndex(channel.clients, clientId)]
-        console.log("unmuted Date", client.unmuteDate)
         if (client == undefined)
                 throw new NotFoundException("This user is not member of the channel");
-        console.log("clent is muted", client.id)
         const clientInMuted = channel.mutedList[this.getClientIndex(channel.mutedList, client.id)];
         if (clientInMuted)
         {
-            console.log("is muted is in muted list")
             client.isMuted = true,
             client.unmuteDate = clientInMuted.unmuteDate;
         }
-        console.log("unmuted Date", client.unmuteDate, new Date().getTime(), new Date().getTime() - client.unmuteDate)
         if (client.isMuted && new Date().getTime() >= client.unmuteDate)
         {
             await this.unmuteClient(channelName, client.id)
