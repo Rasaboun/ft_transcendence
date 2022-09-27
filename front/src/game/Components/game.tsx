@@ -38,8 +38,8 @@ export default function Game()
 			delta: {x: 0, y: 0},
 			radius: 10,
 		},
-		winnerId: ""
-		//state: GameState.Waiting,
+		winnerId: "",
+		state: GameState.Waiting,
 	});
 
 	const [gameSettings, setGameSettings] = useState<GameSettings>({
@@ -105,8 +105,8 @@ export default function Game()
 				delta: {x: 0, y: 0},
 				radius: 10,
 			},
-			//state: GameState.Waiting,
-			winnerId: ""
+			state: GameState.Waiting,
+			winnerId: "",
 		})
 		setGameSettings({
 			scoreToWin: 5,
@@ -124,12 +124,12 @@ export default function Game()
 		const newPlayers = [
 			{
 				id: data.gameData.players[0].id,
-				pos : utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height),
+				pos : utils.toScale(data.gameData.players[0].pos, canvas.height / gameSettings.height),
 				score: data.gameData.players[0].score,
 			},
 			{
 				id: data.gameData.players[1].id,
-				pos : utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height),
+				pos : utils.toScale(data.gameData.players[1].pos, canvas.height / gameSettings.height),
 				score: data.gameData.players[1].score,
 			}
 			]
@@ -142,7 +142,7 @@ export default function Game()
 			// 		return {...player, id: data.gameData.players[index].id, pos: utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height)}
 			// 	return {...player, id: data.gameData.players[index].id, pos: utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height)}
 			// }),
-			//state: GameState.Started
+			state: data.gameData.state,
 		}))
 		setGameSettings((oldGameSettings) => ({
 			...oldGameSettings,
@@ -176,6 +176,7 @@ export default function Game()
 
 	const handleSpectateSuccess = (data: {gameData: GameData, gameSettings: GameSettings }) => {
 		
+		console.log("Players", data.gameData.players);
 		updateGame(data);
 		// let newPlayers = data.gameData.players;
 		
@@ -363,7 +364,10 @@ export default function Game()
 
 	useEffect(() => {
 		if (parseInt(storage2) === GameState.Started || parseInt(storage2) === GameState.Spectacte)
+		{
 			draw()
+			console.log("Here, data", gameData);
+		}
 	}, [gameData])
 
 	return (

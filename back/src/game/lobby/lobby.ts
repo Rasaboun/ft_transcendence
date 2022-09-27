@@ -51,7 +51,6 @@ export class Lobby
         {
             const data = this.getGameData();
             client.emit("spectateSuccess", data);
-            console.log("Spectate data", data.gameData.players);
         }
     }
 
