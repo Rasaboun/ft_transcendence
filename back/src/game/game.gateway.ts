@@ -53,10 +53,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('createLobby')
 	createLobby(client: AuthenticatedSocket, options: GameOptions)
 	{
-		// const option: GameOptions = {
-		// 	mode: options.mode,
-		// 	inviteMode: options.inviteMode,
-		// }
 		let lobby = this.lobbyManager.createLobby(options);
 		lobby.addClient(client);
 

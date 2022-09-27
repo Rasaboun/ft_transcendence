@@ -98,9 +98,8 @@ export class ChannelManager
             if (await this.channelsService.isBanned(data.channelName, client.login) == true)
             {
                 const user = await this.channelsService.getClientById(data.channelName, client.login);
-                const timeBanned = user.unbanDate - (new Date().getTime() / 1000);
-                console.log(`You are banned from this channel for ${Math.trunc(timeBanned)} seconds`);
-                return ;
+                const timeBanned = (user.unbanDate - new Date().getTime()) / 1000;
+                throw new ForbiddenException(`You are banned from this channel for ${Math.trunc(timeBanned)} seconds`);
 
             }
             if ((await this.channelsService.isClient(channel.id, client.login)))
