@@ -54,12 +54,14 @@ export class LobbyManager
         return lobby;
     }
 
-    public destroyLobby(lobbyId: string)
+    public async destroyLobby(lobbyId: string)
     {
         const lobby = this.lobbies.get(lobbyId);
-        lobby.clients.forEach((roomId, clientLogin) => {
-            this.authService.updateLobby(clientLogin, null);
-        })
+        for (const [clientLogin, roomId] of lobby.clients)
+        {
+            console.log("Destroy lobby, client login :", clientLogin);
+            await this.authService.updateLobby(clientLogin, null);
+        }
         this.lobbies.delete(lobbyId);
     }
 

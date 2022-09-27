@@ -51,9 +51,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('createLobby')
-	createLobby(client: AuthenticatedSocket, options: GameOptions)
+	async createLobby(client: AuthenticatedSocket, options: GameOptions)
 	{
 		let lobby = this.lobbyManager.createLobby(options);
+		await this.authService.updateLobby(client.login, lobby.id);
 		lobby.addClient(client);
 
 		client.emit("lobbyCreated", "Successful creation");
