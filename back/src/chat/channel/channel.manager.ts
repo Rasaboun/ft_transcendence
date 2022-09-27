@@ -33,7 +33,7 @@ export class ChannelManager
 
         channel.addClient(client);
         this.channels.set(channel.id, channel);
-        await this.channelsService.createChannel( //chan to just the name
+        await this.channelsService.createChannel( //change to just the name
             {
                 name: channelName,
                 isPrivate: false,
