@@ -1,7 +1,7 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
 import { chatHandler, chatHandlerPrivEl, getChatSocket, getClientInfo, getGameSocket, initiateSocket, sendMessage, sendPrivMessage } from "../../Utils/socketManager";
 import Message from "../Elements/message";
-import {ActionOnUser, ChannelModes, ChannelT, ClientInfoT, messageT, UserStateT} from "../ChatUtils/chatType"
+import {ActionOnUser, ChannelModes, ChannelT, ClientInfoT, messageT, MessageTypes, UserStateT} from "../ChatUtils/chatType"
 import { useNavigate } from "react-router-dom";
 import InfoMessage from "../Elements/InfoMessage";
 import ChannelBoard from "../Elements/ChannelBoard";
@@ -55,7 +55,7 @@ export default function PrivChatElem()
     }
 
     const messageElem = messagesList?.map((elem, index) => (
-        elem.isInfo ?
+        elem.type === MessageTypes.Info ?
             <InfoMessage key={index} message={elem}/> :
             <Message key={index}
                 className={elem.sender?.login ===  storage.login ?
@@ -65,7 +65,7 @@ export default function PrivChatElem()
     ))
 
     useEffect(() => {
-        initiateSocket("http://localhost:8002", getSession(), storage.login)
+        initiateSocket("http://localhost:8002")
         setChatSocket(getChatSocket())
         if (chatSocket)
         {

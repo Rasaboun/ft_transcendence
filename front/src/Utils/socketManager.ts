@@ -191,15 +191,15 @@ export function chatHandlerPrivEl(handlePrivMessageReceived:any, handlePrivMessL
 	chatSocket.on("privMessageList", (msg:messageT[]) => handlePrivMessList(msg))
 }
 
-export function appSocketRoutine(handleSession:any) {
-	chatSocket.on('connection', (chatSocket) => {console.log('a user connected on chatSocket', chatSocket)});
-	chatSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, chatSocket));
-	chatSocket.on("connect_error", (err) => {console.log(`connect_error due to ${err.message}`)});
-	chatSocket.on("Connect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
-	chatSocket.on("Error", (err) => {console.log(`connect_error due to ${err.message}`)});
-	chatSocket.on("Reconnect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
-	chatSocket.on("msgToChannel", (msg:messageT) => {console.log(`message receive from ${msg.sender?.username}`)})      
-}
+// export function appSocketRoutine(handleSession:any) {
+// 	chatSocket.on('connection', (chatSocket) => {console.log('a user connected on chatSocket', chatSocket)});
+// 	chatSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, chatSocket));
+// 	chatSocket.on("connect_error", (err) => {console.log(`connect_error due to ${err.message}`)});
+// 	chatSocket.on("Connect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
+// 	chatSocket.on("Error", (err) => {console.log(`connect_error due to ${err.message}`)});
+// 	chatSocket.on("Reconnect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
+// 	chatSocket.on("msgToChannel", (msg:messageT) => {console.log(`message receive from ${msg.sender?.username}`)})      
+// }
 
 //////////////// GAME SOCKET /////////////////////
 

@@ -19,10 +19,10 @@ export class PrivChatService {
 		return this.chatRepository.find();
 	}
 
-	async findOne(id: number): Promise<PrivChat>
-	{
-		return this.chatRepository.findOne(where : { id });
-	}
+	// async findOne(id: number): Promise<PrivChat>
+	// {
+	// 	// return this.chatRepository.findOne(where : { id });
+	// }
 
 	async findOneBy(id: number): Promise<PrivChat>
 	{

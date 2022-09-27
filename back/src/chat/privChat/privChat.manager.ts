@@ -3,7 +3,7 @@ import { Interval } from "@nestjs/schedule";
 import { Server } from "socket.io";
 import { WebSocketServer } from "@nestjs/websockets";
 import { AuthenticatedSocket } from "src/auth/types/auth.type";
-import { Message } from "../types/channel.type";
+import { Message, MessageTypes } from "../types/channel.type";
 import { PrivChat } from "./privChat";
 import { ActionOnUser, ChannelClient } from "../types/channel.type";
 import { PrivChatService } from "./chat.service";
@@ -78,7 +78,7 @@ export class PrivChatManager
 				"sender": {"login": senderUser.intraLogin, "username": senderUser.username},
 				"reciever": {"login": recieverUser.intraLogin, "username": recieverUser.username},
 				"content": firstMess,
-				"isInfo": false,
+				"type": MessageTypes.Message,
 				};
 			this.privChatService.createNewChat({"Sender": senderId, 
 			"Reciever": recieverId, "mess": [messStruct, ]})
@@ -157,7 +157,7 @@ export class PrivChatManager
 			"sender": {"login": senderUser.intraLogin, "username": senderUser.username},
 			"reciever": {"login": recieverUser.intraLogin, "username": recieverUser.username},
 			"content": mess,
-			"isInfo": false,
+			"type": MessageTypes.Message,
 			};	
 		chat.sendMessage(client.roomId, senderId, mess);
 		this.privChatService.sendMessage(messStruct);
