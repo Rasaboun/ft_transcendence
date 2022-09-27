@@ -19,28 +19,30 @@ export class PrivChatService {
 		return this.chatRepository.find();
 	}
 
-	// async findOne(id: number): Promise<PrivChat>
-	// {
-	// 	// return this.chatRepository.findOne(where : { id });
-	// }
-
 	async findOneBy(id: number): Promise<PrivChat>
 	{
 		return this.chatRepository.findOneBy({ id });
 	}
 
-	async findOneBySenderId(userIdFirstSender: number)
+	async findOneBySenderId(userIdFirstSender: string)
 	{
-		const retVal: PrivChat = await this.chatRepository.findOne({where : {UserIdFirstSender: userIdFirstSender }});
+		const retVal: PrivChat = await this.chatRepository.findOne({
+			where : {UserIdFirstSender: userIdFirstSender }
+			});
 		return retVal;
 	}
 
-	async findOneBySenderReciever(userIdFirstSender: number, userIdFirstReciever: number)
+	async findOneBySenderReciever(userIdFirstSender: string, userIdFirstReciever: string)
 	{
 		// trying to get it in the right order : if not just returns the natural undefined from findOneBy
-		var retVal: PrivChat = await this.chatRepository.findOne({where: { UserIdFirstSender: userIdFirstSender, UserIdFirstReciever: userIdFirstReciever }});
+		var retVal: PrivChat = await this.chatRepository.findOne({
+				where: {
+					UserIdFirstSender: userIdFirstSender, UserIdFirstReciever: userIdFirstReciever
+				}});
 		if (!retVal)
-			retVal = await this.chatRepository.findOne({where: { UserIdFirstSender: userIdFirstReciever , UserIdFirstReciever: userIdFirstSender}});
+			retVal = await this.chatRepository.findOne({
+				where: {UserIdFirstSender: userIdFirstReciever, UserIdFirstReciever: userIdFirstSender},
+				});
 		return (retVal);
 	}
 
@@ -73,8 +75,8 @@ export class PrivChatService {
 		{
 			throw new NotFoundException("Sender or reciever of the message does not exist.");
 		}
-		var senderId: number = (await this.usersService.findOneByIntraLogin(message.sender.login)).id;
-		var recieverId: number = (await this.usersService.findOneByIntraLogin(message.reciever.login)).id;
+		var senderId: string = (await this.usersService.findOneByIntraLogin(message.sender.login)).intraLogin;
+		var recieverId: string = (await this.usersService.findOneByIntraLogin(message.reciever.login)).intraLogin;
 		var getChatEntry: newPrivatChat = {
 				"Sender": senderId,
 				"Reciever": recieverId,
@@ -85,7 +87,7 @@ export class PrivChatService {
 		return await this.chatRepository.update(chatMod.id, chatMod); 
 	}
 
-	async getMessageList(senderId: number, recieverid: number): Promise<Message[]>
+	async getMessageList(senderId: string, recieverid: string): Promise<Message[]>
 	{
 		var getChatInstance = await this.findOneBySenderReciever(senderId, recieverid);
 		return (getChatInstance?.mess);

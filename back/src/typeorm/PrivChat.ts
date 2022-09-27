@@ -7,10 +7,10 @@ export class PrivChat extends BaseEntity {
   id: number;
 
   @Column()
-  UserIdFirstSender: number 
+  UserIdFirstSender: string
 
   @Column()
-  UserIdFirstReciever: number
+  UserIdFirstReciever: string
 
   @Column({default: -1})
   UserIdBlocker: number;

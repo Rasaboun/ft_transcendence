@@ -9,6 +9,7 @@ import { forwardRef, Inject } from '@nestjs/common';
 import { User } from 'src/typeorm';
 import { UsersService } from 'src/users/users.service'
 import { GameMode } from 'src/game/types/game.type';
+import { use } from 'passport';
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -221,10 +222,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('privChatCreateChat')
-	async createPrivChat(client :AuthenticatedSocket, recieverId: number, content: string)
+	async createPrivChat(client :AuthenticatedSocket, recieverId: string, content: string)
 	{
 		try {
-			this.privChatManager.createPrivateChat(client.dbId, recieverId, content)
+			this.privChatManager.createPrivateChat(client.login, recieverId, content)
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
@@ -240,10 +241,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('privChatLoadMessages')
-	async privChatLoadMessage(client :AuthenticatedSocket, recieverId: number)
+	async privChatLoadMessage(client :AuthenticatedSocket, recieverId: string)
 	{
 		try {
-			client.emit('privChatLoadMessages', this.privChatManager.loadMessages(client.dbId, recieverId));
+			client.emit('privChatLoadMessages', this.privChatManager.loadMessages(client.login, recieverId));
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
@@ -253,12 +254,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try {
 			var userReciever: User = (await this.userService.findOneByIntraLogin(recieverIntraLogin));
-			var recieverId: number = userReciever.id
 			// todo ERREUR faux ne peux pas fonctionnner
-			var recieverRoom: string = userReciever.intraLogin
-
-			client.to(client.roomId).to(recieverRoom).emit('privChatSendMessage',
-				(await this.privChatManager.sendMessage(client, client.dbId, recieverId, message)));
+			var recieverRoom: string = userReciever.roomId
+			client.to(client.roomId).to(recieverRoom).emit('privChatSendMessage', (await this.privChatManager.sendMessage(client, client.login, recieverIntraLogin, message)));
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}

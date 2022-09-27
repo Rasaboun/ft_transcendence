@@ -84,7 +84,7 @@ export class UsersService {
 
         if (isNaN(Number(username)))
             return this.userRepository.findOneBy({ username });
-        return this.findOneById( Number(username ));
+        return this.findOneById(Number(username));
     }
 
     async createUser(userDto: createUserDto): Promise<User> {

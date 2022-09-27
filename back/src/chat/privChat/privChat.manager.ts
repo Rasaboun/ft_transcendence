@@ -38,7 +38,7 @@ export class PrivChatManager
 		}
 	}
 
-	private async privateChatExists(senderId: number , recieverId: number)
+	private async privateChatExists(senderId: string , recieverId: string)
 	{
 		try {
 			//check in list
@@ -66,14 +66,13 @@ export class PrivChatManager
 		return undefined;
 	}
 
-	public async createPrivateChat(senderId: number, recieverId: number, firstMess: string)
+	public async createPrivateChat(senderId: string, recieverId: string, firstMess: string)
 	{
 		if (this.privateChatExists(senderId, recieverId))	
 			throw new ForbiddenException("Cannot create a chat that already exists");
 		try {
-			var senderUser: User = await this.userService.findOneById(senderId);
-			var recieverUser: User = await this.userService.findOneById(recieverId);
-			
+			var senderUser: User = await this.userService.findOneByIntraLogin(senderId);
+			var recieverUser: User = await this.userService.findOneByIntraLogin(recieverId);
 			var messStruct: Message = {
 				"sender": {"login": senderUser.intraLogin, "username": senderUser.username},
 				"reciever": {"login": recieverUser.intraLogin, "username": recieverUser.username},
@@ -110,7 +109,7 @@ export class PrivChatManager
 	///
 	// chat operations
 	///
-	public async loadMessages(senderId: number, recieverId: number): Promise<Message[]>
+	public async loadMessages(senderId: string, recieverId: string): Promise<Message[]>
 	{
 		if (this.privateChatExists(senderId, recieverId))
 		{
@@ -124,9 +123,7 @@ export class PrivChatManager
 	{
 		try {
 			var recieverId: number = (await this.userService.findOneByIntraLogin(intraLogin)).id;
-			console.log("room id : " + client.roomId);
-			console.log(this.server);
-			this.server.to(client.roomId).emit("privMessageList", (await this.loadMessages(client.dbId, recieverId)).toString())
+			this.server.to(client.roomId).emit("privMessageList", (await this.loadMessages(client.login, intraLogin)).toString())
 		}
 		catch (error)
 		{
@@ -137,10 +134,10 @@ export class PrivChatManager
 	///
 	// message opearation
 	///
-	public async sendMessage(client: AuthenticatedSocket, senderId: number, recieverId: number, mess: string)
+	public async sendMessage(client: AuthenticatedSocket, senderId: string, recieverId: string, mess: string)
 	{
 		// case the two id are the same
-		let chat: PrivChat;  
+		let chat: PrivChat;
 		if ((this.privateChatExists(senderId, recieverId)) == undefined)
 		{
 			try {
@@ -151,8 +148,8 @@ export class PrivChatManager
 				throw error;
 			}
 		}
-		var senderUser: User = await this.userService.findOneById(senderId);
-		var recieverUser: User = await this.userService.findOneById(recieverId);
+		var senderUser: User = await this.userService.findOneByIntraLogin(senderId);
+		var recieverUser: User = await this.userService.findOneByIntraLogin(recieverId);
 		var messStruct: Message = {
 			"sender": {"login": senderUser.intraLogin, "username": senderUser.username},
 			"reciever": {"login": recieverUser.intraLogin, "username": recieverUser.username},
@@ -164,7 +161,7 @@ export class PrivChatManager
 		return (messStruct);
 	}	
 
-	public getOpennedPrivChat(clientId: number): Array<PrivChat>
+	public getOpennedPrivChat(clientId: string): Array<PrivChat>
 	{
 		var ret_val: Array<PrivChat> = [];
 		for (var i in this.onlineChats)
@@ -179,7 +176,6 @@ export class PrivChatManager
 	{
 		// means that we should get map or array of all connected user from the beginning on
 		// means the array should constantly check for disconnection
-
 	}
 
 	/*public listUsers()
