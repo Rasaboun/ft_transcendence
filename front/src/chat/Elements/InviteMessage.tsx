@@ -1,4 +1,7 @@
-import { useContext } from "react";
+import { useContext, useLayoutEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import useLocalStorage from "../../hooks/localStoragehook";
+import { joinInvitation } from "../../Utils/socketManager";
 import "../chat.css"
 import { ChatContext } from "../ChatContext/chatContext";
 import { messageT } from "../ChatUtils/chatType";
@@ -8,10 +11,20 @@ type MessagePropsT = {
     message: messageT
 }
 
+
+
 export default function InviteMessage({className, message}:MessagePropsT)
 {
     const {socket} = useContext(ChatContext)
+	const navigate = useNavigate();
 
+	const handleJoinInvitation = () => {
+		if (message.sender)
+		{
+			joinInvitation(message.sender.login)
+			navigate('/pong/game');
+		}
+	}
     return(
         <div className={className}>
             {<h4 style={{
@@ -21,7 +34,7 @@ export default function InviteMessage({className, message}:MessagePropsT)
             </h4>}
 			{message.content}
 			<br/>
-            <button className="button-action">join Invitation</button>
+            <button onClick={() => handleJoinInvitation()} className="button-action">join Invitation</button>
         </div>
     )
 }

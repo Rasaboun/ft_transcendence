@@ -4,6 +4,7 @@ import { ClientElem, ClientInfoT, UserStateT } from "../ChatUtils/chatType";
 import { addAdmin, banUser, createLobby, muteUser, sendInvitation } from "../../Utils/socketManager";
 import GameRadioForm from "../../Elements/gameRadioForm";
 import { GameMode } from "../../game/GameUtils/type";
+import { Navigate, useNavigate } from "react-router-dom";
 type UserElemPropsT = {
 	client: ClientElem;
 	userState?:UserStateT;
@@ -11,6 +12,7 @@ type UserElemPropsT = {
 
 export default function UserListElem({ client, userState }:UserElemPropsT)
 {
+	const navigate = useNavigate()
 	const {storage} = useLocalStorage("channel")
 	const {storage2} = useLocalStorage("user")
 	const [gameMode, setGameMode] = useState(GameMode.Normal)
@@ -87,7 +89,8 @@ export default function UserListElem({ client, userState }:UserElemPropsT)
 		e.preventDefault()
 		//INITED ID ?
 		createLobby({inviteMode: true, mode: gameMode})
-		sendInvitation(storage!.channelId, gameMode)
+		sendInvitation({channelName: storage!.channelId, mode: gameMode})
+		navigate("/Pong/game")
 	}
 
 	const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {

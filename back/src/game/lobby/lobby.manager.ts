@@ -110,6 +110,24 @@ export class LobbyManager
         this.authService.updateLobby(client.login, lobby.id);
     }
 
+    public joinInvitation(client: AuthenticatedSocket, senderLogin: string): boolean
+    {
+        let lobby: Lobby = null;
+        for (let i = 0; i < this.avalaibleLobbies.length; i++)
+        {
+            const currLobby = this.avalaibleLobbies[i];
+            if (currLobby.isClient(senderLogin) === true && currLobby.isPrivate()) 
+            {
+                lobby = this.avalaibleLobbies.splice(i, 1).at(0);
+                client.lobbyId = lobby.id;
+                this.authService.updateLobby(client.login, lobby.id);
+                lobby.addClient(client);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public async joinLobbies(client: AuthenticatedSocket)
     {
         if (client.lobbyId)

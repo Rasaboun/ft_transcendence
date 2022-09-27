@@ -120,8 +120,9 @@ export function unsetPrivateMode(channelName: string) {
 	chatSocket?.emit("unsetPrivateMode", channelName);
 }
 
-export function sendInvitation(channelName: string, mode:GameMode) {
-	chatSocket?.emit("sendInvitation", channelName, mode);
+export function sendInvitation(data:{channelName: string, mode: GameMode}) {
+	console.log(data)
+	chatSocket?.emit("sendInvitation", data);
 }
 
 export function chatMenuHandler(handleActiveChannels:any, handleChannelJoined:any, handleError:any, handleInvitation:any, handleSession:any)
@@ -212,6 +213,10 @@ export function leftPong()
 export function createLobby(options:GameOptions) 
 {
 	gameSocket?.emit("createLobby", options)
+}
+
+export function joinInvitation(sender: string) {
+	gameSocket?.emit("joinInvitation", sender);
 }
 
 export function GameMenuHandler(handleAvailableLobbies:any, handleGoalScored:any, handleSession:any)

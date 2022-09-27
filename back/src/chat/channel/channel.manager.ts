@@ -89,8 +89,9 @@ export class ChannelManager
     {
         try
         {
-            console.log("data", data);
+            console.log("data join", data);
             const channel: Channel = this.channels.get(data.channelName);
+            const mutedList = await (await this.channelsService.findOneById(data.channelName)).mutedList;
 
             if (channel == undefined)
                 throw new NotFoundException("This channel does not exist anymore");
@@ -435,6 +436,7 @@ export class ChannelManager
         {
             const data: ChannelClient = await this.channelsService.getClientById(channelName, client.login)
             const messages: Message[] = await this.channelsService.getClientMessages(channelName, client.login);
+            console.log("data", data)
             client.emit("clientInfo", {
                 isOwner: data.isOwner,
                 isAdmin: data.isAdmin,
@@ -458,17 +460,19 @@ export class ChannelManager
         
     }
 
-    public async sendInvitation(client: AuthenticatedSocket, channelName: string, mode: GameMode)
+    public async sendInvitation(client: AuthenticatedSocket, data:{channelName: string, mode: GameMode})
     {
         try
         {
-            const channel = this.channels.get(channelName);
+		    console.log("les marrons", data.channelName)
+            const channel = this.channels.get(data.channelName);
             if (channel == undefined)
                 throw new NotFoundException("This channel does not exist");
             const user = await this.userService.findOneByIntraLogin(client.login);
+		    console.log("chaud les mais")
             
             let msg = `invites you to join a game. Mode: `;
-            switch (mode) {
+            switch (data.mode) {
                 case GameMode.Mini:
                     msg += "Mini.";
                     break;
@@ -485,14 +489,15 @@ export class ChannelManager
                     login: user.intraLogin,
                     username: user.username,
                 },
-                channelName: channelName,
+                channelName: data.channelName,
                 content: msg,
                 date: new Date().toString(),
                 type: MessageTypes.Invitation,
             };
 
+            console.log("sending invitation message", message);
             channel.sendMessage(message);
-            await this.channelsService.addMessage(channelName, message);
+            await this.channelsService.addMessage(data.channelName, message);
         } catch (error) { throw error }
 
     }

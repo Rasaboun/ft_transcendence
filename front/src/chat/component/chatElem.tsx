@@ -133,7 +133,7 @@ export default function ChatElem()
         {
             setMessagesList(data.messages)
         }
-        console.log(data.unmuteDate);
+        console.log("unmuted date", data.unmuteDate);
         if (data.unmuteDate !== 0)
             setMutedTime(Math.trunc(data.unmuteDate / 1000 - new Date().getTime() / 1000))
         
@@ -233,7 +233,7 @@ export default function ChatElem()
                 handleIsAlreadyAdmin,
                 handleChannelJoined,
                 handleConnected)
-        } 
+        }
         if (channel)
                 getClientInfo(channel.channelId)
     }, [chatSocket?.connected])

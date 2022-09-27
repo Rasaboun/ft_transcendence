@@ -149,11 +149,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('sendInvitation')
-	async sendInvitation(client: AuthenticatedSocket, channelName: string, mode: GameMode)
+	async sendInvitation(client: AuthenticatedSocket, data:{channelName: string, mode: GameMode})
 	{
 		try
 		{
-			await this.channelManager.sendInvitation(client, channelName, mode);
+			await this.channelManager.sendInvitation(client, data);
 		}
 		catch (error) { client.emit('error', error.message ) }
 

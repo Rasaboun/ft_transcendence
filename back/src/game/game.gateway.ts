@@ -71,17 +71,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('joinInvitation')
-	joinInvitation(client: AuthenticatedSocket, channelName: string)
+	joinInvitation(client: AuthenticatedSocket, sender: string)
 	{
 		try
 		{
-			const lobby = this.lobbyManager.getLobby(channelName);
-			if (!lobby)
+			if (this.lobbyManager.joinInvitation(client, sender) == false)
 			{
 				client.emit("invitationExpired", "This lobby does not exist anymore");
 			}
-			lobby.addClient(client);
-			this.authService.updateLobby(client.login, lobby.id);
 		} catch (error) { client.emit("error", error.message) };
 	}
 
