@@ -35,14 +35,20 @@ export class PrivChatService {
 	async findOneBySenderReciever(userIdFirstSender: string, userIdFirstReciever: string)
 	{
 		// trying to get it in the right order : if not just returns the natural undefined from findOneBy
-		var retVal: PrivChat = await this.chatRepository.findOne({
-				where: {
-					UserIdFirstSender: userIdFirstSender, UserIdFirstReciever: userIdFirstReciever
-				}});
+		// find by firstName and lastName
+		try {
+		var retVal: PrivChat = await this.chatRepository.findOneBy(
+			{UserIdFirstSender: userIdFirstSender,
+				UserIdFirstReciever: userIdFirstReciever,});
 		if (!retVal)
-			retVal = await this.chatRepository.findOne({
-				where: {UserIdFirstSender: userIdFirstReciever, UserIdFirstReciever: userIdFirstSender},
-				});
+			retVal = await this.chatRepository.findOneBy(
+					{UserIdFirstSender: userIdFirstReciever,
+						UserIdFirstReciever: userIdFirstSender,});
+		}
+		catch (error)
+		{
+			console.log('error', error)
+		}
 		return (retVal);
 	}
 
