@@ -10,4 +10,6 @@ export class createUserDto {
     @IsNotEmpty()
     password: string;
 
+    @IsNotEmpty()
+    roomId: string;
 }

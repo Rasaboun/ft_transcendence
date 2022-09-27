@@ -145,4 +145,11 @@ export class UsersService {
         user.lobbyId = newLobby;
         await this.userRepository.update(user.id, user);
     }
+
+    async getUserRoomId(login: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        return user.roomId;
+    }
+
 }

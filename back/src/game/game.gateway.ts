@@ -63,6 +63,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('joinedQueue')
 	async joiningQueue(client: AuthenticatedSocket, mode: GameMode)
 	{
+		console.log("client lobby before", client.lobbyId)
+		await this.updateLobby(client);
+		console.log("client lobbyId after", client.lobbyId)
 		console.log(`Client ${client.id} joined queue`)
 		await this.lobbyManager.joinQueue(client, mode);
 	}

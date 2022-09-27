@@ -6,6 +6,7 @@ import { Token } from 'client-oauth2';
 import { ConnectableObservable } from 'rxjs';
 import { AuthenticatedSocket, newSessionDto, TokenPayload } from 'src/auth/types/auth.type';
 import { Session } from 'src/typeorm/Session';
+import { createUserDto } from 'src/users/dto/createUser.dto';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { v4 } from 'uuid';
@@ -35,7 +36,14 @@ export class AuthService {
         {
             throw new UnauthorizedException("User already exists");
         }
-        await this.userService.createUser({intraLogin: dto.username, ...dto})
+        dto = {
+            ...dto,
+        }
+        await this.userService.createUser({
+                            intraLogin: dto.username,
+                            roomId: v4(),
+                            ...dto
+                        })
         return true;
     }
 
@@ -44,14 +52,14 @@ export class AuthService {
         const user = await this.userService.findOneByIntraLogin(dto.username);
         const payload: TokenPayload = { 
             login: user.intraLogin,
-            roomId: v4(),
+            roomId: user.roomId,
         };
         return {
             access_token: this.jwtService.sign(payload),
             user: {
                 login: user.intraLogin,
                 username: user.username,
-                roomId: v4(),
+                roomId: user.roomId,
             }
         }
     }

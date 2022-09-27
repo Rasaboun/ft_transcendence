@@ -57,6 +57,8 @@ export class LobbyManager
     public async destroyLobby(lobbyId: string)
     {
         const lobby = this.lobbies.get(lobbyId);
+        if (!lobby)
+            return ;
         for (const [clientLogin, roomId] of lobby.clients)
         {
             console.log("Destroy lobby, client login :", clientLogin);
@@ -69,6 +71,7 @@ export class LobbyManager
     {
         let lobby: Lobby = null;
    
+        console.log("client lobby", client.lobby);
         for (let i = 0; i < this.availableLobbies.length; i++)
         {
             const currLobby = this.availableLobbies[i];

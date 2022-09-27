@@ -39,6 +39,11 @@ export class User {
     })
     lobbyId: string;
 
+    @Column({
+        nullable: false,
+    })
+    roomId: string;
+
     @Column('text', { 
         array: true,
         default: []
