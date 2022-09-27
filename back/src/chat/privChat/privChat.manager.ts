@@ -120,6 +120,20 @@ export class PrivChatManager
 		return ([]);
 	}
 
+	public async joinPrivChat(client: AuthenticatedSocket, intraLogin: string)
+	{
+		try {
+			var recieverId: number = (await this.userService.findOneByIntraLogin(intraLogin)).id;
+			console.log("room id : " + client.roomId);
+			console.log(this.server);
+			this.server.to(client.roomId).emit("privMessageList", (await this.loadMessages(client.dbId, recieverId)).toString())
+		}
+		catch (error)
+		{
+			console.log(error);
+		}
+	}
+
 	///
 	// message opearation
 	///
@@ -147,6 +161,7 @@ export class PrivChatManager
 			};	
 		chat.sendMessage(client.roomId, senderId, mess);
 		this.privChatService.sendMessage(messStruct);
+		return (messStruct);
 	}	
 
 	public getOpennedPrivChat(clientId: number): Array<PrivChat>

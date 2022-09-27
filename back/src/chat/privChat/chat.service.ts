@@ -15,11 +15,16 @@ export class PrivChatService {
 		private usersService: UsersService,
 	) {}
 
-	findAll() : Promise<PrivChat[]> {
+	async findAll() : Promise<PrivChat[]> {
 		return this.chatRepository.find();
 	}
 
-	findOneBy(id: number): Promise<PrivChat>
+	async findOne(id: number): Promise<PrivChat>
+	{
+		return this.chatRepository.findOne(where : { id });
+	}
+
+	async findOneBy(id: number): Promise<PrivChat>
 	{
 		return this.chatRepository.findOneBy({ id });
 	}

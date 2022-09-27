@@ -106,7 +106,7 @@ export class ChannelManager
                 client.join(channel.id);
                 client.emit("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
                 //channel.sendToClient(client.login, "joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
-                
+                 
                 return ;
             }
             if (channel.isPrivate() && !(await this.channelsService.isInvited(data.channelName, client.login)))
