@@ -6,12 +6,13 @@ import useLocalStorage from "../../hooks/localStoragehook";
 import { useNavigate } from "react-router-dom";
 import { getChatSocket, getGameSocket, initiateSocket } from "../../Utils/socketManager";
 import { SocketContext } from "../../Context/socketContext";
+import { setAuthToken } from "../authUtils/AuthUtils";
 
 export default function LoginElem ()
 {
 	const { chatSocket, setChatSocket, gameSocket, setGameSocket } = useContext(SocketContext)
 	const navigate = useNavigate()
-	const {storage, setStorage} = useLocalStorage()
+	const {setStorage} = useLocalStorage()
 	const [authForm, setAuthForm] = useState<AuthFormT>({
 		username: "",
 		password: ""
@@ -33,11 +34,14 @@ export default function LoginElem ()
 					if (res.data.user)
 					{
 						console.log(res.data.user)
-						initiateSocket("http://localhost:8002",undefined ,res.data.user.login)
 						setStorage("token", res.data.access_token)
-						setStorage("user", res.data.user)
+						setStorage("user", res.data.user);
+
+						initiateSocket("http://localhost:8002")
+						
 						setChatSocket(getChatSocket())
 						setGameSocket(getGameSocket())
+						setAuthToken(res.data.access_token);
 
 					}	
 					navigate("/")

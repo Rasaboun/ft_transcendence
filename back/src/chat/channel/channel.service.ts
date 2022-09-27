@@ -32,6 +32,14 @@ export class ChannelsService {
         }
 
         const newClient = new ChannelClient(clientId);
+        
+        const index = this.getClientIndex(channel.mutedList, clientId);
+        if (index != -1)
+        {
+            newClient.unmuteDate = channel.mutedList[index].unmuteDate;
+            newClient.isMuted = true;
+        }
+
         if (channel.ownerId == clientId)
             newClient.isOwner = true;
         channel.clients.push(newClient);
@@ -121,9 +129,8 @@ export class ChannelsService {
         const client = channel.clients[this.getClientIndex(channel.clients, data.targetId)]
         if (client == undefined)
                 throw new NotFoundException("This user is not member of the channel");
-        
         client.isMuted = true;
-        client.unmuteDate = (new Date().getTime()) + data.duration * 1000;
+        client.unmuteDate = (new Date().getTime()) + (data.duration * 1000);
         channel.mutedList.push(client);
         await this.channelRepository.update(channel.id, channel);
         
@@ -141,9 +148,8 @@ export class ChannelsService {
         
         channel.clients[clientIndex].isMuted = false;
         channel.clients[clientIndex].unmuteDate = 0;
-        channel.mutedList.splice(clientIndex, 1);
+        channel.mutedList.splice(this.getClientIndex(channel.mutedList, clientId), 1);
         await this.channelRepository.update(channel.id, channel);
-        
     }
 
     async isMuted(channelName: string, clientId: string): Promise<boolean>
@@ -155,7 +161,6 @@ export class ChannelsService {
         const client = channel.clients[this.getClientIndex(channel.clients, clientId)]
         if (client == undefined)
                 throw new NotFoundException("This user is not member of the channel");
-
         const clientInMuted = channel.mutedList[this.getClientIndex(channel.mutedList, client.id)];
         if (clientInMuted)
         {

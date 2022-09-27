@@ -2,10 +2,12 @@ import { ForbiddenException, forwardRef, Inject, NotFoundException } from "@nest
 import { Interval } from "@nestjs/schedule";
 import { WebSocketServer } from "@nestjs/websockets";
 import { createClient } from "redis";
+import { mergeScan } from "rxjs";
 import { Server } from "socket.io";
 import { AuthenticatedSocket } from 'src/auth/types/auth.type';
+import { GameMode } from "src/game/types/game.type";
 import { UsersService } from "src/users/users.service";
-import { ActionOnUser, AddAdmin, ChannelClient, ChannelInfo, ChannelModes, ClientInfo, CreateChannel, InviteClient, JoinChannel, Message, MutedException, SetChannelPassword, uuidRegexExp } from "../types/channel.type";
+import { ActionOnUser, AddAdmin, ChannelClient, ChannelInfo, ChannelModes, ClientInfo, CreateChannel, InviteClient, JoinChannel, Message, MessageTypes, MutedException, SetChannelPassword, uuidRegexExp } from "../types/channel.type";
 import { Channel } from "./channel";
 import { ChannelsService } from "./channel.service";
 
@@ -87,8 +89,8 @@ export class ChannelManager
     {
         try
         {
-            console.log("data", data);
             const channel: Channel = this.channels.get(data.channelName);
+            const mutedList = await (await this.channelsService.findOneById(data.channelName)).mutedList;
 
             if (channel == undefined)
                 throw new NotFoundException("This channel does not exist anymore");
@@ -96,9 +98,8 @@ export class ChannelManager
             if (await this.channelsService.isBanned(data.channelName, client.login) == true)
             {
                 const user = await this.channelsService.getClientById(data.channelName, client.login);
-                const timeBanned = user.unbanDate - (new Date().getTime() / 1000);
-                console.log(`You are banned from this channel for ${Math.trunc(timeBanned)} seconds`);
-                return ;
+                const timeBanned = (user.unbanDate - new Date().getTime()) / 1000;
+                throw new ForbiddenException(`You are banned from this channel for ${Math.trunc(timeBanned)} seconds`);
 
             }
             if ((await this.channelsService.isClient(channel.id, client.login)))
@@ -216,7 +217,6 @@ export class ChannelManager
             
             if (channel == undefined)
                 throw new NotFoundException("This channel does not exist");
-            
             if (await this.channelsService.isMuted(channelId, client.login) == true)
             { 
                 const mutedTimeRemaining = (await this.channelsService.getClientById(channelId, client.login)).unmuteDate - new Date().getTime() / 1000;
@@ -232,7 +232,7 @@ export class ChannelManager
                 channelName: channelId,
                 content: msg,
                 date: new Date().toString(),
-                isInfo: false,
+                type: MessageTypes.Message,
             };
 
             channel.sendMessage(message);
@@ -253,7 +253,7 @@ export class ChannelManager
                 channelName: channelId,
                 date: new Date().toString(),
                 content: content,
-                isInfo: true,
+                type: MessageTypes.Info,
             }
             this.channels.get(channelId).sendMessage(message);
             await this.channelsService.addMessage(channelId, message);
@@ -273,7 +273,7 @@ export class ChannelManager
                 channelName: channelId,
                 date: new Date().toString(),
                 content: content,
-                isInfo: true,
+                type: MessageTypes.Info,
             }
             await this.channelsService.addMessage(channelId, message);
         }
@@ -348,7 +348,6 @@ export class ChannelManager
             let target = await this.userService.findOneByUsername(data.clientId);
             if (!target)
                 throw new NotFoundException("This user does not exist");
-            console.log("Target", target);
             data.clientId = target.intraLogin;
             // Send notification ?
             await this.channelsService.inviteClient(data);
@@ -456,6 +455,45 @@ export class ChannelManager
         
     }
 
+    public async sendInvitation(client: AuthenticatedSocket, data:{channelName: string, mode: GameMode})
+    {
+        try
+        {
+            const channel = this.channels.get(data.channelName);
+            if (channel == undefined)
+                throw new NotFoundException("This channel does not exist");
+            const user = await this.userService.findOneByIntraLogin(client.login);
+            
+            let msg = `invites you to join a game. Mode: `;
+            switch (data.mode) {
+                case GameMode.Mini:
+                    msg += "Mini.";
+                    break;
+                case GameMode.Speed:
+                    msg += "Speed.";
+                    break;
+                default:
+                    msg += "Normal.";
+                    break;
+            }
+
+            let message: Message = {
+                sender: {
+                    login: user.intraLogin,
+                    username: user.username,
+                },
+                channelName: data.channelName,
+                content: msg,
+                date: new Date().toString(),
+                type: MessageTypes.Invitation,
+            };
+
+            channel.sendMessage(message);
+            await this.channelsService.addMessage(data.channelName, message);
+        } catch (error) { throw error }
+
+    }
+
     public async getChannelClients(channelName: string)
     {
         let clients: ClientInfo[] = [];
@@ -476,7 +514,6 @@ export class ChannelManager
                 isMuted: await this.channelsService.isMuted(channelName, clientLogin),
             })
         }
-        console.log("Clients", clients);
         return clients;
     }
 

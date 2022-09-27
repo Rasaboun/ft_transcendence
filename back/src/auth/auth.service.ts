@@ -3,8 +3,9 @@ import { ForbiddenException, HttpException, Injectable, UnauthorizedException } 
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Token } from 'client-oauth2';
-import { AuthenticatedSocket, newSessionDto } from 'src/auth/types/auth.type';
-import { Session, User } from 'src/typeorm';
+import { ConnectableObservable } from 'rxjs';
+import { AuthenticatedSocket, newSessionDto, TokenPayload } from 'src/auth/types/auth.type';
+import { Session } from 'src/typeorm/Session';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { v4 } from 'uuid';
@@ -41,57 +42,31 @@ export class AuthService {
     async login(dto: any)
     {
         const user = await this.userService.findOneByIntraLogin(dto.username);
-        const payload = { username: dto.username, password: dto.password};
+        const payload: TokenPayload = { 
+            login: user.intraLogin,
+            roomId: v4(),
+        };
         return {
             access_token: this.jwtService.sign(payload),
             user: {
                 login: user.intraLogin,
                 username: user.username,
+                roomId: v4(),
             }
         }
     }
 
     async initializeSocket(client: AuthenticatedSocket)
     {
-        const session = await this.findSession(client.handshake.auth.sessionId);
-        // console.log(client.handshake.auth);
-        // console.log("findSession", session);
-        // console.log(client.handshake.auth.login, session?.login)
+        const token = client.handshake.auth.token
+        const tokenData: TokenPayload = this.jwtService.decode(token) as TokenPayload;
 
-        if (session && session.expiresAt > new Date().getTime())
-        {
-            console.log(client.handshake.auth.login)
-            client.sessionId = client.handshake.auth.sessionId;
-            client.roomId = session.roomId;
-            client.login = session.login;
-            client.lobbyId = session.lobbyId;
-        }
-        else 
-        {
-            client.sessionId = v4();
-            client.roomId = v4();
-            client.login = client.handshake.auth.login;
-            client.lobbyId = null;
-            client.lobby = null;
-            this.saveSession({
-                    sessionId: client.sessionId,
-                    roomId: client.roomId,
-                    login: client.login,
-                    lobbyId: client.lobbyId,
-                    expiresAt: new Date().getTime() + Number(process.env.COOKIE_LIFETIME_IN_MS),
-                })
-        }
+        
+        client.login = tokenData.login;
+        client.roomId = tokenData.roomId;
+        client.lobby = null;
+        client.lobbyId = await this.userService.getUserLobby(client.login);
         client.join(client.roomId);
-        // console.log("Session", {
-        //     sessionId: client.sessionId,
-        //     roomId: client.roomId,
-        //     login: client.login
-        // })
-        client.emit("session", {
-            sessionId: client.sessionId,
-            roomId: client.roomId,
-        })
-
     }
 
     async findSession(sessionId: string)
@@ -110,4 +85,13 @@ export class AuthService {
         await this.sessionsRepository.save(newSession);
     }
 
+    async updateLobby(login: string, lobbyId: string | null)
+    {
+        await this.userService.setUserLobby(login, lobbyId);
+    }
+
+    async getUserLobbyId(login: string)
+    {
+        return (await this.userService.findOneByIntraLogin(login)).lobbyId;
+    }
 }

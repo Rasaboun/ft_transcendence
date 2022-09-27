@@ -1,71 +1,62 @@
 import { io, Socket } from 'socket.io-client'
 import { ActionOnUser, AddAdminT, channelFormT, ChannelT, ClientInfoT, InviteClientT, JoinChannelT, messageT, SetChannelPasswordT } from '../chat/ChatUtils/chatType';
-import { availableLobbiesT, Ball, gameCollionInfoT, GameData, GameMode, GameSettings, Player, playerT } from '../game/GameUtils/type';
+import { availableLobbiesT, Ball, gameCollionInfoT, GameData, GameMode, GameOptions, GameSettings, Player, playerT } from '../game/GameUtils/type';
+import { getToken } from './utils';
 
 let socket:Socket
 let chatSocket:Socket
 let gameSocket:Socket
 
-export function initiateSocket(url:string, sessioninfo?:{sessionId:string, roomId:string}, login?:string)
+export async function initiateSocket(url:string)
 {
-	console.log(chatSocket, gameSocket)
+	let token = getToken();
+	if (!token)
+		return;
+	token = JSON.parse(token);	
 	if (!chatSocket)
 	{
 		chatSocket = io(`${url}/chat`, {
-			 autoConnect: false ,
-			 transports: ['websocket'],
-			 auth: sessioninfo ? sessioninfo : { login }
-			});
+			autoConnect: true,
+			auth:	{ token },
+			}).connect();
 	}
+
 	if (!gameSocket)
 	{
 		gameSocket = io(`${url}/game`, {
-			autoConnect: false ,
-			transports: ['websocket'],
-			auth: sessioninfo ? sessioninfo : { login }
-			});
-		chatSocket.connect();
-		gameSocket.connect();
+			autoConnect: true,
+			auth:	{ token }
+			})
+
 	}
 }
 
-// export function initiateGameSocket(url:string, sessioninfo?:{sessionId:string, roomId:string}, login?:string)
-// {
-// 	console.log(login)
-// 	if (!socket)
-// 	{
-// 		chatSocket = io(`${url}/chat`, {
-// 			 autoConnect: false ,
-// 			 transports: ['websocket'],
-// 			 auth: sessioninfo ? sessioninfo : { login }
-// 			});
-// 		gameSocket = io(`${url}/game`, {
-// 			autoConnect: false ,
-// 			transports: ['websocket'],
-// 			auth: sessioninfo ? sessioninfo : { login }
-// 			});
-// 		chatSocket.connect();
-// 	}
-// 	if (!ameSocket)
-// 	{
-// 		GameSocket = io(url, { autoConnect: false , transports: ['websocket']});
-// 		if (sessioninfo)
-// 			GameSocket.auth = sessioninfo;
-// 		else
-// 			GameSocket.auth = { login }
-// 		GameSocket.connect();
-// 	}
-	
-// }
-
 export function getChatSocket()
 {
+	console.log(chatSocket)
 	return chatSocket
 }
+
 
 export function getGameSocket()
 {
 	return gameSocket
+}
+
+export function appSocketRoutine(handleSession:any,
+								handleGameOver:any) {
+
+	chatSocket.on("connect", () => {
+		console.log("In connect", new Date());
+		chatSocket.emit("session");
+	})
+	chatSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, chatSocket));
+	chatSocket.on("connect_error", (err) => {console.log(`connect_error due to ${err.message}`)});
+	chatSocket.on("Connect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
+	chatSocket.on("Error", (err) => {console.log(`connect_error due to ${err.message}`)});
+	chatSocket.on("Reconnect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
+	chatSocket.on("msgToChannel", (msg:messageT) => {console.log(`message receive from ${msg.sender?.username}`)})
+	gameSocket.on('gameOver', (winnerId: string) => handleGameOver(winnerId))
 }
 
 export function createChannel(channelForm:channelFormT) {
@@ -93,7 +84,7 @@ export function getActiveChannels() {
 }
 
 export function getClientInfo(channelName:string) {
-	console.log(chatSocket)
+	console.log("In client info", chatSocket.connected)
 	chatSocket?.emit("clientInfo", channelName);
 }
 
@@ -129,6 +120,7 @@ export function unsetPrivateMode(channelName: string) {
 	chatSocket?.emit("unsetPrivateMode", channelName);
 }
 
+
 export function loadConnectedUsers()
 {
 	chatSocket?.emit("loadConnectedUsers");
@@ -142,6 +134,11 @@ export function joinPrivChat(intraLogin: string)
 export function sendPrivMessage(recieverId: string, message: string)
 {
 	chatSocket?.emit("privChatSendMessage", recieverId, message)
+}
+
+export function sendInvitation(data:{channelName: string, mode: GameMode}) {
+	console.log(data)
+	chatSocket?.emit("sendInvitation", data);
 }
 
 export function chatMenuHandler(handleActiveChannels:any,
@@ -171,8 +168,10 @@ export function chatHandler(handleMessageReceived:any,
 							handleLeftChannel:any,
 							newOwner:any,
 							handleIsAlreadyAdmin:any,
-							handleChannelJoined:any)
+							handleChannelJoined:any,
+							handleConnected:any)
 {
+		
         chatSocket.on("msgToChannel", (msg:messageT) => handleMessageReceived(msg))      
         chatSocket.on('channelDeleted', (message:string) => handleChannelDeleted(message))
         chatSocket.on('clientInfo', (data:ClientInfoT) => handleClientInfo(data))
@@ -200,7 +199,6 @@ export function appSocketRoutine(handleSession:any) {
 	chatSocket.on("Error", (err) => {console.log(`connect_error due to ${err.message}`)});
 	chatSocket.on("Reconnect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
 	chatSocket.on("msgToChannel", (msg:messageT) => {console.log(`message receive from ${msg.sender?.username}`)})      
-
 }
 
 //////////////// GAME SOCKET /////////////////////
@@ -209,6 +207,12 @@ export function joinQueue(mode:GameMode) {
 	gameSocket?.emit("joinedQueue", mode);
 	
 }
+
+export function playerMoved(value:number)
+{
+	gameSocket?.emit("playerMoved", value);
+} 
+
 
 export function sendPosition(player:playerT) {
 	gameSocket?.emit("playerPosChanged", player);
@@ -223,20 +227,14 @@ export function startGame()
 	gameSocket?.emit("startGame");
 }
 
+export function loadGame()
+{
+	gameSocket?.emit("loadGame");
+}
+
 export function spectacteGame(id:string)
 {
 	gameSocket?.emit("spectacteGame", id);
-}
-
-export function GameMenuHandler(handleAvailableLobbies:any, handleGoalScored:any, handleSession:any)
-{
-	console.log(gameSocket)
-	gameSocket.on("connect", () => {
-		gameSocket.on('activeGames',(availableLobbies:availableLobbiesT) => handleAvailableLobbies(availableLobbies))
-		})
-		gameSocket.on('goalScored', (players: any) => handleGoalScored(players));
-		gameSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, gameSocket));
-
 }
 
 export function getActiveGames()
@@ -244,31 +242,62 @@ export function getActiveGames()
 	gameSocket?.emit("getActiveGames")
 }
 
+
+export function leftPong()
+{
+	gameSocket?.emit("leftPong")
+}
+
+export function createLobby(options:GameOptions) 
+{
+	gameSocket?.emit("createLobby", options)
+}
+
+export function joinInvitation(sender: string) {
+	gameSocket?.emit("joinInvitation", sender);
+}
+
+export function GameMenuHandler(
+			handleAvailableLobbies:any,
+			handleGoalScored:any,
+			handleSession:any,
+			handleWaitingForOpponent:any)
+{
+	console.log(gameSocket)
+	gameSocket.on('activeGames',(availableLobbies:availableLobbiesT) => handleAvailableLobbies(availableLobbies))
+	gameSocket.on('goalScored', (players: any) => handleGoalScored(players));
+	gameSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, gameSocket));
+	gameSocket.on("waitingForOpponent", () => handleWaitingForOpponent());
+}
+
+
 export function GameRoutineHandler(handleWait:any,
 									handleUpdateBall:any,
 									updatePaddle:any,
 									handleGameReady:any,
+									handleGameData:any,
 									handleGoalScored:any,
 									handleSpectateSuccess:any,
 									handleGameOver:any,
-									handleSession:any) 
+									handleSession:any,
+									handleInvitationExpired:any) 
 {	
 	gameSocket.on('waitingForOpponent', handleWait)
 	gameSocket.on('updateBall', (ball:Ball) => handleUpdateBall(ball))
-	gameSocket.on('updatePaddle', ({playerId, newPos}) => updatePaddle(playerId, newPos))
+	gameSocket.on('updatePaddle', (data:{playerId:string, newPos:number}) => updatePaddle(data))
 	gameSocket.on('gameReady', (data: {gameData: GameData, gameSettings: GameSettings}) => handleGameReady(data))
+	gameSocket.on('gameData', (data: {gameData: GameData, gameSettings: GameSettings}) => handleGameData(data))
 	gameSocket.on('goalScored', (scores: {player1: number, player2: number}) => handleGoalScored(scores))
 	gameSocket.on('spectateSuccess', (players: Player[]) => handleSpectateSuccess(players))
 	gameSocket.on('gameOver', (winnerId: string) => handleGameOver(winnerId))
 	gameSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, gameSocket));
+	gameSocket.on("invitationExpired", (msg:string) => handleInvitationExpired(msg));
 
 }
 
 export function Menucleaner(handleAvailableLobbies:any,
 							handleGoalScored:any) {
-	gameSocket.off("connect", () => {
 		gameSocket.off('activeGames',(availableLobbies:availableLobbiesT) => handleAvailableLobbies(availableLobbies))
-		})
 		gameSocket.off('goalScored', (players: any) => handleGoalScored(players));
 }
 
@@ -276,6 +305,7 @@ export function GameCleaner(handleWait:any,
 							handleUpdateBall:any,
 							updatePaddle:any,
 							handleGameReady:any,
+							handleGameData:any,
 							handleGoalScored:any,
 							handleSpectateSuccess:any,
 							handleGameOver:any,
@@ -285,6 +315,7 @@ export function GameCleaner(handleWait:any,
 	gameSocket.off('updateBall', (ball:Ball) => handleUpdateBall(ball))
 	gameSocket.off('updatePaddle', ({playerId, newPos}) => updatePaddle(playerId, newPos))
 	gameSocket.off('gameReady', (data: GameData) => handleGameReady(data))
+	gameSocket.off('gameData', (data: {gameData: GameData, gameSettings: GameSettings}) => handleGameData(data))
 	gameSocket.off('goalScored', (players: Player[]) => handleGoalScored(players))
 	gameSocket.off('spectateSuccess', (players: Player[]) => handleSpectateSuccess(players))
 	gameSocket.off('gameOver', (winnerId: string) => handleGameOver(winnerId))

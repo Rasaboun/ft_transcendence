@@ -2,22 +2,22 @@ import React, {useState, useEffect, useRef, useContext} from "react"
 import Score from "../Elements/score"
 import * as utils from "../GameUtils/GameUtils"
 import "../game.css"
-import { GameSettings, GameData, GameState, Player, Ball} from "../GameUtils/type"
+import { GameSettings, GameData, GameState, Ball} from "../GameUtils/type"
 // import {ThreeDots} from "react-loader-spinner";
 import { Socket } from 'socket.io-client'
-import { GameContext } from "../GameContext/gameContext"
 import useLocalStorage from "../../hooks/localStoragehook"
-import { getSession } from "../../Utils/utils"
-import { GameCleaner, GameRoutineHandler, getChatSocket, getGameSocket, initiateSocket, startGame } from "../../Utils/socketManager"
+import { GameCleaner, GameRoutineHandler, getChatSocket, getGameSocket, initiateSocket, leftPong, loadGame, playerMoved, startGame } from "../../Utils/socketManager"
 import { SocketContext } from "../../Context/socketContext"
+import { useNavigate } from "react-router-dom"
 
-let socket:Socket
-let canvas:HTMLCanvasElement
+let canvas:HTMLCanvasElement;
 
 export default function Game()
 {
+	const navigate = useNavigate()
 	const {storage, setStorage} = useLocalStorage("user")
-	const {gameSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
+	const {storage2} = useLocalStorage("gameState")
+	const { gameSocket, setChatSocket, setGameSocket } = useContext(SocketContext)
 	let context: CanvasRenderingContext2D;
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	
@@ -40,8 +40,8 @@ export default function Game()
 			delta: {x: 0, y: 0},
 			radius: 10,
 		},
+		winnerId: "",
 		state: GameState.Waiting,
-		winnerId: ""
 	});
 
 	const [gameSettings, setGameSettings] = useState<GameSettings>({
@@ -53,12 +53,7 @@ export default function Game()
 	});
 
 	const handleWait = () => {
-		console.log("In waitingfoopponent");
-		setGameData((oldGameData) => ({
-			...oldGameData,
-			state: GameState.Waiting
-			})
-		)
+		setStorage("gameState", GameState.Waiting)
 	}
 
 	// async function sendData ()
@@ -87,9 +82,14 @@ export default function Game()
 	// }
 	function initializeGame()
 	{
+		if (parseInt(storage2) === GameState.Started)
+		{
+			loadGame();
+			return ;
+		}
 		setGameData({
 			players: [{
-				id: "",
+				id: '',
 				pos: canvas.height / 2,
 				score: 0,
 			}, 
@@ -107,7 +107,7 @@ export default function Game()
 				radius: 10,
 			},
 			state: GameState.Waiting,
-			winnerId: ""
+			winnerId: "",
 		})
 		setGameSettings({
 			scoreToWin: 5,
@@ -116,25 +116,34 @@ export default function Game()
 			width: 1920,
 			height: 1080,
 		})
-	}
-	const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, sock:Socket) => {
-		console.log("In game session")
-		if (sock)
-		{
-			setStorage("sessionId", sessionInfo.sessionId);
-			setStorage("roomId", sessionInfo.roomId);
-			sock.auth = { sessionId: sessionInfo.sessionId } ;		
-			//socket.userID = userID;
-		}
+		//setGameState(GameState.Waiting)
 	}
 
-	const handleGameReady = (data: {gameData: GameData, gameSettings: GameSettings }) => {
-		console.log("In game ready", data.gameData.ball)
+	const updateGame = (data: {gameData: GameData, gameSettings: GameSettings }) =>
+	{
+		//console.log("In game data", data.gameData)
+		const newPlayers = [
+			{
+				id: data.gameData.players[0].id,
+				pos : utils.toScale(data.gameData.players[0].pos, canvas.height / gameSettings.height),
+				score: data.gameData.players[0].score,
+			},
+			{
+				id: data.gameData.players[1].id,
+				pos : utils.toScale(data.gameData.players[1].pos, canvas.height / gameSettings.height),
+				score: data.gameData.players[1].score,
+			}
+			]
+
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			ball: data.gameData.ball,
-			players: data.gameData.players,
-			state: GameState.Started
+			players: newPlayers, //oldGameData.players.map((player, index) => {
+			// 	if (index === 0)
+			// 		return {...player, id: data.gameData.players[index].id, pos: utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height)}
+			// 	return {...player, id: data.gameData.players[index].id, pos: utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height)}
+			// }),
+			state: data.gameData.state,
 		}))
 		setGameSettings((oldGameSettings) => ({
 			...oldGameSettings,
@@ -144,33 +153,42 @@ export default function Game()
 			paddleHeight: utils.toScale(data.gameSettings.paddleHeight, canvas.height / 1080),
 			paddleWidth: utils.toScale(data.gameSettings.paddleWidth, canvas.width / 1920),
 		}))
-		startGame()
+
 	}
 
-	const handleSpectateSuccess = (players: Player[]) => {
-		setGameData((oldGameData) => ({
-			...oldGameData,
-			players: players,
-			state: GameState.Spectacte
-		}))
+	const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, sock:Socket) => {
+		if (sock)
+		{
+			setStorage("sessionId", sessionInfo.sessionId);
+			setStorage("roomId", sessionInfo.roomId);
+			sock.auth = { sessionId: sessionInfo.sessionId } ;		
+		}
+	}
+
+	const handleGameData = (data: {gameData: GameData, gameSettings: GameSettings }) => {
+		updateGame(data);
+	}
+
+	const handleGameReady = (data: {gameData: GameData, gameSettings: GameSettings }) => {
+		updateGame(data);
+		startGame()
+		setStorage("gameState", GameState.Started)
+	}
+
+	const handleSpectateSuccess = (data: {gameData: GameData, gameSettings: GameSettings }) => {
+		
+		updateGame(data);
+		setStorage("gameState", GameState.Spectacte)
 	}
 
 	const handleGoalScored = (scores: {player1: number, player2: number}) => {
-		console.log("gameData", gameData);
-		let newPlayers = gameData.players;
 		setGameData((oldGameData) => ({
 			...oldGameData,
-			players: [
-				{
-				id: gameData.players[0].id,
-				pos: gameData.players[0].pos,
-				score: scores.player1,
-			},
-			{
-				id: gameData.players[1].id,
-				pos: gameData.players[1].pos,
-				score: scores.player2
-			}]
+			players: oldGameData.players.map((player, index) => {
+				if (index === 0)
+					return {...player, score: scores.player1}
+				return {...player, score: scores.player2}
+			}),
 		}));
 	}
 
@@ -193,41 +211,29 @@ export default function Game()
 	{
 		setGameData((oldGameData) => ({
 			...oldGameData,
-			state: GameState.Stopped
+			//state: GameState.Stopped
 		}))
-		if (winnerId == storage.login)
-		{
-			console.log("You win");
-		}
-		else if (gameData.players[0].id == storage.login || gameData.players[0].id == storage.login)
-		{
-			console.log("You lose");
-		}
-		else
-		{
-			console.log(`${winnerId} won the match`);
-		}
-		socket?.emit('destroyLobby');
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			winnerId: winnerId
 		}))
+		setStorage("gameState", GameState.Stopped)
 	}
 
-	function updatePaddle(playerId: string, newPos: number)
+	function updatePaddle(data:{playerId:string, newPos:number})
 	{
 			setGameData((oldGameData) => ({
 				...oldGameData,
-				players: oldGameData.players.map((player) => {
-					if (player.id === playerId)
-						return {...player, pos: utils.toScale(newPos, canvas.height / gameSettings.height)}
+				players: oldGameData.players.map((player, index) => {
+					//console.log("player in map", player);
+					if (player.id === data.playerId)
+						return {...player, pos: utils.toScale(data.newPos, canvas.height / gameSettings.height)}
 					return player
 				}),
 			}))
 	}
 
 	const handleResize = () => {
-		console.log(canvas.height, canvas.width)
 		canvas.height = utils.getCanvasDiv().height
 		canvas.width = utils.getCanvasDiv().width;
 	}
@@ -235,21 +241,22 @@ export default function Game()
 	function handleMouseMove(event:React.MouseEvent<HTMLCanvasElement>)
 	{
 		//HANDLE THE MOUSE MOVE EVENT ON THE GAME AREA
-		if (gameData.state == GameState.Started)
+		if (parseInt(storage2) === GameState.Started)
 		{
 			let value: number = event.clientY - utils.getCanvasDiv().y;
 
-			console.log("before")
 			if (value + (gameSettings.paddleHeight / 2) >= canvas.height)
 				value = canvas.height - (gameSettings.paddleHeight / 2);
 			else if (value - (gameSettings.paddleHeight / 2) <= 0)
 				value = gameSettings.paddleHeight / 2;
-			console.log("after")
-			value = utils.toScale(value, gameSettings.height / canvas.height);			
-
-			socket?.emit("playerMoved", value);
-
+			value = utils.toScale(value, gameSettings.height / canvas.height);
+			playerMoved(value)	
 		}
+	}
+
+	const handleInvitationExpired = (msg:string) => {
+		console.log(msg)
+		navigate("/pong")
 	}
 
 	function draw() {
@@ -264,9 +271,7 @@ export default function Game()
 			1920,
 			1080,
 		);
-		console.log(gameData.players);
 		context.beginPath();
-		//console.log("Players pos", gameData.players[0].pos, gameData.players[1].pos,)
 		context.fillRect(0,
 			gameData.players[0].pos -  gameSettings.paddleHeight / 2,
 			gameSettings.paddleWidth,
@@ -288,6 +293,8 @@ export default function Game()
 	function clearCanvas(): boolean
 	{
 
+		if (!canvas)
+			return false;
 		const context  = canvas.getContext("2d")!;
 
 		if (!context)
@@ -302,7 +309,7 @@ export default function Game()
 	}
 
 	useEffect(() => {
-		initiateSocket("http://localhost:8002", getSession(), storage.login)
+		initiateSocket("http://localhost:8002")
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
 		
@@ -312,35 +319,41 @@ export default function Game()
 			return ;
 
 		context = canvas.getContext("2d")!;
-		console.log(context)
 		GameRoutineHandler(handleWait,
 			handleUpdateBall,
 			updatePaddle,
 			handleGameReady,
+			handleGameData,
 			handleGoalScored,
 			handleSpectateSuccess,
 			handleGameOver,
-			handleSession)
+			handleSession,
+			handleInvitationExpired)
+		
 		if (!context)
 			return ;
-
+		
 		handleResize();
 		initializeGame();
 		window.addEventListener('resize', handleResize);
-		return (() => {window.removeEventListener('resize', handleResize)
+		return (() => {	leftPong()
+						window.removeEventListener('resize', handleResize)
 						GameCleaner(handleWait,
 							handleUpdateBall,
 							updatePaddle,
 							handleGameReady,
+							handleGameData,
 							handleGoalScored,
 							handleSpectateSuccess,
 							handleGameOver,
 							handleSession)})
-	}, [])
+	}, [gameSocket?.connected])
 
 	useEffect(() => {
-		if (gameData.state == GameState.Started || gameData.state == GameState.Spectacte)
+		if (parseInt(storage2) === GameState.Started || parseInt(storage2) === GameState.Spectacte)
+		{
 			draw()
+		}
 	}, [gameData])
 
 	return (
@@ -348,7 +361,7 @@ export default function Game()
 			maxHeight: "50vh"
 		}}>
 			{
-			gameData.state === GameState.Waiting &&
+			parseInt(storage2) === GameState.Waiting &&
 				<div className="game-display">
 					<h1 style={{
 						color: "white"
@@ -357,14 +370,13 @@ export default function Game()
 					
 			}
 			{
-					gameData.state == GameState.Stopped && clearCanvas() &&
-					<div className="game-display">
-						{(storage.login === gameData.winnerId) ? "YOU WIN" : 
-						(((gameData.players[0].id === storage.login || gameData.players[1].id == storage.login)) ?
-							"YOU LOSE" : `${gameData.winnerId} WIN`)}
-						{}
-						</div>
-					
+				parseInt(storage2) === GameState.Stopped && clearCanvas() &&
+				<div className="game-display">
+					{(storage.login === gameData.winnerId) ? "YOU WIN" : 
+					(((gameData.players[0].id === storage.login || gameData.players[1].id === storage.login)) ?
+						"YOU LOSE" : `${gameData.winnerId} WIN`)}
+					{}
+					</div>
 			}
 		<canvas className="pong" ref={canvasRef} onMouseMove={handleMouseMove}/>
 		<Score gameData={gameData}/>

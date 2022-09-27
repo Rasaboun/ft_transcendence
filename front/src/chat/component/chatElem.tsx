@@ -1,14 +1,14 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
 import { chatHandler, getChatSocket, getClientInfo, getGameSocket, initiateSocket, sendMessage } from "../../Utils/socketManager";
 import Message from "../Elements/message";
-import {ActionOnUser, ChannelModes, ChannelT, ClientInfoT, messageT, UserStateT} from "../ChatUtils/chatType"
+import {ActionOnUser, ChannelT, ClientInfoT, messageT, MessageTypes, UserStateT} from "../ChatUtils/chatType"
 import { useNavigate } from "react-router-dom";
 import InfoMessage from "../Elements/InfoMessage";
 import ChannelBoard from "../Elements/ChannelBoard";
 import useLocalStorage from "../../hooks/localStoragehook";
 import MessageInput from "./MessageInput";
 import { SocketContext } from "../../Context/socketContext";
-import { getSession } from "../../Utils/utils";
+import InviteMessage from "../Elements/InviteMessage";
 
 export default function ChatElem()
 {
@@ -39,24 +39,24 @@ export default function ChatElem()
 
     const handleSubmitMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
-        const mutedMessage = "you are muted: 60sec left"
-        if(!userState?.isMuted)
+        //const mutedMessage = "you are muted: 60sec left"
+     
+        if (form.message !== "")
         {
-            if (form.message !== "")
-            {
-                sendMessage(storage2!.channelId, form.message)
-            }
-            setForm((oldForm) => ({
-                ...oldForm,
-                message: ""
-            }))
+            sendMessage(storage2!.channelId, form.message)
         }
-        else {
-            setMessagesList((oldMessagesList) => (
-                oldMessagesList === undefined ? [{content: mutedMessage, isInfo: true}] :
-                    [...oldMessagesList, {content: mutedMessage, isInfo: true}]
-            ))
-        }
+
+        setForm((oldForm) => ({
+            ...oldForm,
+            message: ""
+        }))
+        // else {
+        //     setMessagesList((oldMessagesList) => (
+        //         oldMessagesList === undefined ? [{content: mutedMessage, type: MessageTypes.Info}] :
+        //             [...oldMessagesList, {content: mutedMessage, type: MessageTypes.Info}]
+        //     ))
+        // }
+
     }
 
     const handleMessageReceived = (msg:messageT) => {
@@ -74,8 +74,8 @@ export default function ChatElem()
             isAdmin: true
             }));
         setMessagesList((oldMessagesList) => (
-            oldMessagesList === undefined ? [{content: message, isInfo: true}] :
-                [...oldMessagesList, {content: message, isInfo: true}]
+            oldMessagesList === undefined ? [{content: message, type: MessageTypes.Info}] :
+                [...oldMessagesList, {content: message, type: MessageTypes.Info}]
         ));
     }
 
@@ -87,29 +87,30 @@ export default function ChatElem()
         console.log(data.channelInfo)
         setStorage("channel", data.channelInfo)
 	}
-    const newOwner = (data: {target: string, channelInfo: ChannelT}) => {
-        const message = `You are now Owner`;
+
+    // const newOwner = (data: {target: string, channelInfo: ChannelT}) => {
+    //     const message = `You are now Owner`;
         
-        setStorage("channel", data.channelInfo)
-        if (storage.login == data.target)
-        {
-            setUserState((oldUserState) => ({
-                ...oldUserState!,
-                isOwner: true,
-                isAdmin: true
-                }));
-            setMessagesList((oldMessagesList) => (
-                oldMessagesList === undefined ? [{content: message, isInfo: true}] :
-                    [...oldMessagesList, {content: message, isInfo: true}]
-            ));
-        }
-    }
+    //     setStorage("channel", data.channelInfo)
+    //     if (storage.login == data.target)
+    //     {
+    //         setUserState((oldUserState) => ({
+    //             ...oldUserState!,
+    //             isOwner: true,
+    //             isAdmin: true
+    //             }));
+    //         setMessagesList((oldMessagesList) => (
+    //             oldMessagesList === undefined ? [{content: message, type: MessageTypes.Info}] :
+    //                 [...oldMessagesList, {content: message, type: MessageTypes.Info}]
+    //         ));
+    //     }
+    // }
 
     const handleIsAlreadyAdmin = () => {
         const message = `Is already admin`
         setMessagesList((oldMessagesList) => (
-            oldMessagesList === undefined ? [{content: message, isInfo: true}] :
-                [...oldMessagesList, {content: message, isInfo: true}]
+            oldMessagesList === undefined ? [{content: message, type: MessageTypes.Info}] :
+                [...oldMessagesList, {content: message, type: MessageTypes.Info}]
         ))
     }
 
@@ -120,7 +121,7 @@ export default function ChatElem()
     }
 
     const handleClientInfo = (data:ClientInfoT) => {
-        console.log("mais pk pk", data)
+        console.log("data Client info", data)
         setUserState({
             isOwner: data.isOwner,
             isAdmin: data.isAdmin,
@@ -131,7 +132,7 @@ export default function ChatElem()
         {
             setMessagesList(data.messages)
         }
-        console.log(data.unmuteDate);
+        console.log("unmuted date", data.unmuteDate);
         if (data.unmuteDate !== 0)
             setMutedTime(Math.trunc(data.unmuteDate / 1000 - new Date().getTime() / 1000))
         
@@ -139,7 +140,7 @@ export default function ChatElem()
 
     const handleAddAdmin = (data: {target: string, channelInfo: ChannelT}) => {
         setStorage("channel", data.channelInfo)
-        if (data.target == storage.login)
+        if (data.target === storage.login)
         {       
             setUserState((oldUserState) => ({
                 ...oldUserState!,
@@ -155,8 +156,8 @@ export default function ChatElem()
             "You have been banned from the chat" :
             `${data.targetId} has been banned from the chat`
         setMessagesList((oldMessagesList) => (
-            oldMessagesList === undefined ? [{content: message, isInfo: true}] :
-                [...oldMessagesList, {content: message, isInfo: true}]
+            oldMessagesList === undefined ? [{content: message, type: MessageTypes.Info}] :
+                [...oldMessagesList, {content: message, type: MessageTypes.Info}]
         ))
         setUserState((oldUserState) => ({
             ...oldUserState!,
@@ -173,8 +174,8 @@ export default function ChatElem()
             `You have been muted for ${data.duration} sec` :
             `${data.targetId} has been muted for ${data.duration} sec`
         setMessagesList((oldMessagesList) => (
-            oldMessagesList === undefined ? [{content: message, isInfo: true}] :
-                [...oldMessagesList, {content: message, isInfo: true}]
+            oldMessagesList === undefined ? [{content: message, type: MessageTypes.Info}] :
+                [...oldMessagesList, {content: message, type: MessageTypes.Info}]
         ))
         if (data.targetId === storage.login)
         {
@@ -188,20 +189,37 @@ export default function ChatElem()
         }
     }
 
+    const handleConnected = () => {
+        console.log("handleConnected")
+        const channel = storage2
+        if (channel)
+        {
+            console.log(channel)
+            getClientInfo(channel.channelId)
+        }
+    }
+
     const messageElem = messagesList?.map((elem, index) => (
-        elem.isInfo ? 
+        elem.type === MessageTypes.Info ? 
             <InfoMessage key={index} message={elem}/> :
+            (elem.type === MessageTypes.Message ?
             <Message key={index} 
                 className={elem.sender?.login ===  storage.login ?
                     "message message-right" : "message message-left"}
-                message={elem}
-            />
+                message={elem} /> :
+            <InviteMessage key={index} className={elem.sender?.login ===  storage.login ?
+                "message message-right" : "message message-left"}
+                message={elem}/>)
     ))
+
+
     useEffect(() => {
-        initiateSocket("http://localhost:8002", getSession(), storage.login)
+        const channel = storage2;
+        console.log("CHANNEL NAME", channel.channelId)
+        initiateSocket("http://localhost:8002")
         setChatSocket(getChatSocket())
         setGameSocket(getGameSocket())
-        if (chatSocket)
+        if (chatSocket?.connected)
         {
             chatHandler(handleMessageReceived,
                 handleChannelDeleted,
@@ -212,17 +230,12 @@ export default function ChatElem()
                 handleLeftChannel,
                 upgradeToOwner,
                 handleIsAlreadyAdmin,
-                handleChannelJoined
-                )
+                handleChannelJoined,
+                handleConnected)
         }
-        const channel = storage2
         if (channel)
-        {
-            console.log(channel)
-            getClientInfo(channel.channelId)
-        }
-        
-    }, [])
+                getClientInfo(channel.channelId)
+    }, [chatSocket?.connected])
 
     useEffect(() => {
        scrollToBottom()
@@ -237,8 +250,6 @@ export default function ChatElem()
 		}	
 	}, [mutedTime])
 
-    console.log(chatSocket)
-    console.log("channel", storage2)
     return (
         <div className="chat">
             <ChannelBoard userState={userState}/>
@@ -250,7 +261,7 @@ export default function ChatElem()
                     </div>
                 </div>
                 <MessageInput mutedTime={mutedTime} handleChange={handleChange} handleSubmitMessage={handleSubmitMessage} value={form.message}/>
-            </div>
+           </div>          
         </div>
     )
 }

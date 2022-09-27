@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/core/injector/module";
+import { string } from "joi";
 import { Lobby } from "./lobby/lobby";
 import { GameData, GameMode, GameSettings, GameState, Player } from "./types/game.type";
 import { getMiniModeSettings, getNormalModeSettings, initGameData } from "./utils/game.settings";
@@ -35,11 +36,12 @@ export class GameInstance
         const winner = nextPos.x - this.gameData.ball.radius < 0 ? 1 : 0;
         this.gameData.players[winner].score += 1;
 		this.lobby.sendToUsers("goalScored", {player1: this.gameData.players[0].score, player2: this.gameData.players[1].score});
-        
+
 		if (this.gameData.players[winner].score === this.settings.scoreToWin)
         {
             this.gameData.state = GameState.Stopped;
 			this.lobby.sendToUsers('gameOver', this.gameData.players[winner].id);
+			this.lobby.destroy();
         }
     }
 
@@ -91,7 +93,7 @@ export class GameInstance
         {
 			const nextPos = {	x: this.gameData.ball.x + this.gameData.ball.delta.x,
 								y: this.gameData.ball.y + this.gameData.ball.delta.y };
-
+			//console.log("Players", this.gameData.players);
             if (this.checkGoals(nextPos) == true)
             {
 				this.handleGoal(nextPos)
@@ -171,6 +173,14 @@ export class GameInstance
         return false;
     }
 
+	public updatePlayer(playerLogin: string, newPos: number)
+	{
+		if (this.gameData.players[0].id == playerLogin)
+			this.gameData.players[0].pos = newPos;
+		else
+			this.gameData.players[1].pos = newPos;
+	}
+
 	public getPlayer(playerId: string)
 	{
 		let res: Player = null;
@@ -180,6 +190,11 @@ export class GameInstance
 				res = player;
 		})
 		return res;
+	}
+
+	public getGameData()
+	{
+		return {gameData: this.gameData, gameSettings: this.settings};
 	}
 
     public playersId(): string[]

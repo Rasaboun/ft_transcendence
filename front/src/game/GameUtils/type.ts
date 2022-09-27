@@ -40,7 +40,7 @@ export interface Ball {
 export interface GameData{
   players: Player[],
   ball: Ball,
-  state: GameState
+  state: GameState,
   winnerId: string
 }
 

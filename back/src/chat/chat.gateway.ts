@@ -7,7 +7,8 @@ import { AuthService } from 'src/auth/auth.service';
 import { PrivChatManager } from './privChat/privChat.manager';
 import { forwardRef, Inject } from '@nestjs/common';
 import { User } from 'src/typeorm';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from 'src/users/users.service'
+import { GameMode } from 'src/game/types/game.type';
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -34,18 +35,23 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	async handleConnection(client: Socket){
-		console.log(`Client ${client.handshake.auth.login} joined chat socket`);
-		this.authService.initializeSocket(client as AuthenticatedSocket);
+		 console.log(`Client ${client.handshake.auth.login} joined chat socket`);
+		await this.authService.initializeSocket(client as AuthenticatedSocket);
 		await this.channelManager.joinChannels(client as AuthenticatedSocket);
-		//console.log(client);
 	}
 
 	async handleDisconnect(client: AuthenticatedSocket) {
 		console.log(`Client ${client.login} left server`);
 		this.channelManager.terminateSocket(client);
-		
 	}
 
+	@SubscribeMessage("session")
+	async sendSession(client: AuthenticatedSocket)
+	{
+		await this.authService.initializeSocket(client as AuthenticatedSocket);
+		await this.channelManager.joinChannels(client as AuthenticatedSocket);
+	}
+	
 	@SubscribeMessage('joinChannel')
 	async joinChannel(client: AuthenticatedSocket, data: JoinChannel)
 	{
@@ -146,6 +152,17 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			await this.channelManager.sendChannelInfo(client, channelName);
 		}
 		catch (error) { client.emit('error', error.message ) }
+	}
+
+	@SubscribeMessage('sendInvitation')
+	async sendInvitation(client: AuthenticatedSocket, data:{channelName: string, mode: GameMode})
+	{
+		try
+		{
+			await this.channelManager.sendInvitation(client, data);
+		}
+		catch (error) { client.emit('error', error.message ) }
+
 	}
 
 	@SubscribeMessage('getActiveChannels')

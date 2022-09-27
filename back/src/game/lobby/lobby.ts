@@ -2,9 +2,8 @@ import { v4 } from "uuid";
 import { Server } from "socket.io";
 import { GameData, GameOptions, GameState, Player } from "../types/game.type";
 import { GameInstance } from "../game.instance";
-import { Socket } from "dgram";
 import { AuthenticatedSocket } from 'src/auth/types/auth.type';
-import { ConsoleLogger } from "@nestjs/common";
+import { LobbyManager } from "./lobby.manager";
 
 export class Lobby
 {
@@ -17,19 +16,23 @@ export class Lobby
     //public         clients:        	Map<string, AuthenticatedSocket> = new Map<string, AuthenticatedSocket>();
     public         clients:        	Map<string, string> = new Map<string, string>();
 
-    constructor    ( private server: Server, private options: GameOptions)
+    constructor    (
+                private server: Server,
+                private options: GameOptions,
+                private lobbyManager: LobbyManager,
+        )
     {
-        console.log("options", options);
         this.gameInstance = new GameInstance(this, options.mode);
     }
 
     public addClient(client: AuthenticatedSocket): void
     {
-        console.log("New client login", client.login);
         this.clients.set(client.login, client.roomId);
         client.join(this.id);
+        client.lobbyId = this.id;
         client.lobby = this;
-        console.log(this.id)
+        
+        console.log(`Client ${client.login} joined`, this.id)
         
         if (this.nbPlayers < 2)
         {
@@ -38,14 +41,18 @@ export class Lobby
             
             if (this.nbPlayers == 1)
             {
-                client.emit("waitingForOpponent");
+                this.server.to(client.roomId).emit("waitingForOpponent");
             }
             else
             {
                 this.gameInstance.sendReady();
             }
         }
-        console.log("lobby client ", this.clients.size)
+        else
+        {
+            const data = this.getGameData();
+            client.emit("spectateSuccess", data);
+        }
     }
 
 
@@ -56,6 +63,8 @@ export class Lobby
 		this.state = GameState.Started;
         this.gameInstance.resetRound();
 		this.gameInstance.gameLoop();
+        this.server.emit('activeGames', this.lobbyManager.getActiveLobbies());
+
     }
 
     public removeClient(client: AuthenticatedSocket)
@@ -63,7 +72,7 @@ export class Lobby
         client.lobby = null;
         client.leave(this.id);
         this.clients.delete(client.login);
-		this.gameInstance.stop();
+		//this.gameInstance.stop();
         if (this.gameInstance.isPlayer(client.login))
         {
             this.clients.forEach((user, id) => {
@@ -72,10 +81,31 @@ export class Lobby
 
             this.nbPlayers = 0;
             this.state = GameState.Stopped;          
-            this.sendToUsers('gameStopped', "");  
+            this.sendToUsers('gameStopped', "");
         }          
     }
-         
+    
+    public async destroy()
+    {
+        this.gameInstance.stop();
+        this.nbPlayers = 0;
+        this.state = GameState.Stopped;    
+
+        this.sendToUsers('gameStopped', ""); 
+
+        this.clients.forEach((user, id) => {
+            this.clients.delete(id);
+        })
+
+        const clientSockets = await this.server.in(this.id).fetchSockets();
+        clientSockets.forEach((socket) => {
+            socket.leave(this.id);
+        })
+
+        this.lobbyManager.destroyLobby(this.id);
+        this.server.emit('activeGames', this.lobbyManager.getActiveLobbies());
+
+    }
 
     public playersId(): string[] { return this.gameInstance.playersId(); }
 
@@ -88,13 +118,30 @@ export class Lobby
 
     public async sendToUsers(event: string, data: any)
     {
-        this.server.to(this.id).emit(event, data);
+        this.clients.forEach((roomId, clientLogin) => {
+            this.server.to(roomId).emit(event, data);
+        })
+    }
+
+    public playerMoved(playerLogin: string, newPos: number)
+    {
+        this.gameInstance.updatePlayer(playerLogin, newPos);
     }
 
 	public getPlayer(clientLogin: string)
 	{
 		return this.gameInstance.getPlayer(clientLogin);
 	}
+
+    public getGameData()
+    {
+        return this.gameInstance.getGameData();
+    }
+
+    public getMode()
+    {
+        return this.options.mode;
+    }
 
     public isClient(clientLogin: string): boolean
     {

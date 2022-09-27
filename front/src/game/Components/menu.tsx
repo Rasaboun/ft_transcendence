@@ -1,19 +1,20 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { io, Socket } from 'socket.io-client'
-import { playerT, availableLobbiesT, GameMode } from "../GameUtils/type"
+import { Socket } from 'socket.io-client'
+import { availableLobbiesT, GameMode, GameState } from "../GameUtils/type"
 import LobbyItem from '../Elements/lobbyItem'
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useLocalStorage from '../../hooks/localStoragehook'
 import { SocketContext } from '../../Context/socketContext';
 import { GameMenuHandler, getActiveGames, getChatSocket, getGameSocket, initiateSocket, joinQueue, Menucleaner, spectacteGame } from '../../Utils/socketManager';
-import { getSession } from '../../Utils/utils';
+import GameRadioForm from '../../Elements/gameRadioForm';
 
 let socket:Socket
 
 export default function Menu()
 {
     const navigate = useNavigate()
-    const {storage, setStorage} = useLocalStorage("user")
+    const {setStorage} = useLocalStorage("user")
+	const {storage2} = useLocalStorage("gameState")
     const {gameSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
     const [availableLobbies, setAvailableLobbies] = useState<availableLobbiesT>()
     const [gameMode, setGameMode] = useState(GameMode.Normal)
@@ -29,7 +30,7 @@ export default function Menu()
         setAvailableLobbies(availableLobbies)
     }
     
-    function handleGoalScored(players: any)
+    function handleGoalScored(scores: {player1: number, player2: number})
     {
     }
 
@@ -53,6 +54,11 @@ export default function Menu()
 		setGameMode(parseFloat(e.target.value))
     }
 
+    const handleWaitingForOpponent = () => {
+        console.log("Received waiting");
+        navigate("game")
+    }
+
     const handleSubmit = (e:React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
         newGame(gameMode)
@@ -61,11 +67,20 @@ export default function Menu()
     }
 
 	useEffect(() => {
-        initiateSocket("http://localhost:8002", getSession(), storage.login)
+        initiateSocket("http://localhost:8002")
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
-        getActiveGames()
-		GameMenuHandler(handleAvailableLobbies, handleGoalScored, handleSession)
+        if (parseInt(storage2) === GameState.Started)
+            navigate("game")
+        if (gameSocket)
+        {
+            getActiveGames()
+            GameMenuHandler(
+                handleAvailableLobbies,
+                handleGoalScored,
+                handleSession,
+                handleWaitingForOpponent)
+        }
         return (() => Menucleaner(handleAvailableLobbies, handleGoalScored))
     }, [])
 
@@ -81,38 +96,10 @@ export default function Menu()
     return (
         <div>
             <form className="channel-form" onSubmit={handleSubmit}>
-                <div className="form-radio">
-                    <label>
-                        <input name="mode"
-                            type="radio" 
-                            value={GameMode.Normal}
-                            checked={gameMode === GameMode.Normal}
-                            onChange={handleChange}
-                            />
-                        Normal
-                    </label>
-                    <label>
-                        <input name="mode"
-                            type="radio" 
-                            value={GameMode.Mini}
-                            checked={gameMode === GameMode.Mini}
-                            onChange={handleChange}
-                            />
-                            Mini
-                    </label>
-                    <label>
-                    <input name="mode"
-                            type="radio" 
-                            value={GameMode.Speed}
-                            checked={gameMode === GameMode.Speed}
-                            onChange={handleChange}
-                            />
-                            Speed
-                    </label>
-                </div>
-					<button type="submit" className="button-action" >
-						Start Game
-					</button>
+                <GameRadioForm gameMode={gameMode} setGameMode={setGameMode}/>
+                <button type="submit" className="button-action" >
+                    Start Game
+                </button>
 				</form>           
             <ul>
                 {lobbiesElements}

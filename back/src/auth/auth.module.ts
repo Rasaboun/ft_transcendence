@@ -15,7 +15,7 @@ import { LocalStrategy } from './stategy/local.strategy';
     TypeOrmModule.forFeature([Session]),
     JwtModule.register({
       secret: 'secret',
-      signOptions: { expiresIn: '60s'}
+      signOptions: { expiresIn: '600s'}
     }),
     PassportModule,
     HttpModule,

@@ -14,3 +14,8 @@ export function getSession()
 	}
 	return sessioninfo;
 }
+
+export function getToken()
+{
+	return localStorage.getItem("token");
+}

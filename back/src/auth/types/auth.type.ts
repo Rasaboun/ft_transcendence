@@ -17,3 +17,8 @@ export type AuthenticatedSocket = Socket & {
 	lobbyId: string,
     lobby: Lobby
 }
+
+export type TokenPayload = { 
+    login: string,
+    roomId: string,
+};

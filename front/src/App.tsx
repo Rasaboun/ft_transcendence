@@ -1,6 +1,7 @@
-import React, { useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Socket } from "socket.io-client";
+import { setAuthToken } from "./authPage/authUtils/AuthUtils";
 import Login from "./authPage/component/LogPage";
 import Chat from "./Chat";
 import { ChatContextProvider } from "./chat/ChatContext/chatContext";
@@ -8,6 +9,7 @@ import { SocketContext } from "./Context/socketContext";
 import Dashboard from "./Dashboard";
 import Footer from "./Footer";
 import { GameContextProvider } from "./game/GameContext/gameContext";
+import { GameState } from "./game/GameUtils/type";
 import Home from "./Home";
 import useLocalStorage from "./hooks/localStoragehook";
 import NavBar from "./NavBar";
@@ -15,11 +17,16 @@ import Pong from "./Pong";
 import { PrivateRoute } from "./PrivateRoute";
 import Settings from "./Settings";
 import { appSocketRoutine, getChatSocket, getGameSocket, initiateSocket } from "./Utils/socketManager";
-import { getSession } from "./Utils/utils";
+import { getToken } from "./Utils/utils";
+
+const token = localStorage.getItem("token");
+if (token) {
+     setAuthToken(token);
+}
 
 export default function App()
 {
-	const {chatSocket, setChatSocket, gameSocket, setGameSocket} = useContext(SocketContext)
+	const {gameState, setGameState, chatSocket, setChatSocket, gameSocket, setGameSocket} = useContext(SocketContext)
 	const { storage, setStorage } = useLocalStorage("token");
 	const { storage2 } = useLocalStorage("user");
 
@@ -34,16 +41,23 @@ export default function App()
 		}
 	}
 
+	function handleGameOver(winnerId: string)
+	{
+		const message = winnerId === storage2.login ? "YOU WIN" : "YOU LOSE"
+		console.log(message)
+		setGameState(GameState.None)
+	}
+
 	useEffect(() => {
-		if (storage)
+		if (getToken())
 		{
-			initiateSocket("http://localhost:8002", getSession(), storage2.login)
+			initiateSocket("http://localhost:8002")
 			setChatSocket(getChatSocket())
 			setGameSocket(getGameSocket())
-			appSocketRoutine(handleSession);
-			console.log(chatSocket)
+			appSocketRoutine(handleSession, handleGameOver);
+			console.log("LA")
 		}
-	}, [])
+	}, [storage])
     return (
 		<BrowserRouter>
 			<NavBar />

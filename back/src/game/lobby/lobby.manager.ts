@@ -1,7 +1,9 @@
-import { NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { forwardRef, Inject, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { Cron, Interval } from "@nestjs/schedule";
+import { InjectRepository } from "@nestjs/typeorm";
 import { WebSocketServer } from "@nestjs/websockets";
 import { Server } from "socket.io";
+import { AuthService } from "src/auth/auth.service";
 import { AuthenticatedSocket } from 'src/auth/types/auth.type';
 import { GameInstance } from "../game.instance";
 import { GameMode, GameOptions, GameState, Player } from "../types/game.type";
@@ -18,9 +20,12 @@ export class LobbyManager
     public server;
 
     private readonly lobbies: Map<string, Lobby> = new Map<string, Lobby>();
-    private readonly avalaibleLobbies: Lobby[] = [];
+    private readonly availableLobbies: Lobby[] = [];
 
-    constructor() { }
+    constructor(
+        @Inject(forwardRef(() => AuthService))
+        private authService: AuthService,
+    ) { }
 
     public initializeSocket(client: AuthenticatedSocket): void
     {
@@ -29,37 +34,48 @@ export class LobbyManager
     public terminateSocket(client: AuthenticatedSocket): void
     {
        
-        for (let i = 0; i < this.avalaibleLobbies.length; i++)
+        for (let i = 0; i < this.availableLobbies.length; i++)
         {
-            if (this.avalaibleLobbies[i].isClient(client.login))
+            if (this.availableLobbies[i].isClient(client.login))
             {
-                this.avalaibleLobbies.splice(i, 1);
-                client.leave(this.avalaibleLobbies[i]?.id);
+                this.availableLobbies.splice(i, 1);
+                client.leave(this.availableLobbies[i]?.id);
             }
-
         }
         client.leave(client.roomId);
     }
 
     public createLobby(options: GameOptions): Lobby
     {
-        let lobby = new Lobby(this.server, options);
+        let lobby = new Lobby(this.server, options, this);
 
-        this.lobbies.set(lobby.id, lobby);
+        this.availableLobbies.push(lobby);
 
         return lobby;
     }
 
-    public joinQueue(client: AuthenticatedSocket, mode:GameMode)
+    public destroyLobby(lobbyId: string)
+    {
+        const lobby = this.lobbies.get(lobbyId);
+        lobby.clients.forEach((roomId, clientLogin) => {
+            this.authService.updateLobby(clientLogin, null);
+        })
+        this.lobbies.delete(lobbyId);
+    }
+
+    public async joinQueue(client: AuthenticatedSocket, mode:GameMode)
     {
         let lobby: Lobby = null;
-
    
-        for (let i = 0; i < this.avalaibleLobbies.length; i++)
+        for (let i = 0; i < this.availableLobbies.length; i++)
         {
-            if (this.avalaibleLobbies[i].isClient(client.login) === false && !this.avalaibleLobbies[i].isPrivate())
+            const currLobby = this.availableLobbies[i];
+            if (currLobby.isClient(client.login) === false && !currLobby.isPrivate() && currLobby.getMode() == mode) 
             {
-                lobby = this.avalaibleLobbies.splice(i, 1).at(0);
+                lobby = this.availableLobbies.splice(i, 1).at(0);
+                client.lobbyId = lobby.id;
+                this.lobbies.set(lobby.id, lobby)
+                break ;
             }
         }
         if (lobby === null)
@@ -69,10 +85,24 @@ export class LobbyManager
                 inviteMode: false,
             }
             lobby = this.createLobby(options);
-            this.avalaibleLobbies.push(lobby);
         }
-        console.log("Client login", client.login)
         lobby.addClient(client);
+        console.log(`Client ${client.login} joined lobby ${lobby.id}`)
+        await this.authService.updateLobby(client.login, lobby.id);
+    }
+
+    public leaveQueue(client: AuthenticatedSocket)
+    {
+        for (let i = 0; i < this.availableLobbies.length; i++)
+        {
+            if (this.availableLobbies[i].isClient(client.login))
+            {
+                this.availableLobbies.splice(i, 1);
+                this.destroyLobby(this.availableLobbies[i]?.id);
+                client.lobby = null;
+                this.authService.updateLobby(client.login, null);
+            }
+        }
     }
 
     public joinLobby(lobbyId: string, client: AuthenticatedSocket)
@@ -80,10 +110,31 @@ export class LobbyManager
         console.log(`Spectacte lobby ${lobbyId}`);
         
         const lobby: Lobby = this.lobbies.get(lobbyId);
-        if (lobby?.addClient(client) == undefined)
-            throw new NotFoundException("This lobby does not exist anymore");
-        else
-            console.log('Spectacte success');
+        if (!lobby)
+           throw new NotFoundException("This lobby does not exist anymore");
+        lobby.addClient(client);
+        this.authService.updateLobby(client.login, lobby.id);
+    }
+
+    public joinInvitation(client: AuthenticatedSocket, senderLogin: string): boolean
+    {
+        let lobby: Lobby = null;
+        console.log("joining invitation from", senderLogin);
+        for (let i = 0; i < this.availableLobbies.length; i++)
+        {
+            const currLobby = this.availableLobbies[i];
+            if (currLobby.isClient(senderLogin) === true && currLobby.isPrivate()) 
+            {
+                lobby = this.availableLobbies.splice(i, 1).at(0);
+                client.lobbyId = lobby.id;
+                if (lobby.nbPlayers == 1)
+                    this.lobbies.set(lobby.id, lobby);
+                this.authService.updateLobby(client.login, lobby.id);
+                lobby.addClient(client);
+                return true;
+            }
+        }
+        return false;
     }
 
     public async joinLobbies(client: AuthenticatedSocket)
@@ -101,32 +152,19 @@ export class LobbyManager
         }
     }
 
-    public async joinInvitation(client: AuthenticatedSocket, playerLogin: string)
-    { 
-        for (let i = 0; i < this.avalaibleLobbies.length; i++)
-        {
-            if (this.avalaibleLobbies[i].isClient(client.login) === false && !this.avalaibleLobbies[i].isPrivate())
-            {
-                const lobby = this.avalaibleLobbies.splice(i, 1).at(0);
-                lobby.addClient(client);
-                return ;
-            }
-        }
-        throw new NotFoundException("The invitation has expired");
-
+    public getLobby(lobbyId: string)
+    {
+        if (!lobbyId)
+            return null;
+        const resLobby = this.lobbies.get(lobbyId);
+        return resLobby;
     }
-
-    /*
-    * Retourne l'id de tous les lobbies en game et l'id des 2 joueurs
-    * Va servir pour afficher toutes les parties en cours et les regarder
-    * Gerer le cas ou il n'y a pas de parties en cours
-    */ 
 
     public getActiveLobbies()
     {
         let res:{lobbyId: string, playersId: string[]}[] = [];
         this.lobbies.forEach((lobby, id) => {
-            if (lobby.state == GameState.Started && lobby.nbPlayers == 2) //Send lobbies with afk ?
+            if (lobby.state == GameState.Started && lobby.nbPlayers == 2)
             {
                 res.push({
                     lobbyId: id,
@@ -136,27 +174,6 @@ export class LobbyManager
         });
         return res;
         
-    }
-
-    //Deletes stopped lobbies every 5 minutes
-    @Interval(60 * 1000)
-    private lobbiesCleaner(): void
-    {
-        for (let i = 0; i < this.avalaibleLobbies.length; i++) {
-            if (this.avalaibleLobbies[i].nbPlayers == 0) {
-                this.avalaibleLobbies.splice(i, 1);
-            }
-            
-        }
-        console.log(`Avalaible lobbies: ${this.avalaibleLobbies.length}`);
-        this.lobbies.forEach((lobby, id) => {
-			console.log(lobby.nbPlayers);
-            if (lobby.state == GameState.Stopped && lobby.nbPlayers == 0)
-            {
-                this.lobbies.delete(id);
-            }
-        });
-        console.log(`Active lobbies: ${this.lobbies.size}`);
     }
 
 }

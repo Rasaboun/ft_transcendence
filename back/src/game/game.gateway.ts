@@ -5,6 +5,7 @@ import { GameMode, GameOptions, Player } from './types/game.type';
 import { AuthenticatedSocket } from 'src/auth/types/auth.type';
 import { AuthService } from 'src/auth/auth.service';
 import { forwardRef, Inject } from '@nestjs/common';
+import { isJWT } from 'class-validator';
 
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'game' })
@@ -26,11 +27,13 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	
 	}
 
-	async handleConnection(client: Socket){
+	async handleConnection(client: AuthenticatedSocket){
 		
 		//this.lobbyManager.initializeSocket(client as AuthenticatedSocket);
 		console.log(`Client ${client.id} joined pong socket`);
-		this.authService.initializeSocket(client as AuthenticatedSocket);
+		await this.authService.initializeSocket(client as AuthenticatedSocket);
+		if (client.lobbyId)
+			client.lobby = this.lobbyManager.getLobby(client.lobbyId);
 		await this.lobbyManager.joinLobbies(client as AuthenticatedSocket);
 		
 	}
@@ -41,13 +44,15 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		
 	}
 
-	@SubscribeMessage('createLobby')
-	createLobby(client: AuthenticatedSocket, /*options: GameOptions*/)
+	@SubscribeMessage('leftPong')
+	leftPong(client: AuthenticatedSocket)
 	{
-		const options: GameOptions = {
-			mode: GameMode.Normal,
-			inviteMode: false,
-		}
+		this.lobbyManager.leaveQueue(client);
+	}
+
+	@SubscribeMessage('createLobby')
+	createLobby(client: AuthenticatedSocket, options: GameOptions)
+	{
 		let lobby = this.lobbyManager.createLobby(options);
 		lobby.addClient(client);
 
@@ -55,18 +60,21 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('joinedQueue')
-	joiningQueue(client: AuthenticatedSocket, mode:GameMode)
+	async joiningQueue(client: AuthenticatedSocket, mode: GameMode)
 	{
 		console.log(`Client ${client.id} joined queue`)
-		this.lobbyManager.joinQueue(client, mode);
+		await this.lobbyManager.joinQueue(client, mode);
 	}
 
 	@SubscribeMessage('joinInvitation')
-	joinInvitation(client: AuthenticatedSocket, playerLogin: string)
+	joinInvitation(client: AuthenticatedSocket, sender: string)
 	{
 		try
 		{
-			this.lobbyManager.joinInvitation(client, playerLogin);
+			if (this.lobbyManager.joinInvitation(client, sender) == false)
+			{
+				client.emit("invitationExpired", "This lobby does not exist anymore");
+			}
 		} catch (error) { client.emit("error", error.message) };
 	}
 
@@ -82,28 +90,49 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('getActiveGames')
 	getActiveGames(client: AuthenticatedSocket)
 	{
-		//console.log(this.lobbyManager.getActiveLobbies())
 		client.emit('activeGames', this.lobbyManager.getActiveLobbies());
 	}
 
+	@SubscribeMessage('loadGame')
+	async getGameInfo(client: AuthenticatedSocket)
+	{
+		try
+		{
+
+			await this.updateLobby(client);
+			if (!client.lobby)
+				return ;
+			client.emit('gameData', client.lobby.getGameData())
+		}
+		catch (error) { throw error; }
+	}
 
 	@SubscribeMessage('startGame')
-	launchGame(client: AuthenticatedSocket)
+	async launchGame(client: AuthenticatedSocket)
 	{
+		await this.updateLobby(client);
+		if (!client.lobby)
+			return ;
 		client.lobby.startGame();
 	}
 
 	@SubscribeMessage('playerMoved')
-	handlePlayerPosition(client: AuthenticatedSocket, newPos: number) {
-
+	async handlePlayerPosition(client: AuthenticatedSocket, newPos: number) {
+		await this.updateLobby(client);
+		if (!client.lobby)
+			return ;
 		const player: Player = client.lobby?.getPlayer(client.login);
-		
-		if (!player)
-			console.log("is not player");
 		if (!player)
 			return ;
 		player.pos = newPos;
+		client.join(client.roomId);	
 		client.lobby.sendToUsers('updatePaddle', {playerId: client.login, newPos: newPos});
 
+	}
+
+	async updateLobby(client: AuthenticatedSocket)
+	{
+		client.lobbyId = await this.authService.getUserLobbyId(client.login);
+		client.lobby = this.lobbyManager.getLobby(client.lobbyId);
 	}
 }

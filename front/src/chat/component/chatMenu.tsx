@@ -1,16 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
+
 import { chatMenuHandler, createChannel, getActiveChannels, getChatSocket, getGameSocket, initiateSocket, joinChannel, joinPrivChat, loadConnectedUsers } from "../../Utils/socketManager";
 import { channelFormT, ChannelModes, ChannelT, connectedUsersT, JoinChannelT, privChatP } from "../ChatUtils/chatType";
 import { ChatContext } from "../ChatContext/chatContext";
 import { useNavigate } from "react-router-dom";
 import ChannelItem from "../Elements/channelItem";
 import useLocalStorage from "../../hooks/localStoragehook";
-import { Session } from "inspector";
 import { Socket } from "socket.io-client";
-import userEvent from "@testing-library/user-event";
 import { SocketContext } from "../../Context/socketContext";
 import { getSession } from "../../Utils/utils";
 import PrivChatItem from "../Elements/privChatItem";
+
 
 export default function ChatMenu()
 {
@@ -113,7 +113,7 @@ export default function ChatMenu()
 
 	useEffect(() => {
 
-		initiateSocket("http://localhost:8002", getSession(), storage.login)
+		initiateSocket("http://localhost:8002")
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
 		console.log("chaat menu chatSocket", chatSocket)
