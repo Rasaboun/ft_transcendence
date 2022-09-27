@@ -175,25 +175,27 @@ export default function Game()
 	}
 
 	const handleSpectateSuccess = (data: {gameData: GameData, gameSettings: GameSettings }) => {
-		let newPlayers = data.gameData.players;
 		
-		newPlayers[0].pos = utils.toScale(data.gameData.players[0].pos, canvas.height / gameSettings.height);
-		newPlayers[1].pos = utils.toScale(data.gameData.players[1].pos, canvas.height / gameSettings.height);
+		updateGame(data);
+		// let newPlayers = data.gameData.players;
+		
+		// newPlayers[0].pos = utils.toScale(data.gameData.players[0].pos, canvas.height / gameSettings.height);
+		// newPlayers[1].pos = utils.toScale(data.gameData.players[1].pos, canvas.height / gameSettings.height);
 
-		setGameData((oldGameData) => ({
-			...oldGameData,
-			ball: data.gameData.ball,
-			players: newPlayers,
-			//state: GameState.Spectacte
-		}))
-		setGameSettings((oldGameSettings) => ({
-			...oldGameSettings,
-			scoreToWin: data.gameSettings.scoreToWin,
-			width: data.gameSettings.width,
-			height: data.gameSettings.height,
-			paddleHeight: utils.toScale(data.gameSettings.paddleHeight, canvas.height / 1080),
-			paddleWidth: utils.toScale(data.gameSettings.paddleWidth, canvas.width / 1920),
-		}))
+		// setGameData((oldGameData) => ({
+		// 	...oldGameData,
+		// 	ball: data.gameData.ball,
+		// 	players: newPlayers,
+		// 	//state: GameState.Spectacte
+		// }))
+		// setGameSettings((oldGameSettings) => ({
+		// 	...oldGameSettings,
+		// 	scoreToWin: data.gameSettings.scoreToWin,
+		// 	width: data.gameSettings.width,
+		// 	height: data.gameSettings.height,
+		// 	paddleHeight: utils.toScale(data.gameSettings.paddleHeight, canvas.height / 1080),
+		// 	paddleWidth: utils.toScale(data.gameSettings.paddleWidth, canvas.width / 1920),
+		// }))
 		setStorage("gameState", GameState.Spectacte)
 	}
 

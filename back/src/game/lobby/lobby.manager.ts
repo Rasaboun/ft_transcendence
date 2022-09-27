@@ -49,7 +49,7 @@ export class LobbyManager
     {
         let lobby = new Lobby(this.server, options, this);
 
-        this.lobbies.set(lobby.id, lobby);
+        this.avalaibleLobbies.push(lobby);
 
         return lobby;
     }
@@ -70,6 +70,7 @@ export class LobbyManager
             {
                 lobby = this.avalaibleLobbies.splice(i, 1).at(0);
                 client.lobbyId = lobby.id;
+                break ;
             }
         }
         if (lobby === null)
@@ -81,6 +82,7 @@ export class LobbyManager
             lobby = this.createLobby(options);
             this.avalaibleLobbies.push(lobby);
         }
+        this.lobbies.set(lobby.id, lobby);
         lobby.addClient(client);
         this.authService.updateLobby(client.login, lobby.id);
     }
@@ -113,6 +115,7 @@ export class LobbyManager
     public joinInvitation(client: AuthenticatedSocket, senderLogin: string): boolean
     {
         let lobby: Lobby = null;
+        console.log("joining invitation from", senderLogin);
         for (let i = 0; i < this.avalaibleLobbies.length; i++)
         {
             const currLobby = this.avalaibleLobbies[i];
@@ -120,6 +123,8 @@ export class LobbyManager
             {
                 lobby = this.avalaibleLobbies.splice(i, 1).at(0);
                 client.lobbyId = lobby.id;
+                if (lobby.nbPlayers == 1)
+                    this.lobbies.set(lobby.id, lobby);
                 this.authService.updateLobby(client.login, lobby.id);
                 lobby.addClient(client);
                 return true;
@@ -154,7 +159,7 @@ export class LobbyManager
     {
         let res:{lobbyId: string, playersId: string[]}[] = [];
         this.lobbies.forEach((lobby, id) => {
-            if (lobby.state == GameState.Started && lobby.nbPlayers == 2) //Send lobbies with afk ?
+            if (lobby.state == GameState.Started && lobby.nbPlayers == 2)
             {
                 res.push({
                     lobbyId: id,
