@@ -1,10 +1,8 @@
-import { channel } from "diagnostics_channel";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useLocalStorage from "../../hooks/localStoragehook";
-import { ChatContext } from "../ChatContext/chatContext";
 import { ChannelModes, ClientElem, UserStateT } from "../ChatUtils/chatType";
-import { inviteClient, leaveChannel, setChannelPassword, setPrivateMode, unsetChannelPassword, unsetPrivateMode } from "../../Utils/socketManager";
+import { deleteChannel, inviteClient, leaveChannel, setChannelPassword, setPrivateMode, unsetChannelPassword, unsetPrivateMode } from "../../Utils/socketManager";
 import UserListElem from "./UserListElem";
 
 type PropsT = {
@@ -18,7 +16,6 @@ export default function ChannelBoard({userState}:PropsT)
     let othersList: ClientElem[] = [];
     const {storage} = useLocalStorage("user");
     const {storage2, setStorage} = useLocalStorage("channel");
-    const {socket} = useContext(ChatContext)
     const navigate = useNavigate()
     const [form, setForm] = useState({
         message:"",
@@ -107,7 +104,7 @@ export default function ChannelBoard({userState}:PropsT)
     }
 
     const handleDelete = () => {
-        socket?.emit("deleteChannel", storage2?.channelId)
+        deleteChannel(storage2?.channelId)
      }
     
 	useEffect(() => {

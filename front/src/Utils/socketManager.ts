@@ -44,7 +44,8 @@ export function getGameSocket()
 }
 
 export function appSocketRoutine(handleSession:any,
-								handleGameOver:any) {
+								handleGameOver:any,
+								handleError:any) {
 
 	chatSocket.on("connect", () => {
 		console.log("In connect", new Date());
@@ -53,7 +54,7 @@ export function appSocketRoutine(handleSession:any,
 	chatSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, chatSocket));
 	chatSocket.on("connect_error", (err) => {console.log(`connect_error due to ${err.message}`)});
 	chatSocket.on("Connect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
-	chatSocket.on("Error", (err) => {console.log(`connect_error due to ${err.message}`)});
+	chatSocket.on('error', (message:string) => handleError(message))	
 	chatSocket.on("Reconnect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
 	chatSocket.on("msgToChannel", (msg:messageT) => {console.log(`message receive from ${msg.sender?.username}`)})
 	gameSocket.on('gameOver', (winnerId: string) => handleGameOver(winnerId))
@@ -143,18 +144,14 @@ export function sendInvitation(data:{channelName: string, mode: GameMode}) {
 
 export function chatMenuHandler(handleActiveChannels:any,
 								handleChannelJoined:any,
-								handleError:any,
 								handleInvitation:any,
-								handleSession:any,
 								loadConnectedUser:any,
 								handlePrivChatJoined:any)
 {
 	//console.log(`Server is down`);
 	chatSocket.on('activeChannels', (channels:ChannelT) => handleActiveChannels(channels));
 	chatSocket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
-	chatSocket.on('error', (message:string) => handleError(message))
 	chatSocket.on('InvitedToChannel', (message:string) => handleInvitation(message))
-	chatSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, chatSocket));
 	chatSocket.on("listOfConnectedUsers", (userList:{intraLogin: string, username: string}[]) => loadConnectedUser(userList));
 	chatSocket.on("joinedPrivChat", () => handlePrivChatJoined());
 }

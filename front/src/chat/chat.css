@@ -60,6 +60,23 @@
     border: 1px solid rgb(7 89 133);
 }
 
+.channel-item{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.channel-name-container {
+
+}
+
+.channel-name-container > h1{
+    font-size: 2em;
+    letter-spacing: .08em;
+    font-weight: 700;
+    margin-bottom: -0.2em;
+}
+
 .chat-left {
     background-color: rgb(7 89 133);
     color: white;
