@@ -44,11 +44,13 @@ export class MatchService {
         let players: { winnerLogin: string, loserLogin: string} =
                     { winnerLogin: "", loserLogin: ""}
 
-        if (matchDto.playerOneScore > matchDto.playerTwoScore){
+        if (matchDto.playerOneScore > matchDto.playerTwoScore)
+        {
             players.winnerLogin = matchDto.playerOneLogin;
             players.loserLogin = matchDto.playerTwoLogin;
         }
-        else {
+        else 
+        {
             players.winnerLogin = matchDto.playerTwoLogin;
             players.loserLogin = matchDto.playerOneLogin;
         }

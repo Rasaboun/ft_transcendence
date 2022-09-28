@@ -47,6 +47,7 @@ export default function Profile() {
 	async function getProfile() {
 		await axios.get<Iuser>(url, {params : {login:login}}).then((response) => {
 			user = response.data;
+      console.log("Returned user", user);
 		});
 	}
 

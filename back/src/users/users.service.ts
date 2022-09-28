@@ -70,8 +70,8 @@ export class UsersService {
         })
     }
 
-    findOneByIntraLogin(login: string) {
-        return this.userRepository.findOne({
+    async findOneByIntraLogin(login: string) {
+        return await this.userRepository.findOne({
             where: [
                 { intraLogin: login},
             ],
@@ -111,8 +111,8 @@ export class UsersService {
 
     async updateGameStats(players)
     {
-        const winner = await this.findOneById(players.winnerId);
-        const loser = await this.findOneById(players.loserId);
+        const winner = await this.findOneByIntraLogin(players.winnerLogin);
+        const loser = await this.findOneByIntraLogin(players.loserLogin);
 
         winner.victories++;
         winner.nbGames++;

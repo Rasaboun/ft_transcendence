@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 //import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
 
 import { User } from 'src/typeorm';
@@ -49,14 +49,11 @@ export class UsersController {
         return this.usersService.isBlocked(dto.callerLogin, dto.targetLogin);
     }
 
-    @Get()
-    findAll(): Promise<User[]> {
-        return this.usersService.findAll();
-    }
 
     @Get('profile')
-    findOneBylogin(@Body('') dto: {login: string} ): Promise<User> {
-        return this.usersService.findOneByIntraLogin(dto.login);
+    async findOneBylogin(@Query() query: {login: string}) {
+        console.log(`Request for ${query.login} profile`);
+        return await this.usersService.findOneByIntraLogin(query.login);//login);
     }
 
     @Get('status')
@@ -72,6 +69,11 @@ export class UsersController {
     @Get('username')
     async getUserUsername(@Body('') dto: {login: string}): Promise<string> {
         return await this.usersService.getUserUsername(dto.login);
+    }
+
+    @Get()
+    findAll(): Promise<User[]> {
+        return this.usersService.findAll();
     }
 
     @Delete(':login')
