@@ -52,8 +52,7 @@ export class UsersController {
 
     @Get('profile')
     async findOneBylogin(@Query() query: {login: string}) {
-        console.log(`Request for ${query.login} profile`);
-        return await this.usersService.findOneByIntraLogin(query.login);//login);
+        return await this.usersService.findOneByIntraLogin(query.login);
     }
 
     @Get('status')

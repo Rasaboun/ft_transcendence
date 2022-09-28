@@ -8,6 +8,14 @@ export enum UserStatus {
     ingame,
 }
 
+export async function getUserProfile(login :string)
+{
+    const url: string = backUrl + "/users/profile";
+    await axios.get(url, {params: {login}}).then(res => {
+        return res;
+    }).catch(e => console.log)
+}
+
 export async function getUsername(login: string)
 {
     const url: string = backUrl + "/users/username";
