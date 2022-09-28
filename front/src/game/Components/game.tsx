@@ -10,6 +10,7 @@ import { GameCleaner, GameRoutineHandler, getChatSocket, getGameSocket, initiate
 import { SocketContext } from "../../Context/socketContext"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
+import { backUrl } from "../../Requests/users"
 
 let canvas:HTMLCanvasElement;
 
@@ -66,7 +67,7 @@ export default function Game()
 			playerTwoScore: gameData.players[1].score.toString(),
 		}
 		//gameInfoToSend = JSON.stringify(gameInfoToSend);
-		const url:string = "http://localhost:3002/match/result"
+		const url:string = backUrl + "/match/result/";
 		axios.post(url, {...gameInfoToSend}).then(res => {
 			
 		}).catch(e => console.log)
