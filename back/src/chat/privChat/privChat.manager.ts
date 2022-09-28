@@ -124,7 +124,6 @@ export class PrivChatManager
 	{
 		try {
 			var recieverId: number = (await this.userService.findOneByIntraLogin(intraLogin)).id;
-			console.log("room id : " + client.roomId);
 			console.log(this.server);
 			this.server.to(client.roomId).emit("privMessageList", (await this.loadMessages(client.dbId, recieverId)).toString())
 		}
