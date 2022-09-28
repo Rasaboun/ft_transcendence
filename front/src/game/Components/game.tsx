@@ -9,8 +9,7 @@ import useLocalStorage from "../../hooks/localStoragehook"
 import { GameCleaner, GameRoutineHandler, getChatSocket, getGameSocket, initiateSocket, leftPong, loadGame, playerMoved, startGame } from "../../Utils/socketManager"
 import { SocketContext } from "../../Context/socketContext"
 import { useNavigate } from "react-router-dom"
-import axios from "axios"
-import { backUrl } from "../../Requests/users"
+import { sendGameResult } from "../../Requests/match"
 
 let canvas:HTMLCanvasElement;
 
@@ -58,7 +57,7 @@ export default function Game()
 		setStorage("gameState", GameState.Waiting)
 	}
 
-	async function sendData ()
+	async function sendData()
 	{	
 		let gameInfoToSend:any = {
 			playerOneLogin: gameData.players[0].id,
@@ -66,12 +65,7 @@ export default function Game()
 			playerOneScore: gameData.players[0].score.toString(),
 			playerTwoScore: gameData.players[1].score.toString(),
 		}
-		//gameInfoToSend = JSON.stringify(gameInfoToSend);
-		const url:string = backUrl + "/match/result/";
-		axios.post(url, {...gameInfoToSend}).then(res => {
-			
-		}).catch(e => console.log)
- 
+		sendGameResult(gameInfoToSend);
 	}
 
 	function initializeGame()
