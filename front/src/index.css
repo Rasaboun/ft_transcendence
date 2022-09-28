@@ -3,6 +3,20 @@
 @tailwind utilities;
 
 
+.page-title{
+  font-weight: bold;
+  font-size: 1.875rem; /* 30px */
+  line-height: 2.25rem; /* 36px */
+  letter-spacing: -0.025em;
+  color: white;
+}
+
+.page-header {
+  text-align: center;
+  background-color: 	rgb(199 210 254);;
+
+}
+
 .text-line{
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }

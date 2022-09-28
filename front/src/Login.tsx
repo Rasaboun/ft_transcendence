@@ -1,14 +1,14 @@
 import React from 'react';
 import LoginElem from './authPage/component/LogPage';
 import './output.css';
-
+import './index.css'
 
 export default function Login() {
 	return (
 	<div id="Home" className="flex-1">
-	<header className="bg-white shadow">
+	<header className="page-header shadow">
 	<div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-	<h1 className="text-3xl tracking-tight font-bold text-gray-900">Home</h1>
+	<h1 className="page-title">HOME</h1>
 	</div>
 	</header>
 	<main>
