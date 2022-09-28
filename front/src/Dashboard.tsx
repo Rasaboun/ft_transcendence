@@ -1,16 +1,11 @@
 import React, { useEffect } from "react";
 import axios from "axios";
 import "./output.css";
+import { Link } from "react-router-dom";
+import { Iuser } from "./Utils/type";
 
 const url: string = "http://localhost:3002/users/";
 
-interface Iuser {
-  id: number;
-  photoUrl: string;
-  username: string;
-  victories: number;
-  defeats: number;
-}
 
 function TabElement(props:any) {
   return (
@@ -18,7 +13,9 @@ function TabElement(props:any) {
       <th scope="row" className="py-4 px-6 font-medium text-gray-900">
         *
       </th>
-      <td className="py-4 px-6">{props.user.username}</td>
+      <Link to={"/profile/" + props.user.intraLogin}>
+    	<td className="py-4 px-6">{props.user.username}</td>
+      </Link>
       <td className="py-4 px-6">{props.user.victories}</td>
       <td className="py-4 px-6">{props.user.defeats}</td>
     </tr>
@@ -61,7 +58,7 @@ function Tabulation() {
         </thead>
         <tbody className=" w-full">
         {users.map((user) => (
-            <TabElement key={user.id} user={user}/>
+						<TabElement key={user.id} user={user}/>            
           ))}
         </tbody>
       </table>
