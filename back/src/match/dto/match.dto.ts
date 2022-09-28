@@ -2,9 +2,6 @@ import { IsDate, IsDateString, IsNotEmpty, isNumber, IsNumber, isNumberString, I
 
 export class matchDto {
     @IsNotEmpty()
-    date: string;
-
-    @IsNotEmpty()
     @IsString()
     playerOneLogin: string;
 

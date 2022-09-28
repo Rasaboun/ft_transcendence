@@ -33,7 +33,6 @@ export async function initiateSocket(url:string)
 
 export function getChatSocket()
 {
-	console.log(chatSocket)
 	return chatSocket
 }
 
@@ -43,15 +42,11 @@ export function getGameSocket()
 	return gameSocket
 }
 
-export function appSocketRoutine(handleSession:any,
-								handleGameOver:any,
+export function appSocketRoutine(handleGameOver:any,
 								handleError:any) {
 
 	chatSocket.on("connect", () => {
-		console.log("In connect", new Date());
-		chatSocket.emit("session");
 	})
-	chatSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, chatSocket));
 	chatSocket.on("connect_error", (err) => {console.log(`connect_error due to ${err.message}`)});
 	chatSocket.on("Connect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
 	chatSocket.on('error', (message:string) => handleError(message))	

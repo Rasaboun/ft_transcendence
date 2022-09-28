@@ -42,17 +42,6 @@ export default function App()
 		})
 	}
 
-	const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, socket:Socket) => {
-		console.log("In session menu", sessionInfo, chatSocket)
-		if (socket)
-		{
-			setStorage("sessionId", sessionInfo.sessionId);
-			setStorage("roomId", sessionInfo.roomId);
-			socket.auth = { sessionId: sessionInfo.sessionId } ;		
-			//socket.userID = userID;
-		}
-	}
-
 	function handleGameOver(winnerId: string)
 	{
 		const message = winnerId === storage2.login ? "YOU WIN" : "YOU LOSE"
@@ -72,7 +61,7 @@ export default function App()
 			initiateSocket("http://localhost:8002")
 			setChatSocket(getChatSocket())
 			setGameSocket(getGameSocket())
-			appSocketRoutine(handleSession, handleGameOver, handleError);
+			appSocketRoutine(handleGameOver, handleError);
 		}
 	}, [storage])
 

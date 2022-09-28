@@ -1,11 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Match {
     @PrimaryGeneratedColumn('increment')
     id: number;
 
-    @Column()
+    @CreateDateColumn()
     date: string;
 
     @Column()
@@ -19,4 +19,7 @@ export class Match {
 
     @Column()
     playerTwoScore: number;
+
+    @Column()
+    winnerLogin: string;
 }

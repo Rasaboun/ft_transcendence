@@ -60,18 +60,15 @@ export default function Game()
 	async function sendData ()
 	{	
 		let gameInfoToSend:any = {
-			date: "tmpdate",//new Date(),
 			playerOneLogin: gameData.players[0].id,
 			playerTwoLogin: gameData.players[1].id,
 			playerOneScore: gameData.players[0].score.toString(),
 			playerTwoScore: gameData.players[1].score.toString(),
 		}
-		console.log("sending data to back", gameInfoToSend)
 		//gameInfoToSend = JSON.stringify(gameInfoToSend);
 		const url:string = "http://localhost:3002/match/result"
 		axios.post(url, {...gameInfoToSend}).then(res => {
 			
-			console.log("response", res);
 		}).catch(e => console.log)
  
 	}
@@ -117,7 +114,6 @@ export default function Game()
 
 	const updateGame = (data: {gameData: GameData, gameSettings: GameSettings }) =>
 	{
-		//console.log("In game data", data.gameData)
 		const newPlayers = [
 			{
 				id: data.gameData.players[0].id,
@@ -221,7 +217,6 @@ export default function Game()
 			setGameData((oldGameData) => ({
 				...oldGameData,
 				players: oldGameData.players.map((player, index) => {
-					//console.log("player in map", player);
 					if (player.id === data.playerId)
 						return {...player, pos: utils.toScale(data.newPos, canvas.height / gameSettings.height)}
 					return player
@@ -251,7 +246,6 @@ export default function Game()
 	}
 
 	const handleInvitationExpired = (msg:string) => {
-		console.log(msg)
 		navigate("/pong")
 	}
 

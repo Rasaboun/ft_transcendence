@@ -47,11 +47,13 @@ export class MatchService {
         if (matchDto.playerOneScore > matchDto.playerTwoScore)
         {
             players.winnerLogin = matchDto.playerOneLogin;
+            newMatch.winnerLogin = matchDto.playerOneLogin;
             players.loserLogin = matchDto.playerTwoLogin;
         }
         else 
         {
             players.winnerLogin = matchDto.playerTwoLogin;
+            newMatch.winnerLogin = matchDto.playerTwoLogin;
             players.loserLogin = matchDto.playerOneLogin;
         }
 
