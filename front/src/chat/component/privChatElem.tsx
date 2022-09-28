@@ -4,7 +4,7 @@ import Message from "../Elements/message";
 import {ActionOnUser, ChannelModes, ChannelT, ClientInfoT, messageT, MessageTypes, UserStateT} from "../ChatUtils/chatType"
 import { useNavigate } from "react-router-dom";
 import InfoMessage from "../Elements/InfoMessage";
-import ChannelBoard from "../Elements/ChannelBoard";
+import ChannelBoard from "../Elements/channelBoard";
 import useLocalStorage from "../../hooks/localStoragehook";
 import PrivMessageInput from "./privMessageInput";
 import { SocketContext } from "../../Context/socketContext";

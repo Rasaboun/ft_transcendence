@@ -2,15 +2,18 @@ import React, { useEffect } from "react";
 import axios from "axios";
 import "./output.css";
 import profile from "./profile.png";
+import { useParams } from "react-router-dom";
+import { getParsedCommandLineOfConfigFile } from "typescript";
 
-const url: string = "http://localhost:3001/users";
-
+const url: string = "http://localhost:3002/users/profile/";
+let user:any
 interface Iuser {
   id: number;
   photoUrl: string;
 }
 
 function UserProfile() {
+  
   return (
     <div className="flex flex-col items-center bg-indigo-300 rounded-lg border shadow md:flex-row md:max-w-xl ">
       <img
@@ -38,13 +41,22 @@ function UserProfile() {
 }
 
 export default function Profile() {
-  const [users, setUsers] = React.useState<Iuser[]>([]);
+	const { login } = useParams()
+	const [users, setUsers] = React.useState<Iuser[]>([]);
+	const data = {login : login}
+	async function getProfile() {
+		await axios.get<Iuser>(url, {params : {login:login}}).then((response) => {
+			user = response.data;
+		});
+	}
 
   useEffect(() => {
-    axios.get(url).then((response) => {
-      setUsers(response.data);
-    });
-  });
+    if (login )
+    {
+		getProfile()
+    }
+    console.log(user)
+  }, []);
 
   return (
     <div id="Profile" className="flex-1">

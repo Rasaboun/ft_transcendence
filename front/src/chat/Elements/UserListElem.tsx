@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import useLocalStorage from "../../hooks/localStoragehook";
 import { ClientElem, UserStateT } from "../ChatUtils/chatType";
 import { addAdmin, banUser, createLobby, muteUser, sendInvitation } from "../../Utils/socketManager";
-import GameRadioForm from "../../Elements/gameRadioForm";
+import GameRadioForm from "../../Elements/radioFormElem";
 import { GameMode } from "../../game/GameUtils/type";
-import {  useNavigate } from "react-router-dom";
+import {  Link, useNavigate, useParams } from "react-router-dom";
 type UserElemPropsT = {
 	client: ClientElem;
 	userState?:UserStateT;
@@ -12,6 +12,7 @@ type UserElemPropsT = {
 
 export default function UserListElem({ client, userState }:UserElemPropsT)
 {
+	const { profile } = useParams();
 	const navigate = useNavigate()
 	const {storage} = useLocalStorage("channel")
 	const {storage2} = useLocalStorage("user")
@@ -26,7 +27,6 @@ export default function UserListElem({ client, userState }:UserElemPropsT)
 		ban: false,
 		invite: false
 	})
-
 
     const handleOnMouseOver = () => {
         setIsHover(true)
@@ -113,7 +113,12 @@ export default function UserListElem({ client, userState }:UserElemPropsT)
 			
 			<div className="user-info">
 				<img className="user-img" src="https://i.imgur.com/vNHtbSz.png" alt="user profil" />
-				<h3>{client.username} {client.isMuted && "🔇"}</h3>
+				<h3>
+					<Link to={"/profile/" + client.login}>
+						{client.username}
+					</Link>
+					{client.isMuted && "🔇"}
+				</h3>
 			</div>
 			{
 				isHover && storage2.login !== client.login && !isSelected.invite &&
@@ -123,7 +128,7 @@ export default function UserListElem({ client, userState }:UserElemPropsT)
 				
 				isSelected.invite &&
 				<form className="channel-form" onSubmit={handleSubmitGameMode}>
-					<GameRadioForm gameMode={gameMode} setGameMode={setGameMode}/>
+					<GameRadioForm choice={gameMode} setChoice={setGameMode} options={["Normal", "Mini", "Speed"]}/>
 					<button type="submit" className="button-action" >
 						Invite
 					</button>

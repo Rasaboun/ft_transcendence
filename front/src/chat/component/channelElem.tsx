@@ -4,13 +4,13 @@ import Message from "../Elements/message";
 import {ActionOnUser, ChannelT, ClientInfoT, messageT, MessageTypes, UserStateT} from "../ChatUtils/chatType"
 import { useNavigate } from "react-router-dom";
 import InfoMessage from "../Elements/InfoMessage";
-import ChannelBoard from "../Elements/ChannelBoard";
+import ChannelBoard from "../Elements/channelBoard";
 import useLocalStorage from "../../hooks/localStoragehook";
 import MessageInput from "./MessageInput";
 import { SocketContext } from "../../Context/socketContext";
 import InviteMessage from "../Elements/InviteMessage";
 
-export default function ChatElem()
+export default function ChannelElem()
 {
     const {storage, setStorage} = useLocalStorage("user")
 	const {storage2} = useLocalStorage("channel")
