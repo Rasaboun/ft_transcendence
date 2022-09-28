@@ -61,17 +61,28 @@
     flex-direction: column;
     position: absolute;
     align-items: center;
+    vertical-align: center;
     color: white;
+    font-size: 45px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     top: 30vh;
     left: 50%;
-    height: 5vh;
-    width: 20vh;
+    height: 10vh;
+    width: 40vh;
     transform: translate(-50%, -50%);
+
+    border-radius: 25px;
+    border-color: white;
+    border-width: 10px;
+    background-color: rgb(165 180 252);
+    
 }
 
 .score--container {
     height: 100%;
     display: flex;
+    color: white;
+    vertical-align: middle;
 }
 
 .score--elem {
@@ -79,6 +90,11 @@
     text-align: center;
     width: 50%;
 }
+
+.score--vs {
+    font-size: 80px;
+}
+
 .score--img {
     object-fit: cover;
     display: inline;

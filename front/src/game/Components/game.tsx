@@ -356,7 +356,7 @@ export default function Game()
 		}}>
 			{
 			parseInt(storage2) === GameState.Waiting &&
-				<div className="game-display">
+				<div className="game-display ">
 					<h1 style={{
 						color: "white"
 					}}>Waiting for Player</h1>
@@ -366,9 +366,9 @@ export default function Game()
 			{
 				parseInt(storage2) === GameState.Stopped && clearCanvas() &&
 				<div className="game-display">
-					{(storage.login === gameData.winnerId) ? "YOU WIN" : 
+					{(storage.login === gameData.winnerId) ? "YOU WON" : 
 					(((gameData.players[0].id === storage.login || gameData.players[1].id === storage.login)) ?
-						"YOU LOSE" : `${gameData.winnerId} WIN`)}
+						"YOU LOST" : `${gameData.winnerId} WON`)}
 					{}
 					</div>
 			}
