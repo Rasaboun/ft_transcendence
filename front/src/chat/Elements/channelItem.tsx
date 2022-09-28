@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from "react-router-dom";
+import { buttonClass } from '../../Utils/utils';
 import { ChannelModes, ChannelT, JoinChannelT } from '../ChatUtils/chatType';
 
 type ChannelPropsT = {
@@ -50,7 +51,7 @@ export default function ChannelItem({channel, handleJoinChannel}:ChannelPropsT)
                             send password
                         </button>
                     </form> :
-                <button className='text-white bg-gradient-to-r from-indigo-500 via-indigo-600 to-indigo-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-indigo-300 dark:focus:ring-indigo-800 shadow-lg shadow-indigo-500/50 dark:shadow-lg dark:shadow-indigo-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2' onClick={() =>
+                <button className={buttonClass} onClick={() =>
                     !(channel.mode == ChannelModes.Password) ? 
                         handleJoinChannel({channelName:channel.channelId}) :
                         setDisplayPassInput(true)

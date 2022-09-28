@@ -12,7 +12,6 @@ type UserElemPropsT = {
 
 export default function UserListElem({ client, userState }:UserElemPropsT)
 {
-	const { profile } = useParams();
 	const navigate = useNavigate()
 	const {storage} = useLocalStorage("channel")
 	const {storage2} = useLocalStorage("user")

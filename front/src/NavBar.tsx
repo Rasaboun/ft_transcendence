@@ -6,6 +6,7 @@ import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import logo from './42-logo.png';
 import profile from './profile.png';
+import useLocalStorage from './hooks/localStoragehook';
 
 let navigation = [
   { name: 'Dashboard', href: '#', current: false},
@@ -33,6 +34,7 @@ function HoverNavBar(location :String){
 
 export default function NavBar() {
   const location = useLocation();
+  const { storage } = useLocalStorage("user")
   
   useEffect(() => {    // Mettre à jour le titre du document en utilisant l'API du navigateur    
     document.getElementById("notification")?.classList.add(profileColor[1]);
@@ -157,7 +159,7 @@ export default function NavBar() {
                       <Menu.Item>
                         {({ active }: {active: any}) => (
                           <Link
-                          to="myProfile"
+                          to={"/profile/" + storage.login}
                           className={classNames(active ? 'bg-indigo-300' : '', 'block px-4 py-2 text-sm text-white')}
                         >
                           Profile

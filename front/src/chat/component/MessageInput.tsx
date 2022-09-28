@@ -11,11 +11,7 @@ export default function MessageInput(props:MessageInputPropsT)
 {
 	console.log("mutedTime", props.mutedTime)
 	return ( <form onSubmit={props.handleSubmitMessage}>
-			<input style={{
-				border: "1px solid black",
-				marginRight: "15px"
-			}}
-			name='message' type="text"
+			<input className="message-input" name='message' type="text"
 			value={!props.mutedTime ? props.value : `You are muted : ${props.mutedTime} secs left`}
 			onChange={props.handleChange}
 			disabled={props.mutedTime ? true : false}/>
