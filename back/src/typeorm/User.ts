@@ -14,7 +14,7 @@ export class User {
     username: string;
 
     @Column({
-        default: "temporary",
+        default: "https://imgur.com/a/wNL4KA0",
     })
     photoUrl: string;
     

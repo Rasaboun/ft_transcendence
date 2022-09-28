@@ -2,6 +2,7 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import PrivChatElem from './chat/component/privChatElem';
 import './output.css';
+import "./index.css"
 
 
 
@@ -114,9 +115,9 @@ function Channel() {
 export default function Chat() {
 	return (
 	<div id="Chat" className="flex-1">
-		<header className="bg-white shadow">
+		<header className="page-header shadow">
 			<div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-				<h1 className="text-3xl tracking-tight font-bold text-gray-900">Chat</h1>
+				<h1 className="page-title">Chat</h1>
 			</div>
 		</header>
 		<main>
