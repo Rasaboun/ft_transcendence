@@ -97,6 +97,7 @@
 
 .score--img {
     object-fit: cover;
+    border-radius: 50%;
     display: inline;
     width:  100px;
     height: 100px;

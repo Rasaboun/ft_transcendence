@@ -6,7 +6,7 @@ import { PrivChat } from 'src/typeorm';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChannelsService } from './channel/channel.service';
 import { UsersService } from 'src/users/users.service';
-import { Session, User } from 'src/typeorm';
+import { User } from 'src/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
 import { AuthService } from 'src/auth/auth.service';
 import { UsersModule } from 'src/users/users.module';
@@ -17,7 +17,6 @@ import { PrivChatManager } from './privChat/privChat.manager';
     imports: [
         TypeOrmModule.forFeature([Channel, PrivChat]),
         TypeOrmModule.forFeature([User]),
-        TypeOrmModule.forFeature([Session]),
         AuthModule,
         UsersModule,
     ],

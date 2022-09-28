@@ -351,8 +351,6 @@ export class ChannelManager
             data.clientId = target.intraLogin;
             // Send notification ?
             await this.channelsService.inviteClient(data);
-            //console.log(this.channels.get(data.channelName).getClientSocket(data.clientId))
-            //need session this.channels.get(data.channelName).getClientSocket(data.clientId).emit("InvitedToChannel", data.channelName)
         } catch (error) {
             throw error;
         }

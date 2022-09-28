@@ -1,22 +1,13 @@
-import { HttpService } from '@nestjs/axios';
-import { ForbiddenException, HttpException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Token } from 'client-oauth2';
-import { ConnectableObservable } from 'rxjs';
-import { AuthenticatedSocket, newSessionDto, TokenPayload } from 'src/auth/types/auth.type';
-import { Session } from 'src/typeorm/Session';
-import { createUserDto } from 'src/users/dto/createUser.dto';
+import { AuthenticatedSocket, TokenPayload } from 'src/auth/types/auth.type';
 import { UsersService } from 'src/users/users.service';
-import { Repository } from 'typeorm';
 import { v4 } from 'uuid';
 
 
 @Injectable()
 export class AuthService {
     constructor(
-                @InjectRepository(Session)
-                private readonly sessionsRepository: Repository<Session>,
                 private readonly userService: UsersService,
                 private readonly jwtService: JwtService,
                 ) {}
@@ -75,22 +66,6 @@ export class AuthService {
         client.lobby = null;
         client.lobbyId = await this.userService.getUserLobby(client.login);
         client.join(client.roomId);
-    }
-
-    async findSession(sessionId: string)
-    {
-        if (!sessionId)
-            return null;
-        return await this.sessionsRepository.findOne({
-            where: 
-                { sessionId: sessionId},     
-        })
-    }
-
-    async saveSession(dto: newSessionDto)
-    {
-        const newSession = this.sessionsRepository.create(dto);
-        await this.sessionsRepository.save(newSession);
     }
 
     async updateLobby(login: string, lobbyId: string | null)

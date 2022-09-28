@@ -3,21 +3,10 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as session from 'express-session'
 import * as passport from 'passport'
-import { TypeormStore } from 'connect-typeorm/out';
-import { NestApplication, } from '@nestjs/core';
-import { WsAdapter } from '@nestjs/platform-ws';
-import * as cors from 'cors'
-import { IoAdapter } from '@nestjs/platform-socket.io';
-import { Server } from 'socket.io';
-import { createServer } from 'http';
-import bodyParser from 'body-parser';
 
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {cors:  true });
-  const sessionRepo = app
-    .get(AppModule)
-    .getDataSource()
 
   app.useGlobalPipes(new ValidationPipe()) //Don't need to use validation in controller
   app.use(session({

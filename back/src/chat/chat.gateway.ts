@@ -47,13 +47,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.channelManager.terminateSocket(client);
 		// todo save it in db to handle privConnection to user
 	}
-
-	@SubscribeMessage("session")
-	async sendSession(client: AuthenticatedSocket)
-	{
-		await this.authService.initializeSocket(client as AuthenticatedSocket);
-		await this.channelManager.joinChannels(client as AuthenticatedSocket);
-	}
 	
 	@SubscribeMessage('joinChannel')
 	async joinChannel(client: AuthenticatedSocket, data: JoinChannel)
