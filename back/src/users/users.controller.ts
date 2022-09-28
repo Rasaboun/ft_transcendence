@@ -45,7 +45,7 @@ export class UsersController {
     }
 
     @Get('isblocked')
-    isBlocked(@Body() dto: blockUserDto) {
+    isBlocked(@Query() dto: blockUserDto) {
         return this.usersService.isBlocked(dto.callerLogin, dto.targetLogin);
     }
 
@@ -57,27 +57,22 @@ export class UsersController {
     }
 
     @Get('status')
-    async getUserStatus(@Body('') dto: {login: string}): Promise<UserStatus> {
+    async getUserStatus(@Query() dto: {login: string}): Promise<UserStatus> {
         return await this.usersService.getUserStatus(dto.login);
     }
 
     @Get('photo')
-    async getUserPhoto(@Body('') dto: {login: string}): Promise<string> {
+    async getUserPhoto(@Query() dto: {login: string}): Promise<string> {
         return await this.usersService.getUserPhoto(dto.login);
     }
 
     @Get('username')
-    async getUserUsername(@Body('') dto: {login: string}): Promise<string> {
+    async getUserUsername(@Query() dto: {login: string}): Promise<string> {
         return await this.usersService.getUserUsername(dto.login);
     }
 
     @Get()
     findAll(): Promise<User[]> {
         return this.usersService.findAll();
-    }
-
-    @Delete(':login')
-    removeBylogin(@Param('login') login: string): Promise<void> {
-        return this.usersService.removeByIntraLogin(login);
     }
 }
