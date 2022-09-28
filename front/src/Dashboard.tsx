@@ -3,6 +3,7 @@ import axios from "axios";
 import "./output.css";
 import { Link } from "react-router-dom";
 import { Iuser } from "./Utils/type";
+import "./index.css"
 
 const url: string = "http://localhost:3002/users/";
 
@@ -69,11 +70,9 @@ function Tabulation() {
 export default function Dashboard() {
   return (
     <div id="Dashboard" className="flex-1 h-3/4">
-      <header className="bg-white shadow">
+      <header className="page-header shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl tracking-tight font-bold text-gray-900">
-            Dashboard
-          </h1>
+          <h1 className="page-title">Dashboard</h1>
         </div>
       </header>
       <main className="h-full">
