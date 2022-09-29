@@ -64,19 +64,19 @@ export default function LoginElem ()
 		localStorage.clear()
 	}, [])
 	return (
-		<div className="auth-container">
+		<div className="m-10">
 			<form className="auth-form" onSubmit={handleSubmit}>
 				<label className="auth-label">
 					UserName
-					<input className="auth-input" required name="username" type="text" value={authForm.username} onChange={handleChange}/>
+					<input className="bg-indigo-50 border border-indigo-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5" required name="username" type="text" value={authForm.username} onChange={handleChange}/>
 				</label>
 				<label className="auth-label">
 					Password
-					<input className="auth-input" required name="password" type="password" value={authForm.password} onChange={handleChange}/>
+					<input className="bg-indigo-50 border border-indigo-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5" required name="password" type="password" value={authForm.password} onChange={handleChange}/>
 				</label>
-				<div className="button-div">
-					<button type="submit" onClick={() => setButton(true)}> Log In</button>
-					<button type="submit" onClick={() => setButton(false)}> Sign IN</button>
+				<div className="my-5 flex justify-around">
+					<button className="focus:outline-none text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2" type="submit" onClick={() => setButton(true)}> Login</button>
+					<button className="focus:outline-none text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2" type="submit" onClick={() => setButton(false)}> Sign in</button>
 				</div>
 			</form>
 		</div>

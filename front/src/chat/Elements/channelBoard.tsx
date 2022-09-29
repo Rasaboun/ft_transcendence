@@ -129,49 +129,24 @@ export default function ChannelBoard({userState}:PropsT)
                         {`${storage.username} 👑`}
                         {
                             storage2?.mode === ChannelModes.Public &&
-                                <button onClick={handleSetInvite} style={{
-                                    height: "2vh",
-                                    width: "10vh",
-                                    backgroundColor: "#00ffff",
-                                    borderRadius: "20px"
-                                }} >
+                                <button onClick={handleSetInvite} className="focus:outline-none text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-2.5 py-2 mb-2" >
                                     invite
                                 </button>  
                         }
                         {
                             storage2?.mode === ChannelModes.Private &&
                                 <form onSubmit={handleSubmitInvite}>
-                                    <input style={{
-                                        border: "1px solid black",
-                                        marginRight: "15px",
-                                        color: "black",
-                                        padding: "5px"
-                                    }}
+                                    <input className="g-indigo-50 border border-indigo-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5"
                                     name="invite" type="text" value={form.invite} onChange={handleChange}/>
-                                    <button type="submit" style={{
-                                        height: "2vh",
-                                        width: "10vh",
-                                        backgroundColor: "#00ffff",
-                                        borderRadius: "20px"
-                                    }} >
+                                    <button type="submit" className="focus:outline-none text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-2.5 py-2 mb-2" >
                                         invite
                                     </button>
                                 </form>
                         }
                         <form onSubmit={handleSubmitPassword}>
-                            <input style={{
-                                border: "1px solid black",
-                                marginRight: "15px",
-                                color: "black",
-                                padding: "5px"
-                            }}
+                            <input className="bg-indigo-50 border border-indigo-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5"
                             name="password" type="text" value={form.password} onChange={handleChange}/>
-                            <button type="submit" style={{
-                                height: "2vh",
-                                width: "10vh",
-                                backgroundColor: "#00ffff",
-                                borderRadius: "20px"
-                            }} >
+                            <button type="submit" className="focus:outline-none text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-2.5 py-2 mb-2" >
                                 {storage2?.mode === ChannelModes.Public ?
                                 "set password" : "change password"}
                             </button>

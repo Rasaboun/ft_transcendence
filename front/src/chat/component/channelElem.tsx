@@ -205,10 +205,10 @@ export default function ChannelElem()
             (elem.type === MessageTypes.Message ?
             <Message key={index} 
                 className={elem.sender?.login ===  storage.login ?
-                    "message message-right" : "message message-left"}
+                    "message self-end bg-indigo-400" : "message self-end bg-indigo-800"}
                 message={elem} /> :
             <InviteMessage key={index} className={elem.sender?.login ===  storage.login ?
-                "message message-right" : "message message-left"}
+                "message self-end bg-indigo-400" : "message self-end bg-indigo-800"}
                 message={elem}/>)
     ))
 
@@ -253,8 +253,8 @@ export default function ChannelElem()
     return (
         <div className="chat">
             <ChannelBoard userState={userState}/>
-            <div className="chat-right">
-                <div className="h-96">
+            <div className="chat-right bg-indigo-50">
+                <div className="h-96 ">
                     <div className="message-container">
                         {messageElem}
                         <div ref={lastMessageRef}/>

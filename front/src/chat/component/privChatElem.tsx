@@ -9,6 +9,7 @@ import useLocalStorage from "../../hooks/localStoragehook";
 import PrivMessageInput from "./privMessageInput";
 import { SocketContext } from "../../Context/socketContext";
 import { getSession } from "../../Utils/utils";
+import "../../output.css";
 
 export default function PrivChatElem()
 {
@@ -75,8 +76,8 @@ export default function PrivChatElem()
 
    return (<div className="chat">
             <div className="chat-right">
-                <div className="h-96">
-                    <div className="message-container">
+                <div className="h-96 bg-indigo-100">
+                    <div className="">
                         {messageElem}
                     </div>
                 </div>
