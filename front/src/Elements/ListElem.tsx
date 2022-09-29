@@ -11,7 +11,7 @@ export default function ChatListElem({ children }: PropsT)
 {
 	return (
 		<ul>
-			<li className="relative rounded-md p-3 hover:bg-gray-100" >
+			<li className="relative p-3 hover:bg-indigo-100 rounded-lg" >
 					{children}
 			</li>
 		</ul>

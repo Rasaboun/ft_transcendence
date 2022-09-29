@@ -2,6 +2,7 @@ import { useState } from "react"
 import RadioFormElem from "../../Elements/radioFormElem"
 import { createChannel } from "../../Utils/socketManager"
 import { channelFormT, ChannelModes } from "../ChatUtils/chatType"
+import { buttonClass } from '../../Utils/utils';
 
 export default function ChannelFormElem()
 {
@@ -41,10 +42,7 @@ export default function ChannelFormElem()
     }
 	return (
 		<form className="channel-form" onSubmit={handleSubmit}>
-			<input name="name" style={{
-				border: "1px solid black",
-				marginRight: "15px"
-			}}
+			<input name="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5"
 			type="text" value={channelForm.name} onChange={handleChange}/>
 			{
 				channelMode !== ChannelModes.Password ?
@@ -57,17 +55,14 @@ export default function ChannelFormElem()
 						}))
 						setChannelMode(ChannelModes.Public)
 					}} 
-						className="button-action" >
+						className={buttonClass} >
 						unset pass
 					</button>
-					<input name="password" style={{
-					border: "1px solid black",
-					marginRight: "15px"
-				}}
+					<input name="password" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5"
 					type="text" value={channelForm.password} onChange={handleChange}/>
 				</div>
 			}
-			<button type="submit" className="button-action" >
+			<button type="submit" className={buttonClass} >
 				Create Channel
 			</button>
 		</form>

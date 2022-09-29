@@ -19,56 +19,7 @@ function classNames(...classes:any[]) {
 }
 
 function Channel() {
-	let [categorie] = useState({
-		People: [
-		{
-			id: 1,
-			title: 'Does drinking coffee make you smarter?',
-		},
-		{
-			id: 2,
-			title: "So you've bought coffee... now what?",
-		},
-		{
-			id: 3,
-			title: "So you've bought coffee... now what?",
-		},
-		{
-			id: 4,
-			title: "So you've bought coffee... now what?",
-		},
-		{
-			id: 5,
-			title: "So you've bought coffee... now what?",
-		},
-		{
-			id: 6,
-			title: "So you've bought coffee... now what?",
-		},
-		{
-			id: 7,
-			title: "So you've bought coffee... now what?",
-		},
-		{
-			id: 8,
-			title: "So you've bought coffee... now what?",
-		},
-		{
-			id: 9,
-			title: "So you've bought coffee... now what?",
-		},
-		],
-		Channel: [
-			{
-			id: 1,
-			title: 'Is tech making coffee better or worse?',
-			},
-			{
-			id: 2,
-			title: 'The most innovative things happening in coffee',
-			},
-		],
-	})
+	
 
 	let categoriesTab = ["Channels", "Private Chat"].map((category) => (
 
