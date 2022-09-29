@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, Param, ParseIntPipe, Post, Put, Query, Res, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 //import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
 
 import { User } from 'src/typeorm';
@@ -51,8 +51,9 @@ export class UsersController {
 
 
     @Get('profile')
-    async findOneBylogin(@Query() query: {login: string}) {
-        return await this.usersService.findOneByIntraLogin(query.login);
+    async findOneBylogin(@Query() query: {login: string}, @Res() res) {
+        const user = await this.usersService.findOneByIntraLogin(query.login);
+        return res.status(200).contentType('text/html').send(user);
     }
 
     @Get('status')

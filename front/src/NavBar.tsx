@@ -126,7 +126,7 @@ export default function NavBar() {
                       <div className="relative">
                       <img
                         className="h-8 w-8 rounded-full"
-                        src={profile}
+                        src={storage.image}
                         alt=""
                        
                       />

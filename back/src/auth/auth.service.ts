@@ -50,6 +50,7 @@ export class AuthService {
             user: {
                 login: user.intraLogin,
                 username: user.username,
+                image: user.photoUrl,
                 roomId: user.roomId,
             }
         }

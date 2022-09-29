@@ -7,12 +7,18 @@ import "./index.css"
 
 const url: string = "http://localhost:3002/users/";
 
+function sortUsers (a:Iuser, b:Iuser)
+{
+	if (b.victories != a.victories)
+		return (b.victories - a.victories)
+	return (a.defeats - b.defeats)
+}
 
 function TabElement(props:any) {
   return (
     <tr className="bg-white border-b w-full">
       <th scope="row" className="py-4 px-6 font-medium text-gray-900">
-        *
+        {props.rank}
       </th>
       <Link to={"/profile/" + props.user.intraLogin}>
     	<td className="py-4 px-6">{props.user.username}</td>
@@ -58,8 +64,8 @@ function Tabulation() {
           </tr>
         </thead>
         <tbody className=" w-full">
-        {users.map((user) => (
-						<TabElement key={user.id} user={user}/>            
+        {users.sort(sortUsers).map((user, idx) => (
+						<TabElement key={user.id} user={user} rank={idx + 1}/>            
           ))}
         </tbody>
       </table>

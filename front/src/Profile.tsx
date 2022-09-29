@@ -5,6 +5,7 @@ import profile from "./profile.png";
 import { useParams } from "react-router-dom";
 import { getParsedCommandLineOfConfigFile } from "typescript";
 import { Iuser } from "./Utils/type";
+import { getUserProfile } from "./Requests/users";
 
 const url: string = "http://localhost:3002/users/profile/";
 
@@ -41,17 +42,25 @@ export default function Profile() {
 	const { login } = useParams()
 	const [user, setUser] = React.useState<Iuser>();
 	const data = {login : login}
-	async function getProfile() {
-		await axios.get<Iuser>(url, {params : {login:login}}).then((response) => {
-			setUser(response.data);
-      console.log("Returned user", user);
-		});
-	}
+	// async function getProfile() {
+	// 	console.log("Loginr", login);
+	// 	await axios.get<Iuser>(url, {params : {login:login}}).then((response) => {
+	// 		setUser(response.data);
+    //   console.log("Returned user", user);
+	// 	});
+	// }
 
   useEffect(() => {
-    if (login )
+    if (login)
     {
-		  getProfile()
+		const getProfile = async () => {
+			const user = await axios.get<Iuser>(url, {params : {login:login}}).then((response) => {
+				return response.data;
+		  	
+			});
+			setUser(user);
+		}
+		getProfile()
     }
     console.log(user)
   }, []);

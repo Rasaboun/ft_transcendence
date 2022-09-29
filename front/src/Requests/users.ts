@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Iuser } from "../Utils/type";
 
 export const backUrl = "http://localhost:3002"; 
 
@@ -11,9 +12,11 @@ export enum UserStatus {
 export async function getUserProfile(login :string)
 {
     const url: string = backUrl + "/users/profile";
-    await axios.get(url, {params: {login}}).then(res => {
-        return res;
+    let user;
+    await axios.get<Iuser>(url, {params: {login}}).then(res => {
+        user = res.data;
     }).catch(e => console.log)
+    return user;
 }
 
 export async function getUsername(login: string)

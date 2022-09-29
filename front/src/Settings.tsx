@@ -3,23 +3,53 @@ import useLocalStorage from "./hooks/localStoragehook";
 import "./output.css";
 import profile from "./profile.png";
 import "./index.css"
+import { setUsername, setUserPhoto } from "./Requests/users";
 
+type settingsForm = {
+	username: string,
+	image: string
+}
+
+const url: string = "http://localhost:3002/users/";
 function TabSettings() {
-	const { storage } = useLocalStorage("user")
+	const { storage, setStorage } = useLocalStorage("user")
+	const defaultValue:settingsForm = {username : storage.username, image: storage.image}
 	const [editable, setEditable] = useState(false)
-	const [form, setForm] = useState({
-		username: storage.username,
-	})
-
+	const [form, setForm] = useState<settingsForm>(defaultValue)
 	const toggle = () => {
 		setEditable((prevEditable) => !prevEditable)
 	}
 
 	const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+		let img:any
+		if (e.target.files && e.target.files[0]) {
+			img = e.target.files[0];
+			if (img.size >= 5242880)
+			{
+				console.log("image larger than 5MB")
+				return 
+			}
+		}
 		setForm((prevForm) => ({
 			...prevForm,
-			[e.target.name] : e.target.value
+			[e.target.name] : img ? URL.createObjectURL(img) :e.target.value
 		}))
+	}
+
+	const submitFormData = () => {
+		if (form.username !== defaultValue.username)
+		{
+			console.log(form.username)
+			setUsername(storage.login, form.username)
+			setStorage("user", {...storage, username: form.username})
+		}
+		if (form.image !== defaultValue.image)
+		{
+			console.log(form.image)
+
+			setUserPhoto(storage.login, form.image)
+			setStorage("user", {...storage, image: form.image})
+		}
 	}
 
 	return (
@@ -41,6 +71,7 @@ function TabSettings() {
 				</div>
 				<div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
 				<dt className="text-sm font-medium text-gray-500">Login</dt>
+				
 				<dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
 					{storage.login}
 				</dd>
@@ -68,30 +99,37 @@ function TabSettings() {
 						<path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
 					</svg>
 					<p>Edit</p>
-					</button>{" "}
+					</button>
 				</dd>
 				</div>
 				<div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
 				<dt className="text-sm font-medium text-gray-500">Avatar</dt>
 				<dd className="flex mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 justify-between">
-					<img className="h-10 w-10" src={profile} alt="" />
-					<button
-					type="button"
-					className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
-					>
-					<svg
-						className="w-4 h-4 fill-current mr-2"
-						viewBox="0 0 20 20"
-					>
-						<path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
-					</svg>
-					<p>Edit</p>
-					</button>
+					<img className="h-10 w-10" src={form.image} alt="" />
+					<input className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
+						type="file"
+						name="image"
+						accept="image/*"
+						onChange={handleChange}>
+					</input>
 				</dd>
 				</div>
 			</dl>
+				{
+					JSON.stringify(form) !== JSON.stringify(defaultValue) &&
+						<button
+							type="button"
+							className="inline-flex items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 focus:outline-none"
+							onClick={() => submitFormData()}
+							>
+								<p>save</p>
+						</button>
+				}
+				
 			</div>
+			
 		</div>
+		
 		</div>
 	</div>
 	);

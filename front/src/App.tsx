@@ -19,6 +19,7 @@ import Profile from "./Profile";
 import { appSocketRoutine, getChatSocket, getGameSocket, initiateSocket } from "./Utils/socketManager";
 import { getToken } from "./Utils/utils";
 import ErrorAlert from "./Elements/error";
+import LoginNavBar from "./LoginNavBar";
 
 const token = localStorage.getItem("token");
 if (token) {
@@ -71,7 +72,10 @@ export default function App()
 				alert.isShow &&
 					<ErrorAlert errorMsg={alert.msg}/>
 			}
-			<NavBar />
+			{storage ? 
+				<NavBar /> :
+				<LoginNavBar/>
+			}
 			<Routes>
 				<Route element={<PrivateRoute/>}>
 					<Route path="/" element={<Home/> }/>
@@ -91,7 +95,7 @@ export default function App()
 					<Route path="Settings" element={<Settings/>}/>
 					<Route path="/Profile/:login" element={<Profile/>}/>
 				</Route>
-				<Route path="/Login" element={<Login/> }/>
+					<Route path="/Login" element={<Login/> }/>
 				
 			</Routes>
 			<Footer/>

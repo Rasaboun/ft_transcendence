@@ -8,19 +8,20 @@ type PropsT = {
 	setChoice: (choice:any) => void
 }
 
-export default function RadioFormElem({ choice, setChoice, options }:PropsT)
+export default function RadioFormElem(props :PropsT)
 {
-	console.log(options)
     const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-		setChoice(parseFloat(e.target.value))
+		props.setChoice(parseFloat(e.target.value))
     }
 
-	const OptionsElem = options.map((elem, idx) => (
+	const OptionsElem = props.options.map((elem, idx) => (
 		<label>
-			<input name="mode"
+			<input
+			key={idx} 
+				name="mode"
 				type="radio" 
 				value={idx}
-				checked={choice === idx}
+				checked={props.choice === idx}
 				onChange={handleChange}
 				/>
 			{elem}

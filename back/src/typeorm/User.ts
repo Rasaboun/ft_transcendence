@@ -14,7 +14,7 @@ export class User {
     username: string;
 
     @Column({
-        default: "https://imgur.com/a/wNL4KA0",
+        default: "https://cdn.pixabay.com/photo/2016/10/18/18/19/question-mark-1750942_960_720.png",
     })
     photoUrl: string;
     
