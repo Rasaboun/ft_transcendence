@@ -26,6 +26,7 @@ export default function PrivChatElem()
     const [messagesList, setMessagesList] = useState<messageT[]>()
 
     const handleSubmitPrivMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
+        console.log("sending message content of form : ", form)
         sendPrivMessage(storage?.intraLogin, form.message)
 		setMessagesList((oldMessagesList) => (
 			oldMessagesList === undefined ? [] :
@@ -42,9 +43,13 @@ export default function PrivChatElem()
 
     const handlePrivMessList = (msg:messageT[]) => {
         // fct appelee uniquement pour remplir les mess initialement 
-        setMessagesList((oldMessagesList) => (
-            [...msg]
-        ))
+        console.log("Displaying msg : ", msg)
+        if (msg.length > 0)
+        {
+            setMessagesList(() => (
+                [...msg]
+            ))
+        }
     }
 
 	const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {

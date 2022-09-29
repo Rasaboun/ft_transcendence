@@ -1,6 +1,6 @@
 import {Injectable, NotFoundException} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { PrivChat } from 'src/typeorm';
 import { newPrivatChat, PrivChatNewMessageDto } from '../types/privChat.types';
@@ -11,8 +11,9 @@ import { log } from 'console';
 export class PrivChatService {
 	constructor(
 		@InjectRepository(PrivChat)
-		private chatRepository: Repository<PrivChat>,
-		private usersService: UsersService,
+		private readonly chatRepository: Repository<PrivChat>,
+		private readonly usersService: UsersService,
+		private dataSource: DataSource,
 	) {}
 
 	async findAll() : Promise<PrivChat[]> {
@@ -32,18 +33,22 @@ export class PrivChatService {
 		return retVal;
 	}
 
-	async findOneBySenderReciever(userIdFirstSender: string, userIdFirstReciever: string)
+	findOneBySenderReciever(userIdFirstSender: string, userIdFirstReciever: string): Promise<PrivChat>
 	{
 		// trying to get it in the right order : if not just returns the natural undefined from findOneBy
 		// find by firstName and lastName
 		try {
-		var retVal: PrivChat = await this.chatRepository.findOneBy(
-			{UserIdFirstSender: userIdFirstSender,
-				UserIdFirstReciever: userIdFirstReciever,});
+		var retVal: Promise<PrivChat> = this.chatRepository.findOne({
+				where: [
+					{UserIdFirstSender: userIdFirstSender},
+						{UserIdFirstReciever: userIdFirstReciever},
+				]});
 		if (!retVal)
-			retVal = await this.chatRepository.findOneBy(
+			retVal = this.chatRepository.findOne( {
+				where: [
 					{UserIdFirstSender: userIdFirstReciever,
-						UserIdFirstReciever: userIdFirstSender,});
+						UserIdFirstReciever: userIdFirstSender,}
+				]});
 		}
 		catch (error)
 		{
@@ -100,7 +105,6 @@ export class PrivChatService {
 	}
 // chat exists with name and user
 // if chat does'nt exist does the user exist
-
 
 blockUser(id: number)//: Promise<User>
 {

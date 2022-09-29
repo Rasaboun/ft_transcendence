@@ -43,6 +43,7 @@ export class PrivChatManager
 		try {
 			//check in list
 			// check in bsd
+			var e: any;
 			this.onlineChats.forEach(element => {
 				if ((element._recieverId == recieverId && element._senderId == senderId) ||
 					element._senderId == recieverId && element._senderId == recieverId)	
@@ -50,10 +51,10 @@ export class PrivChatManager
 					return element;
 				}	
 			});
-			if (this.privChatService.findOneBySenderReciever(senderId, recieverId) != undefined)
+			if ((e = await this.privChatService.findOneBySenderReciever(senderId, recieverId)) != undefined)
 			{
+				console.log("return of findOneBySenderReciever : " + e)
 				// add the chat in the list if it is already registered
-				var e: any = await this.privChatService.findOneBySenderReciever(senderId, recieverId)
 				var s: PrivChat = new PrivChat(this.server, e.userIdFirstSender, e.userIdFirstReciever, e.mess);
 				this.onlineChats.push(s)
 				return s;
@@ -123,7 +124,7 @@ export class PrivChatManager
 	{
 		try {
 			var recieverId: number = (await this.userService.findOneByIntraLogin(intraLogin)).id;
-			this.server.to(client.roomId).emit("privMessageList", (await this.loadMessages(client.login, intraLogin)).toString())
+			this.server.to(client.roomId).emit("privMessageList", (await this.loadMessages(client.login, intraLogin)))
 		}
 		catch (error)
 		{

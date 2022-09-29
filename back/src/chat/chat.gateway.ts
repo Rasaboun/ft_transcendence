@@ -253,6 +253,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async privChatSendMessage(client :AuthenticatedSocket, recieverIntraLogin: string, message: string)
 	{
 		try {
+			console.log(" privChatSendMessage")
 			var userReciever: User = (await this.userService.findOneByIntraLogin(recieverIntraLogin));
 			// todo ERREUR faux ne peux pas fonctionnner
 			var recieverRoom: string = userReciever.roomId

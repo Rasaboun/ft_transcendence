@@ -2,7 +2,7 @@ import { Message } from 'src/chat/types/channel.type';
 import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
 
 @Entity()
-export class PrivChat extends BaseEntity {
+export class PrivChat {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
