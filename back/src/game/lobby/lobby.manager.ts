@@ -5,6 +5,7 @@ import { WebSocketServer } from "@nestjs/websockets";
 import { Server } from "socket.io";
 import { AuthService } from "src/auth/auth.service";
 import { AuthenticatedSocket } from 'src/auth/types/auth.type';
+import { UsersService } from "src/users/users.service";
 import { GameInstance } from "../game.instance";
 import { GameMode, GameOptions, GameState, Player } from "../types/game.type";
 import { Lobby } from "./lobby";
@@ -25,6 +26,8 @@ export class LobbyManager
     constructor(
         @Inject(forwardRef(() => AuthService))
         private authService: AuthService,
+        @Inject(forwardRef(() => UsersService))
+        private userService: UsersService,
     ) { }
 
     public initializeSocket(client: AuthenticatedSocket): void
@@ -179,6 +182,11 @@ export class LobbyManager
         });
         return res;
         
+    }
+
+    public async getPlayerUsername(login: string)
+    {
+        return await this.userService.getUserUsername(login);
     }
 
 }

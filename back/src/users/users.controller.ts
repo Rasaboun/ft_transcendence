@@ -36,6 +36,7 @@ export class UsersController {
 
     @Put('photo')
     setUserPhoto(@Body() dto: updatePhotoDto) {
+        console.log(`${dto.login} photo set to: ${dto.photoUrl}`);
         return this.usersService.setUserPhoto(dto.login, dto.photoUrl);
     }
 
@@ -63,7 +64,9 @@ export class UsersController {
 
     @Get('photo')
     async getUserPhoto(@Query() dto: {login: string}): Promise<string> {
-        return await this.usersService.getUserPhoto(dto.login);
+        const photo = await this.usersService.getUserPhoto(dto.login);
+        console.log(`${dto.login} photo : ${photo}`);
+        return photo;
     }
 
     @Get('username')

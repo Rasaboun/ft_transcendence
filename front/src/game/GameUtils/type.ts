@@ -41,7 +41,7 @@ export interface GameData{
   players: Player[],
   ball: Ball,
   state: GameState,
-  winnerId: string
+  winnerUsername: string
 }
 
 export interface GameSettings {

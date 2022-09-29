@@ -123,6 +123,13 @@ export class Lobby
         })
     }
 
+    public async gameOver(winnerLogin: string)
+    {
+        const winnerUsername = await this.lobbyManager.getPlayerUsername(winnerLogin);
+        this.sendToUsers('gameOver', winnerUsername);
+        this.destroy();
+    }
+
     public playerMoved(playerLogin: string, newPos: number)
     {
         this.gameInstance.updatePlayer(playerLogin, newPos);

@@ -40,8 +40,7 @@ export class GameInstance
 		if (this.gameData.players[winner].score === this.settings.scoreToWin)
         {
             this.gameData.state = GameState.Stopped;
-			this.lobby.sendToUsers('gameOver', this.gameData.players[winner].id);
-			this.lobby.destroy();
+			this.lobby.gameOver(this.gameData.players[winner].id);
         }
     }
 

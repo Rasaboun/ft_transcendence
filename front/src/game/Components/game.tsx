@@ -41,7 +41,7 @@ export default function Game()
 			delta: {x: 0, y: 0},
 			radius: 10,
 		},
-		winnerId: "",
+		winnerUsername: "",
 		state: GameState.Waiting,
 	});
 
@@ -95,7 +95,7 @@ export default function Game()
 				radius: 10,
 			},
 			state: GameState.Waiting,
-			winnerId: "",
+			winnerUsername: "",
 		})
 		setGameSettings({
 			scoreToWin: 5,
@@ -194,7 +194,7 @@ export default function Game()
 		}));
 	}
 
-	function handleGameOver(winnerId: string)
+	function handleGameOver(winnerUsername: string)
 	{
 		setGameData((oldGameData) => ({
 			...oldGameData,
@@ -202,7 +202,7 @@ export default function Game()
 		}))
 		setGameData((oldGameData) => ({
 			...oldGameData,
-			winnerId: winnerId
+			winnerUsername: winnerUsername
 		}))
 		setStorage("gameState", GameState.Stopped)
 	}
@@ -361,9 +361,9 @@ export default function Game()
 			{
 				parseInt(storage2) === GameState.Stopped && clearCanvas() &&
 				<div className="game-display">
-					{(storage.login === gameData.winnerId) ? "YOU WON" : 
+					{(storage.login === gameData.winnerUsername) ? "YOU WON" : 
 					(((gameData.players[0].id === storage.login || gameData.players[1].id === storage.login)) ?
-						"YOU LOST" : `${gameData.winnerId} WON`)}
+						"YOU LOST" : `${gameData.winnerUsername} WON`)}
 					{}
 					</div>
 			}
