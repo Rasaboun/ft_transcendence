@@ -19,28 +19,34 @@ export async function getUserProfile(login :string)
     return user;
 }
 
-export async function getUsername(login: string)
+export async function getUsername(login: string): Promise<string>
 {
+    let username: string = "";
     const url: string = backUrl + "/users/username";
-    await axios.get(url, {params: {login}}).then(res => {
-        return res;
+    await axios.get<string>(url, {params: {login}}).then(res => {
+       username = res.data;
     }).catch(e => console.log)
+    return username;
 }
 
 export async function getUserStatus(login: string)
 {
+    let status: UserStatus = UserStatus.offline;
     const url: string = backUrl + "/users/status";
-    await axios.get(url, {params: {login}}).then(res => {
-        return res;
+    await axios.get<UserStatus>(url, {params: {login}}).then(res => {
+        status = res.data;
     }).catch(e => console.log)
+    return status;
 }
 
 export async function getUserPhoto(login: string)
 {
+    let photoUrl: string = "";
     const url: string = backUrl + "/users/photo";
-    await axios.get(url, {params: {login}}).then(res => {
-        return res;
+    await axios.get<string>(url, {params: {login}}).then(res => {
+        photoUrl = res.data;
     }).catch(e => console.log)
+    return photoUrl;
 }
 
 export async function setUserStatus(login: string, status: UserStatus)
