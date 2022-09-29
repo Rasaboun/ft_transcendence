@@ -9,10 +9,10 @@ export enum UserStatus {
     ingame,
 }
 
-export async function getUserProfile(login :string)
+export async function getUserProfile(login :string): Promise<Iuser | null>
 {
     const url: string = backUrl + "/users/profile";
-    let user;
+    let user: Iuser | null = null;
     await axios.get<Iuser>(url, {params: {login}}).then(res => {
         user = res.data;
     }).catch(e => console.log)

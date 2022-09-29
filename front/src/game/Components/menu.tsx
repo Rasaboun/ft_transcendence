@@ -85,7 +85,6 @@ export default function Menu()
         return (() => Menucleaner(handleAvailableLobbies, handleGoalScored))
     }, [])
 
-    console.log(socket)
     const lobbiesElements:any = availableLobbies?.map((elem) => 
     <LobbyItem key={elem.lobbyId} 
         lobbyId={elem.lobbyId} 
