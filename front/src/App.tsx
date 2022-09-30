@@ -8,6 +8,7 @@ import { ChatContextProvider } from "./chat/ChatContext/chatContext";
 import { SocketContext } from "./Context/socketContext";
 import Dashboard from "./Dashboard";
 import Footer from "./Footer";
+import StarWars from "./StarWars";
 import { GameContextProvider } from "./game/GameContext/gameContext";
 import Home from "./Home";
 import useLocalStorage from "./hooks/localStoragehook";
@@ -80,6 +81,7 @@ export default function App()
 				<Route element={<PrivateRoute/>}>
 					<Route path="/" element={<Home/> }/>
 					<Route path="Dashboard" element={<Dashboard/> }/>
+					<Route path="About" element={<StarWars/> }/>
 					<Route path="Chat/*" element=
 					{
 						<ChatContextProvider>
