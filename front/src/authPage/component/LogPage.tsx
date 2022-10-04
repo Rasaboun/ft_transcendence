@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { getChatSocket, getGameSocket, initiateSocket } from "../../Utils/socketManager";
 import { SocketContext } from "../../Context/socketContext";
 import { setAuthToken } from "../authUtils/AuthUtils";
+import { backUrl } from "../../Requests/users";
 
 export default function LoginElem ()
 {
@@ -26,27 +27,31 @@ export default function LoginElem ()
 		if (authForm.username !== "" && authForm.password != "")
 		{
 			const url = button ? 'http://localhost:3002/auth/login' :
-								'http://localhost:3002/auth/signup'
+								'http://localhost:3002/auth/signup';
+			console.log("sending req");
+			axios.get(backUrl + "/auth/callback").then(res => {
+				
+			})
 
-			axios.post(url, { ...authForm }).then(res => {
-				if (button)
-				{
-					if (res.data.user)
-					{
-						console.log(res.data.user)
-						setStorage("token", res.data.access_token)
-						setStorage("user", res.data.user);
+			// axios.post(url, { ...authForm }).then(res => {
+			// 	if (button)
+			// 	{
+			// 		if (res.data.user)
+			// 		{
+			// 			console.log(res.data.user)
+			// 			setStorage("token", res.data.access_token)
+			// 			setStorage("user", res.data.user);
 
-						initiateSocket("http://localhost:8002")
+			// 			initiateSocket("http://localhost:8002")
 						
-						setChatSocket(getChatSocket())
-						setGameSocket(getGameSocket())
-						setAuthToken(res.data.access_token);
+			// 			setChatSocket(getChatSocket())
+			// 			setGameSocket(getGameSocket())
+			// 			setAuthToken(res.data.access_token);
 
-					}	
-					navigate("/")
-				}
-			  }).catch(e => console.log)
+			// 		}	
+			// 		navigate("/")
+			// 	}
+			//   }).catch(e => console.log)
 		}
 	}
 
