@@ -54,6 +54,7 @@ export default function Profile() {
     if (login)
     {
 		const getProfile = async () => {
+      console.log("In getProfile");
 			const user = await axios.get<Iuser>(url, {params : {login:login}}).then((response) => {
 				return response.data;
 		  	

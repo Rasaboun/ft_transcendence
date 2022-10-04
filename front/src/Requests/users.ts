@@ -65,12 +65,19 @@ export async function setUsername(login: string, username: string)
     }).catch(e => console.log)
 }
 
-export async function setUserPhoto(login: string, photoUrl: string)
+export async function setUserPhoto(login: string, photo: File)
 {
+    console.log("Sending request, photo", photo);
+    const data = new FormData();
+    data.append('photo', photo);
+    data.append('login', login);
     const url: string = backUrl + "/users/photo";
-    await axios.put(url, {login, photoUrl}).then(res => {
-
+    let newPhotoUrl;
+    await axios.put(url, data).then(res => {
+        console.log("returned photo", res.data);
+        newPhotoUrl = res.data
     }).catch(e => console.log)
+    return newPhotoUrl;
 }
 
 

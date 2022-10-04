@@ -126,7 +126,7 @@ export default function NavBar() {
                       <div className="relative">
                       <img
                         className="h-8 w-8 rounded-full"
-                        src={storage.image}
+                        src={"/mnt/nfs/homes/bditte/ft_transcendance/back/uploads/Payet--8f89.jpg"}
                         alt=""
                        
                       />

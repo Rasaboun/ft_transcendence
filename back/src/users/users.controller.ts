@@ -1,10 +1,22 @@
-import { Body, Controller, Delete, Get, Header, Param, ParseIntPipe, Post, Put, Query, Res, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, Param, ParseIntPipe, Post, Put, Query, Res, UploadedFile, UseFilters, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { extname } from 'path'
 //import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
-
+import { diskStorage } from 'multer'
 import { User } from 'src/typeorm';
 import { blockUserDto, createUserDto, updatePhotoDto, updateStatusDto, updateUsernameDto } from './dto/users.dto';
 import { UserStatus } from './type/users.type';
 import { UsersService } from './users.service';
+
+export const editFileName = (req, file, callback) => {
+    const name = file.originalname.split('.')[0];
+    const fileExtName = extname(file.originalname);
+    const randomName = Array(4)
+        .fill(null)
+        .map(() => Math.round(Math.random() * 16).toString(16))
+        .join('');
+    callback(null, `${name}--${randomName}${fileExtName}`);
+}
 
 //@UseGuards(AuthenticatedGuard)
 //@UseFilters(AuthFilter)
@@ -35,9 +47,22 @@ export class UsersController {
     }
 
     @Put('photo')
-    setUserPhoto(@Body() dto: updatePhotoDto) {
-        console.log(`${dto.login} photo set to: ${dto.photoUrl}`);
-        return this.usersService.setUserPhoto(dto.login, dto.photoUrl);
+    @UseInterceptors(
+        FileInterceptor('photo', {
+            storage: diskStorage({
+                destination: './uploads',
+                filename: editFileName,
+            })
+        }))
+    setUserPhoto(@UploadedFile() photo, @Body() dto: {login: string}) {
+        const response = {
+            originalname: photo.originalname,
+            filename: photo.filename,
+        }
+        console.log(`Body`, dto);
+        const newPhotoUrl = process.env.UPLOAD_PATH + photo.filename;
+        this.usersService.setUserPhoto(dto.login, newPhotoUrl);
+        return newPhotoUrl;
     }
 
     @Put('username')
@@ -63,10 +88,10 @@ export class UsersController {
     }
 
     @Get('photo')
-    async getUserPhoto(@Query() dto: {login: string}): Promise<string> {
-        const photo = await this.usersService.getUserPhoto(dto.login);
-        console.log(`${dto.login} photo : ${photo}`);
-        return photo;
+    async getUserPhoto(@Query() dto: {login: string}, @Res() res): Promise<string> {
+        const photoUrl = await this.usersService.getUserPhoto(dto.login);
+        console.log(`${dto.login} photo : ${photoUrl}`);
+        return photoUrl;//res.sendFile(photo, {root: process.env.UPLOAD_PATH});
     }
 
     @Get('username')

@@ -7,7 +7,7 @@ import { setUsername, setUserPhoto } from "./Requests/users";
 
 type settingsForm = {
 	username: string,
-	image: string
+	image: File,
 }
 
 const url: string = "http://localhost:3002/users/";
@@ -32,11 +32,11 @@ function TabSettings() {
 		}
 		setForm((prevForm) => ({
 			...prevForm,
-			[e.target.name] : img ? URL.createObjectURL(img) :e.target.value
+			[e.target.name] : img,
 		}))
 	}
 
-	const submitFormData = () => {
+	const submitFormData = async () => {
 		if (form.username !== defaultValue.username)
 		{
 			console.log(form.username)
@@ -47,8 +47,9 @@ function TabSettings() {
 		{
 			console.log(form.image)
 
-			setUserPhoto(storage.login, form.image)
-			setStorage("user", {...storage, image: form.image})
+			const photoUrl = await setUserPhoto(storage.login, form.image)
+			console.log("new photoUrl", photoUrl);
+			setStorage("user", {...storage, image: photoUrl})
 		}
 	}
 
@@ -105,7 +106,7 @@ function TabSettings() {
 				<div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
 				<dt className="text-sm font-medium text-gray-500">Avatar</dt>
 				<dd className="flex mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 justify-between">
-					<img className="h-10 w-10" src={form.image} alt="" />
+					{/* <img className="h-10 w-10" src={form.image.} alt="" /> */}
 					<input className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
 						type="file"
 						name="image"
