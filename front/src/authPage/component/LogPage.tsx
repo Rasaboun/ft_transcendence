@@ -29,9 +29,11 @@ export default function LoginElem ()
 			const url = button ? 'http://localhost:3002/auth/login' :
 								'http://localhost:3002/auth/signup';
 			console.log("sending req");
-			axios.get(backUrl + "/auth/callback").then(res => {
+			window.open("http://localhost:3002/auth/login", "_self");
+			// axios.get(backUrl + "/auth/login").then(res => {
+			// 	console.log(res);
 				
-			})
+			// }).catch((e) => console.log("error", e));
 
 			// axios.post(url, { ...authForm }).then(res => {
 			// 	if (button)

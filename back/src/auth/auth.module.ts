@@ -7,6 +7,7 @@ import { UsersModule } from 'src/users/users.module';
 import { UsersService } from 'src/users/users.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { IntraGuard } from './guards/intra.guard';
 import { IntraStrategy } from './stategy/intra.strategy';
 import { LocalStrategy } from './stategy/local.strategy';
 @Module({
@@ -20,7 +21,7 @@ import { LocalStrategy } from './stategy/local.strategy';
     UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, IntraStrategy],
+  providers: [AuthService, LocalStrategy, IntraStrategy, IntraGuard],
   exports: [AuthService],
 })
 export class AuthModule {}

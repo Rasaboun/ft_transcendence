@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Query, Redirect, Request, Res, UseGuards, ConsoleLogger, UseFilters, Body, Req, Session } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
+import { IntraGuard } from './guards/intra.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { IntraStrategy } from './stategy/intra.strategy';
 // import { IntraAuthGuard } from './guards/intra.guard';
 // import { JwtAuthGuard } from './guards/jwt-auth.guard';
 // import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -28,12 +28,18 @@ export class AuthController {
         }
         catch (e){ throw e }
     }
-
-    @UseGuards(IntraStrategy)
-    @Get('callback')
+    @Get('login')
+    @UseGuards(IntraGuard)
     async login(@Request() req)
     {
         console.log("Inside login");
+    }
+
+    @UseGuards(IntraGuard)
+    @Get('callback')
+    async register(@Request() req)
+    {
+        console.log("Inside callback");
         //return this.authService.login(req.user);
     }
 
