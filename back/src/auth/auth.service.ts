@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthenticatedSocket, TokenPayload } from 'src/auth/types/auth.type';
+import { createUserDto } from 'src/users/dto/createUser.dto';
 import { UsersService } from 'src/users/users.service';
 import { v4 } from 'uuid';
 
@@ -12,30 +13,15 @@ export class AuthService {
                 private readonly jwtService: JwtService,
                 ) {}
 
-    async validateUser(details) {
-        const user = await this.userService.findOneByIntraLogin(details.intraLogin);
+    async validateUser(intraLogin: string) {
+        const user = await this.userService.findOneByIntraLogin(intraLogin);
 
-        if (user && user.password == details.password)
-        {
-            return user
-        }
-        return (null);
+        return user;
     }
 
-    async signup(dto: {username: string, password: string}) {
-        if (await this.userService.findOneByIntraLogin(dto.username))
-        {
-            throw new UnauthorizedException("User already exists");
-        }
-        dto = {
-            ...dto,
-        }
-        await this.userService.createUser({
-                            intraLogin: dto.username,
-                            roomId: v4(),
-                            ...dto
-                        })
-        return true;
+    async signup(dto: createUserDto) {
+
+        return await this.userService.createUser(dto);
     }
 
     async login(dto: any)
@@ -61,7 +47,8 @@ export class AuthService {
         const token = client.handshake.auth.token
         const tokenData: TokenPayload = this.jwtService.decode(token) as TokenPayload;
 
-        
+        if (!tokenData)
+            return ;
         client.login = tokenData.login;
         client.roomId = tokenData.roomId;
         client.lobby = null;

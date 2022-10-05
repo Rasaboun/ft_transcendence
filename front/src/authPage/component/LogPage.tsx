@@ -8,6 +8,7 @@ import { getChatSocket, getGameSocket, initiateSocket } from "../../Utils/socket
 import { SocketContext } from "../../Context/socketContext";
 import { setAuthToken } from "../authUtils/AuthUtils";
 import { backUrl } from "../../Requests/users";
+import Cookies from "js-cookie";
 
 export default function LoginElem ()
 {
@@ -29,11 +30,11 @@ export default function LoginElem ()
 			const url = button ? 'http://localhost:3002/auth/login' :
 								'http://localhost:3002/auth/signup';
 			console.log("sending req");
-			window.open("http://localhost:3002/auth/login", "_self");
 			// axios.get(backUrl + "/auth/login").then(res => {
-			// 	console.log(res);
+			// 	console.log("Res",res.data);
 				
 			// }).catch((e) => console.log("error", e));
+			window.open("http://localhost:3002/auth/login", "_self"); 
 
 			// axios.post(url, { ...authForm }).then(res => {
 			// 	if (button)
@@ -48,7 +49,6 @@ export default function LoginElem ()
 						
 			// 			setChatSocket(getChatSocket())
 			// 			setGameSocket(getGameSocket())
-			// 			setAuthToken(res.data.access_token);
 
 			// 		}	
 			// 		navigate("/")
@@ -69,6 +69,7 @@ export default function LoginElem ()
 		chatSocket?.close()
 		gameSocket?.close()
 		localStorage.clear()
+		//Cookies.remove("token");
 	}, [])
 	return (
 		<div className="m-10">

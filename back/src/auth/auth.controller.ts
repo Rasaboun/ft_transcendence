@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Query, Redirect, Request, Res, UseGuards, ConsoleLogger, UseFilters, Body, Req, Session } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { IntraGuard } from './guards/intra.guard';
@@ -10,7 +11,8 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService) {}
+    constructor(private authService: AuthService,
+                private jwtService: JwtService) {}
    
 
     @Get('logout')
@@ -37,10 +39,22 @@ export class AuthController {
 
     @UseGuards(IntraGuard)
     @Get('callback')
-    async register(@Request() req)
+    async register(@Request() req, @Res() res)
     {
+        const user = req.user;
+        const payload = {
+            login: user.intraLogin,
+            username: user.username,
+            image: user.photoUrl,
+            roomId: user.roomId,
+        }
         console.log("Inside callback");
+          
+        const jwtToken = this.jwtService.sign(payload);
         //return this.authService.login(req.user);
+        res.cookie('token', jwtToken);
+        res.redirect('http://localhost:3000/');
+
     }
 
 }

@@ -1,7 +1,38 @@
+import Cookies from "js-cookie";
 import React from "react";
+import useLocalStorage from "./hooks/localStoragehook";
 import "./output.css";
+import jwt_decode from 'jwt-decode'
+import { setAuthToken } from "./authPage/authUtils/AuthUtils";
+
+export type userType = {
+  username: string,
+  login: string,
+  image: string,
+}
 
 export default function Home() {
+  
+	const {setStorage} = useLocalStorage();
+  const { storage } = useLocalStorage("user");
+
+  if (!storage)
+  {
+    const token = Cookies.get("token");
+    if (token)
+    {
+        const userData: userType = jwt_decode(token);
+        console.log("UserData", userData);
+        setStorage("user", {
+          login: userData.login,
+          username: userData.username,
+          image: userData.image,
+      });
+        setStorage("token", token);
+        setAuthToken(token);
+    }
+  }
+
   return (
     <div id="Home" className="flex-1">
       <header className="page-header shadow">

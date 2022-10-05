@@ -7,6 +7,7 @@ import { Routes, Route, Link, useLocation } from "react-router-dom";
 import logo from './42-logo.png';
 import profile from './profile.png';
 import useLocalStorage from './hooks/localStoragehook';
+import Cookies from 'js-cookie';
 
 let navigation = [
   { name: 'Dashboard', href: '#', current: false},
@@ -181,7 +182,7 @@ export default function NavBar() {
                           <a
                             href="/login"
                             className={classNames(active ? 'bg-indigo-300' : '', 'block px-4 py-2 text-sm text-white')}
-                            onClick={() => localStorage.clear()}
+                            onClick={() => {localStorage.clear(); Cookies.remove("token")}}
                           >
                             Sign out
                           </a>

@@ -18,7 +18,7 @@ export class ChannelManager
         @Inject(forwardRef(() => ChannelsService))
         private channelsService: ChannelsService,
         @Inject(forwardRef(() => UsersService))
-        private userService: UsersService,)
+        private userService: UsersService)
     {
     }
 
@@ -102,6 +102,7 @@ export class ChannelManager
                 throw new ForbiddenException(`You are banned from this channel for ${Math.trunc(timeBanned)} seconds`);
 
             }
+            //check password
             if ((await this.channelsService.isClient(channel.id, client.login)))
             {
                 client.join(channel.id);
