@@ -5,6 +5,7 @@ import { User } from 'src/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { UserStatus } from './type/users.type';
+import { PhotoService } from './photo/photo.service';
 
 
 @Injectable()
@@ -13,8 +14,7 @@ export class UsersService {
     constructor(
         @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private dataSource: DataSource,
-    private readonly configService: ConfigService
+    private readonly photoService: PhotoService,
     ) { }
 
     async blockUser(callerLogin: string, targetLogin: string) {
@@ -94,6 +94,7 @@ export class UsersService {
         }
 
         const newUser = this.userRepository.create(userDto);
+        console.log("New user", newUser);
         return await this.userRepository.save(newUser);
     }
     
@@ -144,13 +145,16 @@ export class UsersService {
         return user.status;
     }
 
-    async setUserPhoto(login: string, newPhotoUrl: string)
+    async setUserPhoto(login: string, imageBuffer: Buffer, filename: string)
     {
         const user = await this.findOneByIntraLogin(login);
+
         if (!user)
             return ;
-        user.photoUrl = newPhotoUrl;
+        const photo = await this.photoService.addPhoto(imageBuffer, filename);
+        user.photoId = photo.id;
         await this.userRepository.update(user.id, user);
+        return photo;
     }
 
     async getUserPhoto(login: string): Promise<string> {
