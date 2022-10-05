@@ -21,17 +21,20 @@ export default function PrivChatElem()
     // rajouter fct ype socket on pr recuperer inralogin
     const handlePrivChatJoined = (intraLogin: string) => {
         // set intra login
+		console.log("intraLogin is set in local storage")
+		setStorage("intraLogin", intraLogin);
+		console.log("from storage -> intraLogin is : ", intraLogin)
 	}
 
     const [messagesList, setMessagesList] = useState<messageT[]>()
 
     const handleSubmitPrivMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
-        console.log("sending message content of form : ", form)
         sendPrivMessage(storage?.intraLogin, form.message)
 		setMessagesList((oldMessagesList) => (
 			oldMessagesList === undefined ? [] :
 				[...oldMessagesList]
 		))
+        console.log("sending message content of form : ", form)
     }
 
     const handlePrivMessageReceived = (msg:messageT) => {
@@ -74,7 +77,7 @@ export default function PrivChatElem()
         setChatSocket(getChatSocket())
         if (chatSocket)
         {
-           chatHandlerPrivEl(handlePrivMessageReceived, handlePrivMessList) 
+           chatHandlerPrivEl(handlePrivMessageReceived, handlePrivMessList, handlePrivChatJoined) 
         }
     }, [])
 

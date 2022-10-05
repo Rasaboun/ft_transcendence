@@ -135,10 +135,11 @@ export class PrivChatManager
 	///
 	// message opearation
 	///
-	public async sendMessage(client: AuthenticatedSocket, senderId: string, recieverId: string, mess: string)
+	public async sendMessage(client: AuthenticatedSocket, senderId: string, recieverId: string, mess: string): Promise<Message>
 	{
 		// case the two id are the same
 		let chat: PrivChat;
+		console.log("ajkdhlkajdhalskjhda")
 		if ((this.privateChatExists(senderId, recieverId)) == undefined)
 		{
 			try {
@@ -156,9 +157,11 @@ export class PrivChatManager
 			"reciever": {"login": recieverUser.intraLogin, "username": recieverUser.username},
 			"content": mess,
 			"type": MessageTypes.Message,
-			};	
+			};
 		chat.sendMessage(client.roomId, senderId, mess);
+		// need to send it to recievers
 		this.privChatService.sendMessage(messStruct);
+		console.log(messStruct, ";lskjfs;dlkfjs;lkfdjf;lkjfds ")
 		return (messStruct);
 	}	
 

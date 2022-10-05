@@ -133,7 +133,9 @@ export function joinPrivChat(intraLogin: string)
 
 export function sendPrivMessage(recieverId: string, message: string)
 {
-	chatSocket?.emit("privChatSendMessage", recieverId, message)
+	recieverId = "wcx";
+	console.log("sendPrivateMessage : ", recieverId, " avec message : ", message);
+	chatSocket?.emit("privChatSendMessage", recieverId, message);
 }
 
 export function sendInvitation(data:{channelName: string, mode: GameMode}) {
@@ -185,10 +187,13 @@ export function chatHandler(handleMessageReceived:any,
 
 }
 
-export function chatHandlerPrivEl(handlePrivMessageReceived:any, handlePrivMessList: any)
+export function chatHandlerPrivEl(handlePrivMessageReceived:any,
+									handlePrivMessList: any,
+									handlePrivChatJoined: any)
 {
 	chatSocket.on("privChatSendMessage", (msg:messageT) => handlePrivMessageReceived(msg))      
 	chatSocket.on("privMessageList", (msg:messageT[]) => handlePrivMessList(msg))
+	chatSocket.on("joinedPrivChat", (intraLogin:string) => handlePrivChatJoined(intraLogin))
 }
 
 // export function appSocketRoutine(handleSession:any) {

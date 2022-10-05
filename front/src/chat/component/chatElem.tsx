@@ -212,7 +212,6 @@ export default function ChatElem()
                 message={elem}/>)
     ))
 
-
     useEffect(() => {
         const channel = storage2;
         console.log("CHANNEL NAME", channel.channelId)

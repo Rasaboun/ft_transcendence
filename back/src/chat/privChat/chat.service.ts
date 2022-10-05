@@ -106,11 +106,11 @@ export class PrivChatService {
 // chat exists with name and user
 // if chat does'nt exist does the user exist
 
-blockUser(id: number)//: Promise<User>
-{
-	// if chat doesn't exist -> create it and block the user
-	// if chat exists -> find user, find chat...
-	//if (this.chatRepository.findOneBy({ UserIdFirstReciever: id }) != null)
-	// await (await this.chatRepository.findBy(id);
-}
+	blockUser(id: number)//: Promise<User>
+	{
+		// if chat doesn't exist -> create it and block the user
+		// if chat exists -> find user, find chat...
+		//if (this.chatRepository.findOneBy({ UserIdFirstReciever: id }) != null)
+		// await (await this.chatRepository.findBy(id);
+	}
 }

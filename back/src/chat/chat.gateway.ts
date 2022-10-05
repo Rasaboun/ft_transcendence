@@ -1,7 +1,7 @@
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { ChannelManager } from './channel/channel.manager';
-import { ActionOnUser, AddAdmin, CreateChannel, InviteClient, JoinChannel, SetChannelPassword } from './types/channel.type';
+import { ActionOnUser, AddAdmin, CreateChannel, InviteClient, JoinChannel, Message, MessageTypes, SetChannelPassword } from './types/channel.type';
 import { AuthenticatedSocket } from 'src/auth/types/auth.type';
 import { AuthService } from 'src/auth/auth.service';
 import { PrivChatManager } from './privChat/privChat.manager';
@@ -236,6 +236,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try{
 			console.log("The login : " + intraLogin + " just connected itself to it")
 			this.privChatManager.joinPrivChat(client, intraLogin);
+			console.log("client room id : ", client.roomId);
+			client.to(client.roomId).emit("joinedPrivChat", intraLogin)
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
@@ -253,13 +255,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async privChatSendMessage(client :AuthenticatedSocket, recieverIntraLogin: string, message: string)
 	{
 		try {
-			console.log(" privChatSendMessage")
+			console.log("Private CHat sender called !")
 			var userReciever: User = (await this.userService.findOneByIntraLogin(recieverIntraLogin));
+			console.log("User ReciverId from private chatsender : (room id)", userReciever.roomId)
 			// todo ERREUR faux ne peux pas fonctionnner
 			var recieverRoom: string = userReciever.roomId
-			client.to(client.roomId).to(recieverRoom).emit('privChatSendMessage', (await this.privChatManager.sendMessage(client, client.login, recieverIntraLogin, message)));
+			console.log("User reciever : ", userReciever)
+			var mess: Message = (await this.privChatManager.sendMessage(client, client.login, recieverIntraLogin, message))
+			client.to(client.roomId).emit('privChatSendMessage', mess.toString());
 		}
-		catch (error) { client.emit('error', error.message ) }
+		catch (error) { client.emit('error', error) }
 	}
 
 	@SubscribeMessage('loadConnectedUsers')

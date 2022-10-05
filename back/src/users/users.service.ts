@@ -12,7 +12,6 @@ export class UsersService {
     constructor(
         @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private dataSource: DataSource,
     private readonly configService: ConfigService
     ) { }
 
@@ -72,12 +71,34 @@ export class UsersService {
         return this.userRepository.findOneBy({ id });
     }
 
-    findOneByIntraLogin(login: string): Promise<User> {
-        return this.userRepository.findOne({
-            where: [
-                { intraLogin: login},
-            ],
-        })
+    async findOneByIntraLogin(intraLogin: string): Promise<User> {
+		console.log("this.findOneByIntraLogin, ", intraLogin)
+        try {
+			const retUser = await this.userRepository.findOne({
+				select: {
+					id: true,
+					intraLogin: true,
+					username: true,
+					password: true,
+					victories: true,
+					defeats: true,
+					nbGames: true,
+					lobbyId: true,
+					roomId: true,
+					blockedUsers: true,
+					status: true,
+				},
+				where: {
+					intraLogin: intraLogin, 
+				},
+			});
+			console.log("retUser : ", retUser)
+			return (retUser);
+		}
+		catch (error)
+		{
+			console.log("Error at loading findOneBy in findONeByIntraLogin", error);
+		}
     }
 
     findOneByUsername(username: string){
