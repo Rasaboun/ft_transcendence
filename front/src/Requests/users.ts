@@ -41,12 +41,13 @@ export async function getUserStatus(login: string)
 
 export async function getUserPhoto(login: string)
 {
-    let photoUrl: string = "";
+    let photo;
     const url: string = backUrl + "/users/photo";
     await axios.get<string>(url, {params: {login}}).then(res => {
-        photoUrl = res.data;
+        photo = res.data;
     }).catch(e => console.log)
-    return photoUrl;
+    console.log("Photo: ", photo);
+    return photo;
 }
 
 export async function setUserStatus(login: string, status: UserStatus)

@@ -15,6 +15,7 @@ function TabSettings() {
 	const { storage, setStorage } = useLocalStorage("user")
 	const defaultValue:settingsForm = {username : storage.username, image: storage.image}
 	const [editable, setEditable] = useState(false)
+	const [displayedImage, setDisplayedImage] = useState(storage.image)
 	const [form, setForm] = useState<settingsForm>(defaultValue)
 	const toggle = () => {
 		setEditable((prevEditable) => !prevEditable)
@@ -30,6 +31,8 @@ function TabSettings() {
 				return 
 			}
 		}
+		if (img)
+			setDisplayedImage(URL.createObjectURL(img))
 		setForm((prevForm) => ({
 			...prevForm,
 			[e.target.name] : img,
@@ -49,7 +52,7 @@ function TabSettings() {
 
 			const photoUrl = await setUserPhoto(storage.login, form.image)
 			console.log("new photoUrl", photoUrl);
-			setStorage("user", {...storage, image: photoUrl})
+			setStorage("user", {...storage, image: URL.createObjectURL(form.image)})
 		}
 	}
 
@@ -106,7 +109,7 @@ function TabSettings() {
 				<div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
 				<dt className="text-sm font-medium text-gray-500">Avatar</dt>
 				<dd className="flex mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 justify-between">
-					{/* <img className="h-10 w-10" src={form.image.} alt="" /> */}
+					<img className="h-10 w-10" src={displayedImage} alt="" />
 					<input className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
 						type="file"
 						name="image"

@@ -60,7 +60,7 @@ export class UsersController {
             filename: photo.filename,
         }
         console.log(`Body`, dto);
-        const newPhotoUrl = process.env.UPLOAD_PATH + photo.filename;
+        const newPhotoUrl = photo.filename;
         this.usersService.setUserPhoto(dto.login, newPhotoUrl);
         return newPhotoUrl;
     }
@@ -89,9 +89,9 @@ export class UsersController {
 
     @Get('photo')
     async getUserPhoto(@Query() dto: {login: string}, @Res() res): Promise<string> {
-        const photoUrl = await this.usersService.getUserPhoto(dto.login);
-        console.log(`${dto.login} photo : ${photoUrl}`);
-        return photoUrl;//res.sendFile(photo, {root: process.env.UPLOAD_PATH});
+        const photo = await this.usersService.getUserPhoto(dto.login);
+        console.log(`${dto.login} photo : ${photo}`);
+        return res.sendFile(photo, {root: process.env.UPLOAD_PATH});
     }
 
     @Get('username')
