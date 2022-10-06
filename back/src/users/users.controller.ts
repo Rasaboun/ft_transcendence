@@ -55,8 +55,6 @@ export class UsersController {
     )
     setUserPhoto(@UploadedFile() photo, @Body() dto: {login: string}) {
         
-
-        console.log(`Body`, photo);
         this.usersService.setUserPhoto(dto.login, photo.buffer, photo.originalname);
     }
 
@@ -86,14 +84,11 @@ export class UsersController {
     async getUserPhoto(@Query() dto: {login: string}, @Res({ passthrough: true }) res) {
         const photo = await this.usersService.getUserPhoto(dto.login);
 
-       // const stream = Readable.from(photo.data);
-
         res.set({
             'Content-Disposition': `inline; filename="${photo.filename}"`,
             'Content-Type': 'image/*'
-          })
-        console.log(`${dto.login} photo : ${photo.filename}`);
-        return photo.data
+        })
+        return { imageBuffer: photo.data, filename: photo.filename };
     }
 
     @Get('username')

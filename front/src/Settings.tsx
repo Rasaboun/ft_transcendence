@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import useLocalStorage from "./hooks/localStoragehook";
 import "./output.css";
 import "./index.css"
-import { setUsername, setUserPhoto } from "./Requests/users";
+import { getUserPhoto, setUsername, setUserPhoto } from "./Requests/users";
+import { SocketContext } from "./Context/socketContext";
 
 type settingsForm = {
 	username: string,
@@ -12,6 +13,7 @@ type settingsForm = {
 const url: string = "http://localhost:3002/users/";
 function TabSettings() {
 	const { storage, setStorage } = useLocalStorage("user")
+	const { setImage } = useContext(SocketContext)
 	const defaultValue:settingsForm = {username : storage.username, image: storage.image}
 	const [editable, setEditable] = useState(false)
 	const [displayedImage, setDisplayedImage] = useState(storage.image)
@@ -40,7 +42,6 @@ function TabSettings() {
 	const submitFormData = async () => {
 		if (form.username !== defaultValue.username)
 		{
-			console.log(form.username)
 			setUsername(storage.login, form.username)
 			setStorage("user", {...storage, username: form.username})
 		}
@@ -49,8 +50,9 @@ function TabSettings() {
 			console.log(form.image)
 
 			await setUserPhoto(storage.login, form.image)
-
-			setStorage("user", {...storage, image: URL.createObjectURL(form.image)})
+			//const newPhoto = await getUserPhoto(storage.login);
+			//setStorage("user", {...storage, image : newPhoto} )
+			setImage(URL.createObjectURL(form.image));
 		}
 	}
 
@@ -118,7 +120,7 @@ function TabSettings() {
 				</div>
 			</dl>
 				{
-					JSON.stringify(form) !== JSON.stringify(defaultValue) &&
+					//JSON.stringify(form) !== JSON.stringify(defaultValue) &&
 						<button
 							type="button"
 							className="inline-flex items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 focus:outline-none"

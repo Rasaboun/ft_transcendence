@@ -13,8 +13,7 @@ export class PhotoService
 
     async addPhoto(imageBuffer: Buffer, filename: string)
     {
-        console.log(imageBuffer);
-        const newPhoto = await this.photoRepository.create({
+        const newPhoto = this.photoRepository.create({
             filename,
             data: imageBuffer
         })

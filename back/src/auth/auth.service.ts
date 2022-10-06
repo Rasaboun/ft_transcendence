@@ -1,11 +1,12 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, StreamableFile, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, StreamableFile, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthenticatedSocket, TokenPayload } from 'src/auth/types/auth.type';
 import { UsersService } from 'src/users/users.service';
 import { v4 } from 'uuid';
 import { join } from 'path';
 import { createReadStream } from 'fs';
+import { catchError, firstValueFrom, map } from 'rxjs';
 
 
 @Injectable()
@@ -40,12 +41,11 @@ export class AuthService {
                             ...dto
                         })
         const response = await this.httpService.axiosRef({
-            url: 'https://www.jeunesfooteux.com/photo/art/grande/53314809-40398527.jpg?v=1611392666',
+            url: 'https://cdn.intra.42.fr/users/bditte.jpg',
             method: 'GET',
+            responseType: 'arraybuffer',
         });
-
-        const imageBuffer = Buffer.from(response.data)
-
+        const imageBuffer = Buffer.from(response.data, 'binary')
         this.userService.setUserPhoto(dto.username, imageBuffer, "default");
         return true;
     }

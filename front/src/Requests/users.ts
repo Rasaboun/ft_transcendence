@@ -38,8 +38,6 @@ export async function getUserStatus(login: string)
     }).catch(e => console.log)
     return status;
 }
-function arrayBufferToBase64(buffer: any) {
-};
 
 export async function getUserPhoto(login: string): Promise<string>
 {
@@ -48,14 +46,14 @@ export async function getUserPhoto(login: string): Promise<string>
        
 
         var binary = '';
-        var bytes = new Uint8Array(Buffer.from(res.data, 'base64'));
+        var bytes = new Uint8Array(Buffer.from(res.data.imageBuffer, 'base64'));
+        var base64Flag = 'data:image/;base64,';
         bytes.forEach((b) => binary += String.fromCharCode(b));
-        return window.btoa(binary);
+        return base64Flag +  window.btoa(binary);
         
     })
-    var base64Flag = 'data:image/jpeg;base64,';
 
-    return base64Flag + photo;
+    return photo;
 }
 
 export async function setUserStatus(login: string, status: UserStatus)

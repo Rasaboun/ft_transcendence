@@ -1,5 +1,5 @@
 /* This example requires Tailwind CSS v2.0+ */
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
@@ -7,6 +7,8 @@ import { Routes, Route, Link, useLocation } from "react-router-dom";
 import logo from './42-logo.png';
 import profile from './profile.png';
 import useLocalStorage from './hooks/localStoragehook';
+import { getUserPhoto } from './Requests/users';
+import { SocketContext } from './Context/socketContext';
 
 let navigation = [
   { name: 'Dashboard', href: '#', current: false},
@@ -34,12 +36,21 @@ function HoverNavBar(location :String){
 
 export default function NavBar() {
   const location = useLocation();
-  const { storage } = useLocalStorage("user")
+  const { storage, setStorage } = useLocalStorage("user")
+	const { image } = useContext(SocketContext)
+
   
-  useEffect(() => {    // Mettre à jour le titre du document en utilisant l'API du navigateur    
+  useEffect(() => {    // Mettre à jour le titre du document en utilisant l'API du navigateur
+    
     document.getElementById("notification")?.classList.add(profileColor[1]);
     HoverNavBar(location.pathname);
-  });
+    const getPhoto = async () => {
+        
+      const file  = await getUserPhoto(storage.login);
+      setStorage("user", {...storage, image : file} )
+    }
+    getPhoto()
+  },[image]);
   
   return (
     <>
