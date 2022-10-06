@@ -39,11 +39,6 @@ export async function getUserStatus(login: string)
     return status;
 }
 function arrayBufferToBase64(buffer: any) {
-    var binary = '';
-    var bytes = new Uint8Array(buffer);
-    console.log("bytes", bytes);
-    bytes.forEach((b) => binary += String.fromCharCode(b));
-    return window.btoa(binary);
 };
 
 export async function getUserPhoto(login: string): Promise<string>
@@ -51,18 +46,16 @@ export async function getUserPhoto(login: string): Promise<string>
     const url: string = backUrl + "/users/photo";
     const photo = await axios.get(url, {params: {login}}).then(res => {
        
-        // let buf = Buffer.from(res.data, 'base64');
-        // let base64buf = buf.toString('base64');
-        //const blobFile = new File([res.data], login + ".jpeg", {type: 'image/*'});
 
+        var binary = '';
+        var bytes = new Uint8Array(Buffer.from(res.data, 'base64'));
+        bytes.forEach((b) => binary += String.fromCharCode(b));
+        return window.btoa(binary);
         
-        return res.data
     })
     var base64Flag = 'data:image/jpeg;base64,';
 
-    var imageStr = arrayBufferToBase64(Buffer.from(photo, 'base64'));
-    console.log("imagestr", imageStr);
-    return base64Flag + imageStr;
+    return base64Flag + photo;
 }
 
 export async function setUserStatus(login: string, status: UserStatus)

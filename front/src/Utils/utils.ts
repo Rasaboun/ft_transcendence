@@ -7,8 +7,6 @@ export function getSession()
 	{
 		sessionId = JSON.parse(sessionId);
 		roomId = JSON.parse(roomId);
-		console.log("sessionId", sessionId)
-		console.log("roomId", roomId)
 		if (sessionId && roomId)
 			sessioninfo = {sessionId: sessionId, roomId: roomId}
 	}

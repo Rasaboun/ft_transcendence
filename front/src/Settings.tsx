@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import useLocalStorage from "./hooks/localStoragehook";
 import "./output.css";
-import profile from "./profile.png";
 import "./index.css"
 import { setUsername, setUserPhoto } from "./Requests/users";
 
@@ -27,7 +26,6 @@ function TabSettings() {
 			img = e.target.files[0];
 			if (img.size >= 5242880)
 			{
-				console.log("image larger than 5MB")
 				return 
 			}
 		}
