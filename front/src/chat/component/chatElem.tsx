@@ -259,7 +259,10 @@ export default function ChatElem()
                         <div ref={lastMessageRef}/>
                     </div>
                 </div>
-                <MessageInput mutedTime={mutedTime} handleChange={handleChange} handleSubmitMessage={handleSubmitMessage} value={form.message}/>
+                <MessageInput mutedTime={mutedTime}
+                    handleChange={handleChange}
+                    handleSubmitMessage={handleSubmitMessage}
+                    value={form.message}/>
            </div>          
         </div>
     )

@@ -72,7 +72,6 @@ export class UsersService {
     }
 
     async findOneByIntraLogin(intraLogin: string): Promise<User> {
-		console.log("this.findOneByIntraLogin, ", intraLogin)
         try {
 			const retUser = await this.userRepository.findOne({
 				select: {
@@ -92,7 +91,6 @@ export class UsersService {
 					intraLogin: intraLogin, 
 				},
 			});
-			console.log("retUser : ", retUser)
 			return (retUser);
 		}
 		catch (error)

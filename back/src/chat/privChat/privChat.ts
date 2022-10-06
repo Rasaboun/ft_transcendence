@@ -33,8 +33,10 @@ export class PrivChat
 	public sendMessage(client: string, senderId: string, mess: string)
 	{
 		// get the privChat entity to gt first senderandreciever and transform it into a string
-
+		console.log("client: client content")
+		console.log("client:", client)
 		this._server.to(client).emit("privMessageToReciever", {sender: senderId, messCont: mess});
+		console.log("send message from privChat.ts")
 	}
 
 	public setSenderConnected(status: boolean)

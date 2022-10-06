@@ -80,8 +80,8 @@ export class PrivChatManager
 				"content": firstMess,
 				"type": MessageTypes.Message,
 				};
-			this.privChatService.createNewChat({"Sender": senderId, 
-			"Reciever": recieverId, "mess": [messStruct, ]})
+			console.log("Create new chat param : ", senderId, " recieverId " , recieverId, " server : ", this.server)
+			this.privChatService.createNewChat({"UserIdFirstSender": senderId, "UserIdFirstReciever": recieverId, "mess": [messStruct, ]})
 			const chat = new PrivChat(this.server, senderId, recieverId, [messStruct, ]);	
 			this.onlineChats.push(chat);
 		}
@@ -112,6 +112,7 @@ export class PrivChatManager
 	///
 	public async loadMessages(senderId: string, recieverId: string): Promise<Message[]>
 	{
+		console.log("LoadMessages : senderId : ", senderId, " recieverId ", recieverId)
 		if (this.privateChatExists(senderId, recieverId))
 		{
 			var messageList: Message[] = await this.privChatService.getMessageList(senderId, recieverId);
@@ -139,16 +140,31 @@ export class PrivChatManager
 	{
 		// case the two id are the same
 		let chat: PrivChat;
-		console.log("ajkdhlkajdhalskjhda")
 		if ((this.privateChatExists(senderId, recieverId)) == undefined)
 		{
 			try {
 				this.createPrivateChat(senderId, recieverId, mess);
+				var faMess: Message[] = [{ sender: 
+							{
+								login: senderId,
+								username: senderId
+							}, reciever: {
+								login: senderId,
+								username: senderId,
+							},
+							content: mess,
+							type: 2
+						}, ];
+				chat = new PrivChat(this.server, senderId, recieverId, faMess);
 			}
 			catch (error)
 			{
 				throw error;
 			}
+		}
+		else
+		{
+			chat = new PrivChat(this.server, senderId, recieverId, )
 		}
 		var senderUser: User = await this.userService.findOneByIntraLogin(senderId);
 		var recieverUser: User = await this.userService.findOneByIntraLogin(recieverId);
@@ -161,7 +177,6 @@ export class PrivChatManager
 		chat.sendMessage(client.roomId, senderId, mess);
 		// need to send it to recievers
 		this.privChatService.sendMessage(messStruct);
-		console.log(messStruct, ";lskjfs;dlkfjs;lkfdjf;lkjfds ")
 		return (messStruct);
 	}	
 

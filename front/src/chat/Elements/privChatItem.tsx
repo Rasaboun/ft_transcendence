@@ -4,13 +4,21 @@ import { connectedUsersT, privChatP } from '../ChatUtils/chatType';
 
 type PrivChatPropsT = {
     connectedUsers: connectedUsersT,
-    handleJoinPrivChat: ( data:string) => void;
+    handleJoinPrivChat: ( data:connectedUsersT) => void;
 }
 
 export default function PrivChatItem({ connectedUsers, handleJoinPrivChat }:PrivChatPropsT  )
 {
     const handleSubmit = (e:React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
+        handleJoinPrivChat(connectedUsers)
+    }
+    
+    const handleTest=()=>
+    {
+        //rien se passe
+        console.log("function blocks the other");
+        console.log("BUTTON DOES NOT WORK");
     }
 
     return (
@@ -27,10 +35,23 @@ export default function PrivChatItem({ connectedUsers, handleJoinPrivChat }:Priv
                             borderRadius: "20px"
                         }} 
                    onClick={() =>
-                        handleJoinPrivChat(connectedUsers.intraLogin)
+                        handleJoinPrivChat(connectedUsers)
                     }>
                             Send Message
                         </button>
+            <button type="submit" style={{
+                            height: "3vh",
+                            width: "17vh",
+                            marginLeft: "40px",
+                            backgroundColor: "#00ffff",
+                            borderRadius: "20px"
+                        }} 
+                   onClick={() =>
+                        handleTest()
+                    }>
+                            Block User
+                        </button>
+
 
         </div>
     )

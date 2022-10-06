@@ -59,7 +59,7 @@ export class PrivChatService {
 
 	async getChat(chat: newPrivatChat)
 	{
-		const testExist: PrivChat = await this.findOneBySenderReciever(chat.Sender, chat.Reciever);
+		const testExist: PrivChat = await this.findOneBySenderReciever(chat.UserIdFirstSender, chat.UserIdFirstReciever);
 		if (testExist != null)
 			return (testExist);
 		return (this.createNewChat(chat));
@@ -69,10 +69,10 @@ export class PrivChatService {
 		// todo check if the chat repo does not already exist in a safe way
 		// query builder not working
 		// insertion might pose a probleme since it is in a json file
-		
+		console.log(newChat)	
 		const newPrivChat: PrivChat = this.chatRepository.create(newChat);
 
-		log(await this.chatRepository.save(newPrivChat));
+		await this.chatRepository.save(newPrivChat);
 		const theResult: PrivChat = await this.chatRepository.save(newPrivChat);
 		return theResult;
 	}
@@ -89,8 +89,8 @@ export class PrivChatService {
 		var senderId: string = (await this.usersService.findOneByIntraLogin(message.sender.login)).intraLogin;
 		var recieverId: string = (await this.usersService.findOneByIntraLogin(message.reciever.login)).intraLogin;
 		var getChatEntry: newPrivatChat = {
-				"Sender": senderId,
-				"Reciever": recieverId,
+				"UserIdFirstSender": senderId,
+				"UserIdFirstReciever": recieverId,
 				"mess": [message, ],
 		};
 		const chatMod: PrivChat = await this.getChat(getChatEntry);
@@ -100,7 +100,9 @@ export class PrivChatService {
 
 	async getMessageList(senderId: string, recieverid: string): Promise<Message[]>
 	{
+		console.log("SenderId : ", senderId, " RecieverId : ", recieverid)
 		var getChatInstance = await this.findOneBySenderReciever(senderId, recieverid);
+		console.log(getChatInstance);
 		return (getChatInstance?.mess);
 	}
 // chat exists with name and user

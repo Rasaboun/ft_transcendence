@@ -13,23 +13,24 @@ import { getSession } from "../../Utils/utils";
 export default function PrivChatElem()
 {
     const {chatSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
+    const lastMessageRef = useRef<HTMLDivElement | null>(null)
     const {storage} = useLocalStorage("user")
 	const {setStorage} = useLocalStorage()
-	const [form, setForm] = useState({
-        message:"",
-    })
+	const [form, setForm] = useState({ message:"", })
+
+    const [contName, setContName] = useState<string>()
     // rajouter fct ype socket on pr recuperer inralogin
     const handlePrivChatJoined = (intraLogin: string) => {
         // set intra login
-		console.log("intraLogin is set in local storage")
+        console.log("THE STORAGE INTRA LOGIN IS ;", intraLogin);
+        setContName(intraLogin)
 		setStorage("intraLogin", intraLogin);
-		console.log("from storage -> intraLogin is : ", intraLogin)
 	}
 
     const [messagesList, setMessagesList] = useState<messageT[]>()
 
     const handleSubmitPrivMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
-        sendPrivMessage(storage?.intraLogin, form.message)
+        sendPrivMessage(storage?.login, form.message)
 		setMessagesList((oldMessagesList) => (
 			oldMessagesList === undefined ? [] :
 				[...oldMessagesList]
@@ -72,20 +73,29 @@ export default function PrivChatElem()
             />
     ))
 
+    const scrollToBottom = () => {
+        lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+     useEffect(() => {
+       scrollToBottom()
+    }, [messagesList])
+
     useEffect(() => {
         initiateSocket("http://localhost:8002")
         setChatSocket(getChatSocket())
-        if (chatSocket)
+        if (chatSocket?.connected)
         {
            chatHandlerPrivEl(handlePrivMessageReceived, handlePrivMessList, handlePrivChatJoined) 
         }
     }, [])
 
    return (<div className="chat">
+            <h1>Chatting with : {contName}</h1>
             <div className="chat-right">
                 <div className="h-96">
                     <div className="message-container">
                         {messageElem}
+                        <div ref={lastMessageRef}/>
                     </div>
                 </div>
                 <PrivMessageInput handleSubmitMessage={handleSubmitPrivMessage}

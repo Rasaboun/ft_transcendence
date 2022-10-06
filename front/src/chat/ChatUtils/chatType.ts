@@ -20,6 +20,10 @@ export type messageT = {
         login: string,
         username: string,
     },
+	reciever?: {
+        login: string,
+        username: string,
+    },
     channelName?: string,
     content: string,
     date?: string,

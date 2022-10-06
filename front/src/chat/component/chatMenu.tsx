@@ -101,8 +101,8 @@ export default function ChatMenu()
 		}
 	}
 
-	const handleJoinPrivateChat = (intraLogin:string) => {
-		joinPrivChat(intraLogin);
+	const handleJoinPrivateChat = (intraLogin:connectedUsersT) => {
+		joinPrivChat(intraLogin.intraLogin);
 		navigate("/chat/privMessage");
 	}	
 

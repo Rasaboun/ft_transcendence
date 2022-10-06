@@ -234,9 +234,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async testJoinedPrivChat(client :AuthenticatedSocket, intraLogin: string)
 	{
 		try{
-			console.log("The login : " + intraLogin + " just connected itself to it")
 			this.privChatManager.joinPrivChat(client, intraLogin);
-			console.log("client room id : ", client.roomId);
 			client.to(client.roomId).emit("joinedPrivChat", intraLogin)
 		}
 		catch (error) { client.emit('error', error.message ) }
@@ -252,17 +250,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('privChatSendMessage')
-	async privChatSendMessage(client :AuthenticatedSocket, recieverIntraLogin: string, message: string)
+	async privChatSendMessage(client :AuthenticatedSocket, data: {recieverIntraLogin, message})
 	{
 		try {
-			console.log("Private CHat sender called !")
-			var userReciever: User = (await this.userService.findOneByIntraLogin(recieverIntraLogin));
-			console.log("User ReciverId from private chatsender : (room id)", userReciever.roomId)
-			// todo ERREUR faux ne peux pas fonctionnner
-			var recieverRoom: string = userReciever.roomId
-			console.log("User reciever : ", userReciever)
-			var mess: Message = (await this.privChatManager.sendMessage(client, client.login, recieverIntraLogin, message))
-			client.to(client.roomId).emit('privChatSendMessage', mess.toString());
+			var mess: Message = (await this.privChatManager.sendMessage(client, client.login, data.recieverIntraLogin, data.message))
+			client.to(client.roomId).emit('privChatSendMessage', mess);
 		}
 		catch (error) { client.emit('error', error) }
 	}
