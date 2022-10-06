@@ -149,7 +149,7 @@ export class UsersService {
     async setUserPhoto(login: string, imageBuffer: Buffer, filename: string)
     {
         const user = await this.findOneByIntraLogin(login);
-
+        console.log("Image buffer", imageBuffer);
         if (!user)
             return ;
         const photo = await this.photoService.addPhoto(imageBuffer, filename);
