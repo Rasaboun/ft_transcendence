@@ -22,7 +22,7 @@ function TabSettings() {
 	}
 
 	const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-		let img:any
+		let img:any;
 		if (e.target.files && e.target.files[0]) {
 			img = e.target.files[0];
 			if (img.size >= 5242880)
@@ -50,8 +50,8 @@ function TabSettings() {
 		{
 			console.log(form.image)
 
-			const photoUrl = await setUserPhoto(storage.login, form.image)
-			console.log("new photoUrl", photoUrl);
+			await setUserPhoto(storage.login, form.image)
+
 			setStorage("user", {...storage, image: URL.createObjectURL(form.image)})
 		}
 	}

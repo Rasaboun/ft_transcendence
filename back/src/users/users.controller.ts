@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Header, Param, ParseIntPipe, Post, Put, Query, Res, UploadedFile, UseFilters, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, Param, ParseIntPipe, Post, Put, Query, Res, StreamableFile, UploadedFile, UseFilters, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path'
 //import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
@@ -7,6 +7,9 @@ import { User } from 'src/typeorm';
 import { blockUserDto, createUserDto, updatePhotoDto, updateStatusDto, updateUsernameDto } from './dto/users.dto';
 import { UserStatus } from './type/users.type';
 import { UsersService } from './users.service';
+import { Readable } from 'typeorm/platform/PlatformTools';
+import { Observable, of } from 'rxjs';
+import { join } from 'path';
 
 export const editFileName = (req, file, callback) => {
     const name = file.originalname.split('.')[0];
@@ -48,21 +51,13 @@ export class UsersController {
 
     @Put('photo')
     @UseInterceptors(
-        FileInterceptor('photo', {
-            storage: diskStorage({
-                destination: './uploads',
-                filename: editFileName,
-            })
-        }))
+        FileInterceptor('photo')
+    )
     setUserPhoto(@UploadedFile() photo, @Body() dto: {login: string}) {
-        const response = {
-            originalname: photo.originalname,
-            filename: photo.filename,
-        }
-        console.log(`Body`, dto);
-        const newPhotoUrl = photo.filename;
-        this.usersService.setUserPhoto(dto.login, newPhotoUrl);
-        return newPhotoUrl;
+        
+
+        console.log(`Body`, photo);
+        this.usersService.setUserPhoto(dto.login, photo.buffer, photo.originalname);
     }
 
     @Put('username')
@@ -88,10 +83,17 @@ export class UsersController {
     }
 
     @Get('photo')
-    async getUserPhoto(@Query() dto: {login: string}, @Res() res): Promise<string> {
+    async getUserPhoto(@Query() dto: {login: string}, @Res({ passthrough: true }) res) {
         const photo = await this.usersService.getUserPhoto(dto.login);
-        console.log(`${dto.login} photo : ${photo}`);
-        return res.sendFile(photo, {root: process.env.UPLOAD_PATH});
+
+       // const stream = Readable.from(photo.data);
+
+        res.set({
+            'Content-Disposition': `inline; filename="${photo.filename}"`,
+            'Content-Type': 'image/*'
+          })
+        console.log(`${dto.login} photo : ${photo.filename}`);
+        return photo.data
     }
 
     @Get('username')

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./output.css";
 import profile from "./profile.png";
@@ -10,12 +10,13 @@ import { getUserPhoto, getUserProfile } from "./Requests/users";
 const url: string = "http://localhost:3002/users/profile/";
 
 
-function UserProfile({ user }:{user: Iuser}, photo: File) {
+function UserProfile({ user, photo }:{user: Iuser, photo: string}) {
+  console.log("photo", photo);
   return (
     <div className="flex flex-col items-center bg-indigo-300 rounded-lg border shadow md:flex-row md:max-w-xl ">
       <img
         className="object-cover w-full h-96 rounded-t-lg md:h-auto md:w-48 md:rounded-none md:rounded-l-lg"
-        src={URL.createObjectURL(photo)}
+        src={photo}
         alt=""
       />
       <div className="flex flex-col justify-between p-4 leading-normal">
@@ -41,6 +42,7 @@ export default function Profile() {
 	const { login } = useParams()
 	const [user, setUser] = React.useState<Iuser>();
 	const data = {login : login}
+  const [photo, setPhoto] = useState<string>();
 	// async function getProfile() {
 	// 	console.log("Loginr", login);
 	// 	await axios.get<Iuser>(url, {params : {login:login}}).then((response) => {
@@ -61,8 +63,15 @@ export default function Profile() {
         setUser(user);
       }
       
-      getProfile()
-      const photo = getUserPhoto(login);
+      const getPhoto = async () => {
+        console.log("In getPhoto");
+        
+       const file  = await getUserPhoto(login);
+       setPhoto(file);
+      }
+      
+      getProfile();
+      getPhoto();
     }
   }, []);
   console.log(user)
@@ -78,7 +87,7 @@ export default function Profile() {
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           {
             user &&
-              <UserProfile user={user}/>
+              <UserProfile user={user} photo={photo!}/>
           }
         </div>
       </main>

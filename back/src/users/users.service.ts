@@ -6,6 +6,7 @@ import { DataSource, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { UserStatus } from './type/users.type';
 import { PhotoService } from './photo/photo.service';
+import { Photo } from 'src/typeorm/Photo';
 
 
 @Injectable()
@@ -157,10 +158,10 @@ export class UsersService {
         return photo;
     }
 
-    async getUserPhoto(login: string): Promise<string> {
+    async getUserPhoto(login: string): Promise<Photo> {
 
         const user = await this.findOneByIntraLogin(login);
-        return user.photoUrl;
+        return await this.photoService.getPhotoById(user.photoId);
     }
 
     async setUserUsername(login: string, newUsername: string)

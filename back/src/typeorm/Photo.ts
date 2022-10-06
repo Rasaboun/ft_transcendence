@@ -11,5 +11,5 @@ export class Photo {
     @Column({
         type: 'bytea',
     })
-    data: Uint8Array;
+    data: Buffer;
 }

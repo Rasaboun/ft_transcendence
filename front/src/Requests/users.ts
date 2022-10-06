@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Iuser } from "../Utils/type";
-
+import { Buffer } from 'buffer'
 export const backUrl = "http://localhost:3002"; 
 
 export enum UserStatus {
@@ -38,16 +38,31 @@ export async function getUserStatus(login: string)
     }).catch(e => console.log)
     return status;
 }
+function arrayBufferToBase64(buffer: any) {
+    var binary = '';
+    var bytes = new Uint8Array(buffer);
+    console.log("bytes", bytes);
+    bytes.forEach((b) => binary += String.fromCharCode(b));
+    return window.btoa(binary);
+};
 
-export async function getUserPhoto(login: string)
+export async function getUserPhoto(login: string): Promise<string>
 {
-    let photo;
     const url: string = backUrl + "/users/photo";
-    await axios.get<string>(url, {params: {login}}).then(res => {
-        photo = res.data;
-    }).catch(e => console.log)
-    console.log("Photo: ", photo);
-    return photo;
+    const photo = await axios.get(url, {params: {login}}).then(res => {
+       
+        // let buf = Buffer.from(res.data, 'base64');
+        // let base64buf = buf.toString('base64');
+        //const blobFile = new File([res.data], login + ".jpeg", {type: 'image/*'});
+
+        
+        return res.data
+    })
+    var base64Flag = 'data:image/jpeg;base64,';
+
+    var imageStr = arrayBufferToBase64(Buffer.from(photo, 'base64'));
+    console.log("imagestr", imageStr);
+    return base64Flag + imageStr;
 }
 
 export async function setUserStatus(login: string, status: UserStatus)
@@ -73,12 +88,9 @@ export async function setUserPhoto(login: string, photo: File)
     data.append('photo', photo);
     data.append('login', login);
     const url: string = backUrl + "/users/photo";
-    let newPhotoUrl;
+
     await axios.put(url, data).then(res => {
-        console.log("returned photo", res.data);
-        newPhotoUrl = res.data
     }).catch(e => console.log)
-    return newPhotoUrl;
 }
 
 
