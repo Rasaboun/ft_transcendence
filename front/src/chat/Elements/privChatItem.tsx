@@ -33,7 +33,7 @@ export default function PrivChatItem({ connectedUsers, handleJoinPrivChat }:Priv
                             marginLeft: "40px",
                             backgroundColor: "#00ffff",
                             borderRadius: "20px"
-                        }} 
+                        }}
                    onClick={() =>
                         handleJoinPrivChat(connectedUsers)
                     }>

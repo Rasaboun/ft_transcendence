@@ -30,7 +30,11 @@ export default function PrivChatElem()
     const [messagesList, setMessagesList] = useState<messageT[]>()
 
     const handleSubmitPrivMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
-        sendPrivMessage(storage?.login, form.message)
+        e.preventDefault()
+        if (form.message != "")
+        {
+            sendPrivMessage(storage?.login, form.message)
+        }
 		setMessagesList((oldMessagesList) => (
 			oldMessagesList === undefined ? [] :
 				[...oldMessagesList]

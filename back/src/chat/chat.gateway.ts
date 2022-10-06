@@ -224,7 +224,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('privChatCreateChat')
 	async createPrivChat(client :AuthenticatedSocket, recieverId: string, content: string)
 	{
-		try {
+		try
+		{
 			this.privChatManager.createPrivateChat(client.login, recieverId, content)
 		}
 		catch (error) { client.emit('error', error.message ) }
@@ -243,7 +244,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('privChatLoadMessages')
 	async privChatLoadMessage(client :AuthenticatedSocket, recieverId: string)
 	{
-		try {
+		try 
+		{
 			client.emit('privChatLoadMessages', this.privChatManager.loadMessages(client.login, recieverId));
 		}
 		catch (error) { client.emit('error', error.message ) }
@@ -255,6 +257,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try {
 			var mess: Message = (await this.privChatManager.sendMessage(client, client.login, data.recieverIntraLogin, data.message))
 			client.to(client.roomId).emit('privChatSendMessage', mess);
+			client.emit('privChatLoadMessages', this.privChatManager.loadMessages(client.login, data.recieverIntraLogin));
 		}
 		catch (error) { client.emit('error', error) }
 	}

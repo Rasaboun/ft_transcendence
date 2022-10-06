@@ -124,7 +124,6 @@ export class PrivChatManager
 	public async joinPrivChat(client: AuthenticatedSocket, intraLogin: string)
 	{
 		try {
-			var recieverId: number = (await this.userService.findOneByIntraLogin(intraLogin)).id;
 			this.server.to(client.roomId).emit("privMessageList", (await this.loadMessages(client.login, intraLogin)))
 		}
 		catch (error)
