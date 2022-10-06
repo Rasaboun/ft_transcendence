@@ -1,8 +1,12 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { BadRequestException, Injectable, StreamableFile, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthenticatedSocket, TokenPayload } from 'src/auth/types/auth.type';
 import { UsersService } from 'src/users/users.service';
 import { v4 } from 'uuid';
+import { join } from 'path';
+import { createReadStream } from 'fs';
+import { catchError, firstValueFrom, map } from 'rxjs';
 
 
 @Injectable()
@@ -10,6 +14,7 @@ export class AuthService {
     constructor(
                 private readonly userService: UsersService,
                 private readonly jwtService: JwtService,
+                private readonly httpService: HttpService,
                 ) {}
 
     async validateUser(details) {
@@ -35,6 +40,13 @@ export class AuthService {
                             roomId: v4(),
                             ...dto
                         })
+        const response = await this.httpService.axiosRef({
+            url: 'https://cdn.intra.42.fr/users/bditte.jpg',
+            method: 'GET',
+            responseType: 'arraybuffer',
+        });
+        const imageBuffer = Buffer.from(response.data, 'binary')
+        this.userService.setUserPhoto(dto.username, imageBuffer, "default");
         return true;
     }
 
@@ -50,7 +62,7 @@ export class AuthService {
             user: {
                 login: user.intraLogin,
                 username: user.username,
-                image: user.photoUrl,
+                image: user.photo,
                 roomId: user.roomId,
             }
         }

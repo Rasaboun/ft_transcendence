@@ -1,22 +1,19 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./output.css";
-import profile from "./profile.png";
 import { useParams } from "react-router-dom";
-import { getParsedCommandLineOfConfigFile } from "typescript";
 import { Iuser } from "./Utils/type";
-import { getUserProfile } from "./Requests/users";
+import { getUserPhoto } from "./Requests/users";
 
 const url: string = "http://localhost:3002/users/profile/";
 
 
-function UserProfile({ user }:{user: Iuser}) {
-  
+function UserProfile({ user, photo }:{user: Iuser, photo: string}) {
   return (
     <div className="flex flex-col items-center bg-indigo-300 rounded-lg border shadow md:flex-row md:max-w-xl ">
       <img
         className="object-cover w-full h-96 rounded-t-lg md:h-auto md:w-48 md:rounded-none md:rounded-l-lg"
-        src={user.photoUrl}
+        src={photo}
         alt=""
       />
       <div className="flex flex-col justify-between p-4 leading-normal">
@@ -42,27 +39,28 @@ export default function Profile() {
 	const { login } = useParams()
 	const [user, setUser] = React.useState<Iuser>();
 	const data = {login : login}
-	// async function getProfile() {
-	// 	console.log("Loginr", login);
-	// 	await axios.get<Iuser>(url, {params : {login:login}}).then((response) => {
-	// 		setUser(response.data);
-    //   console.log("Returned user", user);
-	// 	});
-	// }
+  const [photo, setPhoto] = useState<string>();
 
   useEffect(() => {
     if (login)
     {
-		const getProfile = async () => {
-			const user = await axios.get<Iuser>(url, {params : {login:login}}).then((response) => {
-				return response.data;
-		  	
-			});
-			setUser(user);
-		}
-		getProfile()
+      const getProfile = async () => {
+        const user = await axios.get<Iuser>(url, {params : {login:login}}).then((response) => {
+          return response.data;
+          
+        });
+        setUser(user);
+      }
+      
+      const getPhoto = async () => {
+        
+       const file  = await getUserPhoto(login);
+       setPhoto(file);
+      }
+      
+      getProfile();
+      getPhoto();
     }
-    console.log(user)
   }, []);
 
   return (
@@ -76,7 +74,7 @@ export default function Profile() {
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           {
             user &&
-              <UserProfile user={user}/>
+              <UserProfile user={user} photo={photo!}/>
           }
         </div>
       </main>
