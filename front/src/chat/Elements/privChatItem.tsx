@@ -1,17 +1,16 @@
 import React from 'react'
 import { Link } from "react-router-dom";
 import { connectedUsersT, privChatP } from '../ChatUtils/chatType';
-import { buttonClass } from '../../Utils/utils';
 type PrivChatPropsT = {
-    connectedUsers: connectedUsersT,
+    user: connectedUsersT,
     handleJoinPrivChat: ( data:connectedUsersT) => void;
 }
 
-export default function PrivChatItem({ connectedUsers, handleJoinPrivChat }:PrivChatPropsT  )
+export default function PrivChatItem({ user, handleJoinPrivChat }:PrivChatPropsT  )
 {
     const handleSubmit = (e:React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
-        handleJoinPrivChat(connectedUsers)
+        handleJoinPrivChat(user)
     }
     
     const handleTest=()=>
@@ -26,7 +25,7 @@ export default function PrivChatItem({ connectedUsers, handleJoinPrivChat }:Priv
             padding: "1em",
             borderBottom: "1px solid black"
         }}>
-            <h1>User: {connectedUsers.username}</h1>
+            <h1>User: {user.username}</h1>
             <button type="submit" style={{
                             height: "3vh",
                             width: "17vh",
@@ -35,9 +34,9 @@ export default function PrivChatItem({ connectedUsers, handleJoinPrivChat }:Priv
                             borderRadius: "20px"
                         }}
                    onClick={() =>
-                        handleJoinPrivChat(connectedUsers)
+                        handleJoinPrivChat(user)
                     }>
-                            Block User
+                            Join
                         </button>
             <button type="submit" style={{
                             height: "3vh",

@@ -8,7 +8,6 @@ import { PrivChat } from "./privChat";
 import { ActionOnUser, ChannelClient } from "../types/channel.type";
 import { PrivChatService } from "./chat.service";
 import { User } from "src/typeorm";
-import { PrivChatNewMessageDto } from "../types/privChat.types";
 import { map } from "rxjs";
 import { UsersService } from "src/users/users.service";
 
@@ -31,9 +30,8 @@ export class PrivChatManager
 		for (let i = 0; privChatInDb.length; i++)
 		{
 			const currPrivChat = new PrivChat(this.server,
-								privChatInDb[i].UserIdFirstSender,
-								privChatInDb[i].UserIdFirstReciever,
-								privChatInDb[i].mess);
+								privChatInDb[i].firstUserLogin,
+								privChatInDb[i].secondUserLogin);
 			this.onlineChats.push(currPrivChat);
 		}
 	}
@@ -67,22 +65,21 @@ export class PrivChatManager
 		return undefined;
 	}
 
-	public async createPrivateChat(senderId: string, recieverId: string, firstMess: string)
+	public async createPrivateChat(firstUserLogin: string, secondUserLogin: string, firstMess: string)
 	{
-		if (this.privateChatExists(senderId, recieverId))	
+		if (this.privateChatExists(firstUserLogin, secondUserLogin))	
 			throw new ForbiddenException("Cannot create a chat that already exists");
 		try {
-			var senderUser: User = await this.userService.findOneByIntraLogin(senderId);
-			var recieverUser: User = await this.userService.findOneByIntraLogin(recieverId);
+			var firstUser: User = await this.userService.findOneByIntraLogin(firstUserLogin);
+			var secondUser: User = await this.userService.findOneByIntraLogin(secondUserLogin);
 			var messStruct: Message = {
-				"sender": {"login": senderUser.intraLogin, "username": senderUser.username},
-				"reciever": {"login": recieverUser.intraLogin, "username": recieverUser.username},
+				"sender": {"login": firstUser.intraLogin, "username": firstUser.username},
 				"content": firstMess,
 				"type": MessageTypes.Message,
 				};
-			console.log("Create new chat param : ", senderId, " recieverId " , recieverId, " server : ", this.server)
-			this.privChatService.createNewChat({"UserIdFirstSender": senderId, "UserIdFirstReciever": recieverId, "mess": [messStruct, ]})
-			const chat = new PrivChat(this.server, senderId, recieverId, [messStruct, ]);	
+			console.log("Create new chat param : ", firstUserLogin, " secondUserLogin " , secondUserLogin, " server : ", this.server)
+			this.privChatService.createNewChat({firstUserLogin,  secondUserLogin})
+			const chat = new PrivChat(this.server, firstUserLogin, secondUserLogin, [messStruct, ]);	
 			this.onlineChats.push(chat);
 		}
 		catch (error)
@@ -124,7 +121,7 @@ export class PrivChatManager
 	public async joinPrivChat(client: AuthenticatedSocket, intraLogin: string)
 	{
 		try {
-			this.server.to(client.roomId).emit("privMessageList", (await this.loadMessages(client.login, intraLogin)))
+			client.emit("privMessageList", (await this.loadMessages(client.login, intraLogin)))
 		}
 		catch (error)
 		{
@@ -143,18 +140,18 @@ export class PrivChatManager
 		{
 			try {
 				this.createPrivateChat(senderId, recieverId, mess);
-				var faMess: Message[] = [{ sender: 
-							{
-								login: senderId,
-								username: senderId
-							}, reciever: {
-								login: senderId,
-								username: senderId,
-							},
-							content: mess,
-							type: 2
-						}, ];
-				chat = new PrivChat(this.server, senderId, recieverId, faMess);
+				// var faMess: Message[] = [{ sender: 
+				// 			{
+				// 				login: senderId,
+				// 				username: senderId
+				// 			}, reciever: {
+				// 				login: senderId,
+				// 				username: senderId,
+				// 			},
+				// 			content: mess,
+				// 			type: 2
+				// // 		}, ];
+				// chat = new PrivChat(this.server, senderId, recieverId, faMess);
 			}
 			catch (error)
 			{
@@ -169,7 +166,6 @@ export class PrivChatManager
 		var recieverUser: User = await this.userService.findOneByIntraLogin(recieverId);
 		var messStruct: Message = {
 			"sender": {"login": senderUser.intraLogin, "username": senderUser.username},
-			"reciever": {"login": recieverUser.intraLogin, "username": recieverUser.username},
 			"content": mess,
 			"type": MessageTypes.Message,
 			};

@@ -114,12 +114,6 @@ export default function ChannelMenu()
 		
 	))
 	
-	const allNewpeople = connectedUsers?.map((elem, ind) => ( 
-		<PrivChatItem key={ind}
-			connectedUsers={elem}
-			handleJoinPrivChat={handleJoinPrivateChat}
-			/>
-	))
 	
 	/*<div style={{
             padding: "1em",

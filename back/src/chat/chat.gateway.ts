@@ -218,42 +218,43 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('privChatCreateChat')
-	async createPrivChat(client :AuthenticatedSocket, recieverId: string, content: string)
+	async createPrivChat(client :AuthenticatedSocket, receiverId: string, content: string)
 	{
 		try
 		{
-			this.privChatManager.createPrivateChat(client.login, recieverId, content)
+			this.privChatManager.createPrivateChat(client.login, receiverId, content)
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
 
 	@SubscribeMessage('joinPrivateChat')
-	async testJoinedPrivChat(client :AuthenticatedSocket, intraLogin: string)
+	async joinPrivChat(client :AuthenticatedSocket, intraLogin: string)
 	{
 		try{
+			console.log(client.login," joining chat with", intraLogin);
 			this.privChatManager.joinPrivChat(client, intraLogin);
-			client.to(client.roomId).emit("joinedPrivChat", intraLogin)
+			client.emit("joinedPrivChat", intraLogin)
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
 
 	@SubscribeMessage('privChatLoadMessages')
-	async privChatLoadMessage(client :AuthenticatedSocket, recieverId: string)
+	async privChatLoadMessage(client :AuthenticatedSocket, receiverId: string)
 	{
 		try 
 		{
-			client.emit('privChatLoadMessages', this.privChatManager.loadMessages(client.login, recieverId));
+			client.emit('privChatLoadMessages', this.privChatManager.loadMessages(client.login, receiverId));
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
 
 	@SubscribeMessage('privChatSendMessage')
-	async privChatSendMessage(client :AuthenticatedSocket, data: {recieverIntraLogin, message})
+	async privChatSendMessage(client: AuthenticatedSocket, data: {receiverIntraLogin, message})
 	{
 		try {
-			var mess: Message = (await this.privChatManager.sendMessage(client, client.login, data.recieverIntraLogin, data.message))
+			var mess: Message = (await this.privChatManager.sendMessage(client, client.login, data.receiverIntraLogin, data.message))
 			client.to(client.roomId).emit('privChatSendMessage', mess);
-			client.emit('privChatLoadMessages', this.privChatManager.loadMessages(client.login, data.recieverIntraLogin));
+			client.emit('privChatLoadMessages', this.privChatManager.loadMessages(client.login, data.receiverIntraLogin));
 		}
 		catch (error) { client.emit('error', error) }
 	}

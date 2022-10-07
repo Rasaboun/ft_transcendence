@@ -7,15 +7,14 @@ export class PrivChat {
   id: number;
 
   @Column()
-  UserIdFirstSender: string
+  firstUserLogin: string
 
   @Column()
-  UserIdFirstReciever: string
+  secondUserLogin: string
 
-  @Column({default: -1})
-  UserIdBlocker: number;
+  @Column('json', {
+      default: [],
+  })
+  messages: Message[];
 
-  @Column("json",
-    {default: []})
-  mess: Message[];
 }

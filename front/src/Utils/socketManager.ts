@@ -127,10 +127,10 @@ export function joinPrivChat(intraLogin: string)
 	chatSocket?.emit("joinPrivateChat", intraLogin)
 }
 
-export function sendPrivMessage(recieverIntraLogin: string, message: string)
+export function sendPrivMessage(targetLogin: string, message: string)
 {
-	console.log("sendPrivateMessage : ", recieverIntraLogin, " avec message : ", message);
-	chatSocket?.emit("privChatSendMessage", {recieverIntraLogin, message});
+	console.log("sendPrivateMessage : ", targetLogin, " avec message : ", message);
+	chatSocket?.emit("privChatSendMessage", {targetLogin, message});
 }
 
 export function sendInvitation(data:{channelName: string, mode: GameMode}) {

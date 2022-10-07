@@ -46,8 +46,8 @@ export default function PrivChatMenu()
 		window.alert(message)
 	}
 
-	const handleJoinPrivateChat = (intraLogin:string) => {
-		joinPrivChat(intraLogin);
+	const handleJoinPrivateChat = (user: connectedUsersT) => {
+		joinPrivChat(user.intraLogin);
 		navigate("/chat/privMessage");
 	}	
 
@@ -69,9 +69,9 @@ export default function PrivChatMenu()
 			handlePrivChatJoined)
 	}, [])
 
-	const allNewpeople = connectedUsers?.map((elem, ind) => ( 
+	const users = connectedUsers?.map((elem, ind) => ( 
 		<PrivChatItem key={ind}
-			connectedUsers={elem}
+			user={elem}
 			handleJoinPrivChat={handleJoinPrivateChat}
 			/>
 	))
@@ -80,7 +80,7 @@ export default function PrivChatMenu()
 		
         <div>
 			<h1 style={{ fontSize: "20px", margin: "40px" }}> <strong> Users connected and open to chat with you:</strong></h1>
-			{allNewpeople}
+			{users}
 		</div>
     )
 }
