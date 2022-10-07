@@ -127,9 +127,10 @@ export function joinPrivChat(intraLogin: string)
 	chatSocket?.emit("joinPrivateChat", intraLogin)
 }
 
-export function sendPrivMessage(recieverId: string, message: string)
+export function sendPrivMessage(recieverIntraLogin: string, message: string)
 {
-	chatSocket?.emit("privChatSendMessage", recieverId, message)
+	console.log("sendPrivateMessage : ", recieverIntraLogin, " avec message : ", message);
+	chatSocket?.emit("privChatSendMessage", {recieverIntraLogin, message});
 }
 
 export function sendInvitation(data:{channelName: string, mode: GameMode}) {
@@ -148,7 +149,7 @@ export function chatMenuHandler(handleActiveChannels:any,
 	chatSocket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
 	chatSocket.on('InvitedToChannel', (message:string) => handleInvitation(message))
 	chatSocket.on("listOfConnectedUsers", (userList:{intraLogin: string, username: string}[]) => loadConnectedUser(userList));
-	chatSocket.on("joinedPrivChat", () => handlePrivChatJoined());
+	// chatSocket.on("joinedPrivChat", () => handlePrivChatJoined());
 }
 
 export function chatHandler(handleMessageReceived:any,
@@ -163,24 +164,25 @@ export function chatHandler(handleMessageReceived:any,
 							handleChannelJoined:any,
 							handleConnected:any)
 {
-		
-        chatSocket.on("msgToChannel", (msg:messageT) => handleMessageReceived(msg))      
-        chatSocket.on('channelDeleted', (message:string) => handleChannelDeleted(message))
-        chatSocket.on('clientInfo', (data:ClientInfoT) => handleClientInfo(data))
-        chatSocket.on('bannedFromChannel', (data:ActionOnUser) => handleBannedFromChannel(data))
-        chatSocket.on('mutedInChannel', (data:ActionOnUser) => handleMutedFromChannel(data))
-        chatSocket.on('addAdmin', (data: {target: string, channelInfo: ChannelT}) => handleAddAdmin(data))
-        chatSocket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
-        chatSocket.on('leftChannel', (channelInfo:ChannelT) => handleLeftChannel(channelInfo))
-        chatSocket.on('newOwner', (data: {target: string, channelInfo: ChannelT}) => newOwner(data))
-        chatSocket.on('isAlreadyAdmin', handleIsAlreadyAdmin)
-
+	chatSocket.on("msgToChannel", (msg:messageT) => handleMessageReceived(msg))      
+	chatSocket.on('channelDeleted', (message:string) => handleChannelDeleted(message))
+	chatSocket.on('clientInfo', (data:ClientInfoT) => handleClientInfo(data))
+	chatSocket.on('bannedFromChannel', (data:ActionOnUser) => handleBannedFromChannel(data))
+	chatSocket.on('mutedInChannel', (data:ActionOnUser) => handleMutedFromChannel(data))
+	chatSocket.on('addAdmin', (data: {target: string, channelInfo: ChannelT}) => handleAddAdmin(data))
+	chatSocket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
+	chatSocket.on('leftChannel', (channelInfo:ChannelT) => handleLeftChannel(channelInfo))
+	chatSocket.on('newOwner', (data: {target: string, channelInfo: ChannelT}) => newOwner(data))
+	chatSocket.on('isAlreadyAdmin', handleIsAlreadyAdmin)
 }
 
-export function chatHandlerPrivEl(handlePrivMessageReceived:any, handlePrivMessList: any)
+export function chatHandlerPrivEl(handlePrivMessageReceived:any,
+									handlePrivMessList: any,
+									handlePrivChatJoined: any)
 {
 	chatSocket.on("privChatSendMessage", (msg:messageT) => handlePrivMessageReceived(msg))      
 	chatSocket.on("privMessageList", (msg:messageT[]) => handlePrivMessList(msg))
+	chatSocket.on("joinedPrivChat", (intraLogin:string) => handlePrivChatJoined(intraLogin))
 }
 
 // export function appSocketRoutine(handleSession:any) {

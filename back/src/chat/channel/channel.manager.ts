@@ -58,7 +58,7 @@ export class ChannelManager
             if (uuidRegexExp.test(data.name))
                 throw new ForbiddenException("Invalid channel name");
             let channel = new Channel(this.server, data.name);
-            
+
             channel.owner = client.login;
             channel.mode = data.mode;
             channel.addClient(client.login, client.roomId);
@@ -74,8 +74,8 @@ export class ChannelManager
                     password: data.password,
                     ownerId: client.login, //change to real id
                 });
-            await this.channelsService.addClient(channel.id, client.login, data.password);//change to real id
-            await this.channelsService.addAdmin(channel.id, client.login);//change to real id
+            await this.channelsService.addClient(channel.id, client.login, data.password); //change to real id
+            await this.channelsService.addAdmin(channel.id, client.login); //change to real id
 
             client.join(channel.id);
             channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id)), });

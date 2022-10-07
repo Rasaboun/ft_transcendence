@@ -2,15 +2,15 @@ import { Message } from 'src/chat/types/channel.type';
 import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
 
 @Entity()
-export class PrivChat extends BaseEntity {
+export class PrivChat {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column()
-  UserIdFirstSender: number 
+  UserIdFirstSender: string
 
   @Column()
-  UserIdFirstReciever: number
+  UserIdFirstReciever: string
 
   @Column({default: -1})
   UserIdBlocker: number;

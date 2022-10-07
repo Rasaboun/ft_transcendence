@@ -1,0 +1,15 @@
+"use strict";
+exports.__esModule = true;
+exports.PrivChat = exports.Session = exports.Channel = exports.Match = exports.User = void 0;
+var Match_1 = require("./Match");
+exports.Match = Match_1.Match;
+var User_1 = require("./User");
+exports.User = User_1.User;
+var Channel_1 = require("./Channel");
+exports.Channel = Channel_1.Channel;
+var PrivChat_1 = require("./PrivChat");
+exports.PrivChat = PrivChat_1.PrivChat;
+var Session_1 = require("./Session");
+exports.Session = Session_1.Session;
+var entities = [User_1.User, Match_1.Match, Channel_1.Channel, Session_1.Session, PrivChat_1.PrivChat];
+exports["default"] = entities;

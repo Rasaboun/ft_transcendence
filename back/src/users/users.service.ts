@@ -13,7 +13,6 @@ export class UsersService {
     constructor(
         @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private dataSource: DataSource,
     private readonly configService: ConfigService
     ) { }
 
@@ -78,12 +77,11 @@ export class UsersService {
         })
     }
 
-
     findOneByUsername(username: string){
 
         if (isNaN(Number(username)))
             return this.userRepository.findOneBy({ username });
-        return this.findOneById( Number(username ));
+        return this.findOneById(Number(username));
     }
 
     async createUser(userDto: createUserDto): Promise<User> {

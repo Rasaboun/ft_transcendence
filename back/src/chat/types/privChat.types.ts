@@ -12,9 +12,9 @@ import { Message } from "./channel.type";
 }
 
  export class newPrivatChat{
-    Sender: number;
+    UserIdFirstSender: string;
 
-    Reciever: number;
+    UserIdFirstReciever: string;
 
     mess: Message[];
 }

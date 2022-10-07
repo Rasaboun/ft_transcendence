@@ -11,6 +11,7 @@ import { DataSource } from "typeorm"
 import { MatchModule } from './match/match.module';
 import { ChatModule } from './chat/chat.module';
 import { GameModule } from './game/game.module';
+import { PrivChat } from './chat/privChat/privChat';
 
 @Module({
   imports: [

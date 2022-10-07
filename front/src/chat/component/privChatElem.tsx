@@ -14,24 +14,33 @@ import "../../output.css";
 export default function PrivChatElem()
 {
     const {chatSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
+    const lastMessageRef = useRef<HTMLDivElement | null>(null)
     const {storage} = useLocalStorage("user")
 	const {setStorage} = useLocalStorage()
-	const [form, setForm] = useState({
-        message:"",
-    })
+	const [form, setForm] = useState({ message:"", })
+
+    const [contName, setContName] = useState<string>()
     // rajouter fct ype socket on pr recuperer inralogin
     const handlePrivChatJoined = (intraLogin: string) => {
         // set intra login
+        console.log("THE STORAGE INTRA LOGIN IS ;", intraLogin);
+        setContName(intraLogin)
+		setStorage("intraLogin", intraLogin);
 	}
 
     const [messagesList, setMessagesList] = useState<messageT[]>()
 
     const handleSubmitPrivMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
-        sendPrivMessage(storage?.intraLogin, form.message)
+        e.preventDefault()
+        if (form.message != "")
+        {
+            sendPrivMessage(storage?.login, form.message)
+        }
 		setMessagesList((oldMessagesList) => (
 			oldMessagesList === undefined ? [] :
 				[...oldMessagesList]
 		))
+        console.log("sending message content of form : ", form)
     }
 
     const handlePrivMessageReceived = (msg:messageT) => {
@@ -43,9 +52,13 @@ export default function PrivChatElem()
 
     const handlePrivMessList = (msg:messageT[]) => {
         // fct appelee uniquement pour remplir les mess initialement 
-        setMessagesList((oldMessagesList) => (
-            [...msg]
-        ))
+        console.log("Displaying msg : ", msg)
+        if (msg.length > 0)
+        {
+            setMessagesList(() => (
+                [...msg]
+            ))
+        }
     }
 
 	const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
@@ -65,20 +78,29 @@ export default function PrivChatElem()
             />
     ))
 
+    const scrollToBottom = () => {
+        lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+     useEffect(() => {
+       scrollToBottom()
+    }, [messagesList])
+
     useEffect(() => {
         initiateSocket("http://localhost:8002")
         setChatSocket(getChatSocket())
-        if (chatSocket)
+        if (chatSocket?.connected)
         {
-           chatHandlerPrivEl(handlePrivMessageReceived, handlePrivMessList) 
+           chatHandlerPrivEl(handlePrivMessageReceived, handlePrivMessList, handlePrivChatJoined) 
         }
     }, [])
 
    return (<div className="chat">
+            <h1>Chatting with : {contName}</h1>
             <div className="chat-right">
                 <div className="h-96 bg-indigo-100">
                     <div className="">
                         {messageElem}
+                        <div ref={lastMessageRef}/>
                     </div>
                 </div>
                 <PrivMessageInput handleSubmitMessage={handleSubmitPrivMessage}

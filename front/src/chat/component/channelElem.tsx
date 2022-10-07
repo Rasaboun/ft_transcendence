@@ -212,7 +212,6 @@ export default function ChannelElem()
                 message={elem}/>)
     ))
 
-
     useEffect(() => {
         const channel = storage2;
         console.log("CHANNEL NAME", channel.channelId)
@@ -260,7 +259,10 @@ export default function ChannelElem()
                         <div ref={lastMessageRef}/>
                     </div>
                 </div>
-                <MessageInput mutedTime={mutedTime} handleChange={handleChange} handleSubmitMessage={handleSubmitMessage} value={form.message}/>
+                <MessageInput mutedTime={mutedTime}
+                    handleChange={handleChange}
+                    handleSubmitMessage={handleSubmitMessage}
+                    value={form.message}/>
            </div>          
         </div>
     )
