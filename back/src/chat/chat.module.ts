@@ -9,7 +9,7 @@ import { User, PrivChat } from 'src/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
 import { AuthService } from 'src/auth/auth.service';
 import { UsersModule } from 'src/users/users.module';
-import { PrivChatService } from './privChat/chat.service';
+import { PrivChatService } from './privChat/privChat.service';
 import { PrivChatManager } from './privChat/privChat.manager';
 
 @Module({

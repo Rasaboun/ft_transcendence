@@ -6,7 +6,7 @@ import { AuthenticatedSocket } from "src/auth/types/auth.type";
 import { Message, MessageTypes } from "../types/channel.type";
 import { PrivChat } from "./privChat";
 import { ActionOnUser, ChannelClient } from "../types/channel.type";
-import { PrivChatService } from "./chat.service";
+import { PrivChatService } from "./privChat.service";
 import { User } from "src/typeorm";
 import { map } from "rxjs";
 import { UsersService } from "src/users/users.service";
