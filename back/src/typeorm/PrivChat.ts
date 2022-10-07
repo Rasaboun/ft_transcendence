@@ -7,6 +7,9 @@ export class PrivChat {
   id: number;
 
   @Column()
+  name: string;
+
+  @Column()
   firstUserLogin: string
 
   @Column()
@@ -16,5 +19,11 @@ export class PrivChat {
       default: [],
   })
   messages: Message[];
+
+  @Column('text', {
+    default: [],
+    array: true,
+  })
+  blockedList: string[];
 
 }

@@ -12,6 +12,7 @@ import { User } from 'src/typeorm';
 import { UsersService } from 'src/users/users.service'
 import { GameMode } from 'src/game/types/game.type';
 import { use } from 'passport';
+import { connectedUser, sendMessageDto } from './types/privChat.type';
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -34,6 +35,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.channelManager.server = server;
 		this.channelManager.initChannels();
 		this.privChatManager.server = server;
+		this.privChatManager.initPrivChats();
 	
 	}
 
@@ -217,44 +219,33 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		catch (error) { client.emit('error', error.message ) }
 	}
 
-	@SubscribeMessage('privChatCreateChat')
-	async createPrivChat(client :AuthenticatedSocket, receiverId: string, content: string)
-	{
-		try
-		{
-			this.privChatManager.createPrivateChat(client.login, receiverId, content)
-		}
-		catch (error) { client.emit('error', error.message ) }
-	}
 
 	@SubscribeMessage('joinPrivateChat')
-	async joinPrivChat(client :AuthenticatedSocket, intraLogin: string)
+	async joinPrivChat(client: AuthenticatedSocket, targetLogin: string)
 	{
 		try{
-			console.log(client.login," joining chat with", intraLogin);
-			this.privChatManager.joinPrivChat(client, intraLogin);
-			client.emit("joinedPrivChat", intraLogin)
+			console.log(client.login," joining chat with", targetLogin);
+			this.privChatManager.joinPrivChat(client, targetLogin);
+			client.emit("joinedPrivChat", targetLogin)
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
 
 	@SubscribeMessage('privChatLoadMessages')
-	async privChatLoadMessage(client :AuthenticatedSocket, receiverId: string)
+	async privChatLoadMessage(client :AuthenticatedSocket, targetLogin: string)
 	{
 		try 
 		{
-			client.emit('privChatLoadMessages', this.privChatManager.loadMessages(client.login, receiverId));
+			client.emit('privChatLoadMessages', await this.privChatManager.loadMessages(client.login, targetLogin));
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
 
 	@SubscribeMessage('privChatSendMessage')
-	async privChatSendMessage(client: AuthenticatedSocket, data: {receiverIntraLogin, message})
+	async privChatSendMessage(client: AuthenticatedSocket, data: sendMessageDto)
 	{
 		try {
-			var mess: Message = (await this.privChatManager.sendMessage(client, client.login, data.receiverIntraLogin, data.message))
-			client.to(client.roomId).emit('privChatSendMessage', mess);
-			client.emit('privChatLoadMessages', this.privChatManager.loadMessages(client.login, data.receiverIntraLogin));
+			await this.privChatManager.sendMessage(client, data)
 		}
 		catch (error) { client.emit('error', error) }
 	}
@@ -264,18 +255,32 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try {
 			// on filtre et on envoie uniquement ce qu'il faut
-			var connectedList = await this.userService.findAll();
-			type tse = {
-				intraLogin:string,
-				username: string
-			}
-			var s: tse[] = [];
-			var e: tse;
+			const connectedList = await this.userService.findAll();
+			
+			let connectedUsers: connectedUser[] = [];
 			connectedList.forEach((element) => {
-				e = { intraLogin: element.intraLogin, username: element.username};
-				s.push(e)
+				const user = { intraLogin: element.intraLogin, username: element.username, status: element.status};
+				connectedUsers.push(user);
 			})
-			client.emit('listOfConnectedUsers', s);
+			client.emit('listOfConnectedUsers', connectedUsers);
+		}
+		catch (error) { client.emit('error', error.message); }
+	}
+
+	@SubscribeMessage('blockUser')
+	async blockUser(client: AuthenticatedSocket, chatName: string)
+	{
+		try {
+			this.privChatManager.blockUser(client.login, chatName);
+		}
+		catch (error) { client.emit('error', error.message); }
+	}
+
+	@SubscribeMessage('unblockUser')
+	async unblockUser(client: AuthenticatedSocket, chatName: string)
+	{
+		try {
+			this.privChatManager.unblockUser(client.login, chatName);
 		}
 		catch (error) { client.emit('error', error.message); }
 	}

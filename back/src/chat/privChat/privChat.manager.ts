@@ -8,8 +8,10 @@ import { PrivChat } from "./privChat";
 import { ActionOnUser, ChannelClient } from "../types/channel.type";
 import { PrivChatService } from "./privChat.service";
 import { User } from "src/typeorm";
-import { map } from "rxjs";
+import { first, map } from "rxjs";
 import { UsersService } from "src/users/users.service";
+import { sendMessageDto } from "../types/privChat.type";
+import { listenerCount } from "mysql2/typings/mysql/lib/Connection";
 
 export class PrivChatManager
 {
@@ -22,106 +24,54 @@ export class PrivChatManager
 	@WebSocketServer()
 	public server: Server;
 	// array of private chat or users, only thing that counts is the users online
-	private readonly onlineChats: Array<PrivChat> = new Array<PrivChat>();
+	private readonly privateChats: Map<string, PrivChat> = new Map<string, PrivChat>();
 
-	public async initPrivChat()
+	public async initPrivChats()
 	{
 		const privChatInDb = await this.privChatService.findAll()
-		for (let i = 0; privChatInDb.length; i++)
+		for (let i = 0; i < privChatInDb.length; i++)
 		{
-			const currPrivChat = new PrivChat(this.server,
-								privChatInDb[i].firstUserLogin,
-								privChatInDb[i].secondUserLogin);
-			this.onlineChats.push(currPrivChat);
+			const currPrivChat = new PrivChat(this.server, privChatInDb[i].name);
+			
+			const firstUser = await this.userService.findOneByIntraLogin(privChatInDb[i].firstUserLogin);
+			const secondUser = await this.userService.findOneByIntraLogin(privChatInDb[i].secondUserLogin);
+			currPrivChat.addClient(firstUser.intraLogin, firstUser.roomId);
+			currPrivChat.addClient(secondUser.intraLogin, secondUser.roomId);
+			
+			this.privateChats.set(currPrivChat.name, currPrivChat);
 		}
 	}
 
-	private async privateChatExists(senderId: string , recieverId: string)
+
+	public async loadMessages(firstUserLogin: string, secondUserLogin: string): Promise<Message[]>
 	{
-		try {
-			//check in list
-			// check in bsd
-			var e: any;
-			this.onlineChats.forEach(element => {
-				if ((element._recieverId == recieverId && element._senderId == senderId) ||
-					element._senderId == recieverId && element._senderId == recieverId)	
-				{
-					return element;
-				}	
-			});
-			if ((e = await this.privChatService.findOneBySenderReciever(senderId, recieverId)) != undefined)
+		const chat = await this.privChatService.findOneByUsers(firstUserLogin, secondUserLogin);
+		let messages: Message[] = [];
+		if (chat)
+			messages = chat.messages;
+		return (messages);
+	}
+
+	public async joinPrivChat(client: AuthenticatedSocket, targetLogin: string)
+	{
+		try
+		{
+			let chat = await this.privChatService.findOneByUsers(client.login, targetLogin);	
+			if (!chat)
 			{
-				console.log("return of findOneBySenderReciever : " + e)
-				// add the chat in the list if it is already registered
-				var s: PrivChat = new PrivChat(this.server, e.userIdFirstSender, e.userIdFirstReciever, e.mess);
-				this.onlineChats.push(s)
-				return s;
+				chat = await this.privChatService.createNewChat(client.login, targetLogin);
+				
+				const privChat = new PrivChat(this.server, chat.name);
+				privChat.addClient(client.login, client.roomId);
+				
+				const secondUser = await this.userService.findOneByIntraLogin(targetLogin);
+				privChat.addClient(secondUser.intraLogin, secondUser.roomId);
+
+				this.privateChats.set(privChat.name, privChat);
 			}
-		}
-		catch( error )
-		{
-			throw new ForbiddenException(error);	
-		}
-		return undefined;
-	}
-
-	public async createPrivateChat(firstUserLogin: string, secondUserLogin: string, firstMess: string)
-	{
-		if (this.privateChatExists(firstUserLogin, secondUserLogin))	
-			throw new ForbiddenException("Cannot create a chat that already exists");
-		try {
-			var firstUser: User = await this.userService.findOneByIntraLogin(firstUserLogin);
-			var secondUser: User = await this.userService.findOneByIntraLogin(secondUserLogin);
-			var messStruct: Message = {
-				"sender": {"login": firstUser.intraLogin, "username": firstUser.username},
-				"content": firstMess,
-				"type": MessageTypes.Message,
-				};
-			console.log("Create new chat param : ", firstUserLogin, " secondUserLogin " , secondUserLogin, " server : ", this.server)
-			this.privChatService.createNewChat({firstUserLogin,  secondUserLogin})
-			const chat = new PrivChat(this.server, firstUserLogin, secondUserLogin, [messStruct, ]);	
-			this.onlineChats.push(chat);
-		}
-		catch (error)
-		{
-			throw error;	
-		}
-	}
-
-	/*
-	public terminateSocket(client: AuthenticatedSocket): void
-	{
-		client.data.privChat?.terminateConnection(client);
-		// todo remove an element clean from an array
-		var i2 = 0;
-		for (var i = 0; i < this.socketList.length - 1; i++)
-		{
-			if (this.socketList[i] == client)
-				this.socketList.at(i) == this.socketList.at(++i2);
-			i2++;
-		}
-		this.socketList.pop()
-	}
-	*/
-
-	///
-	// chat operations
-	///
-	public async loadMessages(senderId: string, recieverId: string): Promise<Message[]>
-	{
-		console.log("LoadMessages : senderId : ", senderId, " recieverId ", recieverId)
-		if (this.privateChatExists(senderId, recieverId))
-		{
-			var messageList: Message[] = await this.privChatService.getMessageList(senderId, recieverId);
-			return (messageList);
-		}
-		return ([]);
-	}
-
-	public async joinPrivChat(client: AuthenticatedSocket, intraLogin: string)
-	{
-		try {
-			client.emit("privMessageList", (await this.loadMessages(client.login, intraLogin)))
+			client.join(chat.name);
+			//client.emit('joinedPrivChat', {chatName: chat.name, messages: chat.messages});
+			client.emit("privMessageList", chat.messages);
 		}
 		catch (error)
 		{
@@ -129,72 +79,44 @@ export class PrivChatManager
 		}
 	}
 
-	///
-	// message opearation
-	///
-	public async sendMessage(client: AuthenticatedSocket, senderId: string, recieverId: string, mess: string): Promise<Message>
+	public async sendMessage(client: AuthenticatedSocket, data: sendMessageDto): Promise<Message>
 	{
-		// case the two id are the same
-		let chat: PrivChat;
-		if ((this.privateChatExists(senderId, recieverId)) == undefined)
-		{
-			try {
-				this.createPrivateChat(senderId, recieverId, mess);
-				// var faMess: Message[] = [{ sender: 
-				// 			{
-				// 				login: senderId,
-				// 				username: senderId
-				// 			}, reciever: {
-				// 				login: senderId,
-				// 				username: senderId,
-				// 			},
-				// 			content: mess,
-				// 			type: 2
-				// // 		}, ];
-				// chat = new PrivChat(this.server, senderId, recieverId, faMess);
-			}
-			catch (error)
-			{
-				throw error;
-			}
-		}
-		else
-		{
-			chat = new PrivChat(this.server, senderId, recieverId, )
-		}
-		var senderUser: User = await this.userService.findOneByIntraLogin(senderId);
-		var recieverUser: User = await this.userService.findOneByIntraLogin(recieverId);
-		var messStruct: Message = {
-			"sender": {"login": senderUser.intraLogin, "username": senderUser.username},
-			"content": mess,
-			"type": MessageTypes.Message,
+		const chat = this.privChatService.findOneByName(data.chatName);
+		if (!chat)
+			return ;
+		if (await this.privChatService.isBlocked(data.chatName, client.login))
+			throw new ForbiddenException('You are block by this user');
+
+		const sender = await this.userService.findOneByIntraLogin(client.login);
+
+		const message: Message = {
+		 	sender: {
+				login: client.login,
+				username: sender.username
+			},
+			content: data.content,
+			type: MessageTypes.Message,
 			};
-		chat.sendMessage(client.roomId, senderId, mess);
-		// need to send it to recievers
-		this.privChatService.sendMessage(messStruct);
-		return (messStruct);
+			
+		const privChat = this.privateChats.get(data.chatName);
+		privChat.sendMessage(message);
+		await this.privChatService.addMessage(data.chatName, message);
 	}	
 
-	public getOpennedPrivChat(clientId: string): Array<PrivChat>
+	public async blockUser(callerLogin: string, chatName: string)
 	{
-		var ret_val: Array<PrivChat> = [];
-		for (var i in this.onlineChats)
-		{
-			if (this.onlineChats[i]._senderId == clientId || this.onlineChats[i]._recieverId == clientId)
-				ret_val.push(this.onlineChats[i]);
-		}
-		return (ret_val);
+		const chat = this.privateChats.get(chatName);
+		const targetLogin = chat.getOtherLogin(callerLogin);
+		await this.privChatService.blockUser(chatName, targetLogin);
+		//add message
+		
 	}
 
-	public getConnectedUsers()
+	public async unblockUser(callerLogin: string, chatName: string)
 	{
-		// means that we should get map or array of all connected user from the beginning on
-		// means the array should constantly check for disconnection
+		const chat = this.privateChats.get(chatName);
+		const targetLogin = chat.getOtherLogin(callerLogin);
+		await this.privChatService.unblockUser(chatName, targetLogin);	
+		//add message
 	}
-
-	/*public listUsers()
-	{
-		return (this.socketList.toString());
-	}
-	*/
 }

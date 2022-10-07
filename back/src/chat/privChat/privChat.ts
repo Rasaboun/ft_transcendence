@@ -1,53 +1,41 @@
 import { v4 } from "uuid";
 import { Server } from "socket.io";
 import { Message } from "../types/channel.type";
+import { StringRegexOptions } from "joi";
 
 export class PrivChat
 {
     public readonly _isBlocked:      boolean = false;
-    public _SenderConnected:      boolean = false;
-    public _RecieverConnected:      boolean = false;
+	public			clients:		Map<string, string> = new Map<string, string>();
+    constructor    ( private server: Server, public name: string ) {}
 
-    constructor    ( private _server: Server,
-			public _senderId : string,
-			public _recieverId: string,
-			public _messList: Message[] = [],
-		) {
-			//todo add a function to check the connection status of id's
-			this._SenderConnected = true;
-			this._RecieverConnected = true;
-		//check if previous message saved ... if already exists etc
+
+	public addClient(clientLogin: string, roomId: string)
+	{
+		this.clients.set(clientLogin, roomId);
 	}
 
     public sendToUsers(event: string, data: any)
 	{
 		// add this a fct to send to single user
 		// this.server.to(this.id).emit(event, data);
+		
 	}
 
-	public joinChannel()
+	public getOtherLogin(callerLogin: string)
 	{
-
+		let res: string;
+		this.clients.forEach((roomId, login) => {
+			if (login != callerLogin)
+				res = login;
+		})
+		return res;
 	}
 
-	public sendMessage(client: string, senderId: string, mess: string)
-	{
-		// get the privChat entity to gt first senderandreciever and transform it into a string
-		console.log("client: client content")
-		console.log("client:", client)
-		this._server.to(client).emit("privMessageToReciever", {sender: senderId, messCont: mess});
-		console.log("send message from privChat.ts")
-	}
+    public sendMessage(msg: Message) { this.server.to(this.name).emit("msgToPrivChat", msg)}
 
-	public setSenderConnected(status: boolean)
-	{
-		this._SenderConnected = status;
-	}
 
-	public setRecieverConnected(status: boolean)
-	{
-		this._RecieverConnected = status;
-	}
+	
 	// a function should be looking for new connections and potential connections
 	// need a function to list online persons 
 	// 

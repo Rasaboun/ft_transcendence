@@ -84,7 +84,7 @@ export class ChannelsService {
 
         channel.messages.push(message);
         await this.channelRepository.update(channel.id, channel);
-    }
+   } 
 
     async addAdmin(channelName: string, clientId: string) {
         const channel: Channel = await this.findOneById(channelName);
