@@ -1,7 +1,7 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
 import { chatHandler, chatHandlerPrivEl, getChatSocket, getClientInfo, getGameSocket, initiateSocket, sendMessage, sendPrivMessage } from "../../Utils/socketManager";
 import Message from "../Elements/message";
-import {ActionOnUser, ChannelModes, ChannelT, ClientInfoT, messageT, MessageTypes, UserStateT} from "../ChatUtils/chatType"
+import {ActionOnUser, ChannelModes, ChannelT, ClientInfoT, messageT, MessageTypes, privChatInfo, UserStateT} from "../ChatUtils/chatType"
 import { useNavigate } from "react-router-dom";
 import InfoMessage from "../Elements/InfoMessage";
 import ChannelBoard from "../Elements/channelBoard";
@@ -18,29 +18,28 @@ export default function PrivChatElem()
     const {storage} = useLocalStorage("user")
 	const {setStorage} = useLocalStorage()
 	const [form, setForm] = useState({ message:"", })
+    const {chatName} = useLocalStorage("chatName");
 
-    const [contName, setContName] = useState<string>()
-    // rajouter fct ype socket on pr recuperer inralogin
-    const handlePrivChatJoined = (intraLogin: string) => {
-        // set intra login
-        console.log("THE STORAGE INTRA LOGIN IS ;", intraLogin);
-        setContName(intraLogin)
-		setStorage("intraLogin", intraLogin);
-	}
 
     const [messagesList, setMessagesList] = useState<messageT[]>()
+
+    const handlePrivChatJoined = (data: privChatInfo) => {
+
+        setStorage("chatName", data.chatName);
+        setMessagesList(data.messages);
+	}
+
 
     const handleSubmitPrivMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (form.message != "")
         {
-            sendPrivMessage(storage?.login, form.message)
+            sendPrivMessage({chatName: chatName, content: form.message})
         }
-		setMessagesList((oldMessagesList) => (
-			oldMessagesList === undefined ? [] :
-				[...oldMessagesList]
-		))
-        console.log("sending message content of form : ", form)
+        setForm((oldForm) => ({
+            ...oldForm,
+            message: ""
+        }))
     }
 
     const handlePrivMessageReceived = (msg:messageT) => {
@@ -50,17 +49,7 @@ export default function PrivChatElem()
         ))
     }
 
-    const handlePrivMessList = (msg:messageT[]) => {
-        // fct appelee uniquement pour remplir les mess initialement 
-        console.log("Displaying msg : ", msg)
-        if (msg.length > 0)
-        {
-            setMessagesList(() => (
-                [...msg]
-            ))
-        }
-    }
-
+ 
 	const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         setForm((oldForm) => ({
             ...oldForm,
@@ -90,12 +79,12 @@ export default function PrivChatElem()
         setChatSocket(getChatSocket())
         if (chatSocket?.connected)
         {
-           chatHandlerPrivEl(handlePrivMessageReceived, handlePrivMessList, handlePrivChatJoined) 
+           chatHandlerPrivEl(handlePrivMessageReceived, handlePrivChatJoined) 
         }
     }, [])
 
    return (<div className="chat">
-            <h1>Chatting with : {contName}</h1>
+            <h1>Chatting with : {"CHANGE THIS"}</h1>
             <div className="chat-right">
                 <div className="h-96 bg-indigo-100">
                     <div className="">

@@ -226,7 +226,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try{
 			console.log(client.login," joining chat with", targetLogin);
 			this.privChatManager.joinPrivChat(client, targetLogin);
-			client.emit("joinedPrivChat", targetLogin)
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}

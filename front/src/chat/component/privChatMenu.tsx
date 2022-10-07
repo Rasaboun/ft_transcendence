@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 
-import { chatMenuHandler, createChannel, getActiveChannels, getChatSocket, getGameSocket, initiateSocket, joinChannel, joinPrivChat, loadConnectedUsers } from "../../Utils/socketManager";
-import { channelFormT, ChannelModes, ChannelT, connectedUsersT, JoinChannelT, privChatP } from "../ChatUtils/chatType";
+import { chatMenuHandler,  getChatSocket, getGameSocket, getUsers, initiateSocket, joinPrivChat } from "../../Utils/socketManager";
+import { ChannelT, connectedUsersT, JoinChannelT, privChatP } from "../ChatUtils/chatType";
 import { ChatContext } from "../ChatContext/chatContext";
 import { useNavigate } from "react-router-dom";
 import ChannelItem from "../Elements/channelItem";
@@ -51,7 +51,7 @@ export default function PrivChatMenu()
 		navigate("/chat/privMessage");
 	}	
 
-	const loadConnectedUser = (connectedUsers:connectedUsersT[])=>
+	const loadConnectedUsers = (connectedUsers:connectedUsersT[])=>
 	{
 		setConnectedUsers(connectedUsers);
 	}
@@ -61,11 +61,11 @@ export default function PrivChatMenu()
 		initiateSocket("http://localhost:8002")
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
-		loadConnectedUsers()
+		getUsers();
 		chatMenuHandler(handleActiveChannels,
 			handleChannelJoined,
 			handleInvitation,
-			loadConnectedUser,
+			loadConnectedUsers,
 			handlePrivChatJoined)
 	}, [])
 

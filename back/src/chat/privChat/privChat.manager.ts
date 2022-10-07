@@ -70,8 +70,7 @@ export class PrivChatManager
 				this.privateChats.set(privChat.name, privChat);
 			}
 			client.join(chat.name);
-			//client.emit('joinedPrivChat', {chatName: chat.name, messages: chat.messages});
-			client.emit("privMessageList", chat.messages);
+			client.emit('joinedPrivChat', {chatName: chat.name, messages: chat.messages});
 		}
 		catch (error)
 		{
@@ -99,6 +98,7 @@ export class PrivChatManager
 			};
 			
 		const privChat = this.privateChats.get(data.chatName);
+		console.log(client.login, "sending message", data.content);
 		privChat.sendMessage(message);
 		await this.privChatService.addMessage(data.chatName, message);
 	}	

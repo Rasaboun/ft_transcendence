@@ -31,17 +31,17 @@ export class PrivChatService {
 		return this.chatRepository.findOneBy({ name });
 	}
 
-	findOneByUsers(firstUserLogin: string, secondUserLogin: string): Promise<PrivChat>
+	async findOneByUsers(firstUserLogin: string, secondUserLogin: string): Promise<PrivChat>
 	{
 		// trying to get it in the right order : if not just returns the natural undefined from findOneBy
 		// find by firstName and lastName
-		let chat: Promise<PrivChat> = this.chatRepository.findOne({
+		let chat = await this.chatRepository.findOne({
 				where: [
 					{firstUserLogin: firstUserLogin},
 						{secondUserLogin: secondUserLogin},
 				]});
 		if (!chat)
-			chat = this.chatRepository.findOne( {
+			chat = await this.chatRepository.findOne( {
 				where: [
 					{firstUserLogin: secondUserLogin,
 						secondUserLogin: firstUserLogin,}

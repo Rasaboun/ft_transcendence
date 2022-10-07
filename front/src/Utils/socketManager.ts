@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client'
-import { ActionOnUser, AddAdminT, channelFormT, ChannelT, ClientInfoT, InviteClientT, JoinChannelT, messageT, SetChannelPasswordT } from '../chat/ChatUtils/chatType';
+import { ActionOnUser, AddAdminT, channelFormT, ChannelT, ClientInfoT, InviteClientT, JoinChannelT, messageT, sendMessageDto, SetChannelPasswordT } from '../chat/ChatUtils/chatType';
 import { availableLobbiesT, Ball, gameCollionInfoT, GameData, GameMode, GameOptions, GameSettings, Player, playerT } from '../game/GameUtils/type';
 import { getToken } from './utils';
 
@@ -117,7 +117,7 @@ export function unsetPrivateMode(channelName: string) {
 }
 
 
-export function loadConnectedUsers()
+export function getUsers()
 {
 	chatSocket?.emit("loadConnectedUsers");
 }
@@ -127,10 +127,9 @@ export function joinPrivChat(intraLogin: string)
 	chatSocket?.emit("joinPrivateChat", intraLogin)
 }
 
-export function sendPrivMessage(targetLogin: string, message: string)
+export function sendPrivMessage(data: sendMessageDto)
 {
-	console.log("sendPrivateMessage : ", targetLogin, " avec message : ", message);
-	chatSocket?.emit("privChatSendMessage", {targetLogin, message});
+	chatSocket?.emit("privChatSendMessage",  data);
 }
 
 export function sendInvitation(data:{channelName: string, mode: GameMode}) {
@@ -177,11 +176,9 @@ export function chatHandler(handleMessageReceived:any,
 }
 
 export function chatHandlerPrivEl(handlePrivMessageReceived:any,
-									handlePrivMessList: any,
 									handlePrivChatJoined: any)
 {
-	chatSocket.on("privChatSendMessage", (msg:messageT) => handlePrivMessageReceived(msg))      
-	chatSocket.on("privMessageList", (msg:messageT[]) => handlePrivMessList(msg))
+	chatSocket.on("msgToPrivChat", (msg:messageT) => handlePrivMessageReceived(msg))   
 	chatSocket.on("joinedPrivChat", (intraLogin:string) => handlePrivChatJoined(intraLogin))
 }
 

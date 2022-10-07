@@ -20,10 +20,6 @@ export type messageT = {
         login: string,
         username: string,
     },
-	reciever?: {
-        login: string,
-        username: string,
-    },
     channelName?: string,
     content: string,
     date?: string,
@@ -105,12 +101,14 @@ export type connectedUsersT = {
 	handleJoinPrivateChat: (connectedUsers: privChatP[]) => void
 }
 
-export type privMessageT = {
-	sender : number,
-	content : string,
-	date?:Date,
-	isInfo?: boolean
+export type privChatInfo = {
+	chatName: string,
+	messages: messageT[];
+}
 
+export type sendMessageDto = {
+	chatName: string,
+	content: string,
 }
 
 export enum MessageTypes {

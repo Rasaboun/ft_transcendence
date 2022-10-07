@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 
-import { chatMenuHandler, createChannel, getActiveChannels, getChatSocket, getGameSocket, initiateSocket, joinChannel, joinPrivChat, loadConnectedUsers } from "../../Utils/socketManager";
+import { chatMenuHandler, createChannel, getActiveChannels, getChatSocket, getGameSocket, initiateSocket, joinChannel, joinPrivChat} from "../../Utils/socketManager";
 import { channelFormT, ChannelModes, ChannelT, connectedUsersT, JoinChannelT, privChatP } from "../ChatUtils/chatType";
 import { ChatContext } from "../ChatContext/chatContext";
 import { useNavigate } from "react-router-dom";
@@ -83,10 +83,7 @@ export default function ChannelMenu()
 		initiateSocket("http://localhost:8002")
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
-		console.log("chaat menu chatSocket", chatSocket)
-		console.log("connected", chatSocket?.connected);
 		getActiveChannels()
-		loadConnectedUsers()
 		chatMenuHandler(handleActiveChannels,
 			handleChannelJoined,
 			handleInvitation,
