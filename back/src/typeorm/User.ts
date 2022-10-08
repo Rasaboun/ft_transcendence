@@ -28,9 +28,6 @@ export class User {
     })
     photoId: number;
 
-    @Column()
-    password: string;
-
     @Column({
         default: 0,
     })

@@ -12,6 +12,7 @@ export async function initiateSocket(url:string)
 	let token = getToken();
 	if (!token)
 		return;
+	console.log("Token", token);
 	token = JSON.parse(token);	
 	if (!chatSocket)
 	{
@@ -44,7 +45,6 @@ export function getGameSocket()
 
 export function appSocketRoutine(handleGameOver:any,
 								handleError:any) {
-
 	chatSocket.on("connect", () => {
 	})
 	chatSocket.on("connect_error", (err) => {console.log(`connect_error due to ${err.message}`)});

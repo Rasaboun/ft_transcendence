@@ -156,7 +156,7 @@ export class UsersService {
         const photo = await this.photoService.addPhoto(imageBuffer, filename);
         user.photoId = photo.id;
         await this.userRepository.update(user.id, user);
-        return photo;
+        return user
     }
 
     async getUserPhoto(login: string): Promise<Photo> {

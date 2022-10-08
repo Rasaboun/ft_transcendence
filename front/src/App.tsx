@@ -21,6 +21,7 @@ import { appSocketRoutine, getChatSocket, getGameSocket, initiateSocket } from "
 import { getToken } from "./Utils/utils";
 import ErrorAlert from "./Elements/error";
 import LoginNavBar from "./LoginNavBar";
+import Cookies from "js-cookie";
 
 const token = localStorage.getItem("token");
 if (token) {
@@ -30,7 +31,7 @@ if (token) {
 export default function App()
 {
 	const {chatSocket, setChatSocket, gameSocket, setGameSocket} = useContext(SocketContext)
-	const { storage, setStorage } = useLocalStorage("token");
+	const { storage } = useLocalStorage("token");
 	const { storage2 } = useLocalStorage("user");
 	const [alert, setAlert] = useState({
 		isShow: false,
@@ -58,14 +59,14 @@ export default function App()
 	}, [alert])
 
 	useEffect(() => {
-		if (getToken())
+		if (getToken() != `""`)
 		{
 			initiateSocket("http://localhost:8002")
 			setChatSocket(getChatSocket())
 			setGameSocket(getGameSocket())
 			appSocketRoutine(handleGameOver, handleError);
 		}
-	}, [storage])
+	}, [getToken()])
 
     return (				
 		<BrowserRouter>
@@ -73,7 +74,7 @@ export default function App()
 				alert.isShow &&
 					<ErrorAlert errorMsg={alert.msg}/>
 			}
-			{storage ? 
+			{Cookies.get('token') ? 
 				<NavBar /> :
 				<LoginNavBar/>
 			}

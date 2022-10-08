@@ -27,11 +27,6 @@ export const editFileName = (req, file, callback) => {
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
-    @Post('create')
-    createUser(@Body() userDto: createUserDto): Promise<User> {
-        return this.usersService.createUser(userDto);
-    }
-
     @Put('block')
     blockUser(@Body() dto: blockUserDto)
     {
