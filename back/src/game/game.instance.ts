@@ -92,7 +92,6 @@ export class GameInstance
         {
 			const nextPos = {	x: this.gameData.ball.x + this.gameData.ball.delta.x,
 								y: this.gameData.ball.y + this.gameData.ball.delta.y };
-			//console.log("Players", this.gameData.players);
             if (this.checkGoals(nextPos) == true)
             {
 				this.handleGoal(nextPos)
@@ -101,7 +100,9 @@ export class GameInstance
 			else
 			{
 				if (this.ballHitsLeftPaddel(nextPos) || this.ballHitsRightPaddel(nextPos))
-					this.gameData.ball.delta.x *= -1;
+				{
+					this.gameData.ball.delta.x *= -1.05;
+				}
 				else if (this.ballHitsTopOrBottom(nextPos))
 					this.gameData.ball.delta.y *= -1;
 
@@ -112,7 +113,7 @@ export class GameInstance
             
         }
 		if (this.gameData.state != GameState.Stopped)
-			setTimeout(() => this.gameLoop(), 30);
+			setTimeout(() => this.gameLoop(), 10);
 
     }
 

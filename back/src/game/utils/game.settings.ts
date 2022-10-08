@@ -32,7 +32,7 @@ export function initGameData(): GameData
         ball: {
             x: 50,
             y: 50,
-            speed: 25,
+            speed: 10,
             radius: 20,
             delta: {x: 0, y: 0},
         },
