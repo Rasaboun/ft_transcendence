@@ -8,6 +8,8 @@ import logo from './42-logo.png';
 import profile from './profile.png';
 import useLocalStorage from './hooks/localStoragehook';
 import Cookies from 'js-cookie';
+import { SocketContext } from './Context/socketContext';
+import { getUserPhoto } from './Requests/users';
 
 let navigation = [
   { name: 'Dashboard', href: '#', current: false},

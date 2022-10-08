@@ -19,7 +19,6 @@ export class IntraStrategy extends PassportStrategy(Strategy, 'intra') {
   
     async validate(accessToken: string, refreshToken: string, profile: Profile)
     {
-      console.log("profile", profile);
       let user = await this.authService.validateUser(profile.username);
       if (!user)
       {
