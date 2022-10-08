@@ -5,11 +5,11 @@ type PrivMessageInputPropsT = {
     handleSubmitMessage: any,
     handleChange: any,
 	isBlocked: boolean,
+	blockedSentence: string,
 }
 
 export default function PrivMessageInput(props:PrivMessageInputPropsT)
 {
-	console.log("isBlocked", props.isBlocked);
 	return (
 		<form onSubmit={props.handleSubmitMessage} >
 			<input style={{
@@ -17,7 +17,7 @@ export default function PrivMessageInput(props:PrivMessageInputPropsT)
 				marginRight: "15px"
 			}}
 			name='message' type="text"
-            value={ props.isBlocked? "Chat blocked" : props.value}
+            value={ props.isBlocked? props.blockedSentence : props.value}
 			onChange={props.handleChange}
 			disabled={props.isBlocked}
 			 />

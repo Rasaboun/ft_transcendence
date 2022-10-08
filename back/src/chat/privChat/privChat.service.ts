@@ -161,7 +161,7 @@ export class PrivChatService {
 			return {
 				name: chat.name,
 				otherLogin: secondUser.intraLogin,
-				otherUsername: secondUser.intraLogin,
+				otherUsername: secondUser.username,
 				isBlocked: chat.blockedList.length > 0 ? true : false,
 				blockedList: chat.blockedList,
 				messages: chat.messages,

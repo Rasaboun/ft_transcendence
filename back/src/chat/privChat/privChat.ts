@@ -23,16 +23,6 @@ export class PrivChat
 		
 	}
 
-	public sendChatInfo(data: privChatInfo)
-	{
-		this.clients.forEach((roomId, login) => {
-			data.otherLogin = this.getOtherLogin(login);
-			console.log("send info", data);
-			this.server.to(roomId).emit('privChatInfo', data);
-		})
-
-	}
-
 	public getOtherLogin(callerLogin: string)
 	{
 		let res: string;
@@ -45,8 +35,16 @@ export class PrivChat
 
     public sendMessage(msg: Message) { console.log("sending to", this.name); this.server.to(this.name).emit("msgToPrivChat", msg)}
 
-
+	public getRoomId(login: string)
+	{
+		return this.clients.get(login);
+	}
 	
+	public isClient(login: string)
+	{
+		return this.clients.get(login) == undefined ? false : true;
+	}
+
 	// a function should be looking for new connections and potential connections
 	// need a function to list online persons 
 	// 

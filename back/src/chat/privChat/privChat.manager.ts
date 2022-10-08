@@ -77,6 +77,17 @@ export class PrivChatManager
 		catch (error) { throw error; }
 	}
 
+    public async joinPrivChats(client: AuthenticatedSocket)
+    {
+        for (const [channelName, privChat] of this.privateChats)
+        {
+            if ( privChat.isClient(client.login))
+            {
+                client.join(channelName);
+            }
+        }
+    }
+
 	public async sendMessage(client: AuthenticatedSocket, data: sendMessageDto): Promise<Message>
 	{
 		const chat = this.privChatService.findOneByName(data.chatName);
@@ -97,7 +108,6 @@ export class PrivChatManager
 			};
 			
 		const privChat = this.privateChats.get(data.chatName);
-		console.log(client.login, "sending message", data.content);
 		privChat.sendMessage(message);
 		await this.privChatService.addMessage(data.chatName, message);
 	}	
@@ -109,8 +119,7 @@ export class PrivChatManager
 			const chat = this.privateChats.get(chatName);
 			const targetLogin = chat.getOtherLogin(client.login);
 			await this.privChatService.blockUser(chatName, targetLogin);
-			const chatInfo: privChatInfo = await this.privChatService.getChatInfo(chatName, client.login);
-			chat.sendChatInfo(chatInfo);
+			this.sendChatInfo(client, chatName);
 		}
 		catch (e) { throw e};
 		
@@ -120,15 +129,26 @@ export class PrivChatManager
 	{
 		try
 		{
-			const chat = this.privateChats.get(chatName);
-			const targetLogin = chat.getOtherLogin(client.login);
+			const targetLogin = await this.privChatService.getOtherLogin(client.login, chatName);
 			await this.privChatService.unblockUser(chatName, targetLogin);
-			const chatInfo: privChatInfo = await this.privChatService.getChatInfo(chatName, client.login);
-			chat.sendChatInfo(chatInfo);
+			this.sendChatInfo(client, chatName);
 		}
 		catch (e) { throw e};	
 	}
 
+	public async sendChatInfo(client: AuthenticatedSocket, chatName: string)
+	{
+		const chat = this.privateChats.get(chatName);
+
+		//Send to caller
+		let chatInfo: privChatInfo = await this.privChatService.getChatInfo(chatName, client.login);
+		this.server.to(client.roomId).emit('privChatInfo', chatInfo);
+
+		//Send to second user
+		const otherLogin = chatInfo.otherLogin;
+		chatInfo = await this.privChatService.getChatInfo(chatName, otherLogin);
+		this.server.to(chat.getRoomId(otherLogin)).emit('privChatInfo', chatInfo);
+	}
 
 	public async getChatInfo(client: AuthenticatedSocket, chatName: string)
 	{

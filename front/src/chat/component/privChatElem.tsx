@@ -1,16 +1,13 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
-import { blockInChat, chatHandler, chatHandlerPrivEl, getChatInfo, getChatSocket, getClientInfo, getGameSocket, initiateSocket, sendMessage, sendPrivMessage, unblockInChat } from "../../Utils/socketManager";
+import { blockInChat, chatHandlerPrivEl, getChatInfo, getChatSocket, initiateSocket,  sendPrivMessage, unblockInChat } from "../../Utils/socketManager";
 import Message from "../Elements/message";
-import {ActionOnUser, ChannelModes, ChannelT, ChatInfoT, ClientInfoT, messageT, MessageTypes, privChatInfo, UserStateT} from "../ChatUtils/chatType"
-import { useNavigate } from "react-router-dom";
+import { messageT, MessageTypes, privChatInfo} from "../ChatUtils/chatType"
+
 import InfoMessage from "../Elements/InfoMessage";
-import ChannelBoard from "../Elements/channelBoard";
 import useLocalStorage from "../../hooks/localStoragehook";
 import PrivMessageInput from "./privMessageInput";
 import { SocketContext } from "../../Context/socketContext";
-import { getSession } from "../../Utils/utils";
 import "../../output.css";
-import { blockUser } from "../../Requests/users";
 
 export default function PrivChatElem()
 {
@@ -26,7 +23,6 @@ export default function PrivChatElem()
 
     const handlePrivChatJoined = (chatInfo: privChatInfo) => {
         const {messages, ...privChat} = chatInfo;
-        console.log("Privchat", privChat);
         setStorage("privChat", privChat);
         setIsBlocked(chatInfo.isBlocked);
         setMessagesList(chatInfo.messages);
@@ -37,7 +33,6 @@ export default function PrivChatElem()
         e.preventDefault()
         if (form.message != "")
         {
-            console.log("privChat", privChat);
             sendPrivMessage({chatName: privChat.name, content: form.message})
         }
         setForm((oldForm) => ({
@@ -62,14 +57,27 @@ export default function PrivChatElem()
     }
 
     const handleChatInfo = (data:privChatInfo) => {
-        console.log("chat Info", data)
       
+        const {messages, ...privChat} = data;
+        setStorage("privChat", privChat);
         setIsBlocked(data.isBlocked);
         if (data.messages?.length !== 0)
         {
             setMessagesList(data.messages)
         }
         
+    }
+
+    const getBlockedSentence = () =>
+    {
+        if (!isBlocked)
+            return "";
+        const blockedList: string[] = privChat.blockedList;
+        if (blockedList.length == 2 || blockedList.indexOf(storage.login) == -1)
+        {
+            return "You blocked this user";
+        }
+        return "This user blocked you";
     }
 
     const messageElem = messagesList?.map((elem, index) => (
@@ -99,7 +107,6 @@ export default function PrivChatElem()
             handlePrivChatJoined,
             handleChatInfo,) 
         }
-        console.log("privchat", privChat);
         if (privChat)
             getChatInfo(privChat.name);
 
@@ -142,7 +149,7 @@ export default function PrivChatElem()
                     </div>
                 </div>
                 <PrivMessageInput handleSubmitMessage={handleSubmitPrivMessage}
-                    value={form.message} isBlocked={isBlocked} handleChange={handleChange}/>
+                    value={form.message} isBlocked={isBlocked} blockedSentence={getBlockedSentence()} handleChange={handleChange}/>
             </div>           
         </div>
     )
