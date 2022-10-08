@@ -13,3 +13,11 @@ export interface Iuser {
 	victories: number
 
 }
+
+export interface Imatch {
+    playerOneLogin: string;
+    playerTwoLogin: string;
+    playerOneScore: number;
+    playerTwoScore: number;
+	winnerLogin: string;
+}

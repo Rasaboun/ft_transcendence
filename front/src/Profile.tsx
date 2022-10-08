@@ -4,10 +4,13 @@ import "./output.css";
 import profile from "./profile.png";
 import { useParams } from "react-router-dom";
 import { getParsedCommandLineOfConfigFile } from "typescript";
-import { Iuser } from "./Utils/type";
-import { getUserProfile } from "./Requests/users";
+import { Imatch, Iuser } from "./Utils/type";
+import { getUserMatches } from "./Requests/match";
+import { backUrl } from "./Requests/users";
+import MatchTab from "./Elements/matchTab";
 
 const url: string = "http://localhost:3002/users/profile/";
+const matchUrl: string = "http://localhost:3002/match/user/";
 
 
 function UserProfile({ user }:{user: Iuser}) {
@@ -41,6 +44,7 @@ function UserProfile({ user }:{user: Iuser}) {
 export default function Profile() {
 	const { login } = useParams()
 	const [user, setUser] = React.useState<Iuser>();
+	const [matches, setMatches] = React.useState<Imatch[]>();
 	const data = {login : login}
 	// async function getProfile() {
 	// 	console.log("Loginr", login);
@@ -49,7 +53,6 @@ export default function Profile() {
     //   console.log("Returned user", user);
 	// 	});
 	// }
-
   useEffect(() => {
     if (login)
     {
@@ -60,9 +63,17 @@ export default function Profile() {
 			});
 			setUser(user);
 		}
+		const getMatch = async () => {
+			const url: string = backUrl + "/match/user";
+   			const matches = await axios.get<Imatch[]>(url, {params: {login:login}}).then(res => {
+        		return res.data;
+			})
+			setMatches(matches);
+    	}
 		getProfile()
+		getMatch()
     }
-    console.log(user)
+    console.log(matches)
   }, []);
 
   return (
@@ -72,12 +83,16 @@ export default function Profile() {
           <h1 className="page-title">Profile</h1>
         </div>
       </header>
-      <main>
+      <main className="h-full">
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          {
-            user &&
-              <UserProfile user={user}/>
-          }
+			{
+				user &&
+					<UserProfile user={user}/>
+			}
+			{
+				login && matches &&
+					<MatchTab matches={matches} login={login}/>
+			}
         </div>
       </main>
     </div>
