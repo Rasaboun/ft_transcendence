@@ -22,7 +22,7 @@ export type connectedUser = {
 }
 
 export type privChatInfo = {
-	chatName: string,
+	name: string,
 	otherLogin: string,
 	otherUsername: string,
 	isBlocked: boolean,

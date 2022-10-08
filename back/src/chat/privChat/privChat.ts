@@ -27,6 +27,7 @@ export class PrivChat
 	{
 		this.clients.forEach((roomId, login) => {
 			data.otherLogin = this.getOtherLogin(login);
+			console.log("send info", data);
 			this.server.to(roomId).emit('privChatInfo', data);
 		})
 

@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 
 type PrivMessageInputPropsT = {
-    sampleInfo: string,
+    value: string,
     handleSubmitMessage: any,
-    handleChange: any
+    handleChange: any,
+	isBlocked: boolean,
 }
 
 export default function PrivMessageInput(props:PrivMessageInputPropsT)
 {
+	console.log("isBlocked", props.isBlocked);
 	return (
 		<form onSubmit={props.handleSubmitMessage} >
 			<input style={{
@@ -15,8 +17,9 @@ export default function PrivMessageInput(props:PrivMessageInputPropsT)
 				marginRight: "15px"
 			}}
 			name='message' type="text"
-            value={props.sampleInfo}
+            value={ props.isBlocked? "Chat blocked" : props.value}
 			onChange={props.handleChange}
+			disabled={props.isBlocked}
 			 />
 
 			<button type="submit" style={{

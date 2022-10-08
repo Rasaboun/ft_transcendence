@@ -70,19 +70,11 @@ export class PrivChatManager
 				this.privateChats.set(privChat.name, privChat);
 			}
 			client.join(chat.name);
-			const resData = {
-				name: chat.name,
-				otherLogin: secondUser.intraLogin,
-				otherUsername: secondUser.username,
-				messages: chat.messages,
-
-			}
-			client.emit('joinedPrivChat', resData);
+			const chatInfo: privChatInfo = await this.privChatService.getChatInfo(chat.name, client.login);
+		
+			client.emit('joinedPrivChat', chatInfo);
 		}
-		catch (error)
-		{
-			console.log(error);
-		}
+		catch (error) { throw error; }
 	}
 
 	public async sendMessage(client: AuthenticatedSocket, data: sendMessageDto): Promise<Message>
@@ -146,13 +138,10 @@ export class PrivChatManager
 
 			const otherLogin = await this.privChatService.getOtherLogin(client.login, chatName);
 			const otherUser = await this.userService.findOneByIntraLogin(otherLogin);
-
-			const resData = {
-				otherLogin: otherLogin,
-				otherUsername: otherUser.username,
-				messages: privChat.messages,
-			}
-			client.emit('privChatInfo', resData);
+			
+			const chatInfo: privChatInfo = await this.privChatService.getChatInfo(chatName, client.login);
+		
+			client.emit('privChatInfo', chatInfo);
 		}
 		catch (e) { throw e};
 	}

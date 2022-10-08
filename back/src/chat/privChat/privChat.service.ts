@@ -159,7 +159,7 @@ export class PrivChatService {
 			const otherLogin = callerLogin == chat.firstUserLogin ? chat.secondUserLogin : chat.firstUserLogin;
 			const secondUser = await this.usersService.findOneByIntraLogin(otherLogin);
 			return {
-				chatName: chat.name,
+				name: chat.name,
 				otherLogin: secondUser.intraLogin,
 				otherUsername: secondUser.intraLogin,
 				isBlocked: chat.blockedList.length > 0 ? true : false,

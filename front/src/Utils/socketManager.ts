@@ -185,6 +185,17 @@ export function sendPrivMessage(data: sendMessageDto)
 	chatSocket?.emit("privChatSendMessage",  data);
 }
 
+export function blockInChat(chatName: string)
+{
+	console.log("Blocking in", chatName);
+	chatSocket?.emit('blockUser', chatName);
+}
+
+export function unblockInChat(chatName: string)
+{
+	chatSocket?.emit('unblockUser', chatName);
+}
+
 export function privChatMenuHandler(
 	loadConnectedUser:any,
 	handlePrivChatJoined:any)

@@ -112,11 +112,11 @@ export type privChatT = {
 }
 
 export type privChatInfo = {
-	chatName: string,
+	name: string,
 	otherLogin: string,
 	otherUsername: string,
 	isBlocked: boolean,
-	blockedList: string,
+	blockedList: string[],
 	messages: messageT[],
 }
 

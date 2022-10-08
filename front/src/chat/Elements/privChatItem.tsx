@@ -38,20 +38,6 @@ export default function PrivChatItem({ user, handleJoinPrivChat }:PrivChatPropsT
                     }>
                             Join
                         </button>
-            <button type="submit" style={{
-                            height: "3vh",
-                            width: "17vh",
-                            marginLeft: "40px",
-                            backgroundColor: "#00ffff",
-                            borderRadius: "20px"
-                        }} 
-                   onClick={() =>
-                        handleTest()
-                    }>
-                            Block User
-                        </button>
-
-
 
         </div>
     )
