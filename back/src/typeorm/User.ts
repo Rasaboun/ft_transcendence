@@ -1,5 +1,6 @@
 import { UserStatus } from "src/users/type/users.type";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Photo } from "./Photo";
 
 @Entity()
 export class User {
@@ -13,11 +14,20 @@ export class User {
     @Column()
     username: string;
 
+    @JoinColumn({name: 'photoId'})
+    @OneToOne(
+        () => Photo,
+        {
+            nullable: true,
+        }
+    )
+    photo: Photo;
+
     @Column({
-        default: "https://cdn.pixabay.com/photo/2016/10/18/18/19/question-mark-1750942_960_720.png",
+        nullable: true,
     })
-    photoUrl: string;
-    
+    photoId: number;
+
     @Column()
     password: string;
 

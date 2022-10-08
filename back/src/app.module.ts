@@ -12,6 +12,7 @@ import { MatchModule } from './match/match.module';
 import { ChatModule } from './chat/chat.module';
 import { GameModule } from './game/game.module';
 import { PrivChat } from './chat/privChat/privChat';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
@@ -28,6 +29,9 @@ import { PrivChat } from './chat/privChat/privChat';
       database: process.env.DB_NAME,
       entities: entities,
       synchronize: true,
+  }),
+  MulterModule.register({
+    dest: process.env.UPLOAD_PATH,
   }),
   PassportModule.register({ session: true }),
   MatchModule,

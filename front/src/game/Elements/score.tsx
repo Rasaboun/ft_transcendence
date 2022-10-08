@@ -1,7 +1,7 @@
 import axios from "axios"
 import { useEffect, useState } from "react"
 import useLocalStorage from "../../hooks/localStoragehook"
-import { getUserProfile } from "../../Requests/users"
+import { getUserPhoto, getUserProfile } from "../../Requests/users"
 import { Iuser } from "../../Utils/type"
 import "../game.css"
 import { GameData, GameState } from "../GameUtils/type"
@@ -21,14 +21,16 @@ export default function Score({ gameData }:propsType)
 		if (gameData.players[0].id !== "" && gameData.players[1].id !== "")
 		{
 			const getProfile = async (login:string) => {
-				console.log(login)
 				const user = await axios.get<Iuser>(url, {params : {login:login}}).then((response) => {
 					return response.data;
 				});
-				console.log(user)
+
+			const userPhoto = await getUserPhoto(login);
+			user.photoUrl = userPhoto;
 				setUsers((prevUser) => {prevUser.push(user)
 										return prevUser});
 			}
+
 			getProfile(gameData.players[0].id)
 			getProfile(gameData.players[1].id)
 		}
