@@ -1,5 +1,5 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
-import { chatHandler, chatHandlerPrivEl, getChatSocket, getClientInfo, getGameSocket, initiateSocket, sendMessage, sendPrivMessage } from "../../Utils/socketManager";
+import { chatHandler, chatHandlerPrivEl, getChatInfo, getChatSocket, getClientInfo, getGameSocket, initiateSocket, sendMessage, sendPrivMessage } from "../../Utils/socketManager";
 import Message from "../Elements/message";
 import {ActionOnUser, ChannelModes, ChannelT, ClientInfoT, messageT, MessageTypes, privChatInfo, UserStateT} from "../ChatUtils/chatType"
 import { useNavigate } from "react-router-dom";
@@ -24,7 +24,6 @@ export default function PrivChatElem()
     const [messagesList, setMessagesList] = useState<messageT[]>()
 
     const handlePrivChatJoined = (data: privChatInfo) => {
-
         setStorage("chatName", data.chatName);
         setMessagesList(data.messages);
 	}
@@ -57,6 +56,16 @@ export default function PrivChatElem()
         }))
     }
 
+    const handleChatInfo = (data:ClientInfoT) => {
+        console.log("chat Info", data)
+      
+        if (data.messages?.length !== 0)
+        {
+            setMessagesList(data.messages)
+        }
+        
+    }
+
     const messageElem = messagesList?.map((elem, index) => (
         elem.type === MessageTypes.Info ?
             <InfoMessage key={index} message={elem}/> :
@@ -79,9 +88,16 @@ export default function PrivChatElem()
         setChatSocket(getChatSocket())
         if (chatSocket?.connected)
         {
-           chatHandlerPrivEl(handlePrivMessageReceived, handlePrivChatJoined) 
+           chatHandlerPrivEl(
+            handlePrivMessageReceived,
+            handlePrivChatJoined,
+            handleChatInfo,) 
         }
-    }, [])
+        console.log("chatname", chatName);
+        if (chatName)
+            getChatInfo(chatName);
+
+    }, [chatSocket?.connected])
 
    return (<div className="chat">
             <h1>Chatting with : {"CHANGE THIS"}</h1>

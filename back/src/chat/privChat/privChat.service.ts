@@ -138,4 +138,13 @@ export class PrivChatService {
 			return true;
 		return false;
 	}
+
+	async getOtherLogin(callerLogin: string, chatName: string)
+	{
+		const chat = await this.findOneByName(chatName);
+		if (chat.firstUserLogin == callerLogin)
+			return chat.secondUserLogin;
+		return chat.firstUserLogin;
+	}
+
 }

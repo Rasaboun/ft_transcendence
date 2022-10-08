@@ -62,6 +62,12 @@ export type ClientInfoT = {
 	messages?: messageT[]
 }
 
+export type ChatInfoT = {
+	otherLogin: string,
+	otherUsername: string,
+	messages?: messageT[]
+}
+
 export type InviteClientT = {
 	channelName: string,
 	clientId: string,

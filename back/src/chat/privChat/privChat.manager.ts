@@ -119,4 +119,23 @@ export class PrivChatManager
 		await this.privChatService.unblockUser(chatName, targetLogin);	
 		//add message
 	}
+
+	public async getChatInfo(client: AuthenticatedSocket, chatName: string)
+	{
+		try
+		{
+			const privChat = await this.privChatService.findOneByName(chatName);
+
+			const otherLogin = await this.privChatService.getOtherLogin(client.login, chatName);
+			const otherUser = await this.userService.findOneByIntraLogin(otherLogin);
+
+			const resData = {
+				otherLogin: otherLogin,
+				otherUsername: otherUser.username,
+				messages: privChat.messages,
+			}
+			client.emit('privChatInfo', resData);
+		}
+		catch (e) { throw e};
+	}
 }

@@ -132,7 +132,6 @@ export default function ChannelElem()
         {
             setMessagesList(data.messages)
         }
-        console.log("unmuted date", data.unmuteDate);
         if (data.unmuteDate !== 0)
             setMutedTime(Math.trunc(data.unmuteDate / 1000 - new Date().getTime() / 1000))
         

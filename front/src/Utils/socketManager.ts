@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client'
-import { ActionOnUser, AddAdminT, channelFormT, ChannelT, ClientInfoT, InviteClientT, JoinChannelT, messageT, sendMessageDto, SetChannelPasswordT } from '../chat/ChatUtils/chatType';
+import { ActionOnUser, AddAdminT, channelFormT, ChannelT, ChatInfoT, ClientInfoT, InviteClientT, JoinChannelT, messageT, sendMessageDto, SetChannelPasswordT } from '../chat/ChatUtils/chatType';
 import { availableLobbiesT, Ball, gameCollionInfoT, GameData, GameMode, GameOptions, GameSettings, Player, playerT } from '../game/GameUtils/type';
 import { getToken } from './utils';
 
@@ -122,18 +122,8 @@ export function getUsers()
 	chatSocket?.emit("loadConnectedUsers");
 }
 
-export function joinPrivChat(intraLogin: string)
-{
-	chatSocket?.emit("joinPrivateChat", intraLogin)
-}
-
-export function sendPrivMessage(data: sendMessageDto)
-{
-	chatSocket?.emit("privChatSendMessage",  data);
-}
 
 export function sendInvitation(data:{channelName: string, mode: GameMode}) {
-	console.log(data)
 	chatSocket?.emit("sendInvitation", data);
 }
 
@@ -175,11 +165,33 @@ export function chatHandler(handleMessageReceived:any,
 	chatSocket.on('isAlreadyAdmin', handleIsAlreadyAdmin)
 }
 
+
+
+//////////////// PRIV CHAT /////////////////////
+
+
+export function getChatInfo(chatName: string){
+	console.log("sending info");
+	chatSocket?.emit('getPrivChatInfo', chatName);
+}
+
+export function joinPrivChat(intraLogin: string)
+{
+	chatSocket?.emit("joinPrivateChat", intraLogin)
+}
+
+export function sendPrivMessage(data: sendMessageDto)
+{
+	chatSocket?.emit("privChatSendMessage",  data);
+}
+
 export function chatHandlerPrivEl(handlePrivMessageReceived:any,
-									handlePrivChatJoined: any)
+									handlePrivChatJoined: any,
+									handleChatInfo:any,)
 {
 	chatSocket.on("msgToPrivChat", (msg:messageT) => handlePrivMessageReceived(msg))   
 	chatSocket.on("joinedPrivChat", (intraLogin:string) => handlePrivChatJoined(intraLogin))
+	chatSocket.on('privChatInfo', (data:ChatInfoT) => handleChatInfo(data))
 }
 
 // export function appSocketRoutine(handleSession:any) {
