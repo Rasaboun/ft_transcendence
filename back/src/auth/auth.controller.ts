@@ -3,7 +3,6 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { IntraGuard } from './guards/intra.guard';
-import { LocalAuthGuard } from './guards/local-auth.guard';
 // import { IntraAuthGuard } from './guards/intra.guard';
 // import { JwtAuthGuard } from './guards/jwt-auth.guard';
 // import { LocalAuthGuard } from './guards/local-auth.guard';

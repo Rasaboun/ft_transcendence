@@ -9,7 +9,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { IntraGuard } from './guards/intra.guard';
 import { IntraStrategy } from './stategy/intra.strategy';
-import { LocalStrategy } from './stategy/local.strategy';
+
 @Module({
   imports: [
     JwtModule.register({
@@ -21,7 +21,7 @@ import { LocalStrategy } from './stategy/local.strategy';
     UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, IntraStrategy, IntraGuard],
+  providers: [AuthService, IntraStrategy, IntraGuard],
   exports: [AuthService],
 })
 export class AuthModule {}
