@@ -100,7 +100,7 @@ export default function PrivChatElem()
     useEffect(() => {
         initiateSocket("http://localhost:8002")
         setChatSocket(getChatSocket())
-        if (chatSocket?.connected)
+        if (chatSocket)
         {
            chatHandlerPrivEl(
             handlePrivMessageReceived,
@@ -110,7 +110,7 @@ export default function PrivChatElem()
         if (privChat)
             getChatInfo(privChat.name);
 
-    }, [chatSocket?.connected])
+    }, [chatSocket])
 
     useEffect(() => {
         if (isBlocked)
