@@ -270,7 +270,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async blockUser(client: AuthenticatedSocket, chatName: string)
 	{
 		try {
-			this.privChatManager.blockUser(client.login, chatName);
+			this.privChatManager.blockUser(client, chatName);
 		}
 		catch (error) { client.emit('error', error.message); }
 	}
@@ -279,7 +279,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async unblockUser(client: AuthenticatedSocket, chatName: string)
 	{
 		try {
-			this.privChatManager.unblockUser(client.login, chatName);
+			this.privChatManager.unblockUser(client, chatName);
 		}
 		catch (error) { client.emit('error', error.message); }
 	}

@@ -22,7 +22,7 @@ function Channel() {
 	
 
 	useEffect(() => {
-		localStorage.removeItem('chatName');
+		localStorage.removeItem('privChat');
 	}, [])
 
 	let categoriesTab = ["Channels", "Private Chat"].map((category) => (

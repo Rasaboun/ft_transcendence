@@ -107,9 +107,17 @@ export type connectedUsersT = {
 	handleJoinPrivateChat: (connectedUsers: privChatP[]) => void
 }
 
+export type privChatT = {
+	name: string
+}
+
 export type privChatInfo = {
 	chatName: string,
-	messages: messageT[];
+	otherLogin: string,
+	otherUsername: string,
+	isBlocked: boolean,
+	blockedList: string,
+	messages: messageT[],
 }
 
 export type sendMessageDto = {

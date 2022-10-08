@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { PrivChat } from 'src/typeorm';
-import { newPrivChatDto } from '../types/privChat.type';
+import { newPrivChatDto, privChatInfo } from '../types/privChat.type';
 import { Message } from "../types/channel.type";
 import { log } from 'console';
 import { v4 } from 'uuid';
@@ -149,6 +149,26 @@ export class PrivChatService {
 		if (chat.firstUserLogin == callerLogin)
 			return chat.secondUserLogin;
 		return chat.firstUserLogin;
+	}
+
+	async getChatInfo(chatName: string, callerLogin: string): Promise<privChatInfo>
+	{
+		try
+		{
+			const chat = await this.findOneByName(chatName);
+			const otherLogin = callerLogin == chat.firstUserLogin ? chat.secondUserLogin : chat.firstUserLogin;
+			const secondUser = await this.usersService.findOneByIntraLogin(otherLogin);
+			return {
+				chatName: chat.name,
+				otherLogin: secondUser.intraLogin,
+				otherUsername: secondUser.intraLogin,
+				isBlocked: chat.blockedList.length > 0 ? true : false,
+				blockedList: chat.blockedList,
+				messages: chat.messages,
+			}
+
+		}
+		catch (e) { throw e }
 	}
 
 }

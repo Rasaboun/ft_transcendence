@@ -10,7 +10,7 @@ import { PrivChatService } from "./privChat.service";
 import { User } from "src/typeorm";
 import { first, map } from "rxjs";
 import { UsersService } from "src/users/users.service";
-import { sendMessageDto } from "../types/privChat.type";
+import { privChatInfo, sendMessageDto } from "../types/privChat.type";
 import { listenerCount } from "mysql2/typings/mysql/lib/Connection";
 
 export class PrivChatManager
@@ -57,6 +57,7 @@ export class PrivChatManager
 		try
 		{
 			let chat = await this.privChatService.findOneByUsers(client.login, targetLogin);
+			const secondUser = await this.userService.findOneByIntraLogin(targetLogin);
 			if (!chat)
 			{
 				chat = await this.privChatService.createNewChat(client.login, targetLogin);
@@ -64,13 +65,19 @@ export class PrivChatManager
 				const privChat = new PrivChat(this.server, chat.name);
 				privChat.addClient(client.login, client.roomId);
 				
-				const secondUser = await this.userService.findOneByIntraLogin(targetLogin);
 				privChat.addClient(secondUser.intraLogin, secondUser.roomId);
 
 				this.privateChats.set(privChat.name, privChat);
 			}
 			client.join(chat.name);
-			client.emit('joinedPrivChat', {chatName: chat.name, messages: chat.messages});
+			const resData = {
+				name: chat.name,
+				otherLogin: secondUser.intraLogin,
+				otherUsername: secondUser.username,
+				messages: chat.messages,
+
+			}
+			client.emit('joinedPrivChat', resData);
 		}
 		catch (error)
 		{
@@ -103,22 +110,33 @@ export class PrivChatManager
 		await this.privChatService.addMessage(data.chatName, message);
 	}	
 
-	public async blockUser(callerLogin: string, chatName: string)
+	public async blockUser(client: AuthenticatedSocket, chatName: string)
 	{
-		const chat = this.privateChats.get(chatName);
-		const targetLogin = chat.getOtherLogin(callerLogin);
-		await this.privChatService.blockUser(chatName, targetLogin);
-		//add message
+		try
+		{
+			const chat = this.privateChats.get(chatName);
+			const targetLogin = chat.getOtherLogin(client.login);
+			await this.privChatService.blockUser(chatName, targetLogin);
+			const chatInfo: privChatInfo = await this.privChatService.getChatInfo(chatName, client.login);
+			chat.sendChatInfo(chatInfo);
+		}
+		catch (e) { throw e};
 		
 	}
 
-	public async unblockUser(callerLogin: string, chatName: string)
+	public async unblockUser(client: AuthenticatedSocket, chatName: string)
 	{
-		const chat = this.privateChats.get(chatName);
-		const targetLogin = chat.getOtherLogin(callerLogin);
-		await this.privChatService.unblockUser(chatName, targetLogin);	
-		//add message
+		try
+		{
+			const chat = this.privateChats.get(chatName);
+			const targetLogin = chat.getOtherLogin(client.login);
+			await this.privChatService.unblockUser(chatName, targetLogin);
+			const chatInfo: privChatInfo = await this.privChatService.getChatInfo(chatName, client.login);
+			chat.sendChatInfo(chatInfo);
+		}
+		catch (e) { throw e};	
 	}
+
 
 	public async getChatInfo(client: AuthenticatedSocket, chatName: string)
 	{

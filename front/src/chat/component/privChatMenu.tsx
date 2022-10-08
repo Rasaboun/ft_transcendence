@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 
-import { chatMenuHandler,  getChatSocket, getGameSocket, getUsers, initiateSocket, joinPrivChat } from "../../Utils/socketManager";
+import { chatMenuHandler,  getChatSocket, getGameSocket, getUsers, initiateSocket, joinPrivChat, privChatMenuHandler } from "../../Utils/socketManager";
 import { ChannelT, connectedUsersT, JoinChannelT, privChatP } from "../ChatUtils/chatType";
 import { ChatContext } from "../ChatContext/chatContext";
 import { useNavigate } from "react-router-dom";
@@ -22,29 +22,12 @@ export default function PrivChatMenu()
 	const [channels, setChannels] = useState<ChannelT[]>()
 	const [connectedUsers, setConnectedUsers] = useState<connectedUsersT[]>()
 
-	const handleActiveChannels = (channels:ChannelT[]) => {
-		setChannels(channels)
-	}
-
-	const handleChannelJoined = (data:{clientId:string, channelInfo:ChannelT}) => {
-        console.log(storage.login, data.clientId)
-		if (storage.login === data.clientId)
-		{
-			console.log(data.channelInfo)
-			setStorage("channel", data.channelInfo)
-			navigate("/chat/message")
-		}
-	}
 	
 	const handlePrivChatJoined = (intraLogin: string) => {
 		navigate("/chat/privMessage");
 	}
 
 	
-
-	const handleInvitation = (message:string) => {
-		window.alert(message)
-	}
 
 	const handleJoinPrivateChat = (user: connectedUsersT) => {
 		joinPrivChat(user.intraLogin);
@@ -62,19 +45,19 @@ export default function PrivChatMenu()
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
 		getUsers();
-		chatMenuHandler(handleActiveChannels,
-			handleChannelJoined,
-			handleInvitation,
+		privChatMenuHandler(
 			loadConnectedUsers,
 			handlePrivChatJoined)
 	}, [])
 
-	const users = connectedUsers?.map((elem, ind) => ( 
-		<PrivChatItem key={ind}
+	const users = connectedUsers?.map((elem, ind) => {
+		if (elem.intraLogin == storage.login)
+			return ; 
+		return <PrivChatItem key={ind}
 			user={elem}
 			handleJoinPrivChat={handleJoinPrivateChat}
 			/>
-	))
+	})
 
     return (
 		

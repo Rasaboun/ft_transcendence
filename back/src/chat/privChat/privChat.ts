@@ -2,6 +2,7 @@ import { v4 } from "uuid";
 import { Server } from "socket.io";
 import { Message } from "../types/channel.type";
 import { StringRegexOptions } from "joi";
+import { privChatInfo } from "../types/privChat.type";
 
 export class PrivChat
 {
@@ -20,6 +21,15 @@ export class PrivChat
 		// add this a fct to send to single user
 		// this.server.to(this.id).emit(event, data);
 		
+	}
+
+	public sendChatInfo(data: privChatInfo)
+	{
+		this.clients.forEach((roomId, login) => {
+			data.otherLogin = this.getOtherLogin(login);
+			this.server.to(roomId).emit('privChatInfo', data);
+		})
+
 	}
 
 	public getOtherLogin(callerLogin: string)

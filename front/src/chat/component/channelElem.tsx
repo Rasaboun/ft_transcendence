@@ -39,7 +39,6 @@ export default function ChannelElem()
 
     const handleSubmitMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
-        //const mutedMessage = "you are muted: 60sec left"
      
         if (form.message !== "")
         {
@@ -50,12 +49,6 @@ export default function ChannelElem()
             ...oldForm,
             message: ""
         }))
-        // else {
-        //     setMessagesList((oldMessagesList) => (
-        //         oldMessagesList === undefined ? [{content: mutedMessage, type: MessageTypes.Info}] :
-        //             [...oldMessagesList, {content: mutedMessage, type: MessageTypes.Info}]
-        //     ))
-        // }
 
     }
 
@@ -88,23 +81,6 @@ export default function ChannelElem()
         setStorage("channel", data.channelInfo)
 	}
 
-    // const newOwner = (data: {target: string, channelInfo: ChannelT}) => {
-    //     const message = `You are now Owner`;
-        
-    //     setStorage("channel", data.channelInfo)
-    //     if (storage.login == data.target)
-    //     {
-    //         setUserState((oldUserState) => ({
-    //             ...oldUserState!,
-    //             isOwner: true,
-    //             isAdmin: true
-    //             }));
-    //         setMessagesList((oldMessagesList) => (
-    //             oldMessagesList === undefined ? [{content: message, type: MessageTypes.Info}] :
-    //                 [...oldMessagesList, {content: message, type: MessageTypes.Info}]
-    //         ));
-    //     }
-    // }
 
     const handleIsAlreadyAdmin = () => {
         const message = `Is already admin`

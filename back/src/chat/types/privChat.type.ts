@@ -20,3 +20,12 @@ export type connectedUser = {
     username: string;
     status: UserStatus;
 }
+
+export type privChatInfo = {
+	chatName: string,
+	otherLogin: string,
+	otherUsername: string,
+	isBlocked: boolean,
+	blockedList: string[],
+	messages: Message[],
+}

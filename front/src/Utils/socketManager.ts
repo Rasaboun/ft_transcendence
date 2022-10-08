@@ -185,12 +185,20 @@ export function sendPrivMessage(data: sendMessageDto)
 	chatSocket?.emit("privChatSendMessage",  data);
 }
 
+export function privChatMenuHandler(
+	loadConnectedUser:any,
+	handlePrivChatJoined:any)
+{
+chatSocket.on("listOfConnectedUsers", (userList:{intraLogin: string, username: string}[]) => loadConnectedUser(userList));
+// chatSocket.on("joinedPrivChat", () => handlePrivChatJoined());
+}
+
 export function chatHandlerPrivEl(handlePrivMessageReceived:any,
 									handlePrivChatJoined: any,
 									handleChatInfo:any,)
 {
 	chatSocket.on("msgToPrivChat", (msg:messageT) => handlePrivMessageReceived(msg))   
-	chatSocket.on("joinedPrivChat", (intraLogin:string) => handlePrivChatJoined(intraLogin))
+	chatSocket.on("joinedPrivChat", (chatInfo: ChatInfoT) => handlePrivChatJoined(chatInfo))
 	chatSocket.on('privChatInfo', (data:ChatInfoT) => handleChatInfo(data))
 }
 

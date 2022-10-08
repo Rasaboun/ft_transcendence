@@ -18,14 +18,14 @@ export default function PrivChatElem()
     const {storage} = useLocalStorage("user")
 	const {setStorage} = useLocalStorage()
 	const [form, setForm] = useState({ message:"", })
-    const {chatName} = useLocalStorage("chatName");
-
-
+    const {privChat} = useLocalStorage("privChat");
     const [messagesList, setMessagesList] = useState<messageT[]>()
 
-    const handlePrivChatJoined = (data: privChatInfo) => {
-        setStorage("chatName", data.chatName);
-        setMessagesList(data.messages);
+    const handlePrivChatJoined = (chatInfo: privChatInfo) => {
+        const {messages, ...privChat} = chatInfo;
+        console.log("Privchat", privChat);
+        setStorage("privChat", privChat);
+        setMessagesList(chatInfo.messages);
 	}
 
 
@@ -33,7 +33,7 @@ export default function PrivChatElem()
         e.preventDefault()
         if (form.message != "")
         {
-            sendPrivMessage({chatName: chatName, content: form.message})
+            sendPrivMessage({chatName: privChat.name, content: form.message})
         }
         setForm((oldForm) => ({
             ...oldForm,
@@ -93,14 +93,16 @@ export default function PrivChatElem()
             handlePrivChatJoined,
             handleChatInfo,) 
         }
-        console.log("chatname", chatName);
-        if (chatName)
-            getChatInfo(chatName);
+        if (privChat)
+            getChatInfo(privChat.name);
 
     }, [chatSocket?.connected])
 
    return (<div className="chat">
-            <h1>Chatting with : {"CHANGE THIS"}</h1>
+            <h1>Chatting with : {privChat ? privChat.otherUsername : "Change this"}</h1>
+            <br/>
+            <h1>BLOCK</h1>
+            <h1>UNBLOCK</h1>
             <div className="chat-right">
                 <div className="h-96 bg-indigo-100">
                     <div className="">
