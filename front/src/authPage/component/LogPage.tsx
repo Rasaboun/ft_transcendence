@@ -22,47 +22,12 @@ export default function LoginElem ()
 
 	const [button, setButton] = useState(true)
 
-	const  handleSubmit =  (e:React.ChangeEvent<HTMLFormElement>) => {
-		e.preventDefault()
-
-		if (authForm.username !== "" && authForm.password != "")
-		{
-			const url = button ? 'http://localhost:3002/auth/login' :
-								'http://localhost:3002/auth/signup';
-			console.log("sending req");
-			// axios.get(backUrl + "/auth/login").then(res => {
-			// 	console.log("Res",res.data);
-				
-			// }).catch((e) => console.log("error", e));
-			window.open("http://localhost:3002/auth/login", "_self"); 
-
-			// axios.post(url, { ...authForm }).then(res => {
-			// 	if (button)
-			// 	{
-			// 		if (res.data.user)
-			// 		{
-			// 			console.log(res.data.user)
-			// 			setStorage("token", res.data.access_token)
-			// 			setStorage("user", res.data.user);
-
-			// 			initiateSocket("http://localhost:8002")
-						
-			// 			setChatSocket(getChatSocket())
-			// 			setGameSocket(getGameSocket())
-
-			// 		}	
-			// 		navigate("/")
-			// 	}
-			//   }).catch(e => console.log)
-		}
+	const  handleSubmit = () => {
+	
+		window.open(backUrl + "/auth/login", "_self"); 
+	
 	}
 
-	const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-		setAuthForm((prevState) => ({
-			...prevState,
-			[e.target.name]: e.target.value
-		}))
-	}
 
 	useEffect(() => {
 		console.log(chatSocket, gameSocket)
@@ -72,21 +37,12 @@ export default function LoginElem ()
 		//Cookies.remove("token");
 	}, [])
 	return (
-		<div className="m-10">
-			<form className="auth-form" onSubmit={handleSubmit}>
-				<label className="auth-label">
-					UserName
-					<input className="bg-indigo-50 border border-indigo-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5" required name="username" type="text" value={authForm.username} onChange={handleChange}/>
-				</label>
-				<label className="auth-label">
-					Password
-					<input className="bg-indigo-50 border border-indigo-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5" required name="password" type="password" value={authForm.password} onChange={handleChange}/>
-				</label>
-				<div className="my-5 flex justify-around">
-					<button className="focus:outline-none text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2" type="submit" onClick={() => setButton(true)}> Login</button>
-					<button className="focus:outline-none text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2" type="submit" onClick={() => setButton(false)}> Sign in</button>
-				</div>
-			</form>
+		<div className="flex h-screen">
+			<div className="m-auto">
+				<button className="bg-violet-300" onClick={() => handleSubmit()}>
+					LOGIN
+				</button>
+			</div>
 		</div>
 	)
 }
