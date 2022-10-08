@@ -37,14 +37,18 @@ export class PrivChatService {
 		// find by firstName and lastName
 		let chat = await this.chatRepository.findOne({
 				where: [
-					{firstUserLogin: firstUserLogin},
-						{secondUserLogin: secondUserLogin},
+				{
+					firstUserLogin: firstUserLogin,
+					secondUserLogin: secondUserLogin
+				},
 				]});
 		if (!chat)
 			chat = await this.chatRepository.findOne( {
 				where: [
-					{firstUserLogin: secondUserLogin,
-						secondUserLogin: firstUserLogin,}
+				{
+					firstUserLogin: secondUserLogin,
+					secondUserLogin: firstUserLogin,
+				}
 				]});
 		return (chat);
 	}

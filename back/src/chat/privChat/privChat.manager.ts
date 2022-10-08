@@ -56,7 +56,7 @@ export class PrivChatManager
 	{
 		try
 		{
-			let chat = await this.privChatService.findOneByUsers(client.login, targetLogin);	
+			let chat = await this.privChatService.findOneByUsers(client.login, targetLogin);
 			if (!chat)
 			{
 				chat = await this.privChatService.createNewChat(client.login, targetLogin);
