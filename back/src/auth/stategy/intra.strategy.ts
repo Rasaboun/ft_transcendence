@@ -12,7 +12,7 @@ export class IntraStrategy extends PassportStrategy(Strategy, 'intra') {
       super({
         clientID: process.env.UID_42,
         clientSecret: process.env.SECRET_42,
-        callbackURL: 'http://localhost:3002/auth/callback',
+        callbackURL: process.env.REDIRECT_URI_42,
       });
   }
 
