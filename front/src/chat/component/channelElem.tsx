@@ -39,7 +39,6 @@ export default function ChannelElem()
 
     const handleSubmitMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
-        //const mutedMessage = "you are muted: 60sec left"
      
         if (form.message !== "")
         {
@@ -50,12 +49,6 @@ export default function ChannelElem()
             ...oldForm,
             message: ""
         }))
-        // else {
-        //     setMessagesList((oldMessagesList) => (
-        //         oldMessagesList === undefined ? [{content: mutedMessage, type: MessageTypes.Info}] :
-        //             [...oldMessagesList, {content: mutedMessage, type: MessageTypes.Info}]
-        //     ))
-        // }
 
     }
 
@@ -88,23 +81,6 @@ export default function ChannelElem()
         setStorage("channel", data.channelInfo)
 	}
 
-    // const newOwner = (data: {target: string, channelInfo: ChannelT}) => {
-    //     const message = `You are now Owner`;
-        
-    //     setStorage("channel", data.channelInfo)
-    //     if (storage.login == data.target)
-    //     {
-    //         setUserState((oldUserState) => ({
-    //             ...oldUserState!,
-    //             isOwner: true,
-    //             isAdmin: true
-    //             }));
-    //         setMessagesList((oldMessagesList) => (
-    //             oldMessagesList === undefined ? [{content: message, type: MessageTypes.Info}] :
-    //                 [...oldMessagesList, {content: message, type: MessageTypes.Info}]
-    //         ));
-    //     }
-    // }
 
     const handleIsAlreadyAdmin = () => {
         const message = `Is already admin`
@@ -132,7 +108,6 @@ export default function ChannelElem()
         {
             setMessagesList(data.messages)
         }
-        console.log("unmuted date", data.unmuteDate);
         if (data.unmuteDate !== 0)
             setMutedTime(Math.trunc(data.unmuteDate / 1000 - new Date().getTime() / 1000))
         
@@ -212,7 +187,6 @@ export default function ChannelElem()
                 message={elem}/>)
     ))
 
-
     useEffect(() => {
         const channel = storage2;
         console.log("CHANNEL NAME", channel.channelId)
@@ -260,7 +234,10 @@ export default function ChannelElem()
                         <div ref={lastMessageRef}/>
                     </div>
                 </div>
-                <MessageInput mutedTime={mutedTime} handleChange={handleChange} handleSubmitMessage={handleSubmitMessage} value={form.message}/>
+                <MessageInput mutedTime={mutedTime}
+                    handleChange={handleChange}
+                    handleSubmitMessage={handleSubmitMessage}
+                    value={form.message}/>
            </div>          
         </div>
     )

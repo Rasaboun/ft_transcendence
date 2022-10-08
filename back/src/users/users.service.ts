@@ -16,6 +16,7 @@ export class UsersService {
         @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly photoService: PhotoService,
+
     ) { }
 
     async blockUser(callerLogin: string, targetLogin: string) {
@@ -79,12 +80,11 @@ export class UsersService {
         })
     }
 
-
     findOneByUsername(username: string){
 
         if (isNaN(Number(username)))
             return this.userRepository.findOneBy({ username });
-        return this.findOneById( Number(username ));
+        return this.findOneById(Number(username));
     }
 
     async createUser(userDto: createUserDto): Promise<User> {

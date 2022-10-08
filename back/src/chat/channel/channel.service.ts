@@ -62,8 +62,7 @@ export class ChannelsService {
     public async createChannel(data: CreateChannel) {
         if (data.mode == ChannelModes.Password)
             data.password = bcrypt.hashSync(data.password, this.saltRounds);
-        
-            const   newChannel = this.channelRepository.create(data);
+        const   newChannel = this.channelRepository.create(data);
     
         await   this.channelRepository.save(newChannel);
     }
@@ -85,7 +84,7 @@ export class ChannelsService {
 
         channel.messages.push(message);
         await this.channelRepository.update(channel.id, channel);
-    }
+   } 
 
     async addAdmin(channelName: string, clientId: string) {
         const channel: Channel = await this.findOneById(channelName);

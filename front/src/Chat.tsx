@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import PrivChatElem from './chat/component/privChatElem';
 import './output.css';
@@ -20,6 +20,10 @@ function classNames(...classes:any[]) {
 
 function Channel() {
 	
+
+	useEffect(() => {
+		localStorage.removeItem('privChat');
+	}, [])
 
 	let categoriesTab = ["Channels", "Private Chat"].map((category) => (
 

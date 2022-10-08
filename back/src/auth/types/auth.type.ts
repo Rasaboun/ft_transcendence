@@ -3,7 +3,6 @@ import { Lobby } from "src/game/lobby/lobby"
 export type AuthenticatedSocket = Socket & {
 	roomId: string,
 	login: string,
-    dbId: number,
 	lobbyId: string,
     lobby: Lobby
 }

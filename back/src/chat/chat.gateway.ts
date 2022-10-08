@@ -3,7 +3,7 @@ import { Socket, Server } from 'socket.io';
 import { Channel } from './channel/channel';
 import { PrivChat } from './privChat/privChat';
 import { ChannelManager } from './channel/channel.manager';
-import { ActionOnUser, AddAdmin, CreateChannel, InviteClient, JoinChannel, SetChannelPassword } from './types/channel.type';
+import { ActionOnUser, AddAdmin, CreateChannel, InviteClient, JoinChannel, Message, MessageTypes, SetChannelPassword } from './types/channel.type';
 import { AuthenticatedSocket } from 'src/auth/types/auth.type';
 import { AuthService } from 'src/auth/auth.service';
 import { PrivChatManager } from './privChat/privChat.manager';
@@ -11,6 +11,8 @@ import { forwardRef, Inject } from '@nestjs/common';
 import { User } from 'src/typeorm';
 import { UsersService } from 'src/users/users.service'
 import { GameMode } from 'src/game/types/game.type';
+import { use } from 'passport';
+import { connectedUser, sendMessageDto } from './types/privChat.type';
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -33,6 +35,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.channelManager.server = server;
 		this.channelManager.initChannels();
 		this.privChatManager.server = server;
+		this.privChatManager.initPrivChats();
 	
 	}
 
@@ -40,6 +43,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		 console.log(`Client ${client.handshake.auth.login} joined chat socket`);
 		await this.authService.initializeSocket(client as AuthenticatedSocket);
 		await this.channelManager.joinChannels(client as AuthenticatedSocket);
+		await this.privChatManager.joinPrivChats(client as AuthenticatedSocket);
 	}
 
 	async handleDisconnect(client: AuthenticatedSocket) {
@@ -216,47 +220,34 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		catch (error) { client.emit('error', error.message ) }
 	}
 
-	@SubscribeMessage('privChatCreateChat')
-	async createPrivChat(client :AuthenticatedSocket, recieverId: number, content: string)
-	{
-		try {
-			this.privChatManager.createPrivateChat(client.dbId, recieverId, content)
-		}
-		catch (error) { client.emit('error', error.message ) }
-	}
 
 	@SubscribeMessage('joinPrivateChat')
-	async testJoinedPrivChat(client :AuthenticatedSocket, intraLogin: string)
+	async joinPrivChat(client: AuthenticatedSocket, targetLogin: string)
 	{
 		try{
-			console.log("The login : " + intraLogin + " just connected itself to it")
-			this.privChatManager.joinPrivChat(client, intraLogin);
+			console.log(client.login," joining chat with", targetLogin);
+			this.privChatManager.joinPrivChat(client, targetLogin);
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
 
 	@SubscribeMessage('privChatLoadMessages')
-	async privChatLoadMessage(client :AuthenticatedSocket, recieverId: number)
+	async privChatLoadMessage(client :AuthenticatedSocket, targetLogin: string)
 	{
-		try {
-			client.emit('privChatLoadMessages', this.privChatManager.loadMessages(client.dbId, recieverId));
+		try 
+		{
+			client.emit('privChatLoadMessages', await this.privChatManager.loadMessages(client.login, targetLogin));
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
 
 	@SubscribeMessage('privChatSendMessage')
-	async privChatSendMessage(client :AuthenticatedSocket, recieverIntraLogin: string, message: string)
+	async privChatSendMessage(client: AuthenticatedSocket, data: sendMessageDto)
 	{
 		try {
-			var userReciever: User = (await this.userService.findOneByIntraLogin(recieverIntraLogin));
-			var recieverId: number = userReciever.id
-			// todo ERREUR faux ne peux pas fonctionnner
-			var recieverRoom: string = userReciever.intraLogin
-
-			client.to(client.roomId).to(recieverRoom).emit('privChatSendMessage',
-				(await this.privChatManager.sendMessage(client, client.dbId, recieverId, message)));
+			await this.privChatManager.sendMessage(client, data)
 		}
-		catch (error) { client.emit('error', error.message ) }
+		catch (error) { client.emit('error', error) }
 	}
 
 	@SubscribeMessage('loadConnectedUsers')
@@ -264,18 +255,41 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try {
 			// on filtre et on envoie uniquement ce qu'il faut
-			var connectedList = await this.userService.findAll();
-			type tse = {
-				intraLogin:string,
-				username: string
-			}
-			var s: tse[] = [];
-			var e: tse;
+			const connectedList = await this.userService.findAll();
+			
+			let connectedUsers: connectedUser[] = [];
 			connectedList.forEach((element) => {
-				e = { intraLogin: element.intraLogin, username: element.username};
-				s.push(e)
+				const user = { intraLogin: element.intraLogin, username: element.username, status: element.status};
+				connectedUsers.push(user);
 			})
-			client.emit('listOfConnectedUsers', s);
+			client.emit('listOfConnectedUsers', connectedUsers);
+		}
+		catch (error) { client.emit('error', error.message); }
+	}
+
+	@SubscribeMessage('blockUser')
+	async blockUser(client: AuthenticatedSocket, chatName: string)
+	{
+		try {
+			this.privChatManager.blockUser(client, chatName);
+		}
+		catch (error) { client.emit('error', error.message); }
+	}
+
+	@SubscribeMessage('unblockUser')
+	async unblockUser(client: AuthenticatedSocket, chatName: string)
+	{
+		try {
+			this.privChatManager.unblockUser(client, chatName);
+		}
+		catch (error) { client.emit('error', error.message); }
+	}
+
+	@SubscribeMessage('getPrivChatInfo')
+	async getChatInfo(client: AuthenticatedSocket, chatName: string)
+	{
+		try {
+			this.privChatManager.getChatInfo(client, chatName);
 		}
 		catch (error) { client.emit('error', error.message); }
 	}
