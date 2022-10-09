@@ -5,11 +5,12 @@ import { useParams } from "react-router-dom";
 import { Iuser, UserStatus } from "./Utils/type";
 import { getUserPhoto } from "./Requests/users";
 import { getStatus } from "./Utils/utils";
+import useLocalStorage from "./hooks/localStoragehook";
 
 const url: string = "http://localhost:3002/users/profile/";
 
 
-function UserProfile({ user, photo }:{user: Iuser, photo: string}) {
+function UserProfile({ user, photo, login }:{user: Iuser, photo: string, login:string}) {
 
   
   return (
@@ -36,12 +37,19 @@ function UserProfile({ user, photo }:{user: Iuser, photo: string}) {
         <div className="flex">
           <p className="mb-1 font-mono text-gray">Status: {getStatus(user)}</p>
         </div>
+        <div className="flex">
+          {
+            user.intraLogin !== login &&
+              <button>add to friend</button>
+          }
+        </div>
       </div>
     </div>
   );
 }
 
 export default function Profile() {
+  const { storage } = useLocalStorage("user")
 	const { login } = useParams()
 	const [user, setUser] = React.useState<Iuser>();
 	const data = {login : login}
@@ -71,7 +79,7 @@ export default function Profile() {
   }, [login]);
 
   return (
-    <div id="Profile" className="flex-1">
+    <div id="Profile" className="flex-1 bg-gray-400	">
       <header className="page-header shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <h1 className="page-title">Profile</h1>
@@ -81,7 +89,7 @@ export default function Profile() {
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           {
             user &&
-              <UserProfile user={user} photo={photo!}/>
+              <UserProfile user={user} photo={photo!} login={storage.login}/>
           }
         </div>
       </main>

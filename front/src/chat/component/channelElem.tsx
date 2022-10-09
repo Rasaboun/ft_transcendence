@@ -224,7 +224,7 @@ export default function ChannelElem()
 	}, [mutedTime])
 
     return (
-        //<Loader socket={chatSocket}>
+        <Loader condition={chatSocket?.connected}>
             <div className="chat">
                 <ChannelBoard userState={userState}/>
                 <div className="chat-right bg-indigo-50">
@@ -240,7 +240,7 @@ export default function ChannelElem()
                         value={form.message}/>
                 </div>          
             </div>
-        //</Loader>
+        </Loader>
         
     )
 }
