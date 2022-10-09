@@ -43,16 +43,17 @@ export function getGameSocket()
 }
 
 export function appSocketRoutine(handleGameOver:any,
-								handleError:any) {
+								handleError:any,
+								handleConnectionError:any
+								) {
 
-	chatSocket.on("connect", () => {
-	})
-	chatSocket.on("connect_error", (err) => {console.log(`connect_error due to ${err.message}`)});
+	chatSocket.on("connect_error", (err) => {handleConnectionError()});
 	chatSocket.on("Connect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
 	chatSocket.on('error', (message:string) => handleError(message))	
 	chatSocket.on("Reconnect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
 	chatSocket.on("msgToChannel", (msg:messageT) => {console.log(`message receive from ${msg.sender?.username}`)})
 	gameSocket.on('gameOver', (winnerId: string) => handleGameOver(winnerId))
+	chatSocket.on('channelDeleted', (message:string) =>handleError(message))
 }
 
 export function createChannel(channelForm:channelFormT) {

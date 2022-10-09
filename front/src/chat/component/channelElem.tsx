@@ -17,7 +17,7 @@ export default function ChannelElem()
 	const {storage2} = useLocalStorage("channel")
 	const navigate = useNavigate();
     const lastMessageRef = useRef<HTMLDivElement | null>(null)
-    const {chatSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
+    const {chatSocket, setChatSocket, setGameSocket, setNotification} = useContext(SocketContext)
     const [form, setForm] = useState({
         message:"",
         invite:"",
@@ -92,9 +92,8 @@ export default function ChannelElem()
     }
 
     const handleChannelDeleted = (message:string) => {
-        //console.log("In channeldeleted");
+        console.log("In channeldeleted");
         navigate("/chat")
-        window.alert(message)
     }
 
     const handleClientInfo = (data:ClientInfoT) => {

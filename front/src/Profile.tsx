@@ -3,7 +3,7 @@ import axios from "axios";
 import "./output.css";
 import { useParams } from "react-router-dom";
 import { Iuser, UserStatus } from "./Utils/type";
-import { getUserPhoto } from "./Requests/users";
+import { addFriend, getUserPhoto } from "./Requests/users";
 import { getStatus } from "./Utils/utils";
 import useLocalStorage from "./hooks/localStoragehook";
 
@@ -12,9 +12,13 @@ const url: string = "http://localhost:3002/users/profile/";
 
 function UserProfile({ user, photo, login }:{user: Iuser, photo: string, login:string}) {
 
-  
+  const handleClick = () => {
+    addFriend(login, user.intraLogin)
+
+  }
+
   return (
-    <div className="flex flex-col items-center bg-indigo-300 rounded-lg border shadow md:flex-row md:max-w-xl ">
+    <div className="flex basis-full flex-col items-center bg-indigo-300 rounded-lg border shadow md:flex-row md:max-w-xl ">
       <img
         className="object-cover w-full h-96 rounded-t-lg md:h-auto md:w-48 md:rounded-none md:rounded-l-lg"
         src={photo}
@@ -35,12 +39,12 @@ function UserProfile({ user, photo, login }:{user: Iuser, photo: string, login:s
           <p className="mb-1 font-mono text-gray">Haut-Fait: {user.nbGames - user.victories >= user.victories ? "NUL GERMAIN" : "MONSTRUEUX"}</p>
         </div>
         <div className="flex">
-          <p className="mb-1 font-mono text-gray">Status: {getStatus(user)}</p>
+          <p className="mb-1 font-mono text-gray">Status: {getStatus(user.status)}</p>
         </div>
         <div className="flex">
           {
             user.intraLogin !== login &&
-              <button>add to friend</button>
+              <button onClick={() => handleClick()}>add to friend</button>
           }
         </div>
       </div>
@@ -79,7 +83,7 @@ export default function Profile() {
   }, [login]);
 
   return (
-    <div id="Profile" className="flex-1 bg-gray-400	">
+    <div id="Profile" className="flex-1">
       <header className="page-header shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <h1 className="page-title">Profile</h1>

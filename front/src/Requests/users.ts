@@ -61,6 +61,7 @@ export async function getUserFriends(login: string): Promise<Friend[]>
     const url: string = backUrl + "/users/friendList";
     
     const friendList = await axios.get(url, {params: {login}}).then(res => {
+        console.log(res.data)
         return res.data;
     })
 
@@ -97,24 +98,18 @@ export async function setUserPhoto(login: string, photo: File)
 
 export async function addFriend(login: string, friendLogin: string)
 {
-    const data = new FormData();
-    data.append('login', login);
-    data.append('friendLogin', friendLogin);
     const url: string = backUrl + "/users/friend";
 
-    await axios.put(url, data).then(res => {
+    await axios.put(url, {login, friendLogin}).then(res => {
     }).catch(e => console.log)
 }
 
 export async function removeFriend(login: string, friendLogin: string)
 {
-    const data = {
-        login,
-        friendLogin,
-    }
     const url: string = backUrl + "/users/friend";
 
-    await axios.delete(url, {data: {data}}).then(res => {
+    return await axios.delete(url, {data: {login, friendLogin}}).then(res => {
+        return res.data;
     }).catch(e => console.log)
 }
 

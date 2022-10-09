@@ -15,6 +15,7 @@ let navigation = [
   { name: 'Dashboard', href: '#', current: false, notification: false},
   { name: 'Chat', href: '#', current: false, notification: false},
   { name: 'Pong', href: '#', current: false, notification: false},
+  { name: 'Friends', href: '#', current: false, notification: false},
 ]
 let profileColor = ["bg-green-400", "bg-red-400", "bg-gray-400"]
 let index = 0;
@@ -41,6 +42,16 @@ export default function NavBar() {
 	const { image } = useContext(SocketContext)
   const {chatSocket, gameSocket, setChatSocket, setGameSocket, notification, setNotification} = useContext(SocketContext)
   
+  const handleChatNotification = () => {
+    setNotification(true)
+      navigation = navigation.map((element, idx) => {
+        if (idx === 1)
+          return {...element, notification: notification}
+        return element
+      });
+    console.log(notification)
+  }
+
   useEffect(() => {    // Mettre à jour le titre du document en utilisant l'API du navigateur
     
     document.getElementById("notification")?.classList.add(profileColor[1]);
@@ -55,10 +66,10 @@ export default function NavBar() {
 		setGameSocket(getGameSocket())
     if (chatSocket)
     {
-      chatSocket.on("msgToChannel", () => setNotification(true))
+      chatSocket.on("msgToChannel", () => handleChatNotification())
     }
     
-  },[image]);
+  },[image, chatSocket?.connected, notification]);
   
   return (
     <>

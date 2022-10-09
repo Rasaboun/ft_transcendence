@@ -122,7 +122,7 @@ function TabSettings() {
 				</div>
 			</dl>
 				{
-					//JSON.stringify(form) !== JSON.stringify(defaultValue) &&
+					JSON.stringify(form) !== JSON.stringify(defaultValue) &&
 						<button
 							type="button"
 							className="inline-flex items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 focus:outline-none"

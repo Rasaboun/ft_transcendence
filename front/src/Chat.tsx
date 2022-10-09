@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import PrivChatElem from './chat/component/privChatElem';
 import './output.css';
@@ -13,6 +13,7 @@ import { channel } from 'diagnostics_channel';
 import ChannelMenu from './chat/component/channelMenu';
 import ChannelElem from './chat/component/channelElem';
 import PrivChatMenu from './chat/component/privChatMenu';
+import { SocketContext } from './Context/socketContext';
 
 function classNames(...classes:any[]) {
   return classes.filter(Boolean).join(' ')
@@ -68,6 +69,11 @@ function Channel() {
 
 
 export default function Chat() {
+	const { setNotification } = useContext(SocketContext);
+	useEffect(() => {
+		console.log("CHAT")
+        setNotification(false)
+	}, [])
 	return (
 	<div id="Chat" className="flex-1">
 		<header className="page-header shadow">
