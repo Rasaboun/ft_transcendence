@@ -1,26 +1,11 @@
-import React, { useContext, useEffect, useState } from "react";
-import { AuthFormT } from "../authUtils/AuthTypes";
+import { useContext, useEffect,  } from "react";
 import "../auth.css"
-import axios from "axios";
-import useLocalStorage from "../../hooks/localStoragehook";
-import { useNavigate } from "react-router-dom";
-import { getChatSocket, getGameSocket, initiateSocket } from "../../Utils/socketManager";
 import { SocketContext } from "../../Context/socketContext";
-import { setAuthToken } from "../authUtils/AuthUtils";
 import { backUrl } from "../../Requests/users";
-import Cookies from "js-cookie";
 
 export default function LoginElem ()
 {
-	const { chatSocket, setChatSocket, gameSocket, setGameSocket } = useContext(SocketContext)
-	const navigate = useNavigate()
-	const {setStorage} = useLocalStorage()
-	const [authForm, setAuthForm] = useState<AuthFormT>({
-		username: "",
-		password: ""
-	})
-
-	const [button, setButton] = useState(true)
+	const { chatSocket,  gameSocket, } = useContext(SocketContext)
 
 	const  handleSubmit = () => {
 	

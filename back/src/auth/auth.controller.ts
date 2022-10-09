@@ -33,7 +33,7 @@ export class AuthController {
     @UseGuards(IntraGuard)
     async login(@Request() req)
     {
-        console.log("Inside login");
+        
     }
 
     @UseGuards(IntraGuard)
