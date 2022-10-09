@@ -77,7 +77,6 @@ export class LobbyManager
     {
         let lobby: Lobby = null;
    
-        console.log("client lobby", client.lobby);
         for (let i = 0; i < this.availableLobbies.length; i++)
         {
             const currLobby = this.availableLobbies[i];
