@@ -2,13 +2,16 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./output.css";
 import { useParams } from "react-router-dom";
-import { Iuser } from "./Utils/type";
+import { Iuser, UserStatus } from "./Utils/type";
 import { getUserPhoto } from "./Requests/users";
+import { getStatus } from "./Utils/utils";
 
 const url: string = "http://localhost:3002/users/profile/";
 
 
 function UserProfile({ user, photo }:{user: Iuser, photo: string}) {
+
+  
   return (
     <div className="flex flex-col items-center bg-indigo-300 rounded-lg border shadow md:flex-row md:max-w-xl ">
       <img
@@ -29,6 +32,9 @@ function UserProfile({ user, photo }:{user: Iuser, photo: string}) {
         </div>
         <div className="flex">
           <p className="mb-1 font-mono text-gray">Haut-Fait: {user.nbGames - user.victories >= user.victories ? "NUL GERMAIN" : "MONSTRUEUX"}</p>
+        </div>
+        <div className="flex">
+          <p className="mb-1 font-mono text-gray">Status: {getStatus(user)}</p>
         </div>
       </div>
     </div>

@@ -9,6 +9,7 @@ import useLocalStorage from "../../hooks/localStoragehook";
 import MessageInput from "./MessageInput";
 import { SocketContext } from "../../Context/socketContext";
 import InviteMessage from "../Elements/InviteMessage";
+import Loader from "../../Elements/loader";
 
 export default function ChannelElem()
 {
@@ -223,20 +224,23 @@ export default function ChannelElem()
 	}, [mutedTime])
 
     return (
-        <div className="chat">
-            <ChannelBoard userState={userState}/>
-            <div className="chat-right bg-indigo-50">
-                <div className="h-96 ">
-                    <div className="message-container">
-                        {messageElem}
-                        <div ref={lastMessageRef}/>
+        <Loader socket={chatSocket}>
+            <div className="chat">
+                <ChannelBoard userState={userState}/>
+                <div className="chat-right bg-indigo-50">
+                    <div className="h-96 ">
+                        <div className="message-container">
+                            {messageElem}
+                            <div ref={lastMessageRef}/>
+                        </div>
                     </div>
-                </div>
-                <MessageInput mutedTime={mutedTime}
-                    handleChange={handleChange}
-                    handleSubmitMessage={handleSubmitMessage}
-                    value={form.message}/>
-           </div>          
-        </div>
+                    <MessageInput mutedTime={mutedTime}
+                        handleChange={handleChange}
+                        handleSubmitMessage={handleSubmitMessage}
+                        value={form.message}/>
+                </div>          
+            </div>
+        </Loader>
+        
     )
 }

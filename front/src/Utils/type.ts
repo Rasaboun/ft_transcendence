@@ -13,3 +13,9 @@ export interface Iuser {
 	victories: number
 
 }
+
+export enum UserStatus {
+    offline,
+    online,
+    ingame,
+}

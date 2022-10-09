@@ -82,18 +82,8 @@ export default function App()
 					<Route path="/" element={<Home/> }/>
 					<Route path="Dashboard" element={<Dashboard/> }/>
 					<Route path="About" element={<StarWars/> }/>
-					<Route path="Chat/*" element=
-					{
-						<ChatContextProvider>
-							<Chat/>
-						</ChatContextProvider>
-					}/>
-					<Route path="Pong/*" element=
-					{
-						<GameContextProvider>
-							<Pong/>
-						</GameContextProvider>
-					}/>
+					<Route path="Chat/*" element={<Chat/>}/>
+					<Route path="Pong/*" element={<Pong/>}/>
 					<Route path="Settings" element={<Settings/>}/>
 					<Route path="/Profile/:login" element={<Profile/>}/>
 				</Route>
