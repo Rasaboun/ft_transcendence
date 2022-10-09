@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Iuser } from "../Utils/type";
+import { Friend, Iuser } from "../Utils/type";
 import { Buffer } from 'buffer'
 export const backUrl = "http://localhost:3002"; 
 
@@ -56,6 +56,18 @@ export async function getUserPhoto(login: string): Promise<string>
     return photo;
 }
 
+export async function getUserFriends(login: string): Promise<Friend[]>
+{
+    const url: string = backUrl + "/users/friendList";
+    
+    const friendList = await axios.get(url, {params: {login}}).then(res => {
+        console.log(res.data)
+        return res.data;
+    })
+
+    return friendList;
+}
+
 export async function setUserStatus(login: string, status: UserStatus)
 {
     const url: string = backUrl + "/users/status";
@@ -84,6 +96,22 @@ export async function setUserPhoto(login: string, photo: File)
     }).catch(e => console.log)
 }
 
+export async function addFriend(login: string, friendLogin: string)
+{
+    const url: string = backUrl + "/users/friend";
+
+    await axios.put(url, {login, friendLogin}).then(res => {
+    }).catch(e => console.log)
+}
+
+export async function removeFriend(login: string, friendLogin: string)
+{
+    const url: string = backUrl + "/users/friend";
+
+    return await axios.delete(url, {data: {login, friendLogin}}).then(res => {
+        return res.data;
+    }).catch(e => console.log)
+}
 
 export async function blockUser(callerlogin: string, targetLogin: string)
 {

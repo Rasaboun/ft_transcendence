@@ -14,6 +14,7 @@ import { Tab } from "@headlessui/react";
 import RadioFormElem from "../../Elements/radioFormElem";
 import ChatListElem from "../../Elements/ListElem";
 import ChannelFormElem from "../Elements/channelFormElem";
+import Loader from "../../Elements/loader";
 
 function classNames(...classes:any[]) {
 	return classes.filter(Boolean).join(' ')
@@ -126,8 +127,11 @@ export default function ChannelMenu()
     return (
 		
         <div >
-			<ChannelFormElem/>
-			{channelsElem}
+			<Loader condition={chatSocket?.connected}>
+				<ChannelFormElem/>
+				{channelsElem}
+			</Loader>
+			
         </div>
     )
 }

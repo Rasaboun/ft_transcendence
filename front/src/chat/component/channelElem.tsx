@@ -9,6 +9,7 @@ import useLocalStorage from "../../hooks/localStoragehook";
 import MessageInput from "./MessageInput";
 import { SocketContext } from "../../Context/socketContext";
 import InviteMessage from "../Elements/InviteMessage";
+import Loader from "../../Elements/loader";
 
 export default function ChannelElem()
 {
@@ -16,7 +17,7 @@ export default function ChannelElem()
 	const {storage2} = useLocalStorage("channel")
 	const navigate = useNavigate();
     const lastMessageRef = useRef<HTMLDivElement | null>(null)
-    const {chatSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
+    const {chatSocket, setChatSocket, setGameSocket, setNotification} = useContext(SocketContext)
     const [form, setForm] = useState({
         message:"",
         invite:"",
@@ -91,9 +92,8 @@ export default function ChannelElem()
     }
 
     const handleChannelDeleted = (message:string) => {
-        //console.log("In channeldeleted");
+        console.log("In channeldeleted");
         navigate("/chat")
-        window.alert(message)
     }
 
     const handleClientInfo = (data:ClientInfoT) => {
@@ -223,20 +223,23 @@ export default function ChannelElem()
 	}, [mutedTime])
 
     return (
-        <div className="chat">
-            <ChannelBoard userState={userState}/>
-            <div className="chat-right bg-indigo-50">
-                <div className="h-96 ">
-                    <div className="message-container">
-                        {messageElem}
-                        <div ref={lastMessageRef}/>
+        <Loader condition={chatSocket?.connected}>
+            <div className="chat">
+                <ChannelBoard userState={userState}/>
+                <div className="chat-right bg-indigo-50">
+                    <div className="h-96 ">
+                        <div className="message-container">
+                            {messageElem}
+                            <div ref={lastMessageRef}/>
+                        </div>
                     </div>
-                </div>
-                <MessageInput mutedTime={mutedTime}
-                    handleChange={handleChange}
-                    handleSubmitMessage={handleSubmitMessage}
-                    value={form.message}/>
-           </div>          
-        </div>
+                    <MessageInput mutedTime={mutedTime}
+                        handleChange={handleChange}
+                        handleSubmitMessage={handleSubmitMessage}
+                        value={form.message}/>
+                </div>          
+            </div>
+        </Loader>
+        
     )
 }

@@ -1,15 +1,14 @@
 import React, { useState } from "react"
 import { Socket } from 'socket.io-client'
-import { GameState } from "../game/GameUtils/type"
 
 type SocketContextType = {
     chatSocket:Socket|undefined
     gameSocket:Socket|undefined
-	gameState: GameState,
+	notification: boolean,
 	image:string|undefined
 	setChatSocket:(socket:Socket) => void
 	setGameSocket:(socket:Socket) => void
-	setGameState:(gameState:GameState) => void
+	setNotification:(notification:boolean) => void
 	setImage:(image:string) => void
 }
 
@@ -20,12 +19,12 @@ type propsType = {
 const SocketContext = React.createContext<SocketContextType>({
 	chatSocket: undefined,
 	gameSocket: undefined,
-	gameState: GameState.None,
+	notification: false,
 	image:undefined,
 	setChatSocket: () => {},
 	setGameSocket: () => {},
 	setImage:() => {},
-	setGameState:() => {}
+	setNotification:() => {}
 
 })
 
@@ -33,11 +32,11 @@ function SocketContextProvider (props:propsType)
 {
 	const [chatSocket, setChatSocket] = React.useState<Socket>()
 	const [gameSocket, setGameSocket] = React.useState<Socket>()
-	const [gameState, setGameState] = React.useState<GameState>(GameState.None)
+	const [notification, setNotification] = React.useState<boolean>(false)
 	const [image, setImage] = useState<string>();
 
 	return (
-		<SocketContext.Provider value={{chatSocket, setChatSocket, gameSocket, image, setImage, setGameSocket, gameState, setGameState}}>
+		<SocketContext.Provider value={{chatSocket, setChatSocket, gameSocket, image, setImage, setGameSocket, notification, setNotification}}>
 			{props.children}
 		</SocketContext.Provider>
 	)

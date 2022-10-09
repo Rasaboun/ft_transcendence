@@ -7,6 +7,7 @@ import { v4 } from 'uuid';
 import { join } from 'path';
 import { createReadStream } from 'fs';
 import { catchError, firstValueFrom, map } from 'rxjs';
+import { UserStatus } from 'src/users/type/users.type';
 
 
 @Injectable()
@@ -79,6 +80,8 @@ export class AuthService {
         client.lobby = null;
         client.lobbyId = await this.userService.getUserLobby(client.login);
         client.join(client.roomId);
+        await this.userService.setUserStatus(client.login, UserStatus.online);
+        
     }
 
     async updateLobby(login: string, lobbyId: string | null)
