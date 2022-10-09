@@ -68,7 +68,7 @@ export default function Profile() {
       getProfile();
       getPhoto();
     }
-  }, []);
+  }, [login]);
 
   return (
     <div id="Profile" className="flex-1">
