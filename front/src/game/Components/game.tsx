@@ -9,7 +9,6 @@ import useLocalStorage from "../../hooks/localStoragehook"
 import { GameCleaner, GameRoutineHandler, getChatSocket, getGameSocket, initiateSocket, leftPong, loadGame, playerMoved, startGame } from "../../Utils/socketManager"
 import { SocketContext } from "../../Context/socketContext"
 import { useNavigate } from "react-router-dom"
-import { sendGameResult } from "../../Requests/match"
 
 let canvas:HTMLCanvasElement;
 
@@ -57,17 +56,6 @@ export default function Game()
 		setStorage("gameState", GameState.Waiting)
 	}
 
-	async function sendData()
-	{	
-		let gameInfoToSend:any = {
-			playerOneLogin: gameData.players[0].id,
-			playerTwoLogin: gameData.players[1].id,
-			playerOneScore: gameData.players[0].score.toString(),
-			playerTwoScore: gameData.players[1].score.toString(),
-		}
-		sendGameResult(gameInfoToSend);
-	}
-
 	function initializeGame()
 	{
 		if (parseInt(storage2) === GameState.Started)
@@ -104,7 +92,6 @@ export default function Game()
 			width: 1920,
 			height: 1080,
 		})
-		//setGameState(GameState.Waiting)
 	}
 
 	const updateGame = (data: {gameData: GameData, gameSettings: GameSettings }) =>
@@ -338,10 +325,6 @@ export default function Game()
 		if (parseInt(storage2) === GameState.Started || parseInt(storage2) === GameState.Spectacte)
 		{
 			draw()
-		}
-		if (parseInt(storage2) === GameState.Stopped && storage.login == gameData.players[0].id)
-		{
-			sendData();
 		}
 	}, [gameData])
 

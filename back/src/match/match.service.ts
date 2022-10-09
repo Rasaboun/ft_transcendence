@@ -30,14 +30,6 @@ export class MatchService {
         })
     }
 
-    // async getMatchesByUsername(username: string): Promise<Match[]> {
-    //     const user = await this.userService.findOneByUsername(username);
-    //     if (user === null)
-    //         throw new ForbiddenException("No such user");
-    //     return this.getMatchesByLogin(user.id);
-        
-    // }
-
     async matchResult(matchDto: matchDto) {
         const newMatch = this.matchRepository.create(matchDto);
 

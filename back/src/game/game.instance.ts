@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/core/injector/module";
 import { string } from "joi";
+import { matchDto } from "src/match/dto/match.dto";
 import { Lobby } from "./lobby/lobby";
 import { GameData, GameMode, GameSettings, GameState, Player } from "./types/game.type";
 import { getMiniModeSettings, getNormalModeSettings, initGameData } from "./utils/game.settings";
@@ -201,6 +202,16 @@ export class GameInstance
 	public getGameData()
 	{
 		return {gameData: this.gameData, gameSettings: this.settings};
+	}
+
+	public getResultData(): matchDto
+	{
+		return {
+			playerOneLogin: this.gameData.players[0].id,
+			playerTwoLogin: this.gameData.players[1].id,
+			playerOneScore: this.gameData.players[0].score,
+			playerTwoScore: this.gameData.players[1].score,
+		}
 	}
 
     public playersId(): string[]

@@ -18,8 +18,8 @@ export default function Loader({ condition, children }: PropsT)
 				radius={5}
 				color="#C4B5FD"
 				ariaLabel="ball-triangle-loading"
-				wrapperClass={{}}
-				wrapperStyle=""
+				wrapperClass=""
+				wrapperStyle={{}}
 				visible={true}
 			/>
 		</div> :

@@ -4,7 +4,7 @@ import { extname } from 'path'
 //import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
 import { diskStorage } from 'multer'
 import { User } from 'src/typeorm';
-import { blockUserDto, createUserDto, updatePhotoDto, updateStatusDto, updateUsernameDto } from './dto/users.dto';
+import { blockUserDto, createUserDto, friendDto, updatePhotoDto, updateStatusDto, updateUsernameDto } from './dto/users.dto';
 import { UserStatus } from './type/users.type';
 import { UsersService } from './users.service';
 import { Readable } from 'typeorm/platform/PlatformTools';
@@ -63,6 +63,17 @@ export class UsersController {
         return this.usersService.setUserUsername(dto.login, dto.username);
     }
 
+    @Put('friend')
+    addFriend(@Body() dto: friendDto) {
+        console.log("adding friend", dto);
+        return this.usersService.addFriend(dto.login, dto.friendLogin);
+    }
+
+    @Delete('friend')
+    removeFriend(@Body() dto: friendDto) {
+        return this.usersService.removeFriend(dto.login, dto.friendLogin);
+    }
+
     @Get('isblocked')
     isBlocked(@Query() dto: blockUserDto) {
         return this.usersService.isBlocked(dto.callerLogin, dto.targetLogin);
@@ -94,6 +105,12 @@ export class UsersController {
     @Get('username')
     async getUserUsername(@Query() dto: {login: string}): Promise<string> {
         return await this.usersService.getUserUsername(dto.login);
+    }
+
+    @Get('friendList')
+    async getFriendList(@Query() dto: {login: string}) {
+        console.log(dto);
+        return await this.usersService.getFriends(dto.login);
     }
 
     @Get()
