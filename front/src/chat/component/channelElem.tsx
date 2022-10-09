@@ -189,11 +189,10 @@ export default function ChannelElem()
 
     useEffect(() => {
         const channel = storage2;
-        console.log("CHANNEL NAME", channel.channelId)
         initiateSocket("http://localhost:8002")
         setChatSocket(getChatSocket())
         setGameSocket(getGameSocket())
-        if (chatSocket?.connected)
+        if (chatSocket)
         {
             chatHandler(handleMessageReceived,
                 handleChannelDeleted,
@@ -209,14 +208,13 @@ export default function ChannelElem()
         }
         if (channel)
                 getClientInfo(channel.channelId)
-    }, [chatSocket?.connected])
+    }, [chatSocket])
 
     useEffect(() => {
        scrollToBottom()
     }, [messagesList])
 
     useEffect(() => {
-        console.log(mutedTime, userState?.unmuteDate)
 		if (mutedTime > 0)
 		{
 			const intervalId = setInterval(() => setMutedTime((oldMutedTime) => oldMutedTime - 1), 1000)

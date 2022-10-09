@@ -11,7 +11,6 @@ type propsType = {
 
 export default function PlayersScores(props: propsType)
 {
-    console.log("PhotoUrl :", props.image);
     return(
             <div className={`score--elem + ${props.className}`}>
                 <h1 className="text-[40px]"> {props.username}    </h1>
