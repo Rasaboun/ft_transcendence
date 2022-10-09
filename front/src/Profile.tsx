@@ -49,6 +49,7 @@ export default function Profile() {
           return response.data;
           
         });
+        console.log("User status:", user.status);
         setUser(user);
       }
       

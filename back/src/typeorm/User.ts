@@ -64,7 +64,7 @@ export class User {
     blockedUsers: string[];
 
     @Column({
-        default: 0,
+        default: UserStatus.offline,
         nullable: false
     })
     status: number;

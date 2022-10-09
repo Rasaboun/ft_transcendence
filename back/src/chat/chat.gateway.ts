@@ -13,6 +13,7 @@ import { UsersService } from 'src/users/users.service'
 import { GameMode } from 'src/game/types/game.type';
 import { use } from 'passport';
 import { connectedUser, sendMessageDto } from './types/privChat.type';
+import { UserStatus } from 'src/users/type/users.type';
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -47,9 +48,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	async handleDisconnect(client: AuthenticatedSocket) {
-		console.log(`Client ${client.login} left server`);
+		const nbSockets = (await this.server.in(client.roomId).fetchSockets()).length;
+		if (nbSockets == 0)
+		{
+			await this.userService.setUserStatus(client.login, UserStatus.offline);
+		}
 		this.channelManager.terminateSocket(client);
-		// todo save it in db to handle privConnection to user
 	}
 	
 	@SubscribeMessage('joinChannel')

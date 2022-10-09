@@ -6,6 +6,9 @@ import { AuthenticatedSocket } from 'src/auth/types/auth.type';
 import { AuthService } from 'src/auth/auth.service';
 import { forwardRef, Inject } from '@nestjs/common';
 import { isJWT } from 'class-validator';
+import { UsersService } from 'src/users/users.service';
+import { UserStatus } from 'src/users/type/users.type';
+import { Lobby } from './lobby/lobby';
 
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'game' })
@@ -15,6 +18,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	constructor( 	private lobbyManager: LobbyManager,
 					@Inject(forwardRef(() => AuthService))
 					private authService: AuthService,
+					private usersService: UsersService,
 				) {	}
 
 	@WebSocketServer()
@@ -118,6 +122,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (!client.lobby)
 			return ;
 		client.lobby.startGame();
+		this.updatePlayersStatus(client.lobby, UserStatus.ingame);
+		
 	}
 
 	@SubscribeMessage('playerMoved')
@@ -139,4 +145,12 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		client.lobbyId = await this.authService.getUserLobbyId(client.login);
 		client.lobby = this.lobbyManager.getLobby(client.lobbyId);
 	}
+
+    public async updatePlayersStatus(lobby: Lobby, status: UserStatus)
+    {
+
+		const playersLogin: string[] = lobby.playersId();
+		await this.usersService.setUserStatus(playersLogin[0], status);
+		await this.usersService.setUserStatus(playersLogin[1], status);
+    }
 }
