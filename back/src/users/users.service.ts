@@ -118,6 +118,8 @@ export class UsersService {
 
         winner.victories++;
         winner.nbGames++;
+        if (winner.status == UserStatus.ingame)
+            winner.status = UserStatus.online;
         await this.userRepository.update(
             winner.id,
             winner
@@ -125,6 +127,8 @@ export class UsersService {
 
         loser.defeats++;
         loser.nbGames++;
+        if (loser.status == UserStatus.ingame)
+            loser.status = UserStatus.online;
         await this.userRepository.update(
             loser.id,
             loser
