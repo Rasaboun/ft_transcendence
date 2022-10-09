@@ -141,6 +141,7 @@ export default function Game()
 
 	const handleGameData = (data: {gameData: GameData, gameSettings: GameSettings }) => {
 		updateGame(data);
+		setStorage("gameState", data.gameData.state);
 	}
 
 	const handleGameReady = (data: {gameData: GameData, gameSettings: GameSettings }) => {
