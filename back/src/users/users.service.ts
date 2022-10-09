@@ -184,6 +184,7 @@ export class UsersService {
         if (!user)
             return ;
         user.friendList.push(newFriendLogin);
+        console.log("friendlist", user.friendList);
         await this.userRepository.update(user.id, user);
 
     }

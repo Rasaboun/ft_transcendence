@@ -65,6 +65,7 @@ export class UsersController {
 
     @Put('friend')
     addFriend(@Body() dto: friendDto) {
+        console.log("adding friend", dto);
         return this.usersService.addFriend(dto.login, dto.friendLogin);
     }
 
@@ -108,6 +109,7 @@ export class UsersController {
 
     @Get('friendList')
     async getFriendList(@Query() dto: {login: string}) {
+        console.log(dto);
         return await this.usersService.getFriends(dto.login);
     }
 
