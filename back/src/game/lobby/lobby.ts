@@ -128,6 +128,7 @@ export class Lobby
     public async gameOver(winnerLogin: string)
     {
         const winnerUsername = await this.lobbyManager.getPlayerUsername(winnerLogin);
+        await this.lobbyManager.storeResult(this.gameInstance.getResultData())
         this.sendToUsers('gameOver', winnerUsername);
         this.destroy();
     }

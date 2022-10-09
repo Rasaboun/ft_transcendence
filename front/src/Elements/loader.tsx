@@ -15,8 +15,8 @@ export default function Loader({ socket, children }: PropsT)
 				radius={5}
 				color="#4fa94d"
 				ariaLabel="ball-triangle-loading"
-				wrapperClass={{}}
-				wrapperStyle=""
+				wrapperClass=""
+				wrapperStyle={{}}
 				visible={true}
 			/> :
 			{children}

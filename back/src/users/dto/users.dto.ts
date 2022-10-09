@@ -45,6 +45,16 @@ export class updateUsernameDto {
     username: string;
 }
 
+export class friendDto {
+    @IsNotEmpty()
+    @IsString()
+    login: string;
+
+    @IsNotEmpty()
+    @IsString()
+    friendLogin: string;
+
+}
 
 export class blockUserDto {
     @IsNotEmpty()

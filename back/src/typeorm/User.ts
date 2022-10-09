@@ -63,6 +63,12 @@ export class User {
     })
     blockedUsers: string[];
 
+    @Column('text', { 
+        array: true,
+        default: []
+    })
+    friendList: string[];
+
     @Column({
         default: UserStatus.offline,
         nullable: false

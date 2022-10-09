@@ -4,7 +4,7 @@ import { createUserDto } from 'src/users/dto/createUser.dto';
 import { User } from 'src/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import { UserStatus } from './type/users.type';
+import { Friend, UserStatus } from './type/users.type';
 import { PhotoService } from './photo/photo.service';
 import { Photo } from 'src/typeorm/Photo';
 
@@ -178,6 +178,29 @@ export class UsersService {
         await this.userRepository.update(user.id, user);
     }
 
+    async addFriend(login: string, newFriendLogin: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        if (!user)
+            return ;
+        user.friendList.push(newFriendLogin);
+        await this.userRepository.update(user.id, user);
+
+    }
+
+    async removeFriend(login: string, friendLogin: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        if (!user)
+            return ;
+        const index = user.friendList.indexOf(friendLogin);
+        if (index == -1)
+            return ;
+        user.friendList.splice(index, 1);
+        await this.userRepository.update(user.id, user);
+
+    }
+
     async getUserUsername(login: string): Promise<string> {
 
         const user = await this.findOneByIntraLogin(login);
@@ -203,4 +226,22 @@ export class UsersService {
         return user.roomId;
     }
 
+    async getFriends(login: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        if (!user)
+            return ;
+        let friends: Friend[] = [];
+        
+        for(const friendLogin in user.friendList)
+        {
+            const friend = await this.findOneByIntraLogin(friendLogin);
+            friends.push({
+                login: friend.intraLogin,
+                username: friend.username,
+                status: friend.status,
+            })
+        }
+        return friends;
+    }
 }
