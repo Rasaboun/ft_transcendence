@@ -254,7 +254,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async loadConnectedUsers(client: AuthenticatedSocket)
 	{
 		try {
-			// on filtre et on envoie uniquement ce qu'il faut
 			const connectedList = await this.userService.findAll();
 			
 			let connectedUsers: connectedUser[] = [];

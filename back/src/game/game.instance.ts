@@ -59,7 +59,6 @@ export class GameInstance
 		{
 			if (nextPos.x - this.gameData.ball.radius < this.settings.paddleWidth)
 			{
-				 //this.updateBall(this.gameData.ball.x, this.gameData.ball.y, (Math.random() * Math.PI) / 2 - Math.PI / 4);
 				return true;
 			}
 		}
@@ -73,7 +72,7 @@ export class GameInstance
 		{
 			if (nextPos.x + this.gameData.ball.radius > this.settings.width - this.settings.paddleWidth)
 			{
-				return true;//return this.updateBall(this.gameData.ball.x, this.gameData.ball.y, (Math.random() * Math.PI) / 2 - Math.PI / 4 + Math.PI);
+				return true;
 			}
 		}
 		return false;
@@ -101,7 +100,14 @@ export class GameInstance
 			{
 				if (this.ballHitsLeftPaddel(nextPos) || this.ballHitsRightPaddel(nextPos))
 				{
-					this.gameData.ball.delta.x *= -1.05;
+					if (this.gameData.nbHits < this.settings.maxHits)
+					{
+						this.gameData.ball.delta.x *= -1.05;
+						this.gameData.nbHits++;
+					}
+					else
+						this.gameData.ball.delta.x *= -1;
+
 				}
 				else if (this.ballHitsTopOrBottom(nextPos))
 					this.gameData.ball.delta.y *= -1;

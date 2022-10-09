@@ -112,12 +112,6 @@ export default function PrivChatElem()
 
     }, [chatSocket])
 
-    useEffect(() => {
-        if (isBlocked)
-        {
-
-        }
-    }, [isBlocked])
    return (<div className="chat">
             <h1>Chatting with : {privChat ? privChat.otherUsername : "Change this"}</h1>
             <br/>

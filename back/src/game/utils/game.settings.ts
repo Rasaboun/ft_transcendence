@@ -10,6 +10,7 @@ export function getNormalModeSettings(): GameSettings
         paddleWidth: 50,
         width: 1920,
         height: 1080,
+        maxHits: 15,
     }
 }
 
@@ -21,6 +22,7 @@ export function getMiniModeSettings(): GameSettings
         paddleWidth: 20,
         width: 1920,    
         height: 1080,
+        maxHits: 10,
     }
 }
 
@@ -37,5 +39,6 @@ export function initGameData(): GameData
             delta: {x: 0, y: 0},
         },
         state: GameState.Waiting,
+        nbHits: 0,
     }
 }

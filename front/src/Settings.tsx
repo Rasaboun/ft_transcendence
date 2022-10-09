@@ -35,13 +35,15 @@ function TabSettings() {
 			setDisplayedImage(URL.createObjectURL(img))
 		setForm((prevForm) => ({
 			...prevForm,
-			[e.target.name] : img,
+			[e.target.name] : img ? img : e.target.value
 		}))
 	}
 
 	const submitFormData = async () => {
+		console.log(form.username, defaultValue.username)
 		if (form.username !== defaultValue.username)
 		{
+			console.log("username settings", form.username)
 			setUsername(storage.login, form.username)
 			setStorage("user", {...storage, username: form.username})
 		}
