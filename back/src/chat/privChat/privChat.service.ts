@@ -1,11 +1,10 @@
 import {Injectable, NotFoundException} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { PrivChat } from 'src/typeorm';
 import { newPrivChatDto, privChatInfo } from '../types/privChat.type';
 import { Message } from "../types/channel.type";
-import { log } from 'console';
 import { v4 } from 'uuid';
 
 @Injectable()
@@ -14,7 +13,6 @@ export class PrivChatService {
 		@InjectRepository(PrivChat)
 		private readonly chatRepository: Repository<PrivChat>,
 		private readonly usersService: UsersService,
-		private dataSource: DataSource,
 	) {}
 
 	async findAll() : Promise<PrivChat[]> {

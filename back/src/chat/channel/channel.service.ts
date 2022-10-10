@@ -4,12 +4,17 @@ import { Repository } from "typeorm";
 import { Channel } from "src/typeorm";
 import { ActionOnUser, ChannelClient, ChannelModes, CreateChannel, InviteClient, Message, SetChannelPassword } from "../types/channel.type";
 import * as bcrypt from 'bcrypt';
+import { UsersService } from "src/users/users.service";
 @Injectable()
 export class ChannelsService {
-    @InjectRepository(Channel)
-    private channelRepository: Repository<Channel>
     
     private readonly saltRounds: number = 10;
+	
+    constructor(
+		@InjectRepository(Channel)
+        private channelRepository: Repository<Channel>,
+		private readonly usersService: UsersService,
+	) {}
 
     findAll() {
         return this.channelRepository.find();
@@ -314,13 +319,25 @@ export class ChannelsService {
         return index == -1 ? false : true;
     }
 
-    async getMessages(channelName: string) {
+    async updateMessages(channelName: string)
+    {
         const channel: Channel = await this.findOneById(channelName);
+        if (channel == undefined)
+            throw new NotFoundException("This channel does not exist");
+        
+        let clients: Map<string, string> = new Map<string, string>();
 
-        if (!channel)
-            throw new NotFoundException("Channel not found");
+        for (const user of channel.clients)
+        {
+            const userInDb = await this.usersService.findOneByIntraLogin(user.id);
+            clients.set(userInDb.intraLogin, userInDb.username);
+        }
 
-        return channel.messages;
+        for (let i = 0; i < channel.messages.length; i++)
+        {
+            channel.messages[i].sender.username = clients.get(channel.messages[i].sender.login);
+        }
+        await this.channelRepository.update(channel.id, channel);
     }
 
     async getClientMessages(channelName: string, clientId: string): Promise<Message[]>
@@ -328,6 +345,7 @@ export class ChannelsService {
         const channel: Channel = await this.findOneById(channelName);
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
+        await this.updateMessages(channelName);
 
         const index = this.getClientIndex(channel.clients, clientId);
         if (index == -1)

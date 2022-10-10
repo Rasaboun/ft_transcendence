@@ -156,10 +156,6 @@ export class PrivChatManager
 	{
 		try
 		{
-			const privChat = await this.privChatService.findOneByName(chatName);
-
-			const otherLogin = await this.privChatService.getOtherLogin(client.login, chatName);
-			const otherUser = await this.userService.findOneByIntraLogin(otherLogin);
 			
 			const chatInfo: privChatInfo = await this.privChatService.getChatInfo(chatName, client.login);
 		
