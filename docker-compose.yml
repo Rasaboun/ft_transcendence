@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+
+  front:
+    container_name: front
+    image: node:12.16.1
+    ports:
+      - "3000:3000"
+    working_dir: ./front 
+    command: bash -c "npm install && npm start"
+    networks:
+      - my-network
+
+  back:      
+    container_name: back
+    image: node:12.16.1
+    ports:
+      - "3000:3000"
+    working_dir: ./back 
+    command: bash -c "npm install && npm start"
+    networks:
+      - my-network
+
+  dev-db:
+    image: postgres:13
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    networks:
+      - my-network
+networks:
+  my-network:
+    driver: bridge
