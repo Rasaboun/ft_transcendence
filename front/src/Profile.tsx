@@ -3,17 +3,27 @@ import axios from "axios";
 import "./output.css";
 import { useParams } from "react-router-dom";
 import { Iuser, UserStatus } from "./Utils/type";
-import { addFriend, getFriendship, getUserPhoto } from "./Requests/users";
+import { addFriend, getFriendship, getUserPhoto, removeFriend } from "./Requests/users";
 import { getStatus } from "./Utils/utils";
 import useLocalStorage from "./hooks/localStoragehook";
 
 const url: string = "http://localhost:3002/users/profile/";
 
 
-function UserProfile({ user, photo, login, isFriend }:{user: Iuser, photo: string, login:string, isFriend: boolean}) {
+function UserProfile({ user, photo, login, isFriend, setIsFriend }:{user: Iuser, photo: string, login:string, isFriend: boolean, setIsFriend:(value:boolean)=>void}) {
 
-  const handleClick = () => {
-    addFriend(login, user.intraLogin)
+	const btnText = isFriend ? "Remove from Friends" : "Add To Friends"
+	const handleClick = () => {
+	if (!isFriend)
+	{
+		addFriend(login, user.intraLogin);
+		setIsFriend(true);
+	}
+	else
+	{
+		removeFriend(login, user.intraLogin)
+		setIsFriend(false)
+	}
 
   }
 
@@ -44,9 +54,8 @@ function UserProfile({ user, photo, login, isFriend }:{user: Iuser, photo: strin
         <div className="flex">
           {
             user.intraLogin !== login &&
-              <button onClick={() => handleClick()}>add to friend</button>
+              <button onClick={() => handleClick()}>{btnText}</button>
           }
-          <p> Is friend: {isFriend ? "You are already friends" : "Not your friend yet"}</p>
         </div>
       </div>
     </div>
@@ -100,7 +109,7 @@ export default function Profile() {
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           {
             user &&
-              <UserProfile user={user} photo={photo!} login={storage.login} isFriend={isFriend!}/>
+              <UserProfile user={user} photo={photo!} login={storage.login} isFriend={isFriend!} setIsFriend={setIsFriend}/>
           }
         </div>
       </main>
