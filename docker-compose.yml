@@ -4,23 +4,31 @@ services:
 
   front:
     container_name: front
-    image: node:12.16.1
+    build:
+        context: ./front
+    command:  npm start
+    volumes: 
+        - ./front:/app
+        - /app/node_modules
     ports:
-      - "3000:3000"
-    working_dir: ./front 
-    command: bash -c "npm install && npm start"
+      - 3000:3000
     networks:
       - my-network
 
   back:      
+    build:
+        context: ./back
     container_name: back
-    image: node:12.16.1
-    ports:
-      - "3000:3000"
-    working_dir: ./back 
-    command: bash -c "npm install && npm start"
+    volumes: 
+        - ./back:/app
+        - /app/node_modules
+    command:  npm start
+    environment:
+      POSTGRES_HOST: dev-db  
     networks:
       - my-network
+    depends_on:   
+      - dev-db
 
   dev-db:
     image: postgres:13
