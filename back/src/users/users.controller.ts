@@ -82,8 +82,14 @@ export class UsersController {
 
     @Get('profile')
     async findOneBylogin(@Query() query: {login: string}, @Res() res) {
-        const user = await this.usersService.findOneByIntraLogin(query.login);
+        let user = await this.usersService.findOneByIntraLogin(query.login);
         return res.status(200).contentType('text/html').send(user);
+    }
+
+    @Get('isFriend')
+    async getFriendship(@Query() query: {callerLogin: string, targetLogin: string})
+    {
+        return await this.usersService.isFriend(query.callerLogin, query.targetLogin);
     }
 
     @Get('status')

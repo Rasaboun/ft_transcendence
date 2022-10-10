@@ -95,7 +95,6 @@ export class UsersService {
         }
 
         const newUser = this.userRepository.create(userDto);
-        console.log("New user", newUser);
         return await this.userRepository.save(newUser);
     }
     
@@ -184,7 +183,6 @@ export class UsersService {
         if (!user)
             return ;
         user.friendList.push(newFriendLogin);
-        console.log("friendlist", user.friendList);
         await this.userRepository.update(user.id, user);
 
     }
@@ -201,6 +199,12 @@ export class UsersService {
         await this.userRepository.update(user.id, user);
         return await this.getFriends(login);
 
+    }
+
+    async isFriend(callerLogin: string, targetLogin: string)
+    {
+        const caller = await this.findOneByIntraLogin(callerLogin);
+        return caller.friendList.indexOf(targetLogin) == -1 ? false : true;
     }
 
     async getUserUsername(login: string): Promise<string> {

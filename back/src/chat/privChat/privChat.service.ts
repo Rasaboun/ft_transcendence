@@ -102,11 +102,22 @@ export class PrivChatService {
 		// return await this.chatRepository.update(chatMod.id, chatMod); 
 	}
 
-	async getMessageList(chatId: number): Promise<Message[]>
+	async getMessageList(chatName: string): Promise<Message[]>
 	{
-		const chat = await this.findOneById(chatId);
+		const chat = await this.findOneByName(chatName)
 		if (!chat)
 			throw new NotFoundException("Chat not found");
+		const firstUser = await this.usersService.findOneByIntraLogin(chat.firstUserLogin);
+		const secondUser = await this.usersService.findOneByIntraLogin(chat.secondUserLogin);
+
+		for (let i = 0; i < chat.messages.length; i++)
+		{
+			if (chat.messages[i].sender.login == firstUser.intraLogin)
+				chat.messages[i].sender.username = firstUser.username;
+			else
+				chat.messages[i].sender.username = secondUser.username;
+		}
+		await this.chatRepository.update(chat.id, chat);
 		return (chat.messages);
 	}
 
@@ -164,7 +175,7 @@ export class PrivChatService {
 				otherUsername: secondUser.username,
 				isBlocked: chat.blockedList.length > 0 ? true : false,
 				blockedList: chat.blockedList,
-				messages: chat.messages,
+				messages:  await this.getMessageList(chat.name),
 			}
 
 		}

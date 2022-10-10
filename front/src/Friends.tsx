@@ -42,20 +42,14 @@ export default function Friends() {
 	const [friends, setFriends] = useState<Friend[]>();
 
 	useEffect(() => {
-		console.log(storage.login)
-				const getFriends = async () => {
-			const url: string = backUrl + "/users/friendList";
-    
-			const friendList = await axios.get(url, {params: { login: storage.login }}).then(res => {
-				return res.data;
-			})
-				setFriends(friendList);
-			};
-			getFriends()
-			console.log(friends)
-		  }, [])
+		const getFriends = async () => {
+
+			const friendList = await getUserFriends(storage.login);
+			setFriends(friendList);
+		};	
+		getFriends()
+	}, [])
 	useEffect(() => {
-			console.log(friends)
 	}, [friends])
 		  const FriendListELem = friends?.map((elem, idx) => 
 		  	<FriendsProfile key={idx} friend={elem} login={storage.login} setFriends={setFriends}/>)

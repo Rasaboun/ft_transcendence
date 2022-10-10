@@ -3,14 +3,14 @@ import axios from "axios";
 import "./output.css";
 import { useParams } from "react-router-dom";
 import { Iuser, UserStatus } from "./Utils/type";
-import { addFriend, getUserPhoto } from "./Requests/users";
+import { addFriend, getFriendship, getUserPhoto } from "./Requests/users";
 import { getStatus } from "./Utils/utils";
 import useLocalStorage from "./hooks/localStoragehook";
 
 const url: string = "http://localhost:3002/users/profile/";
 
 
-function UserProfile({ user, photo, login }:{user: Iuser, photo: string, login:string}) {
+function UserProfile({ user, photo, login, isFriend }:{user: Iuser, photo: string, login:string, isFriend: boolean}) {
 
   const handleClick = () => {
     addFriend(login, user.intraLogin)
@@ -46,6 +46,7 @@ function UserProfile({ user, photo, login }:{user: Iuser, photo: string, login:s
             user.intraLogin !== login &&
               <button onClick={() => handleClick()}>add to friend</button>
           }
+          <p> Is friend: {isFriend ? "You are already friends" : "Not your friend yet"}</p>
         </div>
       </div>
     </div>
@@ -58,6 +59,7 @@ export default function Profile() {
 	const [user, setUser] = React.useState<Iuser>();
 	const data = {login : login}
   const [photo, setPhoto] = useState<string>();
+  const [isFriend, setIsFriend] = useState<boolean>();
 
   useEffect(() => {
     if (login)
@@ -69,12 +71,17 @@ export default function Profile() {
         });
         console.log("User status:", user.status);
         setUser(user);
+
+
+        const friendship = await getFriendship(storage.login, login);
+        setIsFriend(friendship);
       }
       
+
       const getPhoto = async () => {
         
-       const file  = await getUserPhoto(login);
-       setPhoto(file);
+        const file  = await getUserPhoto(login);
+        setPhoto(file);
       }
       
       getProfile();
@@ -93,7 +100,7 @@ export default function Profile() {
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           {
             user &&
-              <UserProfile user={user} photo={photo!} login={storage.login}/>
+              <UserProfile user={user} photo={photo!} login={storage.login} isFriend={isFriend!}/>
           }
         </div>
       </main>

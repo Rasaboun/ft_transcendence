@@ -61,12 +61,24 @@ export async function getUserFriends(login: string): Promise<Friend[]>
     const url: string = backUrl + "/users/friendList";
     
     const friendList = await axios.get(url, {params: {login}}).then(res => {
+        return res.data;
+    })
+
+    return friendList;
+}
+
+export async function getFriendship(callerLogin: string, targetLogin: string): Promise<boolean>
+{
+    const url: string = backUrl + "/users/isFriend";
+    
+    const friendList = await axios.get(url, {params: {callerLogin, targetLogin}}).then(res => {
         console.log(res.data)
         return res.data;
     })
 
     return friendList;
 }
+
 
 export async function setUserStatus(login: string, status: UserStatus)
 {

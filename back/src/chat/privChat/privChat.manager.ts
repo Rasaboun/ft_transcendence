@@ -48,7 +48,9 @@ export class PrivChatManager
 		const chat = await this.privChatService.findOneByUsers(firstUserLogin, secondUserLogin);
 		let messages: Message[] = [];
 		if (chat)
-			messages = chat.messages;
+		{
+			messages = await this.privChatService.getMessageList(chat.name);
+		}
 		return (messages);
 	}
 
