@@ -199,6 +199,7 @@ export class UsersService {
             return ;
         user.friendList.splice(index, 1);
         await this.userRepository.update(user.id, user);
+        return await this.getFriends(login);
 
     }
 
@@ -234,7 +235,7 @@ export class UsersService {
             return ;
         let friends: Friend[] = [];
         
-        for(const friendLogin in user.friendList)
+        for(const friendLogin of user.friendList)
         {
             const friend = await this.findOneByIntraLogin(friendLogin);
             friends.push({

@@ -14,7 +14,7 @@ type FriendPropsT = {
 function FriendsProfile({ friend, login, setFriends } : FriendPropsT) { 
 	const handleClick = async () => {
 		const newFriends = await removeFriend(login, friend.login)
-		console.log(newFriends)
+		console.log("newFriends", newFriends)
 		setFriends(newFriends)
 	}
 

@@ -7,7 +7,7 @@ export function getNormalModeSettings(): GameSettings
     return {
         scoreToWin: scoreToWin,
         paddleHeight: 200,
-        paddleWidth: 50,
+        paddleWidth: 20,
         width: 1920,
         height: 1080,
         maxHits: 15,

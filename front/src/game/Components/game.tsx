@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef, useContext} from "react"
 import Score from "../Elements/score"
 import * as utils from "../GameUtils/GameUtils"
 import "../game.css"
-import { GameSettings, GameData, GameState, Ball} from "../GameUtils/type"
+import { GameSettings, GameData, GameState, Ball, DrawingSettings} from "../GameUtils/type"
 // import {ThreeDots} from "react-loader-spinner";
 import { Socket } from 'socket.io-client'
 import useLocalStorage from "../../hooks/localStoragehook"
@@ -21,6 +21,10 @@ export default function Game()
 	let context: CanvasRenderingContext2D;
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [ballRadius, setBallRadius] = useState<number>(10);
+	const [drawingSettings, setDrawingSettings] = useState<DrawingSettings>({
+		paddleWidth: 20,
+		paddleHeight: 200,
+	});
 	const [gameData, setGameData] = useState<GameData>({
 		players: [{
 			id: "",
@@ -46,8 +50,8 @@ export default function Game()
 
 	const [gameSettings, setGameSettings] = useState<GameSettings>({
 		scoreToWin: 5,
-		paddleWidth: 50,
-		paddleHeight: 50,
+		paddleWidth: 20,
+		paddleHeight: 200,
 		width: 1920,
 		height: 1080,
 	});
@@ -87,12 +91,15 @@ export default function Game()
 		})
 		setGameSettings({
 			scoreToWin: 5,
-			paddleWidth: 20,
-			paddleHeight: utils.toScale(200, canvas.height / 1080),
+			paddleWidth: 50,
+			paddleHeight: 200,
 			width: 1920,
 			height: 1080,
 		})
-
+		setDrawingSettings({
+			paddleHeight: utils.toScale(200, canvas.height / 1080),
+			paddleWidth: utils.toScale(20, canvas.width / 1920),
+		})
 	}
 
 	const updateGame = (data: {gameData: GameData, gameSettings: GameSettings }) =>
@@ -125,8 +132,8 @@ export default function Game()
 			scoreToWin: data.gameSettings.scoreToWin,
 			width: data.gameSettings.width,
 			height: data.gameSettings.height,
-			paddleHeight:  utils.toScale(data.gameSettings.paddleHeight, canvas.height / 1080),
-			paddleWidth: utils.toScale(data.gameSettings.paddleWidth, canvas.width / 1920),
+			paddleHeight:  data.gameSettings.paddleHeight,
+			paddleWidth: data.gameSettings.paddleWidth,
 		}))
 
 	}
@@ -147,7 +154,7 @@ export default function Game()
 
 	const handleGameReady = (data: {gameData: GameData, gameSettings: GameSettings }) => {
 		updateGame(data);
-		scaleBallRadius(data.gameData.ball.radius);
+		handleResize();
 		startGame()
 		setStorage("gameState", GameState.Started)
 	}
@@ -219,11 +226,10 @@ export default function Game()
 	const handleResize = () => {
 		canvas.height = utils.getCanvasDiv().height
 		canvas.width = utils.getCanvasDiv().width;
-		setGameSettings((oldGameSettings) => ({
-			...oldGameSettings,
+		setDrawingSettings({
 			paddleHeight: utils.toScale(gameSettings.paddleHeight, canvas.height / 1080),
 			paddleWidth: utils.toScale(gameSettings.paddleWidth, canvas.width / 1920),
-		}))
+		})
 		scaleBallRadius(ballRadius);
 		
 	}
@@ -235,10 +241,10 @@ export default function Game()
 		{
 			let value: number = event.clientY - utils.getCanvasDiv().y;
 
-			if (value + (gameSettings.paddleHeight / 2) >= canvas.height)
-				value = canvas.height - (gameSettings.paddleHeight / 2);
-			else if (value - (gameSettings.paddleHeight / 2) <= 0)
-				value = gameSettings.paddleHeight / 2;
+			if (value + (drawingSettings.paddleHeight / 2) >= canvas.height)
+				value = canvas.height - (drawingSettings.paddleHeight / 2);
+			else if (value - (drawingSettings.paddleHeight / 2) <= 0)
+				value = drawingSettings.paddleHeight / 2;
 			value = utils.toScale(value, gameSettings.height / canvas.height);
 			playerMoved(value)	
 		}
@@ -261,14 +267,14 @@ export default function Game()
 		);
 		context.beginPath();
 		context.fillRect(0,
-			gameData.players[0].pos -  gameSettings.paddleHeight / 2,
-			gameSettings.paddleWidth,
-			gameSettings.paddleHeight);
+			gameData.players[0].pos -  drawingSettings.paddleHeight / 2,
+			drawingSettings.paddleWidth,
+			drawingSettings.paddleHeight);
 
-		context.fillRect(canvas.width - gameSettings.paddleWidth,
-			gameData.players[1].pos - gameSettings.paddleHeight / 2,
-			gameSettings.paddleWidth,
-			gameSettings.paddleHeight);
+		context.fillRect(canvas.width - drawingSettings.paddleWidth,
+			gameData.players[1].pos - drawingSettings.paddleHeight / 2,
+			drawingSettings.paddleWidth,
+			drawingSettings.paddleHeight);
 
 		context.fillStyle = "white";
 		context?.arc(gameData.ball.x, gameData.ball.y, ballRadius, 0, 2 * Math.PI)
