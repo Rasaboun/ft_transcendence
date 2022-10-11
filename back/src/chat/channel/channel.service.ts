@@ -61,6 +61,9 @@ export class ChannelsService {
             throw new NotFoundException(`Client ${clientId} is not member of channel ${channelName}`);
         
         channel.clients.splice(userIndex , 1);
+        const inviteIndex = channel.inviteList.indexOf(clientId);
+        if (inviteIndex >= 0)
+            channel.inviteList.splice(inviteIndex , 1);
         await this.channelRepository.update(channel.id, channel);
     }
 
