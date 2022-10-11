@@ -20,7 +20,7 @@ import { GameModule } from './game/game.module';
     UsersModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'database',
+      host: process.env.DB_ADDR,
       port: Number(process.env.DB_PORT),
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,

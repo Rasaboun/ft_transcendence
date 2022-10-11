@@ -1,7 +1,7 @@
-FROM node:16
+FROM node:12
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
 COPY . .
-EXPOSE 5432
+EXPOSE 5434
 EXPOSE 8080

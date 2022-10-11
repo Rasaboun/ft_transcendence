@@ -7,7 +7,6 @@ import * as passport from 'passport'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {cors:  true });
-
   app.useGlobalPipes(new ValidationPipe()) //Don't need to use validation in controller
   app.use(session({
       cookie: {

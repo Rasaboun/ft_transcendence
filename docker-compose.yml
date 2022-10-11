@@ -1,6 +1,19 @@
 version: "3.8"
 
 services:
+  database:
+    container_name: "database"
+    image: postgres:latest
+    volumes:
+      - data:/var/lib/postgresql/data
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    networks:
+      - ft_transcendance
 
   front:
     container_name: front
@@ -15,7 +28,7 @@ services:
     networks:
       - ft_transcendance
 
-  back: 
+  back:
     build:
         context: ./back
     restart: always
@@ -25,23 +38,15 @@ services:
         - /app/node_modules
     command:  npm start
     environment:
-      POSTGRES_HOST: ft_transcendance-database-1
+      POSTGRES_HOST: database
     networks:
       - ft_transcendance
-    depends_on:   
+    depends_on:
       - dev-db
 
-  database:
-    container_name: database
-    image: postgres:13
-    ports:
-      - 5434:5432
-    environment:
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    networks:
-      - ft_transcendance
+volumes:
+  data:
+
 networks:
   ft_transcendance:
     driver: bridge
