@@ -122,10 +122,10 @@ export default function ChannelBoard({userState}:PropsT)
     })
 
     return (
-        <div className="flex flex-col bg-indigo-500 overflow-auto border-solid border-2 rounded-lg">
+        <div className="flex flex-col bg-indigo-500  border-solid border-2 rounded-lg">
             {
                 userState?.isAdmin &&
-                    <div className="mx-2">
+                    <div className="mx-2 ">
                         {`${storage.username} 👑`}
                         
                         {
@@ -163,7 +163,7 @@ export default function ChannelBoard({userState}:PropsT)
                         
                     </div>
             }
-            <div className="mx-2">
+            <div className="mx-2 max-h-48 overflow-scroll">
                 {ownerList.length !== 0 && <h2>Owner</h2>}
                     {ownerList.map((elem:ClientElem, index:number) => 
                         <UserListElem key={index} client={elem} userState={userState}/>
