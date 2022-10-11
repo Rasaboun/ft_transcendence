@@ -15,22 +15,24 @@ services:
     networks:
       - ft_transcendance
 
-  back:      
+  back: 
     build:
         context: ./back
+    restart: always
     container_name: back
     volumes: 
         - ./back:/app
         - /app/node_modules
     command:  npm start
     environment:
-      POSTGRES_HOST: dev-db  
+      POSTGRES_HOST: ft_transcendance-database-1
     networks:
       - ft_transcendance
     depends_on:   
       - dev-db
 
   database:
+    container_name: database
     image: postgres:13
     ports:
       - 5434:5432
