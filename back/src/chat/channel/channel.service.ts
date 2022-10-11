@@ -61,6 +61,9 @@ export class ChannelsService {
             throw new NotFoundException(`Client ${clientId} is not member of channel ${channelName}`);
         
         channel.clients.splice(userIndex , 1);
+        const inviteIndex = channel.inviteList.indexOf(clientId);
+        if (inviteIndex >= 0)
+            channel.inviteList.splice(inviteIndex , 1);
         await this.channelRepository.update(channel.id, channel);
     }
 
@@ -277,6 +280,7 @@ export class ChannelsService {
         const channel: Channel = await this.findOneById(channelName);
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
+        console.log(password, channel.password);
         return bcrypt.compareSync(password, channel.password);
 
     }
@@ -355,7 +359,14 @@ export class ChannelsService {
         let firstMessage = 0;
         while (firstMessage < channel.messages.length && joinedDate > new Date(channel.messages[firstMessage].date))
             firstMessage++;
-        return channel.messages.slice(firstMessage);
+        let messagesList: Message[] = [];
+        const blockList = (await this.usersService.findOneByIntraLogin(clientId)).blockedUsers;
+        for (let i = firstMessage; i < channel.messages.length; i++)
+        {
+            if (blockList.indexOf(channel.messages[i].sender.login) == -1)
+                messagesList.push(channel.messages[i]);
+        }
+        return messagesList;
 
     }
 
