@@ -33,6 +33,8 @@ services:
         context: ./back
     restart: always
     container_name: back
+    ports:
+      - 3002:3002
     volumes: 
         - ./back:/app
         - /app/node_modules
