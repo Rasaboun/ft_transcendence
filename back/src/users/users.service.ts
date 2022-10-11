@@ -130,6 +130,19 @@ export class UsersService {
         );
     }
 
+    async setTwoFactorAuthenticationSecret(secret: string, userId: number)
+    {
+        await this.userRepository.update(userId, {twoFactorAuthenticationSecret: secret});
+    }
+
+    async enableTwoFactorAuthentication(login: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+
+        user.isTwoFactorAuthenticationEnabled = true;
+        await this.userRepository.update(user.id, user);
+    }
+
     async setUserStatus(login: string, status: UserStatus)
     {
         const user = await this.findOneByIntraLogin(login);

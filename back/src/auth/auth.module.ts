@@ -8,20 +8,21 @@ import { UsersService } from 'src/users/users.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { IntraGuard } from './guards/intra.guard';
+import JwtTwoFactorAuthGuard from './guards/twofactor.guard';
 import { IntraStrategy } from './stategy/intra.strategy';
 
 @Module({
   imports: [
     JwtModule.register({
       secret: 'secret',
-      signOptions: { expiresIn: '30s'}
+      signOptions: { expiresIn: '1d'}
     }),
     PassportModule,
     HttpModule,
     UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, IntraStrategy, IntraGuard],
+  providers: [AuthService, IntraStrategy, IntraGuard, JwtTwoFactorAuthGuard],
   exports: [AuthService],
 })
 export class AuthModule {}

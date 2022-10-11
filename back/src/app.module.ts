@@ -33,7 +33,6 @@ import { MulterModule } from '@nestjs/platform-express';
   MulterModule.register({
     dest: process.env.UPLOAD_PATH,
   }),
-  PassportModule.register({ session: true }),
   MatchModule,
   AuthModule,
   ChatModule,

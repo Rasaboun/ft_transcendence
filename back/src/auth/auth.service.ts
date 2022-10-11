@@ -4,10 +4,15 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthenticatedSocket, TokenPayload } from 'src/auth/types/auth.type';
 import { createUserDto } from 'src/users/dto/createUser.dto';
 import { UsersService } from 'src/users/users.service';
+import { toFileStream } from 'qrcode';
 import { v4 } from 'uuid';
 import { join } from 'path';
 import { createReadStream } from 'fs';
 import { catchError, firstValueFrom, map } from 'rxjs';
+import { User } from 'src/typeorm';
+import { authenticator } from 'otplib';
+import { Response } from 'express';
+import { Long } from 'typeorm';
 
 
 @Injectable()
@@ -43,6 +48,7 @@ export class AuthService {
         return await this.userService.setUserPhoto(dto.username, imageBuffer, "default");    
     }
 
+
     async login(dto: any)
     {
         const user = await this.userService.findOneByIntraLogin(dto.username);
@@ -59,7 +65,45 @@ export class AuthService {
                 roomId: user.roomId,
             }
         }
+    }    async getCookieWithJwtAccessToken(login: string, twoFactorAuthEnabled: boolean)
+    {
+        const payload = { intraLogin: login, twoFactorAuthEnabled};
+        const token = this.jwtService.sign(payload);
+
+        return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${process.env.JWT_LIFETIME_IN_MS}`;
     }
+
+    async generatorTwoFactorAuthenticationSecret(login: string)
+    {
+        const user = await this.userService.findOneByIntraLogin(login);
+
+        const secret = authenticator.generateSecret();
+
+        const otpauthUrl = authenticator.keyuri(user.intraLogin, process.env.TWO_FACTOR_AUTHENTIATION_APP_NAME, secret);
+
+        await this.userService.setTwoFactorAuthenticationSecret(secret, user.id);
+
+        return {
+            secret, otpauthUrl
+        }
+    }
+
+    async pipeQrCodeStream(stream: Response, otpauthUrl: string)
+    {
+        console.log("otpAuthUrl", otpauthUrl);
+        return toFileStream(stream, otpauthUrl);
+    }
+
+    async isTwoFactorAuthenticationCodeValid(twoFactorAuthenticationCode: string, login: string)
+    {
+        const user = await this.userService.findOneByIntraLogin(login);
+        console.log("user", user.isTwoFactorAuthenticationEnabled, user.twoFactorAuthenticationSecret);
+        return authenticator.verify({
+            token: twoFactorAuthenticationCode,
+            secret: user.twoFactorAuthenticationSecret,
+        })
+    }
+
 
     async initializeSocket(client: AuthenticatedSocket)
     {
