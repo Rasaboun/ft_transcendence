@@ -48,10 +48,8 @@ export default function ChannelBoard({userState}:PropsT)
             if (storage2?.mode !== ChannelModes.Password)
             {
                 setStorage("channel", {
-                    channelId: storage2!.channelId,
-                    nbClients: storage2!.nbClients,
+                    ...storage2,
                     mode: ChannelModes.Password,
-                    owner: storage2!.owner
                 })
             }  
         }
@@ -76,30 +74,24 @@ export default function ChannelBoard({userState}:PropsT)
     const handleUnsetPassword = () => {
         unsetChannelPassword(storage2!.channelId)
         setStorage("channel", {
-            channelId: storage2!.channelId,
-            nbClients: storage2!.nbClients,
+            ...storage2,
             mode: ChannelModes.Public,
-            owner: storage2!.owner
         })
     }
 
     const handleUnsetPrivMode = () => {
         unsetPrivateMode(storage2!.channelId)
         setStorage("channel", {
-            channelId: storage2!.channelId,
-            nbClients: storage2!.nbClients,
+            ...storage2,
             mode: ChannelModes.Public,
-            owner: storage2!.owner
         })
     }
 
     const handleSetInvite = () => {
         setPrivateMode(storage2!.channelId)
         setStorage("channel", {
-            channelId: storage2!.channelId,
-            nbClients: storage2!.nbClients,
+            ...storage2,
             mode: ChannelModes.Private,
-            owner: storage2!.owner
         })
     }
 
@@ -120,7 +112,7 @@ export default function ChannelBoard({userState}:PropsT)
         elem.isAdmin && !elem.isOwner && adminsList.push(elem)
         !elem.isAdmin && !elem.isOwner && othersList.push(elem)
     })
-
+    console.log(othersList)
     return (
         <div className="flex flex-col bg-indigo-500 overflow-auto border-solid border-2 rounded-lg">
             {
@@ -175,7 +167,7 @@ export default function ChannelBoard({userState}:PropsT)
                         <UserListElem key={index} client={elem} userState={userState}/>
                         )
                     }
-                {othersList.length !== 0 && <h2>Les Paillots</h2>}
+                {othersList.length !== 0 && <h2>Others</h2>}
                     {othersList.map((elem:ClientElem, index:number) => 
                         <UserListElem key={index} client={elem} userState={userState}/>
                         )
