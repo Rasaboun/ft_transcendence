@@ -49,8 +49,6 @@ export default function Friends() {
 		};	
 		getFriends()
 	}, [])
-	useEffect(() => {
-	}, [friends])
 		  const FriendListELem = friends?.map((elem, idx) => 
 		  	<FriendsProfile key={idx} friend={elem} login={storage.login} setFriends={setFriends}/>)
 	return (
