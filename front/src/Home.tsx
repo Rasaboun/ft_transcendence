@@ -9,6 +9,7 @@ export type userType = {
   username: string,
   login: string,
   image: string,
+  twoAuthEnabled: boolean,
 }
 
 export default function Home() {
@@ -27,6 +28,7 @@ export default function Home() {
           login: userData.login,
           username: userData.username,
           image: userData.image,
+          twoAuthEnabled: userData.twoAuthEnabled,
       });
         setStorage("token", token);
         setAuthToken(token);

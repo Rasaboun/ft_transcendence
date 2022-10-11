@@ -6,6 +6,7 @@ import { IntraGuard } from './guards/intra.guard';
 import { Response } from 'express';
 import { TwoFactorAuthenticationDto } from './dto/auth.dto';
 import { UsersService } from 'src/users/users.service';
+import bodyParser from 'body-parser';
 // import { IntraAuthGuard } from './guards/intra.guard';
 // import { JwtAuthGuard } from './guards/jwt-auth.guard';
 // import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -49,7 +50,7 @@ export class AuthController {
             login: user.intraLogin,
             username: user.username,
             image: user.photoUrl,
-            roomId: user.roomId,
+            twoAuthEnabled: user.isTwoFactorAuthenticationEnabled,
         }
         console.log("Inside callback");
           
@@ -61,7 +62,7 @@ export class AuthController {
     }
 
     @Post('generate2fa')
-    async generate(@Res() response: Response, @Req() request: Request)
+    async generate(@Res() response: Response, @Req() request: Request, @Body() dto: {login: string})
     {
         const callerLogin = "bditte"; //tmp
         const { otpauthUrl } = await this.authService.generatorTwoFactorAuthenticationSecret(callerLogin);
@@ -79,6 +80,12 @@ export class AuthController {
             throw new UnauthorizedException('Wrong authentication code');
 
         await this.userService.enableTwoFactorAuthentication(callerLogin);
+    }
+
+    @Post('disable2fa')
+    async disable(@Req() request, @Body() dto: {login: string})
+    {
+        await this.userService.disableTwoFactorAuthentication(dto.login);
     }
 
     @Post('submit2fa')

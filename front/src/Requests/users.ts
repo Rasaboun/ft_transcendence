@@ -100,6 +100,23 @@ export async function unblockUser(callerlogin: string, targetLogin: string)
     }).catch(e => console.log)
 }
 
+export async function generateQrCode(callerLogin: string)
+{
+    const url: string = backUrl + "/auth/generate2fa";
+    const qrcode = await axios.post(url, {callerLogin}, {
+        responseType: 'blob',
+    }).then(res => {
+        return res.data;
+    }).catch(e => console.log)
 
+    return URL.createObjectURL(qrcode);
+}
 
+export async function disableTwoFactorAuthentication(callerLogin: string)
+{
+    const url: string = backUrl + "/auth/disable2fa";
+    await axios.post(url, {callerLogin}).then(res => {
+   
+    }).catch(e => console.log)
 
+}

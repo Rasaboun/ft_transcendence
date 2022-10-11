@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import useLocalStorage from "./hooks/localStoragehook";
 import "./output.css";
 import "./index.css"
-import { getUserPhoto, setUsername, setUserPhoto } from "./Requests/users";
+import { disableTwoFactorAuthentication, generateQrCode, getUserPhoto, setUsername, setUserPhoto } from "./Requests/users";
 import { SocketContext } from "./Context/socketContext";
 
 type settingsForm = {
@@ -37,6 +37,15 @@ function TabSettings() {
 			...prevForm,
 			[e.target.name] : img,
 		}))
+	}
+
+	const displayQrCode = async () => {
+		generateQrCode(storage.login);
+	}
+
+	const handleDisable = async () => {
+		disableTwoFactorAuthentication(storage.login);
+		setStorage("user", {...storage, twoAuthEnabled: false})
 	}
 
 	const submitFormData = async () => {
@@ -78,6 +87,19 @@ function TabSettings() {
 				
 				<dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
 					{storage.login}
+				</dd>
+				</div>
+				<div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+				<dt className="text-sm font-medium text-gray-500">Two Factor Authentication</dt>
+				
+				<dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+					<button
+					type="button"
+					className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
+					onClick={storage.twoAuthEnabled ?  () => handleDisable() : () => displayQrCode() }
+					>
+					<p>{ storage.twoAuthEnabled ? "Disable" : "Enable" }</p>
+					</button>
 				</dd>
 				</div>
 				<div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
