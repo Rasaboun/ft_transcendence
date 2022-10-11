@@ -122,11 +122,12 @@ export default function ChannelBoard({userState}:PropsT)
     })
 
     return (
-        <div className="chat-left">
+        <div className="flex flex-col bg-indigo-500 overflow-auto border-solid border-2 rounded-lg">
             {
                 userState?.isAdmin &&
-                    <div>
+                    <div className="mx-2">
                         {`${storage.username} 👑`}
+                        
                         {
                             storage2?.mode === ChannelModes.Public &&
                                 <button onClick={handleSetInvite} className="focus:outline-none text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-2.5 py-2 mb-2" >
@@ -162,7 +163,7 @@ export default function ChannelBoard({userState}:PropsT)
                         
                     </div>
             }
-            <div className="user-list">
+            <div className="mx-2">
                 {ownerList.length !== 0 && <h2>Owner</h2>}
                     {ownerList.map((elem:ClientElem, index:number) => 
                         <UserListElem key={index} client={elem} userState={userState}/>
