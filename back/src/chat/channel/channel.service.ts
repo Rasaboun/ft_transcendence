@@ -280,6 +280,7 @@ export class ChannelsService {
         const channel: Channel = await this.findOneById(channelName);
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
+        console.log(password, channel.password);
         return bcrypt.compareSync(password, channel.password);
 
     }
@@ -358,7 +359,14 @@ export class ChannelsService {
         let firstMessage = 0;
         while (firstMessage < channel.messages.length && joinedDate > new Date(channel.messages[firstMessage].date))
             firstMessage++;
-        return channel.messages.slice(firstMessage);
+        let messagesList: Message[] = [];
+        const blockList = (await this.usersService.findOneByIntraLogin(clientId)).blockedUsers;
+        for (let i = firstMessage; i < channel.messages.length; i++)
+        {
+            if (blockList.indexOf(channel.messages[i].sender.login) == -1)
+                messagesList.push(channel.messages[i]);
+        }
+        return messagesList;
 
     }
 
