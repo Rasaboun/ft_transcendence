@@ -13,7 +13,7 @@ services:
     ports:
       - 3000:3000
     networks:
-      - my-network
+      - ft_transcendance
 
   back:      
     build:
@@ -26,11 +26,11 @@ services:
     environment:
       POSTGRES_HOST: dev-db  
     networks:
-      - my-network
+      - ft_transcendance
     depends_on:   
       - dev-db
 
-  dev-db:
+  database:
     image: postgres:13
     ports:
       - 5434:5432
@@ -39,7 +39,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     networks:
-      - my-network
+      - ft_transcendance
 networks:
-  my-network:
+  ft_transcendance:
     driver: bridge
