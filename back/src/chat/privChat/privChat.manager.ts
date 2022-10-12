@@ -43,17 +43,6 @@ export class PrivChatManager
 	}
 
 
-	public async loadMessages(firstUserLogin: string, secondUserLogin: string): Promise<Message[]>
-	{
-		const chat = await this.privChatService.findOneByUsers(firstUserLogin, secondUserLogin);
-		let messages: Message[] = [];
-		if (chat)
-		{
-			messages = await this.privChatService.getMessageList(chat.name);
-		}
-		return (messages);
-	}
-
 	public async joinPrivChat(client: AuthenticatedSocket, targetLogin: string)
 	{
 		try
@@ -76,7 +65,7 @@ export class PrivChatManager
 			client.join(chat.name);
 			client.chatId = chat.name;
 			const chatInfo: privChatInfo = await this.privChatService.getChatInfo(chat.name, client.login);
-		
+			console.log("chat info in joined", chatInfo);
 			client.emit('joinedPrivChat', chatInfo);
 			return chat.name;
 		}
@@ -99,8 +88,6 @@ export class PrivChatManager
 		const chat = this.privChatService.findOneByName(data.chatName);
 		if (!chat)
 			return ;
-		if (await this.privChatService.isBlocked(data.chatName, client.login))
-			throw new ForbiddenException('You are block by this user');
 
 		const sender = await this.userService.findOneByIntraLogin(client.login);
 
@@ -122,9 +109,9 @@ export class PrivChatManager
 	{
 		try
 		{
-			const chat = this.privateChats.get(chatName);
-			const targetLogin = chat.getOtherLogin(client.login);
+			const targetLogin = await this.privChatService.getOtherLogin(client.login, chatName);
 			await this.privChatService.blockUser(chatName, targetLogin);
+			await this.userService.blockUser(client.login, targetLogin);
 			this.sendChatInfo(client, chatName);
 		}
 		catch (e) { throw e};
@@ -137,6 +124,7 @@ export class PrivChatManager
 		{
 			const targetLogin = await this.privChatService.getOtherLogin(client.login, chatName);
 			await this.privChatService.unblockUser(chatName, targetLogin);
+			await this.userService.unblockUser(client.login, targetLogin);
 			this.sendChatInfo(client, chatName);
 		}
 		catch (e) { throw e};	
