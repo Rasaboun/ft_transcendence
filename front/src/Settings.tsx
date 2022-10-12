@@ -1,9 +1,11 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import useLocalStorage from "./hooks/localStoragehook";
 import "./output.css";
 import "./index.css"
 import { disableTwoFactorAuthentication, generateQrCode, getUserPhoto, setUsername, setUserPhoto } from "./Requests/users";
 import { SocketContext } from "./Context/socketContext";
+import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
 
 type settingsForm = {
 	username: string,
@@ -11,7 +13,51 @@ type settingsForm = {
 }
 
 const url: string = "http://localhost:3002/users/";
+
+function QRcodeModal()
+{
+	const { storage, setStorage } = useLocalStorage("user")
+	const [qrCode, setQrCode] = useState<string | undefined>(undefined)
+	const [code, setCode] = useState<string>("")
+	
+	useEffect(() => {
+		const getQrCode = async () => {
+			const qrCode:string = await generateQrCode(storage.login);
+			console.log(storage.login);
+			setQrCode(qrCode);
+			setStorage("user", {...storage, twoAuthEnabled: true});
+		}
+		getQrCode();
+	}, [])
+
+	const sendCode = () => {
+		console.log(code);
+	}
+
+	return (
+		qrCode ?
+			<div className="flex flex-col justify-center items-center">
+				<img src={qrCode} alt="qrCode" />
+				<input className="border border-indigo-300 rounded-md text-sm shadow-sm disabled:bg-indigo-50 disabled:text-indigo-500 disabled:border-indigo-200 disabled:shadow-none"
+					type="text"
+					name="code"
+					value={code}
+					onChange={(e) => setCode(e.target.value)}>
+				</input>
+				<button
+					type="button"
+					className="inline-flex justify-center items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
+					onClick={() => sendCode()}
+					>Send Code</button>
+			</div> :
+			<div>
+				no QRCODE
+			</div>
+	);
+}
+
 function TabSettings() {
+	const [qrCode, setQrCode] = useState<string | undefined>(undefined)
 	const { storage, setStorage } = useLocalStorage("user")
 	const { setImage } = useContext(SocketContext)
 	const defaultValue:settingsForm = {username : storage.username, image: storage.image}
@@ -21,6 +67,8 @@ function TabSettings() {
 	const toggle = () => {
 		setEditable((prevEditable) => !prevEditable)
 	}
+
+
 
 	const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
 		let img:any;
@@ -39,11 +87,7 @@ function TabSettings() {
 		}))
 	}
 
-	const displayQrCode = async () => {
-		generateQrCode(storage.login);
-	}
-
-	const handleDisable = async () => {
+	const handleDisableTwoAuth = async () => {
 		disableTwoFactorAuthentication(storage.login);
 		setStorage("user", {...storage, twoAuthEnabled: false})
 	}
@@ -89,18 +133,31 @@ function TabSettings() {
 					{storage.login}
 				</dd>
 				</div>
-				<div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-				<dt className="text-sm font-medium text-gray-500">Two Factor Authentication</dt>
-				
-				<dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-					<button
-					type="button"
-					className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
-					onClick={storage.twoAuthEnabled ?  () => handleDisable() : () => displayQrCode() }
-					>
-					<p>{ storage.twoAuthEnabled ? "Disable" : "Enable" }</p>
-					</button>
-				</dd>
+				<div className="bg-white flex justify-between mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 px-4 py-5">
+					<dt className="text-sm font-medium text-gray-500">Two Factor Authentication</dt>
+					
+					<dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+						{
+							!storage.twoAuthEnabled ?
+								<Popup trigger={
+											<button
+											type="button"
+											className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
+											>
+												<p> Enable </p>
+											</button>} modal nested
+										>											
+									<QRcodeModal/>
+								</Popup> :
+								<button
+								type="button"
+								className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
+								onClick={() => handleDisableTwoAuth()}
+								>
+									<p> Disable </p>
+								</button>
+						}
+					</dd>
 				</div>
 				<div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
 				<dt className="text-sm font-medium text-gray-500">Username</dt>
@@ -163,15 +220,16 @@ function TabSettings() {
 
 export default function Settings() {
   return (
-    <div id="setting-page" className="flex-1">
-      <header className="page-header shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <h1 className="page-title">Settings</h1>
-        </div>
-      </header>
-      <main>
-        <TabSettings />
-      </main>
-    </div>
+	<div id="setting-page" className="flex-1">
+		<header className="page-header shadow">
+			<div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+				<h1 className="page-title">Settings</h1>
+			</div>
+		</header>
+		<main>
+			
+			<TabSettings />
+		</main>
+	</div>
   );
 }

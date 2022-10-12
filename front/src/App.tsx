@@ -22,6 +22,7 @@ import { getToken } from "./Utils/utils";
 import ErrorAlert from "./Elements/error";
 import LoginNavBar from "./LoginNavBar";
 import Cookies from "js-cookie";
+import TwoFactorAuth from "./2factorAuth";
 
 const token = localStorage.getItem("token");
 if (token) {
@@ -99,6 +100,7 @@ export default function App()
 					<Route path="/Profile/:login" element={<Profile/>}/>
 				</Route>
 					<Route path="/Login" element={<Login/> }/>
+					<Route path="/TwofactorAuth" element={<TwoFactorAuth/> }/>
 				
 			</Routes>
 			<Footer/>
