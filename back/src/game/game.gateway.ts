@@ -1,11 +1,15 @@
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { LobbyManager } from './lobby/lobby.manager';
-import { GameMode, GameOptions, Player } from './types/game.type';
+import { GameMode, GameOptions, GameState, Player } from './types/game.type';
 import { AuthenticatedSocket } from 'src/auth/types/auth.type';
 import { AuthService } from 'src/auth/auth.service';
 import { forwardRef, Inject } from '@nestjs/common';
 import { isJWT } from 'class-validator';
+import { UsersService } from 'src/users/users.service';
+import { UserStatus } from 'src/users/type/users.type';
+import { Lobby } from './lobby/lobby';
+import { initGameData } from './utils/game.settings';
 
 
 @WebSocketGateway(8002, { cors: '*', namespace: 'game' })
@@ -15,6 +19,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	constructor( 	private lobbyManager: LobbyManager,
 					@Inject(forwardRef(() => AuthService))
 					private authService: AuthService,
+					private usersService: UsersService,
 				) {	}
 
 	@WebSocketServer()
@@ -29,7 +34,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	async handleConnection(client: AuthenticatedSocket){
 		
-		//this.lobbyManager.initializeSocket(client as AuthenticatedSocket);
 		console.log(`Client ${client.id} joined pong socket`);
 		await this.authService.initializeSocket(client as AuthenticatedSocket);
 		if (client.lobbyId)
@@ -63,9 +67,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('joinedQueue')
 	async joiningQueue(client: AuthenticatedSocket, mode: GameMode)
 	{
-		console.log("client lobby before", client.lobbyId)
 		await this.updateLobby(client);
-		console.log("client lobbyId after", client.lobbyId)
 		console.log(`Client ${client.id} joined queue`)
 		await this.lobbyManager.joinQueue(client, mode);
 	}
@@ -104,9 +106,15 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		{
 
 			await this.updateLobby(client);
+			let data;
 			if (!client.lobby)
-				return ;
-			client.emit('gameData', client.lobby.getGameData())
+			{
+				data = initGameData();
+				data.state = GameState.Stopped;
+			}
+			else
+				data = client.lobby.getGameData();
+			client.emit('gameData', data)
 		}
 		catch (error) { throw error; }
 	}
@@ -118,6 +126,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (!client.lobby)
 			return ;
 		client.lobby.startGame();
+		this.updatePlayersStatus(client.lobby, UserStatus.ingame);
+		
 	}
 
 	@SubscribeMessage('playerMoved')
@@ -139,4 +149,12 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		client.lobbyId = await this.authService.getUserLobbyId(client.login);
 		client.lobby = this.lobbyManager.getLobby(client.lobbyId);
 	}
+
+    public async updatePlayersStatus(lobby: Lobby, status: UserStatus)
+    {
+
+		const playersLogin: string[] = lobby.playersId();
+		await this.usersService.setUserStatus(playersLogin[0], status);
+		await this.usersService.setUserStatus(playersLogin[1], status);
+    }
 }

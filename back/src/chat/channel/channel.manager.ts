@@ -32,7 +32,7 @@ export class ChannelManager
         for (let i = 0; i < channelsInDb.length; i++)
         {
             const currChannel = new Channel(this.server, channelsInDb[i].name);
-            
+            currChannel.mode = channelsInDb[i].mode;
             for (let clientIndex = 0; clientIndex < channelsInDb[i].clients.length; clientIndex++)
             {
                 currChannel.addClient(channelsInDb[i].clients[clientIndex].id, null);
@@ -58,7 +58,7 @@ export class ChannelManager
             if (uuidRegexExp.test(data.name))
                 throw new ForbiddenException("Invalid channel name");
             let channel = new Channel(this.server, data.name);
-            
+
             channel.owner = client.login;
             channel.mode = data.mode;
             channel.addClient(client.login, client.roomId);
@@ -74,8 +74,8 @@ export class ChannelManager
                     password: data.password,
                     ownerId: client.login, //change to real id
                 });
-            await this.channelsService.addClient(channel.id, client.login, data.password);//change to real id
-            await this.channelsService.addAdmin(channel.id, client.login);//change to real id
+            await this.channelsService.addClient(channel.id, client.login, data.password); //change to real id
+            await this.channelsService.addAdmin(channel.id, client.login); //change to real id
 
             client.join(channel.id);
             channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id)), });
@@ -90,7 +90,6 @@ export class ChannelManager
         try
         {
             const channel: Channel = this.channels.get(data.channelName);
-            const mutedList = await (await this.channelsService.findOneById(data.channelName)).mutedList;
 
             if (channel == undefined)
                 throw new NotFoundException("This channel does not exist anymore");
@@ -104,10 +103,10 @@ export class ChannelManager
             }
             if ((await this.channelsService.isClient(channel.id, client.login)))
             {
+                if (channel.isPasswordProtected() && !await this.channelsService.checkPassword(channel.id, data.password))
+                    throw new ForbiddenException("Wrong channel password");
                 client.join(channel.id);
-                client.emit("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
-                //channel.sendToClient(client.login, "joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
-                 
+                client.emit("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});                 
                 return ;
             }
             if (channel.isPrivate() && !(await this.channelsService.isInvited(data.channelName, client.login)))

@@ -44,6 +44,11 @@ export interface GameData{
   winnerUsername: string
 }
 
+export interface DrawingSettings {
+  paddleHeight: number,
+  paddleWidth: number,
+}
+
 export interface GameSettings {
   scoreToWin: number,
   paddleWidth:	number,

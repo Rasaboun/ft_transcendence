@@ -48,10 +48,8 @@ export default function ChannelBoard({userState}:PropsT)
             if (storage2?.mode !== ChannelModes.Password)
             {
                 setStorage("channel", {
-                    channelId: storage2!.channelId,
-                    nbClients: storage2!.nbClients,
+                    ...storage2,
                     mode: ChannelModes.Password,
-                    owner: storage2!.owner
                 })
             }  
         }
@@ -76,30 +74,24 @@ export default function ChannelBoard({userState}:PropsT)
     const handleUnsetPassword = () => {
         unsetChannelPassword(storage2!.channelId)
         setStorage("channel", {
-            channelId: storage2!.channelId,
-            nbClients: storage2!.nbClients,
+            ...storage2,
             mode: ChannelModes.Public,
-            owner: storage2!.owner
         })
     }
 
     const handleUnsetPrivMode = () => {
         unsetPrivateMode(storage2!.channelId)
         setStorage("channel", {
-            channelId: storage2!.channelId,
-            nbClients: storage2!.nbClients,
+            ...storage2,
             mode: ChannelModes.Public,
-            owner: storage2!.owner
         })
     }
 
     const handleSetInvite = () => {
         setPrivateMode(storage2!.channelId)
         setStorage("channel", {
-            channelId: storage2!.channelId,
-            nbClients: storage2!.nbClients,
+            ...storage2,
             mode: ChannelModes.Private,
-            owner: storage2!.owner
         })
     }
 
@@ -120,13 +112,14 @@ export default function ChannelBoard({userState}:PropsT)
         elem.isAdmin && !elem.isOwner && adminsList.push(elem)
         !elem.isAdmin && !elem.isOwner && othersList.push(elem)
     })
-
+    console.log(othersList)
     return (
-        <div className="chat-left">
+        <div className="flex flex-col bg-indigo-500  border-solid border-2 rounded-lg">
             {
                 userState?.isAdmin &&
-                    <div>
+                    <div className="mx-2 ">
                         {`${storage.username} 👑`}
+                        
                         {
                             storage2?.mode === ChannelModes.Public &&
                                 <button onClick={handleSetInvite} className="focus:outline-none text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-2.5 py-2 mb-2" >
@@ -162,7 +155,7 @@ export default function ChannelBoard({userState}:PropsT)
                         
                     </div>
             }
-            <div className="user-list">
+            <div className="mx-2 max-h-48 overflow-scroll">
                 {ownerList.length !== 0 && <h2>Owner</h2>}
                     {ownerList.map((elem:ClientElem, index:number) => 
                         <UserListElem key={index} client={elem} userState={userState}/>
@@ -174,7 +167,7 @@ export default function ChannelBoard({userState}:PropsT)
                         <UserListElem key={index} client={elem} userState={userState}/>
                         )
                     }
-                {othersList.length !== 0 && <h2>Les Paillots</h2>}
+                {othersList.length !== 0 && <h2>Others</h2>}
                     {othersList.map((elem:ClientElem, index:number) => 
                         <UserListElem key={index} client={elem} userState={userState}/>
                         )

@@ -6,6 +6,7 @@ type PropsInfoT = {
 }
 
 export default function InfoMessage({message}:PropsInfoT) {
+	console.log("infoMessage is being called once");
     return (
         <div className="info-message">
            {message.content}

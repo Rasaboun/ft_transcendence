@@ -20,4 +20,15 @@ export interface Imatch {
     playerOneScore: number;
     playerTwoScore: number;
 	winnerLogin: string;
+
+export enum UserStatus {
+    offline,
+    online,
+    ingame,
+}
+
+export type Friend = {
+    login: string,
+    username: string,
+    status: UserStatus,
 }

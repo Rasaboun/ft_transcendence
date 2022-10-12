@@ -1,6 +1,6 @@
 import axios from "axios";
-import { Iuser } from "../Utils/type";
-
+import { Friend, Iuser } from "../Utils/type";
+import { Buffer } from 'buffer'
 export const backUrl = "http://localhost:3002"; 
 
 export enum UserStatus {
@@ -39,15 +39,46 @@ export async function getUserStatus(login: string)
     return status;
 }
 
-export async function getUserPhoto(login: string)
+export async function getUserPhoto(login: string): Promise<string>
 {
-    let photoUrl: string = "";
     const url: string = backUrl + "/users/photo";
-    await axios.get<string>(url, {params: {login}}).then(res => {
-        photoUrl = res.data;
-    }).catch(e => console.log)
-    return photoUrl;
+    const photo = await axios.get(url, {params: {login}}).then(res => {
+       
+
+        var binary = '';
+        var bytes = new Uint8Array(Buffer.from(res.data.imageBuffer, 'base64'));
+        var base64Flag = 'data:image/;base64,';
+        bytes.forEach((b) => binary += String.fromCharCode(b));
+        return base64Flag +  window.btoa(binary);
+        
+    })
+
+    return photo;
 }
+
+export async function getUserFriends(login: string): Promise<Friend[]>
+{
+    const url: string = backUrl + "/users/friendList";
+    
+    const friendList = await axios.get(url, {params: {login}}).then(res => {
+        return res.data;
+    })
+
+    return friendList;
+}
+
+export async function getFriendship(callerLogin: string, targetLogin: string): Promise<boolean>
+{
+    const url: string = backUrl + "/users/isFriend";
+    
+    const friendList = await axios.get(url, {params: {callerLogin, targetLogin}}).then(res => {
+        console.log(res.data)
+        return res.data;
+    })
+
+    return friendList;
+}
+
 
 export async function setUserStatus(login: string, status: UserStatus)
 {
@@ -65,14 +96,34 @@ export async function setUsername(login: string, username: string)
     }).catch(e => console.log)
 }
 
-export async function setUserPhoto(login: string, photoUrl: string)
+export async function setUserPhoto(login: string, photo: File)
 {
+    console.log("Sending request, photo", photo);
+    const data = new FormData();
+    data.append('photo', photo);
+    data.append('login', login);
     const url: string = backUrl + "/users/photo";
-    await axios.put(url, {login, photoUrl}).then(res => {
 
+    await axios.put(url, data).then(res => {
     }).catch(e => console.log)
 }
 
+export async function addFriend(login: string, friendLogin: string)
+{
+    const url: string = backUrl + "/users/friend";
+
+    await axios.put(url, {login, friendLogin}).then(res => {
+    }).catch(e => console.log)
+}
+
+export async function removeFriend(login: string, friendLogin: string)
+{
+    const url: string = backUrl + "/users/friend";
+
+    return await axios.delete(url, {data: {login, friendLogin}}).then(res => {
+        return res.data;
+    }).catch(e => console.log)
+}
 
 export async function blockUser(callerlogin: string, targetLogin: string)
 {

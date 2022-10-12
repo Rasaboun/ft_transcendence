@@ -1,25 +1,41 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./output.css";
-import profile from "./profile.png";
 import { useParams } from "react-router-dom";
-import { getParsedCommandLineOfConfigFile } from "typescript";
-import { Imatch, Iuser } from "./Utils/type";
+import { Imatch, Iuser, UserStatus } from "./Utils/type";
+import { addFriend, getFriendship, getUserPhoto, removeFriend } from "./Requests/users";
+import { getStatus } from "./Utils/utils";
 import { getUserMatches } from "./Requests/match";
 import { backUrl } from "./Requests/users";
 import MatchTab from "./Elements/matchTab";
+import useLocalStorage from "./hooks/localStoragehook";
 
 const url: string = "http://localhost:3002/users/profile/";
 const matchUrl: string = "http://localhost:3002/match/user/";
 
 
-function UserProfile({ user }:{user: Iuser}) {
-  
+function UserProfile({ user, photo, login, isFriend, setIsFriend }:{user: Iuser, photo: string, login:string, isFriend: boolean, setIsFriend:(value:boolean)=>void}) {
+
+	const btnText = isFriend ? "Remove from Friends" : "Add To Friends"
+	const handleClick = () => {
+	if (!isFriend)
+	{
+		addFriend(login, user.intraLogin);
+		setIsFriend(true);
+	}
+	else
+	{
+		removeFriend(login, user.intraLogin)
+		setIsFriend(false)
+	}
+
+  }
+
   return (
-    <div className="flex flex-col items-center bg-indigo-300 rounded-lg border shadow md:flex-row md:max-w-xl ">
+    <div className="flex basis-full flex-col items-center bg-indigo-300 rounded-lg border shadow md:flex-row md:max-w-xl ">
       <img
         className="object-cover w-full h-96 rounded-t-lg md:h-auto md:w-48 md:rounded-none md:rounded-l-lg"
-        src={user.photoUrl}
+        src={photo}
         alt=""
       />
       <div className="flex flex-col justify-between p-4 leading-normal">
@@ -36,45 +52,63 @@ function UserProfile({ user }:{user: Iuser}) {
         <div className="flex">
           <p className="mb-1 font-mono text-gray">Haut-Fait: {user.nbGames - user.victories >= user.victories ? "NUL GERMAIN" : "MONSTRUEUX"}</p>
         </div>
+        <div className="flex">
+          <p className="mb-1 font-mono text-gray">Status: {getStatus(user.status)}</p>
+        </div>
+        <div className="flex">
+          {
+            user.intraLogin !== login &&
+              <button onClick={() => handleClick()}>{btnText}</button>
+          }
+        </div>
       </div>
     </div>
   );
 }
 
 export default function Profile() {
+  const { storage } = useLocalStorage("user")
 	const { login } = useParams()
 	const [user, setUser] = React.useState<Iuser>();
 	const [matches, setMatches] = React.useState<Imatch[]>();
 	const data = {login : login}
-	// async function getProfile() {
-	// 	console.log("Loginr", login);
-	// 	await axios.get<Iuser>(url, {params : {login:login}}).then((response) => {
-	// 		setUser(response.data);
-    //   console.log("Returned user", user);
-	// 	});
-	// }
+
+  const [photo, setPhoto] = useState<string>();
+  const [isFriend, setIsFriend] = useState<boolean>();
+
   useEffect(() => {
     if (login)
     {
-		const getProfile = async () => {
-			const user = await axios.get<Iuser>(url, {params : {login:login}}).then((response) => {
-				return response.data;
-		  	
-			});
-			setUser(user);
-		}
-		const getMatch = async () => {
-			const url: string = backUrl + "/match/user";
-   			const matches = await axios.get<Imatch[]>(url, {params: {login:login}}).then(res => {
+      const getProfile = async () => {
+        const user = await axios.get<Iuser>(url, {params : {login:login}}).then((response) => {
+          return response.data;
+          
+        });
+        console.log("User status:", user.status);
+        setUser(user);
+
+        const getMatch = async () => {
+			    const url: string = backUrl + "/match/user";
+   			  const matches = await axios.get<Imatch[]>(url, {params: {login:login}}).then(res => {
         		return res.data;
-			})
-			setMatches(matches);
+			  })
+			  setMatches(matches);
     	}
-		getProfile()
-		getMatch()
+        const friendship = await getFriendship(storage.login, login);
+        setIsFriend(friendship);
+      }
+ 
+      const getPhoto = async () => {
+        
+        const file  = await getUserPhoto(login);
+        setPhoto(file);
+      }
+      
+      getProfile();
+      getPhoto();
+      getMatch()
     }
-    console.log(matches)
-  }, []);
+  }, [login]);
 
   return (
     <div id="Profile" className="flex-1">
@@ -85,14 +119,15 @@ export default function Profile() {
       </header>
       <main className="h-full">
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-			{
-				user &&
-					<UserProfile user={user}/>
-			}
-			{
-				login && matches &&
-					<MatchTab matches={matches} login={login}/>
-			}
+			
+          {
+            user &&
+              <UserProfile user={user} photo={photo!} login={storage.login} isFriend={isFriend!} setIsFriend={setIsFriend}/>
+          }
+          {
+				  login && matches &&
+					  <MatchTab matches={matches} login={login}/>
+			    }
         </div>
       </main>
     </div>

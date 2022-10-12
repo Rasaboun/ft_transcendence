@@ -1,5 +1,5 @@
 /* This example requires Tailwind CSS v2.0+ */
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
@@ -7,11 +7,15 @@ import { Routes, Route, Link, useLocation } from "react-router-dom";
 import logo from './42-logo.png';
 import profile from './profile.png';
 import useLocalStorage from './hooks/localStoragehook';
+import { getUserPhoto } from './Requests/users';
+import { SocketContext } from './Context/socketContext';
+import { getChatSocket, getGameSocket, initiateSocket } from './Utils/socketManager';
 
 let navigation = [
-  { name: 'Dashboard', href: '#', current: false},
-  { name: 'Chat', href: '#', current: false},
-  { name: 'Pong', href: '#', current: false},
+  { name: 'Dashboard', href: '#', current: false, notification: false},
+  { name: 'Chat', href: '#', current: false, notification: false},
+  { name: 'Pong', href: '#', current: false, notification: false},
+  { name: 'Friends', href: '#', current: false, notification: false},
 ]
 let profileColor = ["bg-green-400", "bg-red-400", "bg-gray-400"]
 let index = 0;
@@ -34,12 +38,38 @@ function HoverNavBar(location :String){
 
 export default function NavBar() {
   const location = useLocation();
-  const { storage } = useLocalStorage("user")
+  const { storage, setStorage } = useLocalStorage("user")
+	const { image } = useContext(SocketContext)
+  const {chatSocket, gameSocket, setChatSocket, setGameSocket, notification, setNotification} = useContext(SocketContext)
   
-  useEffect(() => {    // Mettre à jour le titre du document en utilisant l'API du navigateur    
+  const handleChatNotification = () => {
+    setNotification(true)
+      navigation = navigation.map((element, idx) => {
+        if (idx === 1)
+          return {...element, notification: notification}
+        return element
+      });
+    console.log(notification)
+  }
+
+  useEffect(() => {    // Mettre à jour le titre du document en utilisant l'API du navigateur
+    
     document.getElementById("notification")?.classList.add(profileColor[1]);
     HoverNavBar(location.pathname);
-  });
+    const getPhoto = async () => {
+      const file  = await getUserPhoto(storage.login);
+      setStorage("user", {...storage, image : file} );
+    }
+    getPhoto()
+    initiateSocket("http://localhost:8002")
+		setChatSocket(getChatSocket())
+		setGameSocket(getGameSocket())
+    if (chatSocket)
+    {
+      chatSocket.on("msgToChannel", () => handleChatNotification())
+    }
+    
+  },[image, chatSocket?.connected, notification]);
   
   return (
     <>
@@ -102,13 +132,22 @@ export default function NavBar() {
                         key={item.name}
                         className={classNames(
                         
-                          'text-white hover:bg-indigo-200 ',
+                          'relative text-white hover:bg-indigo-200 ',
                           'px-3 py-2 rounded-md text-sm font-medium'
                         )}
                         
                         id={item.name}
                       >
                         {item.name}
+                        {
+                          item.notification &&
+                            <span id="notification"
+                            className="bg-red-400 top-0
+                            left-100 absolute  w-3.5 h-3.5 border-2
+                            border-gray rounded-full">
+                            </span>
+                        }
+                        
                       </Link>
                     
                     ))}
