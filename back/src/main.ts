@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session'
 import * as passport from 'passport'
 
@@ -12,6 +13,7 @@ async function bootstrap() {
   // app.enableCors({  
   //   origin: ["http://10.11.10.22:3000", "http://localhost:3000"],
   //   credentials: true,});
+  app.use(cookieParser())
   await app.listen(3002);
 }
 bootstrap();

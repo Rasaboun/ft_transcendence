@@ -77,7 +77,7 @@ export class AuthService {
         }
         const token = this.jwtService.sign(payload);
 
-        return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${process.env.JWT_LIFETIME_IN_MS}`;
+        return `token=${token}; Path=/; Max-Age=${process.env.JWT_LIFETIME_IN_MS}`;
     }
 
     async generatorTwoFactorAuthenticationSecret(login: string)

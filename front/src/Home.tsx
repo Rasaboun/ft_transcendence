@@ -20,6 +20,7 @@ export default function Home() {
   if (!storage)
   {
     const token = Cookies.get("token");
+    console.log("token", token);
     if (token)
     {
         const userData: userType = jwt_decode(token);
