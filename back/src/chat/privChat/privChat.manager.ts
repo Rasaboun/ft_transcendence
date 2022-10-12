@@ -71,10 +71,14 @@ export class PrivChatManager
 
 				this.privateChats.set(privChat.name, privChat);
 			}
+			if (client.chatId)
+				client.leave(client.chatId);
 			client.join(chat.name);
+			client.chatId = chat.name;
 			const chatInfo: privChatInfo = await this.privChatService.getChatInfo(chat.name, client.login);
 		
 			client.emit('joinedPrivChat', chatInfo);
+			return chat.name;
 		}
 		catch (error) { throw error; }
 	}
