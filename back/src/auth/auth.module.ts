@@ -1,5 +1,6 @@
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -14,10 +15,16 @@ import { JwtStrategy } from './stategy/jwt.strategy';
 
 @Module({
   imports: [
-    JwtModule.register({
-      secret: 'secret',
-      signOptions: { expiresIn: '1d'}
-    }),
+    ConfigModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get('JWT_SECRET'),
+        signOptions: {
+          expiresIn: `${configService.get('JWT_LIFETIME')}s`,
+      },
+      })}),
     PassportModule,
     HttpModule,
     UsersModule,

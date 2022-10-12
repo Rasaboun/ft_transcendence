@@ -13,6 +13,7 @@ import { User } from 'src/typeorm';
 import { authenticator } from 'otplib';
 import { Response } from 'express';
 import { Long } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
 
 
 @Injectable()
@@ -21,6 +22,7 @@ export class AuthService {
                 private readonly userService: UsersService,
                 private readonly jwtService: JwtService,
                 private readonly httpService: HttpService,
+                private readonly configService: ConfigService,
                 ) {}
 
     async validateUser(intraLogin: string) {
@@ -77,7 +79,7 @@ export class AuthService {
         }
         const token = this.jwtService.sign(payload);
 
-        return `token=${token}; Path=/; Max-Age=${process.env.JWT_LIFETIME_IN_MS}`;
+        return `token=${token}; Path=/; Max-Age=${this.configService.get('JWT_LIFETIME')}`;
     }
 
     async generatorTwoFactorAuthenticationSecret(login: string)
