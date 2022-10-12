@@ -226,6 +226,20 @@ export class UsersService {
         await this.userRepository.update(user.id, user);
     }
 
+    async getUserChatId(login: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        return user.chatId;
+    }
+
+    async setUserChatId(login: string, newChat: string | null)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        user.chatId = newChat;
+        await this.userRepository.update(user.id, user);
+    }
+    
+
     async getUserRoomId(login: string)
     {
         const user = await this.findOneByIntraLogin(login);

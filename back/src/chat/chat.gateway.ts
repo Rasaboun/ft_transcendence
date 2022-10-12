@@ -37,7 +37,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.channelManager.initChannels();
 		this.privChatManager.server = server;
 		this.privChatManager.initPrivChats();
-	
 	}
 
 	async handleConnection(client: Socket){
@@ -62,6 +61,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try
 		{
 			await this.channelManager.joinChannel(client, data);
+			client.chatId = data.channelName;
+			await this.userService.setUserChatId(client.login, data.channelName);
 			console.log(`Client ${client.login} joined channel ${data.channelName}`)
 		}
 		catch (error) { client.emit('error', error.message ) }
@@ -230,7 +231,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try{
 			console.log(client.login," joining chat with", targetLogin);
-			this.privChatManager.joinPrivChat(client, targetLogin);
+			const chatId = await this.privChatManager.joinPrivChat(client, targetLogin);
+			await this.userService.setUserChatId(client.login, chatId);
+			console.log("chatting with", targetLogin, "in roomId", chatId);
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
