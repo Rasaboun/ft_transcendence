@@ -17,6 +17,8 @@ services:
 
   front:
     container_name: front
+    env_file:
+      - ./.env
     build:
         context: ./front
     command:  npm start
@@ -35,6 +37,8 @@ services:
     build:
         context: ./back
     restart: always
+    env_file:
+      - ./.env
     container_name: back
     ports:
       - 3002:3002
