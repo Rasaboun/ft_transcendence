@@ -194,8 +194,8 @@ export default function ChannelElem() {
         key={index}
         className={
           elem.sender?.login === storage.login
-            ? "message self-end bg-indigo-400"
-            : "message self-end bg-indigo-800"
+            ? "message  self-end bg-indigo-400"
+            : "message self-start bg-indigo-800"
         }
         message={elem}
       />
@@ -204,8 +204,8 @@ export default function ChannelElem() {
         key={index}
         className={
           elem.sender?.login === storage.login
-            ? "message self-end bg-indigo-400"
-            : "message self-end bg-indigo-800"
+            ? "message  self-end bg-indigo-400"
+            : "message self-start bg-indigo-800"
         }
         message={elem}
       />
@@ -251,39 +251,10 @@ export default function ChannelElem() {
 
   return (
     <Loader condition={chatSocket?.connected}>
-      <div className="flex flex-col-reverse sm:flex-row">
-        <div className="hidden sm:contents">
+      <div className="flex flex-col-reverse md:flex-row">
+        
           <ChannelBoard userState={userState} />
-        </div>
-        <div className="sm:hidden">
-          <Disclosure>
-            {({ open }) => (
-              /* Use the `open` state to conditionally change the direction of an icon. */
-              <>
-              <div className="bg-indigo-600 rounded-lg mx-20 text-white ">
-                <Disclosure.Button className="flex w-full justify-between px-2 py-2">
-                  <p>Settings</p>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    className={open ? "w-5 h-5 rotate-90 transform" : "w-5 h-5"}
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </Disclosure.Button>
-                </div>
-                <Disclosure.Panel>
-                <ChannelBoard userState={userState} />
-                </Disclosure.Panel>
-              </>
-            )}
-          </Disclosure>
-        </div>
+        
         <div className="chat-right bg-indigo-50">
           <div className="h-96 ">
             <div className="message-container">
