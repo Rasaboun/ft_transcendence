@@ -45,18 +45,14 @@ export class AuthController {
     @Get('callback')
     async register(@Request() req, @Res() res)
     {
-        const user = req.user;
-        const payload = {
-            login: user.intraLogin,
-            username: user.username,
-            image: user.photoUrl,
-            twoAuthEnabled: user.isTwoFactorAuthenticationEnabled,
-        }
+  
+        const cookie = await this.authService.getCookieWithJwtAccessToken(req.user);
+        console.log("cookie", cookie);
         console.log("Inside callback");
           
-        const jwtToken = this.jwtService.sign(payload);
+        //const jwtToken = this.jwtService.sign(payload);
         //return this.authService.login(req.user);
-        res.cookie('token', jwtToken);
+        res.setHeader('Set-cookie', cookie);
         res.redirect('http://localhost:3000/');
 
     }
@@ -101,7 +97,7 @@ export class AuthController {
         if (!isCodeValid)
             throw new UnauthorizedException('Wrong authentication code');
         console.log("here");
-        const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(callerLogin, true);
+        const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(callerLogin); // change this
 
         req.res.setHeader('Set-Cookie', [accessTokenCookie]);
 

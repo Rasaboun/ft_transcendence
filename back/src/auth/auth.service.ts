@@ -65,9 +65,16 @@ export class AuthService {
                 roomId: user.roomId,
             }
         }
-    }    async getCookieWithJwtAccessToken(login: string, twoFactorAuthEnabled: boolean)
-    {
-        const payload = { intraLogin: login, twoFactorAuthEnabled};
+    }
+    
+    async getCookieWithJwtAccessToken(user: any)
+    { 
+        const payload = {
+            login: user.intraLogin,
+            username: user.username,
+            image: user.photoUrl,
+            twoAuthEnabled: user.isTwoFactorAuthenticationEnabled,
+        }
         const token = this.jwtService.sign(payload);
 
         return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${process.env.JWT_LIFETIME_IN_MS}`;

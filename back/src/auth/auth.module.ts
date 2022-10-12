@@ -10,6 +10,7 @@ import { AuthService } from './auth.service';
 import { IntraGuard } from './guards/intra.guard';
 import JwtTwoFactorAuthGuard from './guards/twofactor.guard';
 import { IntraStrategy } from './stategy/intra.strategy';
+import { LocalStrategy } from './stategy/local.strategy';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { IntraStrategy } from './stategy/intra.strategy';
     UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, IntraStrategy, IntraGuard, JwtTwoFactorAuthGuard],
+  providers: [AuthService, IntraStrategy, IntraGuard, JwtTwoFactorAuthGuard, LocalStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

@@ -10,6 +10,8 @@ import { UsersService } from './users.service';
 import { Readable } from 'typeorm/platform/PlatformTools';
 import { Observable, of } from 'rxjs';
 import { join } from 'path';
+import { AuthGuard } from '@nestjs/passport';
+import { LocalAuthGuard } from 'src/auth/guards/local.guard';
 
 export const editFileName = (req, file, callback) => {
     const name = file.originalname.split('.')[0];
@@ -39,6 +41,7 @@ export class UsersController {
         return this.usersService.unblockUser(dto.callerLogin, dto.targetLogin)
     }
 
+    //@UseGuards(LocalAuthGuard)
     @Put('status')
     setUserStatus(@Body() dto: updateStatusDto) {
         return this.usersService.setUserStatus(dto.login, dto.status);

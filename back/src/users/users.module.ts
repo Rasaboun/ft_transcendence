@@ -5,13 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Photo, User } from 'src/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PhotoService } from './photo/photo.service';
+import { LocalAuthGuard } from 'src/auth/guards/local.guard';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Photo]),
     ConfigModule,
   ],
-  providers: [UsersService, PhotoService],
+  providers: [UsersService, PhotoService, ],//LocalAuthGuard],
   exports: [UsersService],
   controllers: [UsersController]
 })
