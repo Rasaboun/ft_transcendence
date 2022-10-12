@@ -81,7 +81,7 @@ export function getActiveChannels() {
 }
 
 export function getClientInfo(channelName:string) {
-	console.log("In client info", chatSocket.connected)
+	console.log("In client info for channel", channelName)
 	chatSocket?.emit("clientInfo", channelName);
 }
 

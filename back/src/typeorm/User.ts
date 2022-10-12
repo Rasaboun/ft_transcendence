@@ -53,6 +53,13 @@ export class User {
     lobbyId: string;
 
     @Column({
+        default: null,
+        nullable: true,
+    })
+    chatId: string;
+
+
+    @Column({
         nullable: false,
     })
     roomId: string;

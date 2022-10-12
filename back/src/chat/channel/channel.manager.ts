@@ -77,7 +77,10 @@ export class ChannelManager
             await this.channelsService.addClient(channel.id, client.login, data.password); //change to real id
             await this.channelsService.addAdmin(channel.id, client.login); //change to real id
 
+            if (client.chatId)
+                client.leave(client.chatId);
             client.join(channel.id);
+            client.chatId = channel.id;
             channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id)), });
         
             return channel;
@@ -89,6 +92,8 @@ export class ChannelManager
     {
         try
         {
+            if (client.chatId)
+                client.leave(client.chatId);
             const channel: Channel = this.channels.get(data.channelName);
 
             if (channel == undefined)
