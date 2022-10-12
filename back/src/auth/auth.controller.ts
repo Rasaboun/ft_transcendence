@@ -64,7 +64,7 @@ export class AuthController {
     @Post('generate2fa')
     async generate(@Res() response: Response, @Req() request: Request, @Body() dto: {login: string})
     {
-        const callerLogin = "kamanfo"; //tmp
+        const callerLogin = "bditte"; //tmp
         const { otpauthUrl } = await this.authService.generatorTwoFactorAuthenticationSecret(callerLogin);
 
         return this.authService.pipeQrCodeStream(response, otpauthUrl);
@@ -73,7 +73,7 @@ export class AuthController {
     @Post('enable2fa')
     async enable(@Req() request: Request, @Body() dto: TwoFactorAuthenticationDto)
     {
-        const callerLogin = "kamanfo"; //tmp
+        const callerLogin = "bditte"; //tmp
         const isCodeValid = this.authService.isTwoFactorAuthenticationCodeValid(dto.twoFactorAuthenticationCode, callerLogin);
 
         if (!isCodeValid)
@@ -85,7 +85,7 @@ export class AuthController {
     @Post('disable2fa')
     async disable(@Req() request, @Body() dto: {login: string})
     {
-        const callerLogin = "kamanfo"; //tmp
+        const callerLogin = "bditte"; //tmp
         await this.userService.disableTwoFactorAuthentication(callerLogin);
     }
 
