@@ -25,6 +25,7 @@ export default function useLocalStorage(key?:string) {
     storage: getStorage(),
 	  storage2: getStorage(),
 	  storage3: getStorage(),
-	  storage4: getStorage()
+	  storage4: getStorage(),
+	  privChat: getStorage(),
   }
 }

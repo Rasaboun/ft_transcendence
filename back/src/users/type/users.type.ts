@@ -3,3 +3,9 @@ export enum UserStatus {
     online,
     ingame,
 }
+
+export type Friend = {
+    login: string,
+    username: string,
+    status: UserStatus,
+}

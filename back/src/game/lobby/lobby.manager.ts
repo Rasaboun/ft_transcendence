@@ -5,6 +5,8 @@ import { WebSocketServer } from "@nestjs/websockets";
 import { Server } from "socket.io";
 import { AuthService } from "src/auth/auth.service";
 import { AuthenticatedSocket } from 'src/auth/types/auth.type';
+import { matchDto } from "src/match/dto/match.dto";
+import { MatchService } from "src/match/match.service";
 import { UsersService } from "src/users/users.service";
 import { GameInstance } from "../game.instance";
 import { GameMode, GameOptions, GameState, Player } from "../types/game.type";
@@ -28,6 +30,8 @@ export class LobbyManager
         private authService: AuthService,
         @Inject(forwardRef(() => UsersService))
         private userService: UsersService,
+        @Inject(forwardRef(() => MatchService))
+        private matchService: MatchService,
     ) { }
 
     public initializeSocket(client: AuthenticatedSocket): void
@@ -64,7 +68,6 @@ export class LobbyManager
             return ;
         for (const [clientLogin, roomId] of lobby.clients)
         {
-            console.log("Destroy lobby, client login :", clientLogin);
             await this.authService.updateLobby(clientLogin, null);
         }
         this.lobbies.delete(lobbyId);
@@ -74,7 +77,6 @@ export class LobbyManager
     {
         let lobby: Lobby = null;
    
-        console.log("client lobby", client.lobby);
         for (let i = 0; i < this.availableLobbies.length; i++)
         {
             const currLobby = this.availableLobbies[i];
@@ -158,6 +160,11 @@ export class LobbyManager
                 client.join(lobbyId);
             }
         }
+    }
+
+    public async storeResult(dto: matchDto)
+    {
+        await this.matchService.matchResult(dto);
     }
 
     public getLobby(lobbyId: string)

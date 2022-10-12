@@ -4,6 +4,9 @@ import { GameData, GameOptions, GameState, Player } from "../types/game.type";
 import { GameInstance } from "../game.instance";
 import { AuthenticatedSocket } from 'src/auth/types/auth.type';
 import { LobbyManager } from "./lobby.manager";
+import { UserStatus } from "src/users/type/users.type";
+import { UsersService } from "src/users/users.service";
+import { forwardRef, Inject } from "@nestjs/common";
 
 export class Lobby
 {
@@ -13,7 +16,6 @@ export class Lobby
 
     public readonly gameInstance:   GameInstance;
 
-    //public         clients:        	Map<string, AuthenticatedSocket> = new Map<string, AuthenticatedSocket>();
     public         clients:        	Map<string, string> = new Map<string, string>();
 
     constructor    (
@@ -64,7 +66,7 @@ export class Lobby
         this.gameInstance.resetRound();
 		this.gameInstance.gameLoop();
         this.server.emit('activeGames', this.lobbyManager.getActiveLobbies());
-
+        
     }
 
     public removeClient(client: AuthenticatedSocket)
@@ -126,6 +128,7 @@ export class Lobby
     public async gameOver(winnerLogin: string)
     {
         const winnerUsername = await this.lobbyManager.getPlayerUsername(winnerLogin);
+        await this.lobbyManager.storeResult(this.gameInstance.getResultData())
         this.sendToUsers('gameOver', winnerUsername);
         this.destroy();
     }

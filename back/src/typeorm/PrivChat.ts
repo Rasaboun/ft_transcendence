@@ -2,20 +2,28 @@ import { Message } from 'src/chat/types/channel.type';
 import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
 
 @Entity()
-export class PrivChat extends BaseEntity {
+export class PrivChat {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column()
-  UserIdFirstSender: number 
+  name: string;
 
   @Column()
-  UserIdFirstReciever: number
+  firstUserLogin: string
 
-  @Column({default: -1})
-  UserIdBlocker: number;
+  @Column()
+  secondUserLogin: string
 
-  @Column("json",
-    {default: []})
-  mess: Message[];
+  @Column('json', {
+      default: [],
+  })
+  messages: Message[];
+
+  @Column('text', {
+    default: [],
+    array: true,
+  })
+  blockedList: string[];
+
 }
