@@ -3,7 +3,7 @@ import axios from "axios";
 import "./output.css";
 import { useParams } from "react-router-dom";
 import { Imatch, Iuser, UserStatus } from "./Utils/type";
-import { addFriend, getFriendship, getUserPhoto, removeFriend } from "./Requests/users";
+import { addFriend, blockUser, getFriendship, getUserPhoto, removeFriend, unblockUser } from "./Requests/users";
 import { getStatus } from "./Utils/utils";
 import { getUserMatches } from "./Requests/match";
 import { backUrl } from "./Requests/users";
@@ -13,23 +13,46 @@ import useLocalStorage from "./hooks/localStoragehook";
 const url: string = "http://localhost:3002/users/profile/";
 const matchUrl: string = "http://localhost:3002/match/user/";
 
+type UserPropsT = {
+	user: Iuser,
+	photo: string,
+	login:string,
+	isFriend: boolean,
+	setIsFriend:(value:boolean) => void
+	isBlocked: boolean,
+	setIsBlocked: (value:boolean) => void
+}
 
-function UserProfile({ user, photo, login, isFriend, setIsFriend }:{user: Iuser, photo: string, login:string, isFriend: boolean, setIsFriend:(value:boolean)=>void}) {
+function UserProfile({ user, photo, login, isFriend, setIsFriend, isBlocked, setIsBlocked }:UserPropsT) {
 
-	const btnText = isFriend ? "Remove from Friends" : "Add To Friends"
-	const handleClick = () => {
-	if (!isFriend)
-	{
-		addFriend(login, user.intraLogin);
-		setIsFriend(true);
+	const friendBtnText = isFriend ? "Remove from Friends" : "Add To Friends"
+	const blockBtnText = isBlocked ? "Remove from Blocked" : "Block this user"
+	
+	const handleFriendBtn = () => {
+		if (!isFriend)
+		{
+			addFriend(login, user.intraLogin);
+			setIsFriend(true);
+		}
+		else
+		{
+			removeFriend(login, user.intraLogin)
+			setIsFriend(false)
+		}
 	}
-	else
-	{
-		removeFriend(login, user.intraLogin)
-		setIsFriend(false)
-	}
 
-  }
+	const handleBlockBtn = () => {
+		if (!isBlocked)
+		{
+			blockUser(login, user.intraLogin);
+			setIsBlocked(true);
+		}
+		else
+		{
+			unblockUser(login, user.intraLogin)
+			setIsBlocked(false)
+		}
+	}
 
   return (
     <div className="flex basis-full flex-col items-center bg-indigo-300 rounded-lg border shadow md:flex-row md:max-w-xl ">
@@ -55,12 +78,13 @@ function UserProfile({ user, photo, login, isFriend, setIsFriend }:{user: Iuser,
         <div className="flex">
           <p className="mb-1 font-mono text-gray">Status: {getStatus(user.status)}</p>
         </div>
-        <div className="flex">
           {
             user.intraLogin !== login &&
-              <button onClick={() => handleClick()}>{btnText}</button>
+            <div className="flex flex-col">
+              <button className="font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 bg-green" onClick={() => handleFriendBtn()}>{friendBtnText}</button>
+              <button className="bg-red-500" onClick={() => handleBlockBtn()}>{blockBtnText}</button>
+            </div>
           }
-        </div>
       </div>
     </div>
   );
@@ -75,6 +99,7 @@ export default function Profile() {
 
   const [photo, setPhoto] = useState<string>();
   const [isFriend, setIsFriend] = useState<boolean>();
+  const [isBlocked, setIsBlocked] = useState<boolean>(false);
 
   useEffect(() => {
     if (login)
@@ -88,6 +113,9 @@ export default function Profile() {
         
         const friendship = await getFriendship(storage.login, login);
         setIsFriend(friendship);
+
+		// const isBlocked = await getIsBlocked(storage.login, login);
+        // setIsBlocked(isBlocked);
       }
         const getMatch = async () => {
 			    const url: string = backUrl + "/match/user";
@@ -121,7 +149,7 @@ export default function Profile() {
 			
           {
             user &&
-              <UserProfile user={user} photo={photo!} login={storage.login} isFriend={isFriend!} setIsFriend={setIsFriend}/>
+              <UserProfile user={user} photo={photo!} login={storage.login} isFriend={isFriend!} setIsFriend={setIsFriend} isBlocked={isBlocked} setIsBlocked={setIsBlocked}/>
           }
           {
 				  login && matches &&
