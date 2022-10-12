@@ -10,7 +10,7 @@ type settingsForm = {
 	image: File,
 }
 
-const url: string = "http://localhost:3002/users/";
+const url: string = "http://localhost:${process.env.BACK_PORT}/users/";
 function TabSettings() {
 	const { storage, setStorage } = useLocalStorage("user")
 	const { setImage } = useContext(SocketContext)

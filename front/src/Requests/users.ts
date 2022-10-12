@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Friend, Iuser } from "../Utils/type";
 import { Buffer } from 'buffer'
-export const backUrl = "http://localhost:3002"; 
+export const backUrl = "http://localhost:${process.env.BACK_PORT}"; 
 
 export enum UserStatus {
     offline,

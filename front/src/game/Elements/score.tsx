@@ -7,7 +7,7 @@ import "../game.css"
 import { GameData, GameState } from "../GameUtils/type"
 import PlayersScores from "./playerScores"
 
-const url: string = "http://localhost:3002/users/profile/";
+const url: string = "http://localhost:${process.env.BACK_PORT}/users/profile/";
 
 type propsType = {
     gameData: GameData

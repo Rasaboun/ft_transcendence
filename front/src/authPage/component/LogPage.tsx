@@ -25,8 +25,8 @@ export default function LoginElem ()
 
 		if (authForm.username !== "" && authForm.password != "")
 		{
-			const url = button ? 'http://localhost:3002/auth/login' :
-								'http://localhost:3002/auth/signup'
+			const url = button ? `http://localhost:3002/auth/login` :
+								`http://localhost:3002/auth/signup`
 
 			axios.post(url, { ...authForm }).then(res => {
 				if (button)

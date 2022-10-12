@@ -7,7 +7,7 @@ import { addFriend, getFriendship, getUserPhoto, removeFriend } from "./Requests
 import { getStatus } from "./Utils/utils";
 import useLocalStorage from "./hooks/localStoragehook";
 
-const url: string = "http://localhost:3002/users/profile/";
+const url: string = "http://localhost:${process.env.BACK_PORT}/users/profile/";
 
 
 function UserProfile({ user, photo, login, isFriend, setIsFriend }:{user: Iuser, photo: string, login:string, isFriend: boolean, setIsFriend:(value:boolean)=>void}) {

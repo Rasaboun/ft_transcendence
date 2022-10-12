@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { Iuser } from "./Utils/type";
 import "./index.css"
 
-const url: string = "http://localhost:3002/users/";
+const url: string = "http://localhost:${process.env.BACK_PORT}/users/";
 
 function sortUsers (a:Iuser, b:Iuser)
 {
