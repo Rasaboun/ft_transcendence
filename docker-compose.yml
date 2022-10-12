@@ -40,6 +40,11 @@ services:
     env_file:
       - ./.env
     container_name: back
+    expose:
+      - 5432
+      - 5434
+      - 8080
+      - 3002
     ports:
       - 3002:3002
       - 8002:8002
