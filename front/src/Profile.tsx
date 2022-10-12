@@ -84,9 +84,11 @@ export default function Profile() {
           return response.data;
           
         });
-        console.log("User status:", user.status);
         setUser(user);
-
+        
+        const friendship = await getFriendship(storage.login, login);
+        setIsFriend(friendship);
+      }
         const getMatch = async () => {
 			    const url: string = backUrl + "/match/user";
    			  const matches = await axios.get<Imatch[]>(url, {params: {login:login}}).then(res => {
@@ -94,10 +96,7 @@ export default function Profile() {
 			  })
 			  setMatches(matches);
     	}
-        const friendship = await getFriendship(storage.login, login);
-        setIsFriend(friendship);
-      }
- 
+         
       const getPhoto = async () => {
         
         const file  = await getUserPhoto(login);
