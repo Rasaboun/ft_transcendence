@@ -64,7 +64,7 @@ export class AuthController {
     @Post('generate2fa')
     async generate(@Res() response: Response, @Req() request: Request, @Body() dto: {login: string})
     {
-        const callerLogin = "bditte"; //tmp
+        const callerLogin = "kamanfo"; //tmp
         const { otpauthUrl } = await this.authService.generatorTwoFactorAuthenticationSecret(callerLogin);
 
         return this.authService.pipeQrCodeStream(response, otpauthUrl);
@@ -73,7 +73,7 @@ export class AuthController {
     @Post('enable2fa')
     async enable(@Req() request: Request, @Body() dto: TwoFactorAuthenticationDto)
     {
-        const callerLogin = "bditte"; //tmp
+        const callerLogin = "kamanfo"; //tmp
         const isCodeValid = this.authService.isTwoFactorAuthenticationCodeValid(dto.twoFactorAuthenticationCode, callerLogin);
 
         if (!isCodeValid)
@@ -85,13 +85,14 @@ export class AuthController {
     @Post('disable2fa')
     async disable(@Req() request, @Body() dto: {login: string})
     {
-        await this.userService.disableTwoFactorAuthentication(dto.login);
+        const callerLogin = "kamanfo"; //tmp
+        await this.userService.disableTwoFactorAuthentication(callerLogin);
     }
 
     @Post('submit2fa')
     async submit(@Req() req, @Body() dto: TwoFactorAuthenticationDto)
     {
-        const callerLogin = "bditte"; //tmp
+        const callerLogin = "kamanfo"; //tmp
         console.log("user");
         const isCodeValid = await this.authService.isTwoFactorAuthenticationCodeValid(dto.twoFactorAuthenticationCode, callerLogin);
 

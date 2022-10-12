@@ -75,6 +75,7 @@ export class AuthService {
 
     async generatorTwoFactorAuthenticationSecret(login: string)
     {
+        console.log("login", login)
         const user = await this.userService.findOneByIntraLogin(login);
 
         const secret = authenticator.generateSecret();
