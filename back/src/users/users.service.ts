@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestj
 import { InjectRepository } from '@nestjs/typeorm';
 import { createUserDto } from 'src/users/dto/createUser.dto';
 import { User } from 'src/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { UserStatus } from './type/users.type';
 import { PhotoService } from './photo/photo.service';

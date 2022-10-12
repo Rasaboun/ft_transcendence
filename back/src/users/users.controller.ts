@@ -1,31 +1,12 @@
 import { Body, Controller, Delete, Get, Header, Param, ParseIntPipe, Post, Put, Query, Res, StreamableFile, UploadedFile, UseFilters, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { extname } from 'path'
-//import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
-import { diskStorage } from 'multer'
 import { User } from 'src/typeorm';
 import { blockUserDto, createUserDto, updatePhotoDto, updateStatusDto, updateUsernameDto } from './dto/users.dto';
 import { UserStatus } from './type/users.type';
 import { UsersService } from './users.service';
-import { Readable } from 'typeorm/platform/PlatformTools';
-import { Observable, of } from 'rxjs';
-import { join } from 'path';
-import { AuthGuard } from '@nestjs/passport';
-import { LocalAuthGuard } from 'src/auth/guards/local.guard';
 import JwtAuthGuard from 'src/auth/guards/jwt.strategy.guard';
 
-export const editFileName = (req, file, callback) => {
-    const name = file.originalname.split('.')[0];
-    const fileExtName = extname(file.originalname);
-    const randomName = Array(4)
-        .fill(null)
-        .map(() => Math.round(Math.random() * 16).toString(16))
-        .join('');
-    callback(null, `${name}--${randomName}${fileExtName}`);
-}
-
-//@UseGuards(AuthenticatedGuard)
-//@UseFilters(AuthFilter)
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}

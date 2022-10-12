@@ -6,11 +6,7 @@ import { IntraGuard } from './guards/intra.guard';
 import { Response } from 'express';
 import { TwoFactorAuthenticationDto } from './dto/auth.dto';
 import { UsersService } from 'src/users/users.service';
-import bodyParser from 'body-parser';
-// import { IntraAuthGuard } from './guards/intra.guard';
-// import { JwtAuthGuard } from './guards/jwt-auth.guard';
-// import { LocalAuthGuard } from './guards/local-auth.guard';
-// import { AuthFilter } from './utils/auth.filter';
+import JwtAuthGuard from './guards/jwt.strategy.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -18,7 +14,8 @@ export class AuthController {
                 private jwtService: JwtService,
                 private userService: UsersService) {}
    
-
+    
+    @UseGuards(JwtAuthGuard)
     @Get('logout')
     logout(@Req() req) {
         console.log(req);
