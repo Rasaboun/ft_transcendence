@@ -23,6 +23,9 @@ services:
     volumes: 
         - ./front:/app
         - /app/node_modules
+    expose:
+      - 3002
+      - 8002
     ports:
       - 3000:3000
     networks:
@@ -35,6 +38,7 @@ services:
     container_name: back
     ports:
       - 3002:3002
+      - 8002:8002
     volumes: 
         - ./back:/app
         - /app/node_modules
