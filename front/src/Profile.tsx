@@ -2,12 +2,16 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./output.css";
 import { useParams } from "react-router-dom";
-import { Iuser, UserStatus } from "./Utils/type";
+import { Imatch, Iuser, UserStatus } from "./Utils/type";
 import { addFriend, getFriendship, getUserPhoto, removeFriend } from "./Requests/users";
 import { getStatus } from "./Utils/utils";
+import { getUserMatches } from "./Requests/match";
+import { backUrl } from "./Requests/users";
+import MatchTab from "./Elements/matchTab";
 import useLocalStorage from "./hooks/localStoragehook";
 
 const url: string = "http://localhost:3002/users/profile/";
+const matchUrl: string = "http://localhost:3002/match/user/";
 
 
 function UserProfile({ user, photo, login, isFriend, setIsFriend }:{user: Iuser, photo: string, login:string, isFriend: boolean, setIsFriend:(value:boolean)=>void}) {
@@ -66,7 +70,9 @@ export default function Profile() {
   const { storage } = useLocalStorage("user")
 	const { login } = useParams()
 	const [user, setUser] = React.useState<Iuser>();
+	const [matches, setMatches] = React.useState<Imatch[]>();
 	const data = {login : login}
+
   const [photo, setPhoto] = useState<string>();
   const [isFriend, setIsFriend] = useState<boolean>();
 
@@ -81,12 +87,17 @@ export default function Profile() {
         console.log("User status:", user.status);
         setUser(user);
 
-
+        const getMatch = async () => {
+			    const url: string = backUrl + "/match/user";
+   			  const matches = await axios.get<Imatch[]>(url, {params: {login:login}}).then(res => {
+        		return res.data;
+			  })
+			  setMatches(matches);
+    	}
         const friendship = await getFriendship(storage.login, login);
         setIsFriend(friendship);
       }
-      
-
+ 
       const getPhoto = async () => {
         
         const file  = await getUserPhoto(login);
@@ -95,6 +106,7 @@ export default function Profile() {
       
       getProfile();
       getPhoto();
+      getMatch()
     }
   }, [login]);
 
@@ -105,12 +117,17 @@ export default function Profile() {
           <h1 className="page-title">Profile</h1>
         </div>
       </header>
-      <main>
+      <main className="h-full">
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+			
           {
             user &&
               <UserProfile user={user} photo={photo!} login={storage.login} isFriend={isFriend!} setIsFriend={setIsFriend}/>
           }
+          {
+				  login && matches &&
+					  <MatchTab matches={matches} login={login}/>
+			    }
         </div>
       </main>
     </div>
