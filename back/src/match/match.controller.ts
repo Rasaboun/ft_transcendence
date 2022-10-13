@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, UseFilters, Us
 import JwtAuthGuard from 'src/auth/guards/jwt.strategy.guard';
 //import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
 import { Match } from 'src/typeorm';
+import { LoginDto } from 'src/users/dto/users.dto';
 import { matchDto } from './dto/match.dto';
 import { MatchService } from './match.service';
 
@@ -16,7 +17,7 @@ export class MatchController {
     }
 
     @Get('user')
-    getMatchesByLogin(@Query() dto: {login: string}): Promise<Match[]> {
+    getMatchesByLogin(@Query() dto: LoginDto): Promise<Match[]> {
         return this.matchService.getMatchesByLogin(dto.login);
     }
 

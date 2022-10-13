@@ -9,6 +9,7 @@ import { UsersService } from 'src/users/users.service';
 import JwtAuthGuard from './guards/jwt.strategy.guard';
 import { read } from 'fs';
 import { TokenPayload } from './types/auth.type';
+import { LoginDto } from 'src/users/dto/users.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -24,19 +25,9 @@ export class AuthController {
     }
    
 
-    @Post('signup')
-    async signup(@Body() data)
-    {
-        try
-        {
-            return this.authService.signup(data);
-        }
-        catch (e){ throw e }
-    }
-
     @Get('login')
     @UseGuards(IntraGuard)
-    async login(@Request() req)
+    async login()
     {
     }
 
@@ -67,16 +58,15 @@ export class AuthController {
     }
 
     @Post('generate2fa')
-    async generate(@Res() response: Response, @Req() request: Request, @Body() dto: {callerLogin: string})
+    async generate(@Res() response: Response, @Body() dto: LoginDto)
     {
-        const callerLogin = dto.callerLogin; //tmp
-        const { otpauthUrl } = await this.authService.generatorTwoFactorAuthenticationSecret(callerLogin);
+        const { otpauthUrl } = await this.authService.generatorTwoFactorAuthenticationSecret(dto.login);
 
         return this.authService.pipeQrCodeStream(response, otpauthUrl);
     }
 
     @Post('enable2fa')
-    async enable(@Req() request: Request, @Body() dto: TwoFactorAuthenticationDto)
+    async enable(@Body() dto: TwoFactorAuthenticationDto)
     {
         const isCodeValid = await this.authService.isTwoFactorAuthenticationCodeValid(dto.code, dto.login);
 
@@ -88,14 +78,13 @@ export class AuthController {
     }
 
     @Post('disable2fa')
-    async disable(@Req() request, @Body() dto: {login: string})
+    async disable(@Body() dto: LoginDto)
     {
-        const callerLogin = dto.login; 
-        await this.userService.disableTwoFactorAuthentication(callerLogin);
+        await this.userService.disableTwoFactorAuthentication(dto.login);
     }
 
     @Post('submit2fa')
-    async submit(@Res() res: Response, @Request() req, @Body() dto: {login: string, code: string})
+    async submit(@Res() res: Response, @Body() dto: TwoFactorAuthenticationDto)
     {
         const isCodeValid = await this.authService.isTwoFactorAuthenticationCodeValid(dto.code, dto.login);
 

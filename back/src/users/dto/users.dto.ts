@@ -55,3 +55,9 @@ export class blockUserDto {
     @IsString()
     targetLogin: string;
 }
+
+export class LoginDto {
+    @IsNotEmpty()
+    @IsString()
+    login: string;
+}
