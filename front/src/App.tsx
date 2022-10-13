@@ -18,7 +18,7 @@ import { PrivateRoute } from "./PrivateRoute";
 import Settings from "./Settings";
 import Profile from "./Profile";
 import { appSocketRoutine, getChatSocket, getGameSocket, initiateSocket } from "./Utils/socketManager";
-import { getToken } from "./Utils/utils";
+import { getToken, isLogged } from "./Utils/utils";
 import ErrorAlert from "./Elements/error";
 import LoginNavBar from "./LoginNavBar";
 import Cookies from "js-cookie";
@@ -26,13 +26,13 @@ import TwoFactorAuth from "./2factorAuth";
 
 const token = localStorage.getItem("token");
 if (token) {
-     setAuthToken(token);
+    setAuthToken(JSON.parse(token));
 }
 
 export default function App()
 {
 	const {chatSocket, setChatSocket, gameSocket, setGameSocket} = useContext(SocketContext)
-	const { storage } = useLocalStorage("token");
+	const [ logged , setLogged ] = useState(false);
 	const { storage2 } = useLocalStorage("user");
 	const [alert, setAlert] = useState({
 		isShow: false,
@@ -45,7 +45,7 @@ export default function App()
 			msg: message
 		})
 	}
-
+	
 	function handleGameOver(winnerId: string)
 	{
 		const message = winnerId === storage2.login ? "YOU WIN" : "YOU LOSE"
@@ -58,6 +58,8 @@ export default function App()
 		  }, 70000);
 		  return () => clearTimeout(timer);
 	}, [alert])
+
+
 
 	useEffect(() => {
 		if (getToken() != undefined)
@@ -75,7 +77,7 @@ export default function App()
 				alert.isShow &&
 					<ErrorAlert errorMsg={alert.msg}/>
 			}
-			{Cookies.get('token') ? 
+			{Cookies.get('token') && storage2 ? 
 				<NavBar /> :
 				<LoginNavBar/>
 			}

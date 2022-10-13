@@ -1,9 +1,10 @@
 import Cookies from "js-cookie";
-import React from "react";
+import React, { useEffect } from "react";
 import useLocalStorage from "./hooks/localStoragehook";
 import "./output.css";
 import jwt_decode from 'jwt-decode'
 import { setAuthToken } from "./authPage/authUtils/AuthUtils";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export type userType = {
   username: string,
@@ -12,29 +13,44 @@ export type userType = {
   twoAuthEnabled: boolean,
 }
 
+
+
 export default function Home() {
   
 	const {setStorage} = useLocalStorage();
   const { storage } = useLocalStorage("user");
+  const navigate = useNavigate();
+  const state = useLocation().state as boolean;
 
-  if (!storage)
-  {
-    const token = Cookies.get("token");
-    console.log("token", token);
-    if (token)
-    {
-        const userData: userType = jwt_decode(token);
-        console.log("UserData", userData);
-        setStorage("user", {
-          login: userData.login,
-          username: userData.username,
-          image: userData.image,
-          twoAuthEnabled: userData.twoAuthEnabled,
-      });
-        setStorage("token", token);
-        setAuthToken(token);
+  useEffect(() => {
+      if (!storage)
+      {
+        const token = Cookies.get("token");
+        console.log("token", token);
+      if (token)
+      {
+          const userData: userType = jwt_decode(token);
+          
+          console.log('in useffect', userData);
+          if (userData.twoAuthEnabled)
+          {
+            console.log('in navigate');
+            navigate('TwoFactorAuth');
+            return ;
+          }
+          console.log("UserData", userData);
+          setStorage("user", {
+            login: userData.login,
+            username: userData.username,
+            image: userData.image,
+            twoAuthEnabled: userData.twoAuthEnabled,
+          });
+          setStorage("token", token);
+          setAuthToken(token);
+      }
     }
-  }
+  }, [])
+  
 
   return (
     <div id="Home" className="flex-1">

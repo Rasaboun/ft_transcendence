@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, Redirect, Request, Res, UseGuards, ConsoleLogger, UseFilters, Body, Req, Session, UnauthorizedException, Param } from '@nestjs/common';
+import { Controller, Get, Post, Query, Redirect, Request, Res, UseGuards, ConsoleLogger, UseFilters, Body, Req, Session, UnauthorizedException, Param, Next } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
@@ -10,12 +10,14 @@ import JwtAuthGuard from './guards/jwt.strategy.guard';
 import { read } from 'fs';
 import { TokenPayload } from './types/auth.type';
 import { LoginDto } from 'src/users/dto/users.dto';
+import { optional } from 'joi';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService,
                 private jwtService: JwtService,
-                private userService: UsersService) {}
+                private userService: UsersService,) {}
    
     
     @UseGuards(JwtAuthGuard)
@@ -43,12 +45,13 @@ export class AuthController {
             return ;
         }
   
-        if (req.user.isTwoFactorAuthenticationEnabled)
-        {
-            res.cookie('login', req.user.intraLogin);   
-            res.redirect('http://localhost:3000/TwofactorAuth');
-            return ;
-        }
+        // if (req.user.isTwoFactorAuthenticationEnabled)
+        // {
+        //     res.cookie('login', req.user.intraLogin);   
+        //     res.redirect('http://localhost:3000/TwofactorAuth');
+        //     console.log('in callback');
+        //     return ;
+        // }
 
         const cookie = await this.authService.getCookieWithJwtAccessToken(req.user.intraLogin);
   
@@ -84,7 +87,7 @@ export class AuthController {
     }
 
     @Post('submit2fa')
-    async submit(@Res() res: Response, @Body() dto: TwoFactorAuthenticationDto)
+    async submit(@Res() res, @Req() req, @Body() dto: TwoFactorAuthenticationDto)
     {
         const isCodeValid = await this.authService.isTwoFactorAuthenticationCodeValid(dto.code, dto.login);
 
@@ -92,10 +95,10 @@ export class AuthController {
             throw new UnauthorizedException('Wrong authentication code');
 
         const cookie = await this.authService.getCookieWithJwtAccessToken(dto.login);
-
+        
         res.setHeader('Set-Cookie', cookie);
         res.redirect('http://localhost:3000/');
         console.log('returning');
-        return true
+        return true;
     }
 }

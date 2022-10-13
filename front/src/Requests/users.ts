@@ -2,6 +2,7 @@ import axios from "axios";
 import { Iuser } from "../Utils/type";
 import { Buffer } from 'buffer'
 import Cookies from "js-cookie";
+import useLocalStorage from "../hooks/localStoragehook";
 export const backUrl = "http://localhost:3002"; 
 
 export enum UserStatus {
@@ -101,10 +102,10 @@ export async function unblockUser(callerlogin: string, targetLogin: string)
     }).catch(e => console.log)
 }
 
-export async function generateQrCode(callerLogin: string)
+export async function generateQrCode(login: string)
 {
     const url: string = backUrl + "/auth/generate2fa";
-    const qrcode = await axios.post(url, {callerLogin}, {
+    const qrcode = await axios.post(url, {login}, {
         responseType: 'blob',
     }).then(res => {
         return res.data;
@@ -135,13 +136,15 @@ export async function disableTwoFactorAuthentication(callerLogin: string)
 
 }
 
-export async function submitTwoFactorAuthentication(code: string)
+export async function submitTwoFactorAuthentication(callerLogin: string, code: string)
 {
+
     const url: string = backUrl + "/auth/submit2fa";
     const login = Cookies.get('login');
 
     console.log('before req');
-    const ret = await axios.post(url, {login, code}).then(res => {
+    const ret = await axios.post(url, {login: callerLogin, code}).then(res => {
+        console.log('inside req');
         return true
     }).catch((e) => console.log(e))
     console.log('after req');

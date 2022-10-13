@@ -1,21 +1,41 @@
+import Cookies from "js-cookie";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { userType } from "./Home";
 import useLocalStorage from "./hooks/localStoragehook";
 import { submitTwoFactorAuthentication } from "./Requests/users";
+import jwt_decode from 'jwt-decode'
+import { setAuthToken } from "./authPage/authUtils/AuthUtils";
 
 export default function TwoFactorAuth()
 {
+	const {setStorage} = useLocalStorage();
     const [code, setCode] = useState<string>("")
 	const navigate = useNavigate()
+    const { storage } = useLocalStorage("user");
+
 	const sendCode = async () => {
-        console.log('sending code');
-        const isCodeValid = await submitTwoFactorAuthentication(code);
+        
+        const token = Cookies.get("token");
+        if (!token)
+            return ;
+        const userData: userType = jwt_decode(token);  
+        
+        const isCodeValid = await submitTwoFactorAuthentication(userData.login, code);
+        
         if (!isCodeValid)
             setCode("Invalid code");
 		else
         {
-            console.log('In navigate');
-            navigate("/");
+            setStorage("user", {
+                login: userData.login,
+                username: userData.username,
+                image: userData.image,
+                twoAuthEnabled: userData.twoAuthEnabled,
+            });
+            setStorage("token", token);
+            setAuthToken(token);
+            navigate('/Dashboard');
             
         }
 	}

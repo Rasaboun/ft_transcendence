@@ -78,9 +78,23 @@ export class AuthService {
             username: user.username,
             twoAuthEnabled: user.isTwoFactorAuthenticationEnabled,
         }
+        console.log('payload', payload);
         const token = this.jwtService.sign(payload);
 
         return `token=${token}; Path=/; Max-Age=${this.configService.get('JWT_LIFETIME')}s`;
+    }
+
+    async getJwtToken(userLogin: string)
+    {
+        const user = await this.userService.findOneByIntraLogin(userLogin);
+
+        const payload = {
+            login: user.intraLogin,
+            username: user.username,
+            twoAuthEnabled: user.isTwoFactorAuthenticationEnabled,
+        }
+        return this.jwtService.sign(payload);
+
     }
 
     async generatorTwoFactorAuthenticationSecret(login: string)
