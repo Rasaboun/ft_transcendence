@@ -27,11 +27,14 @@ export class UsersService {
       
         const caller = await this.findOneByIntraLogin(callerLogin);
         
-        caller.blockedUsers.push(targetLogin);
-        await this.userRepository.update(
-            caller.id,
-            caller,
-            )
+        if (caller.blockedUsers.indexOf(targetLogin) == -1)
+        {
+            caller.blockedUsers.push(targetLogin);
+            await this.userRepository.update(
+                caller.id,
+                caller,
+                )
+        }
     }
 
     async unblockUser(callerLogin: string, targetLogin: string) {

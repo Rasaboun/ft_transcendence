@@ -68,6 +68,9 @@ export default function ChannelElem() {
   };
 
   const handleMessageReceived = (msg: messageT) => {
+    const blockedUsers: string[] = storage.blockedUsers;
+    if (blockedUsers.indexOf(msg.sender!.login) != -1)
+      return ;
     setMessagesList((oldMessagesList) =>
       oldMessagesList === undefined ? [msg] : [...oldMessagesList, msg]
     );
@@ -194,8 +197,8 @@ export default function ChannelElem() {
         key={index}
         className={
           elem.sender?.login === storage.login
-            ? "message self-end bg-indigo-400"
-            : "message self-end bg-indigo-800"
+            ? "message  self-end bg-indigo-400"
+            : "message self-start bg-indigo-800"
         }
         message={elem}
       />
@@ -204,8 +207,8 @@ export default function ChannelElem() {
         key={index}
         className={
           elem.sender?.login === storage.login
-            ? "message self-end bg-indigo-400"
-            : "message self-end bg-indigo-800"
+            ? "message  self-end bg-indigo-400"
+            : "message self-start bg-indigo-800"
         }
         message={elem}
       />
@@ -260,6 +263,7 @@ export default function ChannelElem() {
   }, [mutedTime]);
 
   return (
+<<<<<<< HEAD
     <Loader condition={(chatSocket?.connected && channelInfo !== undefined)}>
       <div className="flex flex-col-reverse sm:flex-row">
         <div className="hidden sm:contents">
@@ -294,6 +298,13 @@ export default function ChannelElem() {
             )}
           </Disclosure>
         </div>
+=======
+    <Loader condition={chatSocket?.connected}>
+      <div className="flex flex-col-reverse md:flex-row">
+        
+          <ChannelBoard userState={userState} />
+        
+>>>>>>> 92937f731daaeb0bd9c03577e6703bff5ce0a8fd
         <div className="chat-right bg-indigo-50">
           <div className="h-96 ">
             <div className="message-container">

@@ -3,7 +3,7 @@ import axios from "axios";
 import "./output.css";
 import { useParams } from "react-router-dom";
 import { Imatch, Iuser, UserStatus } from "./Utils/type";
-import { addFriend, blockUser, getFriendship, getUserPhoto, removeFriend, unblockUser } from "./Requests/users";
+import { addFriend, blockUser, getFriendship, getUserPhoto, isInBlocklist, removeFriend, unblockUser } from "./Requests/users";
 import { getStatus } from "./Utils/utils";
 import { getUserMatches } from "./Requests/match";
 import { backUrl } from "./Requests/users";
@@ -23,7 +23,10 @@ type UserPropsT = {
 	setIsBlocked: (value:boolean) => void
 }
 
+
 function UserProfile({ user, photo, login, isFriend, setIsFriend, isBlocked, setIsBlocked }:UserPropsT) {
+
+  const { storage, setStorage } = useLocalStorage("user");
 
 	const friendBtnText = isFriend ? "Remove from Friends" : "Add To Friends"
 	const blockBtnText = isBlocked ? "Remove from Blocked" : "Block this user"
@@ -46,11 +49,19 @@ function UserProfile({ user, photo, login, isFriend, setIsFriend, isBlocked, set
 		{
 			blockUser(login, user.intraLogin);
 			setIsBlocked(true);
+
+      let newBlocklist: string[] = storage.blockedUsers;
+      newBlocklist.push(user.intraLogin);
+			setStorage("user", {...storage, blockedUsers: newBlocklist})
 		}
 		else
 		{
 			unblockUser(login, user.intraLogin)
 			setIsBlocked(false)
+
+      let newBlocklist: string[] = storage.blockedUsers;
+      newBlocklist.splice(storage.blockedUsers.indexOf(user.intraLogin), 1);
+			setStorage("user", {...storage, blockedUsers: newBlocklist})
 		}
 	}
 
@@ -91,8 +102,8 @@ function UserProfile({ user, photo, login, isFriend, setIsFriend, isBlocked, set
 }
 
 export default function Profile() {
-  const { storage } = useLocalStorage("user")
 	const { login } = useParams()
+  const { storage, setStorage } = useLocalStorage("user");
 	const [user, setUser] = React.useState<Iuser>();
 	const [matches, setMatches] = React.useState<Imatch[]>();
 	const data = {login : login}
@@ -114,8 +125,10 @@ export default function Profile() {
         const friendship = await getFriendship(storage.login, login);
         setIsFriend(friendship);
 
-		// const isBlocked = await getIsBlocked(storage.login, login);
-        // setIsBlocked(isBlocked);
+
+        const blockedBy = await isInBlocklist(storage.login, login);
+        setIsBlocked(blockedBy);
+
       }
         const getMatch = async () => {
 			    const url: string = backUrl + "/match/user";
