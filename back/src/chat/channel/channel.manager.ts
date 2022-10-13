@@ -81,7 +81,7 @@ export class ChannelManager
                 client.leave(client.chatId);
             client.join(channel.id);
             client.chatId = channel.id;
-            channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id)), });
+            this.server.to(client.roomId).emit("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id)), });
         
             return channel;
         }

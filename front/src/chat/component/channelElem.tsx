@@ -128,9 +128,7 @@ export default function ChannelElem() {
       isMuted: data.isMuted,
       unmuteDate: data.unmuteDate,
     });
-    if (data.messages?.length !== 0) {
-      setMessagesList(data.messages);
-    }
+    setMessagesList(data.messages);
     if (data.unmuteDate !== 0)
       setMutedTime(
         Math.trunc(data.unmuteDate / 1000 - new Date().getTime() / 1000)
