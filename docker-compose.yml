@@ -24,7 +24,6 @@ services:
     command:  npm start
     volumes: 
         - ./front:/app
-        - /app/node_modules
     expose:
       - ${BACK_PORT}
       - ${SOCKET_PORT}
@@ -41,7 +40,7 @@ services:
       - ./.env
     container_name: back
     expose:
-      - 5432
+      - ${DB_PORT}
       - 5434
       - 8080
       - ${BACK_PORT}
@@ -51,7 +50,7 @@ services:
     volumes: 
         - ./back:/app
         - /app/node_modules
-    command:  npm start
+    command:  npm run start:dev
     environment:
       POSTGRES_HOST: database
     networks:
