@@ -4,7 +4,7 @@ import { createUserDto } from 'src/users/dto/createUser.dto';
 import { User } from 'src/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import { Friend, UserStatus } from './type/users.type';
+import { Friend, initGameStats, MatchInfo, UserStatus } from './type/users.type';
 import { PhotoService } from './photo/photo.service';
 import { Photo } from 'src/typeorm/Photo';
 
@@ -98,6 +98,7 @@ export class UsersService {
         }
 
         const newUser = this.userRepository.create(userDto);
+        newUser.gameStats = initGameStats();
         return await this.userRepository.save(newUser);
     }
     
@@ -113,13 +114,15 @@ export class UsersService {
             await this.userRepository.delete(username);
     }
 
-    async updateGameStats(players)
+    async updateGameStats(matchInfo: MatchInfo)
     {
-        const winner = await this.findOneByIntraLogin(players.winnerLogin);
-        const loser = await this.findOneByIntraLogin(players.loserLogin);
+        const winner = await this.findOneByIntraLogin(matchInfo.winnerLogin);
+        const loser = await this.findOneByIntraLogin(matchInfo.loserLogin);
 
-        winner.victories++;
-        winner.nbGames++;
+        winner.gameStats.victories++;
+        winner.gameStats.nbGames++;
+        winner.gameStats.goalsScored += matchInfo.winnerScore;
+        winner.gameStats.goalsTaken += matchInfo.loserScore;
         if (winner.status == UserStatus.ingame)
             winner.status = UserStatus.online;
         await this.userRepository.update(
@@ -127,8 +130,10 @@ export class UsersService {
             winner
         );
 
-        loser.defeats++;
-        loser.nbGames++;
+        loser.gameStats.defeats++;
+        loser.gameStats.nbGames++;
+        loser.gameStats.goalsScored += matchInfo.loserScore;
+        loser.gameStats.goalsTaken += matchInfo.winnerScore;
         if (loser.status == UserStatus.ingame)
             loser.status = UserStatus.online;
         await this.userRepository.update(
