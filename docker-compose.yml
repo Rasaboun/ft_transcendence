@@ -16,14 +16,15 @@ services:
       - ft_transcendance
 
   front:
-    container_name: front
-    env_file:
-      - ./.env
     build:
         context: ./front
-    command:  npm start
+    env_file:
+      - ./.env
+    container_name: front
+    command:  npm run start
     volumes: 
         - ./front:/app
+        - /app/node_modules
     expose:
       - ${BACK_PORT}
       - ${SOCKET_PORT}
@@ -39,6 +40,9 @@ services:
     env_file:
       - ./.env
     container_name: back
+    volumes: 
+        - ./back:/app
+        - /app/node_modules
     expose:
       - ${DB_PORT}
       - 5434
@@ -50,7 +54,7 @@ services:
     volumes: 
         - ./back:/app
         - /app/node_modules
-    command:  npm run start:dev
+    command:  npm run start
     environment:
       POSTGRES_HOST: database
     networks:
