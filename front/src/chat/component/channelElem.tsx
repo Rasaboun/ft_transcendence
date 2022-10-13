@@ -263,7 +263,6 @@ export default function ChannelElem() {
   }, [mutedTime]);
 
   return (
-<<<<<<< HEAD
     <Loader condition={(chatSocket?.connected && channelInfo !== undefined)}>
       <div className="flex flex-col-reverse sm:flex-row">
         <div className="hidden sm:contents">
@@ -291,20 +290,10 @@ export default function ChannelElem() {
                   </svg>
                 </Disclosure.Button>
                 </div>
-                <Disclosure.Panel>
-                <ChannelBoard userState={userState} channel={channelInfo} setChannelInfo={setChannelInfo}/>
-                </Disclosure.Panel>
               </>
             )}
           </Disclosure>
         </div>
-=======
-    <Loader condition={chatSocket?.connected}>
-      <div className="flex flex-col-reverse md:flex-row">
-        
-          <ChannelBoard userState={userState} />
-        
->>>>>>> 92937f731daaeb0bd9c03577e6703bff5ce0a8fd
         <div className="chat-right bg-indigo-50">
           <div className="h-96 ">
             <div className="message-container">
