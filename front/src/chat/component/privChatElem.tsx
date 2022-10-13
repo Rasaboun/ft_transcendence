@@ -85,8 +85,8 @@ export default function PrivChatElem() {
         key={index}
         className={
           elem.sender?.login === storage.login
-            ? "message message-right"
-            : "message message-left"
+            ? "message  self-end bg-indigo-400"
+            : "message self-start bg-indigo-800"
         }
         message={elem}
       />
@@ -114,11 +114,12 @@ export default function PrivChatElem() {
   }, [chatSocket]);
 
   return (
-    <div className="flex flex-row items-center bg-indigo-500  border-solid border-2 rounded-lg text-white">
+    <div className="flex flex-col bg-indigo-500  border-solid border-2 rounded-lg text-white">
+      <div className="flex flex-row justify-between">
       <h1>
         Chatting with : {privChat ? privChat.otherUsername : "Change this"}
       </h1>
-
+    <div className="mr-2">
       <button onClick={() => blockInChat(privChat.name)}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -151,9 +152,11 @@ export default function PrivChatElem() {
           />
         </svg>
       </button>
+      </div>
+      </div>
       <div className="chat-right">
         <div className="h-96 bg-indigo-50">
-          <div className="">
+          <div className="message-container">
             {messageElem}
             <div ref={lastMessageRef} />
           </div>
