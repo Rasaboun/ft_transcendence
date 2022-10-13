@@ -43,7 +43,6 @@ export default function ChannelMenu()
 	}
 
 	const handleChannelJoined = (data:{clientId:string, channelInfo:ChannelT}) => {
-        console.log(storage.login, data.clientId)
 		if (storage.login === data.clientId)
 		{
 			console.log(data.channelInfo)
@@ -103,17 +102,6 @@ export default function ChannelMenu()
 	))
 	
 	
-	/*<div style={{
-            padding: "1em",
-            border: "1px solid black",
-			borderRadius: "5px",
-        }}>
-		<h6>Frank Erod</h6>
-
-		connected since : 18:30
-	</div>;
-	*/
-
     return (
 		
         <div >
