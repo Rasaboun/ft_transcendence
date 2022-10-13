@@ -65,6 +65,7 @@ export class AuthService {
                 username: user.username,
                 image: user.photo,
                 roomId: user.roomId,
+                blockedUsers: user.blockedUsers,
             }
         }
     }

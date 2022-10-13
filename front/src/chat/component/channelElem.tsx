@@ -67,6 +67,9 @@ export default function ChannelElem() {
   };
 
   const handleMessageReceived = (msg: messageT) => {
+    const blockedUsers: string[] = storage.blockedUsers;
+    if (blockedUsers.indexOf(msg.sender!.login) != -1)
+      return ;
     setMessagesList((oldMessagesList) =>
       oldMessagesList === undefined ? [msg] : [...oldMessagesList, msg]
     );
