@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, Redirect, Request, Res, UseGuards, ConsoleLogger, UseFilters, Body, Req, Session, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Post, Query, Redirect, Request, Res, UseGuards, ConsoleLogger, UseFilters, Body, Req, Session, UnauthorizedException, Param } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
@@ -35,7 +35,14 @@ export class AuthController {
     @UseGuards(IntraGuard)
     async login(@Request() req)
     {
-        
+        console.log("In login");
+    }
+
+    @UseGuards(IntraGuard)
+    @Get('callback/:error')
+    async registerFailed(@Param('error') error: string)
+    { 
+        console.log('In error');
     }
 
     @UseGuards(IntraGuard)
@@ -43,6 +50,11 @@ export class AuthController {
     async register(@Request() req, @Res() res)
     { 
         const user = req.user;
+        if (req.user == null)
+        {
+            res.redirect('http://localhost:3000/login');
+            return ;
+        }
         // const payload = {
         //     login: user.intraLogin,
         //     username: user.username,

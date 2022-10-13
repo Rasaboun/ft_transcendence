@@ -73,14 +73,11 @@ export class UsersService {
     }
 
     async findOneByIntraLogin(login: string) {
-        const user = await this.userRepository.findOne({
+        return await this.userRepository.findOne({
             where: [
                 { intraLogin: login},
             ],
         })
-        if (user)
-            return user;
-        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
     findOneByUsername(username: string){
