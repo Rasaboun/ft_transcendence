@@ -85,9 +85,14 @@ export class PrivChatManager
 
 	public async sendMessage(client: AuthenticatedSocket, data: sendMessageDto): Promise<Message>
 	{
-		const chat = this.privChatService.findOneByName(data.chatName);
+		const chat = await this.privChatService.findOneByName(data.chatName);
 		if (!chat)
 			return ;
+		if (await this.privChatService.isBlocked(data.chatName, client.login))
+		{
+			await this.sendChatInfo(client, chat.name);
+			return ;
+		}
 
 		const sender = await this.userService.findOneByIntraLogin(client.login);
 
