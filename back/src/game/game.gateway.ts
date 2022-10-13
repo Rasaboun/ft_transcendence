@@ -12,7 +12,7 @@ import { Lobby } from './lobby/lobby';
 import { initGameData } from './utils/game.settings';
 
 
-@WebSocketGateway(8002, { cors: '*', namespace: 'game' })
+@WebSocketGateway(Number(process.env.SOCKET_PORT), { cors: '*', namespace: 'game' })
 export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
 

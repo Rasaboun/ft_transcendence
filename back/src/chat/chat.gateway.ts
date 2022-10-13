@@ -15,7 +15,7 @@ import { use } from 'passport';
 import { connectedUser, sendMessageDto } from './types/privChat.type';
 import { UserStatus } from 'src/users/type/users.type';
 
-@WebSocketGateway(8002, { cors: '*', namespace: 'chat' })
+@WebSocketGateway(Number(process.env.SOCKET_PORT), { cors: '*', namespace: 'chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
 	constructor(

@@ -41,7 +41,7 @@ export default function PrivChatMenu()
 
 	useEffect(() => {
 
-		initiateSocket("http://localhost:8002")
+		initiateSocket("http://localhost:${process.env.SOCKET_PORT}")
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
 		getUsers();

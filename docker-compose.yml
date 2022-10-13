@@ -27,7 +27,7 @@ services:
         - /app/node_modules
     expose:
       - ${BACK_PORT}
-      - 8002
+      - ${SOCKET_PORT}
     ports:
       - 3000:3000
     networks:
@@ -47,7 +47,7 @@ services:
       - ${BACK_PORT}
     ports:
       - ${BACK_PORT}:${BACK_PORT}
-      - 8002:8002
+      - ${SOCKET_PORT}:${SOCKET_PORT}
     volumes: 
         - ./back:/app
         - /app/node_modules

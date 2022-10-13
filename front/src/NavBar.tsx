@@ -61,7 +61,7 @@ export default function NavBar() {
       setStorage("user", {...storage, image : file} );
     }
     getPhoto()
-    initiateSocket("http://localhost:8002")
+    initiateSocket("http://localhost:${process.env.SOCKET_PORT}")
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
     if (chatSocket)
