@@ -41,16 +41,6 @@ export default function NavBar() {
   const { storage, setStorage } = useLocalStorage("user")
 	const { image } = useContext(SocketContext)
   const {chatSocket, gameSocket, setChatSocket, setGameSocket, notification, setNotification} = useContext(SocketContext)
-  
-  const handleChatNotification = () => {
-    setNotification(true)
-      navigation = navigation.map((element, idx) => {
-        if (idx === 1)
-          return {...element, notification: notification}
-        return element
-      });
-    console.log(notification)
-  }
 
   useEffect(() => {    // Mettre à jour le titre du document en utilisant l'API du navigateur
     
@@ -61,15 +51,8 @@ export default function NavBar() {
       setStorage("user", {...storage, image : file} );
     }
     getPhoto()
-    initiateSocket("http://localhost:8002")
-		setChatSocket(getChatSocket())
-		setGameSocket(getGameSocket())
-    if (chatSocket)
-    {
-      chatSocket.on("msgToChannel", () => handleChatNotification())
-    }
     
-  },[image, chatSocket?.connected, notification]);
+  },[]);
   
   return (
     <>

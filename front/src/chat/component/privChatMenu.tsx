@@ -23,15 +23,19 @@ export default function PrivChatMenu()
 	const [connectedUsers, setConnectedUsers] = useState<connectedUsersT[]>()
 
 	
-	const handlePrivChatJoined = (intraLogin: string) => {
-		navigate("/chat/privMessage");
-	}
+	// const handlePrivChatJoined = (intraLogin: string) => {
+	// 	navigate("/chat/privMessage", );
+	// }
 
 	
 
 	const handleJoinPrivateChat = (user: connectedUsersT) => {
 		joinPrivChat(user.intraLogin);
-		navigate("/chat/privMessage");
+		navigate("/chat/privMessage", {
+			state: {
+				chatName: user.intraLogin
+			}
+		});
 	}	
 
 	const loadConnectedUsers = (connectedUsers:connectedUsersT[])=>
@@ -45,9 +49,7 @@ export default function PrivChatMenu()
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
 		getUsers();
-		privChatMenuHandler(
-			loadConnectedUsers,
-			handlePrivChatJoined)
+		privChatMenuHandler(loadConnectedUsers)	
 	}, [])
 
 	const users = connectedUsers?.map((elem, ind) => {

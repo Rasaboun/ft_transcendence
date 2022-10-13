@@ -111,7 +111,9 @@ export class ChannelManager
                 if (channel.isPasswordProtected() && !await this.channelsService.checkPassword(channel.id, data.password))
                     throw new ForbiddenException("Wrong channel password");
                 client.join(channel.id);
-                client.emit("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});                 
+                this.server.to(client.roomId).emit("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
+
+                //client.emit("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});                 
                 return ;
             }
             if (channel.isPrivate() && !(await this.channelsService.isInvited(data.channelName, client.login)))
@@ -124,7 +126,6 @@ export class ChannelManager
 
             channel.addClient(client.login, client.roomId);
             client.join(channel.id);
-            client.emit("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
             channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))}, client.roomId);
         }
         catch (error) { throw error }
@@ -449,6 +450,7 @@ export class ChannelManager
     {
         try
         {
+            console.log("kkjgkdfjgkljdfl")
             const channel = this.channels.get(channelName);
             if (channel == undefined)
                 throw new NotFoundException("This channel does not exist");

@@ -1,5 +1,5 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
-import { blockInChat, chatHandlerPrivEl, getChatInfo, getChatSocket, initiateSocket,  sendPrivMessage, unblockInChat } from "../../Utils/socketManager";
+import { blockInChat, chatHandlerPrivEl, getChatInfo, getChatSocket, initiateSocket,  joinPrivChat,  sendPrivMessage, unblockInChat } from "../../Utils/socketManager";
 import Message from "../Elements/message";
 import { messageT, MessageTypes, privChatInfo} from "../ChatUtils/chatType"
 
@@ -8,22 +8,21 @@ import useLocalStorage from "../../hooks/localStoragehook";
 import PrivMessageInput from "./privMessageInput";
 import { SocketContext } from "../../Context/socketContext";
 import "../../output.css";
+import { useLocation } from "react-router-dom";
 
 export default function PrivChatElem()
 {
     const {chatSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
+    const Locationstate = useLocation().state as {chatName: string}
     const lastMessageRef = useRef<HTMLDivElement | null>(null)
     const {storage} = useLocalStorage("user")
-	const {setStorage} = useLocalStorage()
 	const [form, setForm] = useState({ message:"", })
-    const {privChat} = useLocalStorage("privChat");
+    const [privChat, setPrivChat] = useState<privChatInfo>();
     const [messagesList, setMessagesList] = useState<messageT[]>()
     const [isBlocked, setIsBlocked] = useState(false);
 
-
     const handlePrivChatJoined = (chatInfo: privChatInfo) => {
-        const {messages, ...privChat} = chatInfo;
-        setStorage("privChat", privChat);
+        setPrivChat(chatInfo);
         setIsBlocked(chatInfo.isBlocked);
         setMessagesList(chatInfo.messages);
 	}
@@ -31,7 +30,7 @@ export default function PrivChatElem()
 
     const handleSubmitPrivMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (form.message != "")
+        if (form.message != "" && privChat)
         {
             sendPrivMessage({chatName: privChat.name, content: form.message})
         }
@@ -58,8 +57,7 @@ export default function PrivChatElem()
 
     const handleChatInfo = (data:privChatInfo) => {
       
-        const {messages, ...privChat} = data;
-        setStorage("privChat", privChat);
+        setPrivChat(data);
         setIsBlocked(data.isBlocked);
         if (data.messages?.length !== 0)
         {
@@ -72,7 +70,7 @@ export default function PrivChatElem()
     {
         if (!isBlocked)
             return "";
-        const blockedList: string[] = privChat.blockedList;
+        const blockedList: string[] = privChat!.blockedList;
         if (blockedList.length == 2 || blockedList.indexOf(storage.login) == -1)
         {
             return "You blocked this user";
@@ -93,6 +91,7 @@ export default function PrivChatElem()
     const scrollToBottom = () => {
         lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
     }
+
      useEffect(() => {
        scrollToBottom()
     }, [messagesList])
@@ -107,8 +106,8 @@ export default function PrivChatElem()
             handlePrivChatJoined,
             handleChatInfo,) 
         }
-        if (privChat)
-            getChatInfo(privChat.name);
+        joinPrivChat(Locationstate.chatName)
+        //getChatInfo(privChat!.name);
 
     }, [chatSocket])
 
@@ -122,7 +121,7 @@ export default function PrivChatElem()
                             backgroundColor: "#00ffff",
                             borderRadius: "20px"
                         }}
-                   onClick={() => blockInChat(privChat.name)}>
+                   onClick={() => blockInChat(privChat!.name)}>
                             BLOCK
             </button>
             <button style={{
@@ -132,12 +131,12 @@ export default function PrivChatElem()
                         backgroundColor: "#00ffff",
                         borderRadius: "20px"
                     }}
-                onClick={() => unblockInChat(privChat.name)}>
+                onClick={() => unblockInChat(privChat!.name)}>
                 UNBLOCK
             </button>
             <div className="chat-right">
                 <div className="h-96 bg-indigo-100">
-                    <div className="">
+                    <div className="message-container">
                         {messageElem}
                         <div ref={lastMessageRef}/>
                     </div>

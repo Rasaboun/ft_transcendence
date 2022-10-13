@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useLocalStorage from "../../hooks/localStoragehook";
-import { ChannelModes, ClientElem, UserStateT } from "../ChatUtils/chatType";
+import { ChannelModes, ChannelT, ClientElem, UserStateT } from "../ChatUtils/chatType";
 import { deleteChannel, inviteClient, leaveChannel, setChannelPassword, setPrivateMode, unsetChannelPassword, unsetPrivateMode } from "../../Utils/socketManager";
 import UserListElem from "./UserListElem";
 
 type PropsT = {
-    userState?: UserStateT
+    userState?: UserStateT,
+    channel?:ChannelT,
+    setChannelInfo:(channel:any) => void
 }
 
-export default function ChannelBoard({userState}:PropsT)
+export default function ChannelBoard({userState, channel, setChannelInfo}:PropsT)
 {
     let ownerList: ClientElem[] = [];
     let adminsList: ClientElem[] = [];
     let othersList: ClientElem[] = [];
     const {storage} = useLocalStorage("user");
-    const {storage2, setStorage} = useLocalStorage("channel");
     const navigate = useNavigate()
     const [form, setForm] = useState({
         message:"",
@@ -27,7 +28,7 @@ export default function ChannelBoard({userState}:PropsT)
         e.preventDefault()
         if (form.invite !== "")
         {
-            inviteClient({channelName: storage2!.channelId, clientId: form.invite})
+            inviteClient({channelName: channel!.channelId, clientId: form.invite})
         }
         setForm((oldForm) => ({
             ...oldForm,
@@ -42,16 +43,16 @@ export default function ChannelBoard({userState}:PropsT)
 			console.log(form.password)
             setChannelPassword(
             {
-                channelName: storage2!.channelId,
+                channelName: channel!.channelId,
                 password: form.password
             })
-            if (storage2?.mode !== ChannelModes.Password)
+            if (channel?.mode !== ChannelModes.Password)
             {
-                setStorage("channel", {
-                    ...storage2,
+                setChannelInfo((oldChannel:ChannelT) => ({
+                    ...oldChannel!,
                     mode: ChannelModes.Password,
                 })
-            }  
+            )}  
         }
         setForm((oldForm) => ({
             ...oldForm,
@@ -67,67 +68,66 @@ export default function ChannelBoard({userState}:PropsT)
     }
 
     const handleLeaveChannel = () => {
-        leaveChannel(storage2!.channelId)
+        leaveChannel(channel!.channelId)
         navigate("/Chat")
     }
 
     const handleUnsetPassword = () => {
-        unsetChannelPassword(storage2!.channelId)
-        setStorage("channel", {
-            ...storage2,
+        unsetChannelPassword(channel!.channelId)
+        setChannelInfo((oldChannel:ChannelT) => ({
+            ...oldChannel!,
             mode: ChannelModes.Public,
-        })
+        }))
     }
 
     const handleUnsetPrivMode = () => {
-        unsetPrivateMode(storage2!.channelId)
-        setStorage("channel", {
-            ...storage2,
+        unsetPrivateMode(channel!.channelId)
+        setChannelInfo((oldChannel:ChannelT) => ({
+            ...oldChannel!,
             mode: ChannelModes.Public,
-        })
+        }))
     }
 
     const handleSetInvite = () => {
-        setPrivateMode(storage2!.channelId)
-        setStorage("channel", {
-            ...storage2,
+        setPrivateMode(channel!.channelId)
+        setChannelInfo((oldChannel:ChannelT) => ({
+            ...oldChannel!,
             mode: ChannelModes.Private,
-        })
+        }))
     }
 
     const handleDelete = () => {
-        deleteChannel(storage2?.channelId)
+        deleteChannel(channel!.channelId)
      }
     
 	useEffect(() => {
-		storage2?.clients?.forEach((elem:ClientElem, index:number) => {
+		channel?.clients?.forEach((elem:ClientElem, index:number) => {
 			elem.isOwner && ownerList.push(elem)
 			elem.isAdmin && !elem.isOwner && adminsList.push(elem)
 			!elem.isAdmin && !elem.isOwner && othersList.push(elem)
 		})
 	}, [])
     
-    storage2?.clients?.forEach((elem:ClientElem, index:number) => {
+    channel?.clients?.forEach((elem:ClientElem, index:number) => {
         elem.isOwner && ownerList.push(elem)
         elem.isAdmin && !elem.isOwner && adminsList.push(elem)
         !elem.isAdmin && !elem.isOwner && othersList.push(elem)
     })
-    console.log(othersList)
     return (
         <div className="flex flex-col bg-indigo-500  border-solid border-2 rounded-lg">
-            <h1>{ storage2.channelId }</h1>
+            <h1>{ channel!.channelId }</h1>
             {
                 userState?.isAdmin &&
                     <div className="mx-2 ">
                         {`${storage.username} 👑`}
                         {
-                            storage2?.mode === ChannelModes.Public &&
+                            channel?.mode === ChannelModes.Public &&
                                 <button onClick={handleSetInvite} className="focus:outline-none text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-2.5 py-2 mb-2" >
                                     invite
                                 </button>  
                         }
                         {
-                            storage2?.mode === ChannelModes.Private &&
+                            channel?.mode === ChannelModes.Private &&
                                 <form onSubmit={handleSubmitInvite}>
                                     <input className="g-indigo-50 border border-indigo-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5"
                                     name="invite" type="text" value={form.invite} onChange={handleChange}/>
@@ -140,13 +140,13 @@ export default function ChannelBoard({userState}:PropsT)
                             <input className="bg-indigo-50 border border-indigo-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5"
                             name="password" type="text" value={form.password} onChange={handleChange}/>
                             <button type="submit" className="focus:outline-none text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-2.5 py-2 mb-2" >
-                                {storage2?.mode === ChannelModes.Public ?
+                                {channel?.mode === ChannelModes.Public ?
                                 "set password" : "change password"}
                             </button>
                         </form>
                         {
-                            storage2?.mode !== ChannelModes.Public &&
-                                <button onClick={storage2?.mode === ChannelModes.Password ? 
+                            channel?.mode !== ChannelModes.Public &&
+                                <button onClick={channel?.mode === ChannelModes.Password ? 
                                     handleUnsetPassword:
                                     handleUnsetPrivMode}>
                                     unset Mode ❌
