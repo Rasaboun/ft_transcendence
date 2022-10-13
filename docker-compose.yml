@@ -29,7 +29,7 @@ services:
       - ${BACK_PORT}
       - ${SOCKET_PORT}
     ports:
-      - 3000:3000
+      - ${FRONT_PORT}:${FRONT_PORT}
     networks:
       - ft_transcendance
 
