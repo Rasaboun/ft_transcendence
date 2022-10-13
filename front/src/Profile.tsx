@@ -92,7 +92,7 @@ function UserProfile({ user, photo, login, isFriend, setIsFriend, isBlocked, set
           {
             user.intraLogin !== login &&
             <div className="flex flex-col">
-              <button className="font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 bg-green" onClick={() => handleFriendBtn()}>{friendBtnText}</button>
+              <button className="bg-green" onClick={() => handleFriendBtn()}>{friendBtnText}</button>
               <button className="bg-red-500" onClick={() => handleBlockBtn()}>{blockBtnText}</button>
             </div>
           }

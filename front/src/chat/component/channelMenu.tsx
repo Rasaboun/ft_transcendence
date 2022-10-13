@@ -48,7 +48,11 @@ export default function ChannelMenu()
 		{
 			console.log(data.channelInfo)
 			setStorage("channel", data.channelInfo)
-			navigate("/chat/message")
+			navigate("/chat/message", {
+				state: {
+					channelName: data.channelInfo.channelId
+				}
+			})
 		}
 	}
 	
@@ -56,23 +60,9 @@ export default function ChannelMenu()
 		navigate("/chat/privMessage");
 	}
 
-    
-
-	const handleError = (message:string) => {
-		setErrorMsg({
-			isShow: true,
-			msg: message
-		})
-	}
-
 	const handleInvitation = (message:string) => {
 		window.alert(message)
 	}
-
-	const handleJoinPrivateChat = (intraLogin:string) => {
-		joinPrivChat(intraLogin);
-		navigate("/chat/privMessage");
-	}	
 
 	const loadConnectedUser = (connectedUsers:connectedUsersT[])=>
 	{
@@ -108,7 +98,7 @@ export default function ChannelMenu()
 				channel={elem}
 				handleJoinChannel={handleJoinChannel}
 				/>
-		</ChatListElem>
+			</ChatListElem>
 		
 	))
 	

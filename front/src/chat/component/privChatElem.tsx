@@ -1,13 +1,5 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
-import {
-  blockInChat,
-  chatHandlerPrivEl,
-  getChatInfo,
-  getChatSocket,
-  initiateSocket,
-  sendPrivMessage,
-  unblockInChat,
-} from "../../Utils/socketManager";
+import { blockInChat, chatHandlerPrivEl, getChatInfo, getChatSocket, initiateSocket,  joinPrivChat,  sendPrivMessage, unblockInChat } from "../../Utils/socketManager";
 import Message from "../Elements/message";
 import { messageT, MessageTypes, privChatInfo } from "../ChatUtils/chatType";
 
@@ -16,35 +8,37 @@ import useLocalStorage from "../../hooks/localStoragehook";
 import PrivMessageInput from "./privMessageInput";
 import { SocketContext } from "../../Context/socketContext";
 import "../../output.css";
+import { useLocation } from "react-router-dom";
 
-export default function PrivChatElem() {
-  const { chatSocket, setChatSocket, setGameSocket } =
-    useContext(SocketContext);
-  const lastMessageRef = useRef<HTMLDivElement | null>(null);
-  const { storage } = useLocalStorage("user");
-  const { setStorage } = useLocalStorage();
-  const [form, setForm] = useState({ message: "" });
-  const { privChat } = useLocalStorage("privChat");
-  const [messagesList, setMessagesList] = useState<messageT[]>();
-  const [isBlocked, setIsBlocked] = useState(false);
+export default function PrivChatElem()
+{
+    const {chatSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
+    const Locationstate = useLocation().state as {chatName: string}
+    const lastMessageRef = useRef<HTMLDivElement | null>(null)
+    const {storage} = useLocalStorage("user")
+	const [form, setForm] = useState({ message:"", })
+    const [privChat, setPrivChat] = useState<privChatInfo>();
+    const [messagesList, setMessagesList] = useState<messageT[]>()
+    const [isBlocked, setIsBlocked] = useState(false);
 
-  const handlePrivChatJoined = (chatInfo: privChatInfo) => {
-    const { messages, ...privChat } = chatInfo;
-    setStorage("privChat", privChat);
-    setIsBlocked(chatInfo.isBlocked);
-    setMessagesList(chatInfo.messages);
-  };
+    const handlePrivChatJoined = (chatInfo: privChatInfo) => {
+        setPrivChat(chatInfo);
+        setIsBlocked(chatInfo.isBlocked);
+        setMessagesList(chatInfo.messages);
+	}
 
-  const handleSubmitPrivMessage = (e: React.ChangeEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (form.message != "") {
-      sendPrivMessage({ chatName: privChat.name, content: form.message });
+
+    const handleSubmitPrivMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        if (form.message != "" && privChat)
+        {
+            sendPrivMessage({chatName: privChat.name, content: form.message})
+        }
+        setForm((oldForm) => ({
+            ...oldForm,
+            message: ""
+        }))
     }
-    setForm((oldForm) => ({
-      ...oldForm,
-      message: "",
-    }));
-  };
 
   const handlePrivMessageReceived = (msg: messageT) => {
     setMessagesList((oldMessagesList) =>
@@ -59,18 +53,19 @@ export default function PrivChatElem() {
     }));
   };
 
-  const handleChatInfo = (data: privChatInfo) => {
-    const { messages, ...privChat } = data;
-    setStorage("privChat", privChat);
-    setIsBlocked(data.isBlocked);
-    if (data.messages?.length !== 0) {
-      setMessagesList(data.messages);
+    const handleChatInfo = (data:privChatInfo) => {
+      
+        setPrivChat(data);
+        setIsBlocked(data.isBlocked);
+        if (data.messages?.length !== 0)
+        {
+            setMessagesList(data.messages)
+        }
     }
-  };
-
+        
   const getBlockedSentence = () => {
     if (!isBlocked) return "";
-    const blockedList: string[] = privChat.blockedList;
+        const blockedList: string[] = privChat!.blockedList;
     if (blockedList.length == 2 || blockedList.indexOf(storage.login) == -1) {
       return "You blocked this user";
     }
@@ -110,7 +105,7 @@ export default function PrivChatElem() {
         handleChatInfo
       );
     }
-    if (privChat) getChatInfo(privChat.name);
+    getChatInfo(Locationstate.chatName)
   }, [chatSocket]);
 
   return (
@@ -120,7 +115,7 @@ export default function PrivChatElem() {
         Chatting with : {privChat ? privChat.otherUsername : "Change this"}
       </h1>
     <div className="mr-2">
-      <button onClick={() => blockInChat(privChat.name)}>
+      <button onClick={() => blockInChat(privChat!.name)}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -136,7 +131,7 @@ export default function PrivChatElem() {
           />
         </svg>
       </button>
-      <button onClick={() => unblockInChat(privChat.name)}>
+      <button onClick={() => unblockInChat(privChat!.name)}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
