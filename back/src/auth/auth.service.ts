@@ -69,12 +69,13 @@ export class AuthService {
         }
     }
     
-    async getCookieWithJwtAccessToken(user: any)
-    { 
+    async getCookieWithJwtAccessToken(userLogin: string)
+    {
+        const user = await this.userService.findOneByIntraLogin(userLogin);
+
         const payload = {
             login: user.intraLogin,
             username: user.username,
-            image: user.photoUrl,
             twoAuthEnabled: user.isTwoFactorAuthenticationEnabled,
         }
         const token = this.jwtService.sign(payload);

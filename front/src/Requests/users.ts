@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Iuser } from "../Utils/type";
 import { Buffer } from 'buffer'
+import Cookies from "js-cookie";
 export const backUrl = "http://localhost:3002"; 
 
 export enum UserStatus {
@@ -132,4 +133,19 @@ export async function disableTwoFactorAuthentication(callerLogin: string)
    
     }).catch(e => console.log)
 
+}
+
+export async function submitTwoFactorAuthentication(code: string)
+{
+    const url: string = backUrl + "/auth/submit2fa";
+    const login = Cookies.get('login');
+
+    console.log('before req');
+    const ret = await axios.post(url, {login, code}).then(res => {
+        return true
+    }).catch((e) => console.log(e))
+    console.log('after req');
+    if (ret == true)
+        return true;
+    return false;
 }

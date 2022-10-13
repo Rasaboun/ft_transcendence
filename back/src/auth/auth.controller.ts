@@ -7,6 +7,8 @@ import { Response } from 'express';
 import { TwoFactorAuthenticationDto } from './dto/auth.dto';
 import { UsersService } from 'src/users/users.service';
 import JwtAuthGuard from './guards/jwt.strategy.guard';
+import { read } from 'fs';
+import { TokenPayload } from './types/auth.type';
 
 @Controller('auth')
 export class AuthController {
@@ -36,7 +38,6 @@ export class AuthController {
     @UseGuards(IntraGuard)
     async login(@Request() req)
     {
-        console.log("In login");
     }
 
 
@@ -51,7 +52,14 @@ export class AuthController {
             return ;
         }
   
-        const cookie = await this.authService.getCookieWithJwtAccessToken(req.user);
+        if (req.user.isTwoFactorAuthenticationEnabled)
+        {
+            res.cookie('login', req.user.intraLogin);   
+            res.redirect('http://localhost:3000/TwofactorAuth');
+            return ;
+        }
+
+        const cookie = await this.authService.getCookieWithJwtAccessToken(req.user.intraLogin);
   
         res.setHeader('Set-Cookie', cookie);
         res.redirect('http://localhost:3000/');
@@ -61,7 +69,6 @@ export class AuthController {
     @Post('generate2fa')
     async generate(@Res() response: Response, @Req() request: Request, @Body() dto: {callerLogin: string})
     {
-        console.log("dto", dto);
         const callerLogin = dto.callerLogin; //tmp
         const { otpauthUrl } = await this.authService.generatorTwoFactorAuthenticationSecret(callerLogin);
 
@@ -71,42 +78,35 @@ export class AuthController {
     @Post('enable2fa')
     async enable(@Req() request: Request, @Body() dto: TwoFactorAuthenticationDto)
     {
-        console.log("Inside enable");
-        const callerLogin = dto.login;
-        const isCodeValid = await this.authService.isTwoFactorAuthenticationCodeValid(dto.code, callerLogin);
+        const isCodeValid = await this.authService.isTwoFactorAuthenticationCodeValid(dto.code, dto.login);
 
-        console.log("code valid", isCodeValid);
         if (!isCodeValid)
             throw new UnauthorizedException('Wrong authentication code');
 
-        await this.userService.enableTwoFactorAuthentication(callerLogin);
+        await this.userService.enableTwoFactorAuthentication(dto.login);
         return true;
     }
 
     @Post('disable2fa')
     async disable(@Req() request, @Body() dto: {login: string})
     {
-        const callerLogin = dto.login; //tmp
+        const callerLogin = dto.login; 
         await this.userService.disableTwoFactorAuthentication(callerLogin);
     }
 
     @Post('submit2fa')
-    async submit(@Req() req, @Body() dto: TwoFactorAuthenticationDto)
+    async submit(@Res() res: Response, @Request() req, @Body() dto: {login: string, code: string})
     {
-        const callerLogin = dto.login;
-
-        const isCodeValid = await this.authService.isTwoFactorAuthenticationCodeValid(dto.code, callerLogin);
-
-        console.log("code is valid", isCodeValid);
+        const isCodeValid = await this.authService.isTwoFactorAuthenticationCodeValid(dto.code, dto.login);
 
         if (!isCodeValid)
-            return new UnauthorizedException('Wrong authentication code');
-        console.log("here");
-        const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(callerLogin); // change
+            throw new UnauthorizedException('Wrong authentication code');
 
-        req.res.setHeader('Set-Cookie', [accessTokenCookie]);
+        const cookie = await this.authService.getCookieWithJwtAccessToken(dto.login);
 
-        //redirect
-        return callerLogin
+        res.setHeader('Set-Cookie', cookie);
+        res.redirect('http://localhost:3000/');
+        console.log('returning');
+        return true
     }
 }

@@ -60,7 +60,7 @@ export default function App()
 	}, [alert])
 
 	useEffect(() => {
-		if (getToken() != `""`)
+		if (getToken() != undefined)
 		{
 			initiateSocket("http://localhost:8002")
 			setChatSocket(getChatSocket())
@@ -80,7 +80,7 @@ export default function App()
 				<LoginNavBar/>
 			}
 			<Routes>
-				<Route element={<PrivateRoute/>}>
+				{/* <Route element={<PrivateRoute/>}> */}
 					<Route path="/" element={<Home/> }/>
 					<Route path="Dashboard" element={<Dashboard/> }/>
 					<Route path="About" element={<StarWars/> }/>
@@ -98,7 +98,7 @@ export default function App()
 					}/>
 					<Route path="Settings" element={<Settings/>}/>
 					<Route path="/Profile/:login" element={<Profile/>}/>
-				</Route>
+				{/* //</Route> */}
 					<Route path="/Login" element={<Login/> }/>
 					<Route path="/TwofactorAuth" element={<TwoFactorAuth/> }/>
 				

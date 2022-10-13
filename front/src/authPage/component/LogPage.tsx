@@ -2,6 +2,7 @@ import { useContext, useEffect,  } from "react";
 import "../auth.css"
 import { SocketContext } from "../../Context/socketContext";
 import { backUrl } from "../../Requests/users";
+import Cookies from "js-cookie";
 
 export default function LoginElem ()
 {
@@ -19,7 +20,7 @@ export default function LoginElem ()
 		chatSocket?.close()
 		gameSocket?.close()
 		localStorage.clear()
-		//Cookies.remove("token");
+		Cookies.remove("token");
 	}, [])
 	return (
 		<div className="flex h-screen">

@@ -1,11 +1,23 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import useLocalStorage from "./hooks/localStoragehook";
+import { submitTwoFactorAuthentication } from "./Requests/users";
 
 export default function TwoFactorAuth()
 {
     const [code, setCode] = useState<string>("")
-	
-	const sendCode = () => {
-		console.log(code);
+	const navigate = useNavigate()
+	const sendCode = async () => {
+        console.log('sending code');
+        const isCodeValid = await submitTwoFactorAuthentication(code);
+        if (!isCodeValid)
+            setCode("Invalid code");
+		else
+        {
+            console.log('In navigate');
+            navigate("/");
+            
+        }
 	}
 
     return (
