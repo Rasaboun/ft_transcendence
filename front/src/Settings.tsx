@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import useLocalStorage from "./hooks/localStoragehook";
 import "./output.css";
 import "./index.css"
-import { disableTwoFactorAuthentication, generateQrCode, getUserPhoto, setUsername, setUserPhoto } from "./Requests/users";
+import { disableTwoFactorAuthentication, enableTwoFactorAuthentication, generateQrCode, getUserPhoto, setUsername, setUserPhoto } from "./Requests/users";
 import { SocketContext } from "./Context/socketContext";
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
@@ -31,7 +31,15 @@ function QRcodeModal()
 	}, [])
 
 	const sendCode = () => {
-		console.log(code);
+		const isCodeValid = async () => {
+			const valid:boolean = await enableTwoFactorAuthentication(storage.login, code);
+			console.log("isvalid", valid);
+			if (!valid)
+				setCode("Invalide code");
+			
+			setStorage("user", {...storage, twoAuthEnabled: true});
+		}
+		isCodeValid();
 	}
 
 	return (
@@ -88,7 +96,7 @@ function TabSettings() {
 	}
 
 	const handleDisableTwoAuth = async () => {
-		disableTwoFactorAuthentication(storage.login);
+		await disableTwoFactorAuthentication(storage.login);
 		setStorage("user", {...storage, twoAuthEnabled: false})
 	}
 

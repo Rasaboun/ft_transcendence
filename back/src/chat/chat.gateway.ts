@@ -220,7 +220,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		catch (error) { client.emit('error', error.message ) }
 	}
 
-
 	@SubscribeMessage('joinPrivateChat')
 	async joinPrivChat(client: AuthenticatedSocket, targetLogin: string)
 	{

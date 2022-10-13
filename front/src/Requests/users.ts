@@ -112,10 +112,23 @@ export async function generateQrCode(callerLogin: string)
     return URL.createObjectURL(qrcode);
 }
 
+export async function enableTwoFactorAuthentication(callerLogin: string, code: string): Promise<boolean> {
+    const url: string = backUrl + "/auth/enable2fa";
+
+    let isCodeValid = false;
+    const ret = await axios.post(url, {login: callerLogin, code}).then(res => {
+        return true;
+    }).catch((e) => console.log(e))
+    console.log("ret", ret);
+    if (ret == true)
+        return true;
+    return false;
+}
+
 export async function disableTwoFactorAuthentication(callerLogin: string)
 {
     const url: string = backUrl + "/auth/disable2fa";
-    await axios.post(url, {callerLogin}).then(res => {
+    await axios.post(url, {login: callerLogin}).then(res => {
    
     }).catch(e => console.log)
 

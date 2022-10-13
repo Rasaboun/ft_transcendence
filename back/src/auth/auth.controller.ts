@@ -31,6 +31,7 @@ export class AuthController {
         }
         catch (e){ throw e }
     }
+
     @Get('login')
     @UseGuards(IntraGuard)
     async login(@Request() req)
@@ -38,12 +39,6 @@ export class AuthController {
         console.log("In login");
     }
 
-    @UseGuards(IntraGuard)
-    @Get('callback/:error')
-    async registerFailed(@Param('error') error: string)
-    { 
-        console.log('In error');
-    }
 
     @UseGuards(IntraGuard)
     @Get('callback')
@@ -55,31 +50,19 @@ export class AuthController {
             res.redirect('http://localhost:3000/login');
             return ;
         }
-        // const payload = {
-        //     login: user.intraLogin,
-        //     username: user.username,
-        //     image: user.photoUrl,
-        //     twoAuthEnabled: user.isTwoFactorAuthenticationEnabled,
-        // }
   
         const cookie = await this.authService.getCookieWithJwtAccessToken(req.user);
-        console.log("cookie", cookie);
-        console.log("Inside callback");
-          
-        //const jwtToken = this.jwtService.sign(payload);
-
-        //res.cookie('token', jwtToken);
-
-        //return this.authService.login(req.user);
+  
         res.setHeader('Set-Cookie', cookie);
         res.redirect('http://localhost:3000/');
 
     }
 
     @Post('generate2fa')
-    async generate(@Res() response: Response, @Req() request: Request, @Body() dto: {login: string})
+    async generate(@Res() response: Response, @Req() request: Request, @Body() dto: {callerLogin: string})
     {
-        const callerLogin = "bditte"; //tmp
+        console.log("dto", dto);
+        const callerLogin = dto.callerLogin; //tmp
         const { otpauthUrl } = await this.authService.generatorTwoFactorAuthenticationSecret(callerLogin);
 
         return this.authService.pipeQrCodeStream(response, otpauthUrl);
@@ -88,38 +71,42 @@ export class AuthController {
     @Post('enable2fa')
     async enable(@Req() request: Request, @Body() dto: TwoFactorAuthenticationDto)
     {
-        const callerLogin = "bditte"; //tmp
-        const isCodeValid = this.authService.isTwoFactorAuthenticationCodeValid(dto.twoFactorAuthenticationCode, callerLogin);
+        console.log("Inside enable");
+        const callerLogin = dto.login;
+        const isCodeValid = await this.authService.isTwoFactorAuthenticationCodeValid(dto.code, callerLogin);
 
+        console.log("code valid", isCodeValid);
         if (!isCodeValid)
             throw new UnauthorizedException('Wrong authentication code');
 
         await this.userService.enableTwoFactorAuthentication(callerLogin);
+        return true;
     }
 
     @Post('disable2fa')
     async disable(@Req() request, @Body() dto: {login: string})
     {
-        const callerLogin = "bditte"; //tmp
+        const callerLogin = dto.login; //tmp
         await this.userService.disableTwoFactorAuthentication(callerLogin);
     }
 
     @Post('submit2fa')
     async submit(@Req() req, @Body() dto: TwoFactorAuthenticationDto)
     {
-        const callerLogin = "kamanfo"; //tmp
-        console.log("user");
-        const isCodeValid = await this.authService.isTwoFactorAuthenticationCodeValid(dto.twoFactorAuthenticationCode, callerLogin);
+        const callerLogin = dto.login;
+
+        const isCodeValid = await this.authService.isTwoFactorAuthenticationCodeValid(dto.code, callerLogin);
 
         console.log("code is valid", isCodeValid);
 
         if (!isCodeValid)
-            throw new UnauthorizedException('Wrong authentication code');
+            return new UnauthorizedException('Wrong authentication code');
         console.log("here");
         const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(callerLogin); // change
 
         req.res.setHeader('Set-Cookie', [accessTokenCookie]);
 
+        //redirect
         return callerLogin
     }
 }

@@ -14,7 +14,6 @@ export class IntraStrategy extends PassportStrategy(Strategy, 'intra') {
         clientSecret: process.env.SECRET_42,
         callbackURL: process.env.REDIRECT_URI_42,
       });
-      console.log(process.env.UID_42, process.env.SECRET_42, process.env.REDIRECT_URI_42)
   }
 
   
