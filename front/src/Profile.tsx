@@ -87,9 +87,6 @@ function UserProfile({ user, photo, login, isFriend, setIsFriend, isBlocked, set
           <p className="mb-1 font-mono text-gray">Rate: {user.gameStats.victories && (user.gameStats.victories / user.gameStats.nbGames) * 100}%</p>
         </div>
         <div className="flex">
-          <p className="mb-1 font-mono text-gray">Haut-Fait: {user.gameStats.nbGames - user.gameStats.victories >= user.gameStats.victories ? "NUL GERMAIN" : "MONSTRUEUX"}</p>
-        </div>
-        <div className="flex">
           <p className="mb-1 font-mono text-gray">Goal Scored: {user.gameStats.goalsScored}</p>
         </div>
         
