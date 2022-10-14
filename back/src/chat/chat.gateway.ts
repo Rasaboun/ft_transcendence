@@ -37,7 +37,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.channelManager.initChannels();
 		this.privChatManager.server = server;
 		this.privChatManager.initPrivChats();
-	
 	}
 
 	async handleConnection(client: Socket){
@@ -62,6 +61,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try
 		{
 			await this.channelManager.joinChannel(client, data);
+			client.chatId = data.channelName;
+			await this.userService.setUserChatId(client.login, data.channelName);
 			console.log(`Client ${client.login} joined channel ${data.channelName}`)
 		}
 		catch (error) { client.emit('error', error.message ) }
@@ -153,6 +154,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try
 		{
+			console.log("channelInfo")
 			await this.channelManager.sendChannelInfo(client, channelName);
 		}
 		catch (error) { client.emit('error', error.message ) }
@@ -230,17 +232,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try{
 			console.log(client.login," joining chat with", targetLogin);
-			this.privChatManager.joinPrivChat(client, targetLogin);
-		}
-		catch (error) { client.emit('error', error.message ) }
-	}
-
-	@SubscribeMessage('privChatLoadMessages')
-	async privChatLoadMessage(client :AuthenticatedSocket, targetLogin: string)
-	{
-		try 
-		{
-			client.emit('privChatLoadMessages', await this.privChatManager.loadMessages(client.login, targetLogin));
+			const chatId = await this.privChatManager.joinPrivChat(client, targetLogin);
+			await this.userService.setUserChatId(client.login, chatId);
+			console.log("chatting with", targetLogin, "in roomId", chatId);
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
@@ -274,7 +268,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async blockUser(client: AuthenticatedSocket, chatName: string)
 	{
 		try {
-			this.privChatManager.blockUser(client, chatName);
+			await this.privChatManager.blockUser(client, chatName);
 		}
 		catch (error) { client.emit('error', error.message); }
 	}
@@ -283,7 +277,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async unblockUser(client: AuthenticatedSocket, chatName: string)
 	{
 		try {
-			this.privChatManager.unblockUser(client, chatName);
+			await this.privChatManager.unblockUser(client, chatName);
 		}
 		catch (error) { client.emit('error', error.message); }
 	}
@@ -292,7 +286,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async getChatInfo(client: AuthenticatedSocket, chatName: string)
 	{
 		try {
-			this.privChatManager.getChatInfo(client, chatName);
+			await this.privChatManager.getChatInfo(client, chatName);
 		}
 		catch (error) { client.emit('error', error.message); }
 	}

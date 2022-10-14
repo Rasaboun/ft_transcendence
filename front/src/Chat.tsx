@@ -44,7 +44,7 @@ function Channel() {
 		</Tab>));
 
   return (
-    <div className="w-full  ">
+    <div className="w-full h-screen">
       <Tab.Group>
         <Tab.List className="flex space-x-1 rounded-xl bg-indigo-300 p-1">
 			{ categoriesTab }

@@ -135,6 +135,7 @@ export default function Game()
 			paddleHeight:  data.gameSettings.paddleHeight,
 			paddleWidth: data.gameSettings.paddleWidth,
 		}))
+		handleResize();
 
 	}
 
@@ -256,7 +257,6 @@ export default function Game()
 
 	function draw() {
 		const context  = canvas.getContext("2d")!;
-
 		if (!context)
 			return ;
 		context.clearRect(

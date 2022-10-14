@@ -1,4 +1,4 @@
-import { UserStatus } from "src/users/type/users.type";
+import { GameStats, UserStatus } from "src/users/type/users.type";
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Photo } from "./Photo";
 
@@ -14,6 +14,9 @@ export class User {
     @Column()
     username: string;
 
+    @Column()
+    password: string;
+
     @JoinColumn({name: 'photoId'})
     @OneToOne(
         () => Photo,
@@ -28,29 +31,24 @@ export class User {
     })
     photoId: number;
 
-    @Column()
-    password: string;
-
-    @Column({
-        default: 0,
+    @Column('json', {
+        default: null,
     })
-    victories: number;
+    gameStats: GameStats;
 
-    @Column({
-        default: 0,
-    })
-    defeats: number;
-
-    @Column({
-        default: 0,
-    })
-    nbGames: number;
 
     @Column({
         default: null,
         nullable: true,
     })
     lobbyId: string;
+
+    @Column({
+        default: null,
+        nullable: true,
+    })
+    chatId: string;
+
 
     @Column({
         nullable: false,

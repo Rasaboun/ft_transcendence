@@ -125,22 +125,31 @@ export async function removeFriend(login: string, friendLogin: string)
     }).catch(e => console.log)
 }
 
-export async function blockUser(callerlogin: string, targetLogin: string)
+export async function blockUser(callerLogin: string, targetLogin: string)
 {
     const url: string = backUrl + "/users/block";
-    await axios.put(url, {callerlogin, targetLogin}).then(res => {
+    await axios.put(url, {callerLogin, targetLogin}).then(res => {
 
     }).catch(e => console.log)
 }
 
-export async function unblockUser(callerlogin: string, targetLogin: string)
+export async function unblockUser(callerLogin: string, targetLogin: string)
 {
     const url: string = backUrl + "/users/unblock";
-    await axios.put(url, {callerlogin, targetLogin}).then(res => {
+    await axios.put(url, {callerLogin, targetLogin}).then(res => {
 
     }).catch(e => console.log)
 }
 
+export async function isInBlocklist(callerLogin: string, targetLogin: string)
+{
+    const url: string = backUrl + "/users/isblocked";
+    const isBlocked: boolean = await axios.get(url, {params: {callerLogin, targetLogin}}).then(res => {
+        return res.data
+    }).catch(e => console.log)
+
+    return isBlocked;
+}
 
 
 

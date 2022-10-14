@@ -15,9 +15,8 @@ export default function RadioFormElem(props :PropsT)
     }
 
 	const OptionsElem = props.options.map((elem, idx) => (
-		<label>
+		<label key={idx} >
 			<input
-			key={idx} 
 				name="mode"
 				type="radio" 
 				value={idx}

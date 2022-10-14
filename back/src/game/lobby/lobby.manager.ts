@@ -117,7 +117,6 @@ export class LobbyManager
 
     public joinLobby(lobbyId: string, client: AuthenticatedSocket)
     {
-        console.log(`Spectacte lobby ${lobbyId}`);
         
         const lobby: Lobby = this.lobbies.get(lobbyId);
         if (!lobby)
@@ -129,7 +128,6 @@ export class LobbyManager
     public joinInvitation(client: AuthenticatedSocket, senderLogin: string): boolean
     {
         let lobby: Lobby = null;
-        console.log("joining invitation from", senderLogin);
         for (let i = 0; i < this.availableLobbies.length; i++)
         {
             const currLobby = this.availableLobbies[i];

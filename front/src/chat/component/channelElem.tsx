@@ -1,6 +1,7 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
 import {
   chatHandler,
+  getChannelInfo,
   getChatSocket,
   getClientInfo,
   getGameSocket,
@@ -16,7 +17,7 @@ import {
   MessageTypes,
   UserStateT,
 } from "../ChatUtils/chatType";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import InfoMessage from "../Elements/InfoMessage";
 import ChannelBoard from "../Elements/channelBoard";
 import useLocalStorage from "../../hooks/localStoragehook";
@@ -28,11 +29,10 @@ import { Disclosure } from "@headlessui/react";
 
 export default function ChannelElem() {
   const { storage, setStorage } = useLocalStorage("user");
-  const { storage2 } = useLocalStorage("channel");
   const navigate = useNavigate();
+  const Locationstate = useLocation().state as {channelName: string}
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
-  const { chatSocket, setChatSocket, setGameSocket, setNotification } =
-    useContext(SocketContext);
+  const { chatSocket, setChatSocket, setGameSocket } = useContext(SocketContext);
   const [form, setForm] = useState({
     message: "",
     invite: "",
@@ -40,6 +40,7 @@ export default function ChannelElem() {
   });
   const [messagesList, setMessagesList] = useState<messageT[]>();
   const [userState, setUserState] = useState<UserStateT>();
+  const [channelInfo, setChannelInfo] = useState<ChannelT>();
   const [mutedTime, setMutedTime] = useState(0);
 
   const scrollToBottom = () => {
@@ -56,8 +57,8 @@ export default function ChannelElem() {
   const handleSubmitMessage = (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (form.message !== "") {
-      sendMessage(storage2!.channelId, form.message);
+    if (form.message !== "" && channelInfo) {
+      sendMessage(channelInfo.channelId, form.message);
     }
 
     setForm((oldForm) => ({
@@ -67,6 +68,9 @@ export default function ChannelElem() {
   };
 
   const handleMessageReceived = (msg: messageT) => {
+    const blockedUsers: string[] = storage.blockedUsers;
+    if (blockedUsers.indexOf(msg.sender!.login) != -1)
+      return ;
     setMessagesList((oldMessagesList) =>
       oldMessagesList === undefined ? [msg] : [...oldMessagesList, msg]
     );
@@ -94,8 +98,12 @@ export default function ChannelElem() {
     clientId: string;
     channelInfo: ChannelT;
   }) => {
-    console.log(data.channelInfo);
-    setStorage("channel", data.channelInfo);
+    console.log(data.channelInfo)
+    if (data.channelInfo.channelId != channelInfo?.channelId)
+    {
+      getChannelInfo(data.channelInfo?.channelId);
+      getClientInfo(data.channelInfo?.channelId);
+    }
   };
 
   const handleIsAlreadyAdmin = () => {
@@ -120,14 +128,16 @@ export default function ChannelElem() {
       isMuted: data.isMuted,
       unmuteDate: data.unmuteDate,
     });
-    if (data.messages?.length !== 0) {
-      setMessagesList(data.messages);
-    }
+    setMessagesList(data.messages);
     if (data.unmuteDate !== 0)
       setMutedTime(
         Math.trunc(data.unmuteDate / 1000 - new Date().getTime() / 1000)
       );
   };
+
+  const handleChannelInfo = (info:ChannelT) => {
+    setChannelInfo(info)
+  }
 
   const handleAddAdmin = (data: { target: string; channelInfo: ChannelT }) => {
     setStorage("channel", data.channelInfo);
@@ -177,15 +187,6 @@ export default function ChannelElem() {
     }
   };
 
-  const handleConnected = () => {
-    console.log("handleConnected");
-    const channel = storage2;
-    if (channel) {
-      console.log(channel);
-      getClientInfo(channel.channelId);
-    }
-  };
-
   const messageElem = messagesList?.map((elem, index) =>
     elem.type === MessageTypes.Info ? (
       <InfoMessage key={index} message={elem} />
@@ -194,8 +195,8 @@ export default function ChannelElem() {
         key={index}
         className={
           elem.sender?.login === storage.login
-            ? "message self-end bg-indigo-400"
-            : "message self-end bg-indigo-800"
+            ? "message  self-end bg-indigo-400"
+            : "message self-start bg-indigo-800"
         }
         message={elem}
       />
@@ -204,17 +205,25 @@ export default function ChannelElem() {
         key={index}
         className={
           elem.sender?.login === storage.login
-            ? "message self-end bg-indigo-400"
-            : "message self-end bg-indigo-800"
+            ? "message  self-end bg-indigo-400"
+            : "message self-start bg-indigo-800"
         }
         message={elem}
       />
     )
   );
 
+  function isStateOk(obj: any): obj is {ChannelName:string} {
+    return (
+      typeof obj === 'object' &&
+      obj !== null &&
+      'ChannelName' in obj
+    );
+  }
+  
+
   useEffect(() => {
-    const channel = storage2;
-    initiateSocket("http://localhost:${process.env.SOCKET_PORT}");
+    initiateSocket("http://localhost:${process.env.REACT_APP_SOCKET_PORT}");
     setChatSocket(getChatSocket());
     setGameSocket(getGameSocket());
     if (chatSocket) {
@@ -229,11 +238,13 @@ export default function ChannelElem() {
         upgradeToOwner,
         handleIsAlreadyAdmin,
         handleChannelJoined,
-        handleConnected
+        handleChannelInfo
       );
     }
-    if (channel) getClientInfo(channel.channelId);
-  }, [chatSocket]);
+      console.log(Locationstate)
+      getChannelInfo(Locationstate.channelName);
+      getClientInfo(Locationstate.channelName);
+  }, [chatSocket?.connected]);
 
   useEffect(() => {
     scrollToBottom();
@@ -250,55 +261,26 @@ export default function ChannelElem() {
   }, [mutedTime]);
 
   return (
-    <Loader condition={chatSocket?.connected}>
-      <div className="flex flex-col-reverse sm:flex-row">
-        <div className="hidden sm:contents">
-          <ChannelBoard userState={userState} />
-        </div>
-        <div className="sm:hidden">
-          <Disclosure>
-            {({ open }) => (
-              /* Use the `open` state to conditionally change the direction of an icon. */
-              <>
-              <div className="bg-indigo-600 rounded-lg mx-20 text-white ">
-                <Disclosure.Button className="flex w-full justify-between px-2 py-2">
-                  <p>Settings</p>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    className={open ? "w-5 h-5 rotate-90 transform" : "w-5 h-5"}
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </Disclosure.Button>
-                </div>
-                <Disclosure.Panel>
-                <ChannelBoard userState={userState} />
-                </Disclosure.Panel>
-              </>
-            )}
-          </Disclosure>
-        </div>
-        <div className="chat-right bg-indigo-50">
-          <div className="h-96 ">
-            <div className="message-container">
-              {messageElem}
-              <div ref={lastMessageRef} />
-            </div>
-          </div>
-          <MessageInput
-            mutedTime={mutedTime}
-            handleChange={handleChange}
-            handleSubmitMessage={handleSubmitMessage}
-            value={form.message}
-          />
-        </div>
-      </div>
-    </Loader>
+	<Loader condition={chatSocket?.connected && channelInfo !== undefined}>
+		<div className="flex flex-col-reverse md:flex-row">
+			
+			<ChannelBoard userState={userState} channel={channelInfo} setChannelInfo={setChannelInfo}/>
+			
+			<div className="chat-right bg-indigo-50">
+			<div className="h-96 ">
+				<div className="message-container">
+				{messageElem}
+				<div ref={lastMessageRef} />
+				</div>
+			</div>
+			<MessageInput
+				mutedTime={mutedTime}
+				handleChange={handleChange}
+				handleSubmitMessage={handleSubmitMessage}
+				value={form.message}
+			/>
+			</div>
+		</div>
+	</Loader>
   );
 }

@@ -1,17 +1,23 @@
 export interface Iuser {
 	blockedUsers:  string[],
-	defeats: number,
 	id: number,
 	intraLogin:string,
 	lobbyId:string,
-	nbGames:number,
 	password: string,
 	photoUrl: string,
 	roomId: string,
 	status: number,
 	username: string,
-	victories: number
+	gameStats: GameStats,
 
+}
+
+export interface Imatch {
+    playerOneLogin: string;
+    playerTwoLogin: string;
+    playerOneScore: number;
+    playerTwoScore: number;
+	winnerLogin: string;
 }
 
 export enum UserStatus {
@@ -24,4 +30,12 @@ export type Friend = {
     login: string,
     username: string,
     status: UserStatus,
+}
+
+export type GameStats = {
+    victories: number,
+    defeats: number,
+    nbGames: number,
+    goalsScored: number,
+    goalsTaken: number,
 }

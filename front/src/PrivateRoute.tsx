@@ -5,7 +5,6 @@ export { PrivateRoute };
 
 function PrivateRoute() {
     const { storage } = useLocalStorage("token");
-	console.log(storage)
     return (
 				!storage ?
 					<Navigate to='/login'/> :  <Outlet/>

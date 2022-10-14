@@ -65,6 +65,7 @@ export class AuthService {
                 username: user.username,
                 image: user.photo,
                 roomId: user.roomId,
+                blockedUsers: user.blockedUsers,
             }
         }
     }
@@ -79,6 +80,8 @@ export class AuthService {
         client.roomId = tokenData.roomId;
         client.lobby = null;
         client.lobbyId = await this.userService.getUserLobby(client.login);
+        client.chatId = await this.userService.getUserChatId(client.login);
+        console.log("Joining roomId:", client.roomId);
         client.join(client.roomId);
         await this.userService.setUserStatus(client.login, UserStatus.online);
         

@@ -24,21 +24,18 @@ export default function LoginElem ()
 		e.preventDefault()
 		if (authForm.username !== "" && authForm.password != "")
 		{
-			const url = button ? `http://localhost:3002/auth/login` :
-								`http://localhost:3002/auth/signup`
+			const url = button ? `http://localhost:${process.env.REACT_APP_BACK_PORT}/auth/login` :
+								`http://localhost:${process.env.REACT_APP_BACK_PORT}/auth/signup`
 
 			axios.post(url, { ...authForm }).then(res => {
 				if (button)
 				{
 					if (res.data.user)
 					{
-						console.log(res.data.user)
-					const myVar = process.env.REACT_APP_SOCKET_PORT;
-					console.log("var env SOCKET_PORT : ", myVar);
 						setStorage("token", res.data.access_token)
 						setStorage("user", res.data.user);
 
-						initiateSocket("http://localhost:8002")
+						initiateSocket(`http://localhost:${process.env.REACT_APP_SOCKET_PORT}`)
 						
 						setChatSocket(getChatSocket())
 						setGameSocket(getGameSocket())
