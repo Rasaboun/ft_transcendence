@@ -1,7 +1,6 @@
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useLocalStorage from "./hooks/localStoragehook";
 import { backUrl, submitTwoFactorAuthentication } from "./Requests/users";
 
 export default function TwoFactorAuth()
