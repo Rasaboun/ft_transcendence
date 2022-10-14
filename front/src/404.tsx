@@ -18,7 +18,10 @@ export default function ErrorPage()
 		<div className="flex-1" style={{
 			display: "flex",
 			justifyContent: "center",
-			alignItems: "center"
+			alignItems: "center",
+			padding: "400px",
+			fontSize: "150px",
+			color: "blue"
 		}}>
 			404 not found
 		</div>
