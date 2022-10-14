@@ -64,7 +64,7 @@ export default function NavBar() {
       setStorage("user", { ...storage, image: file });
     };
     getPhoto();
-    initiateSocket("http://localhost:${process.env.REACT_APP_SOCKET_PORT}");
+    initiateSocket();
     setChatSocket(getChatSocket());
     setGameSocket(getGameSocket());
   }, [image, location.pathname]);

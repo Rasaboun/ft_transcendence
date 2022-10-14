@@ -41,21 +41,21 @@ export class AuthController {
         const user = req.user;
         if (req.user == null)
         {
-            res.redirect('http://localhost:3000/login');
+            res.redirect(`${process.env.FRONT_ADDRESS}:${process.env.FRONT_PORT}/login`);  
             return ;
         }
   
         if (req.user.isTwoFactorAuthenticationEnabled)
         {
-            res.cookie('login', req.user.intraLogin);   
-            res.redirect('http://localhost:3000/TwofactorAuth');
+            res.cookie('login', req.user.intraLogin); 
+            res.redirect(`${process.env.FRONT_ADDRESS}:${process.env.FRONT_PORT}/TwofactorAuth`);  
             return ;
         }
 
         const cookie = await this.authService.getCookieWithJwtAccessToken(req.user.intraLogin);
   
         res.setHeader('Set-Cookie', cookie);
-        res.redirect('http://localhost:3000/');
+        res.redirect(`${process.env.FRONT_ADDRESS}:${process.env.FRONT_PORT}`);
 
     }
 
@@ -101,6 +101,6 @@ export class AuthController {
     @Get('navigate')
     async navigate(@Res() res)
     { 
-        res.redirect('http://localhost:3000/');
+        res.redirect(`${process.env.FRONT_ADDRESS}:${process.env.FRONT_PORT}`);
     }
 }

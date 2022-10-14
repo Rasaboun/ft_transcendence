@@ -70,7 +70,7 @@ export default function ChannelMenu()
 
 	useEffect(() => {
 
-		initiateSocket("http://localhost:${process.env.SOCKET_PORT}")
+		initiateSocket()
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
 		getActiveChannels()

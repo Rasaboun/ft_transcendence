@@ -7,12 +7,14 @@ let socket:Socket
 let chatSocket:Socket
 let gameSocket:Socket
 
-export async function initiateSocket(url:string)
+export async function initiateSocket()
 {
 	let token = getToken();
 	if (!token)
 		return;
 	console.log("Token", token);
+	const url = `${process.env.REACT_APP_BACK_ADDRESS}:${process.env.REACT_APP_SOCKET_PORT}`
+	console.log('connecting on ', url);
 	token = JSON.parse(token);	
 	if (!chatSocket)
 	{
@@ -176,7 +178,6 @@ export function chatHandler(handleMessageReceived:any,
 
 
 export function getChatInfo(chatName: string){
-	console.log("sending info");
 	chatSocket?.emit('getPrivChatInfo', chatName);
 }
 
@@ -218,15 +219,6 @@ export function chatHandlerPrivEl(handlePrivMessageReceived:any,
 	chatSocket.on('privChatInfo', (data:ChatInfoT) => handleChatInfo(data))
 }
 
-// export function appSocketRoutine(handleSession:any) {
-// 	chatSocket.on('connection', (chatSocket) => {console.log('a user connected on chatSocket', chatSocket)});
-// 	chatSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, chatSocket));
-// 	chatSocket.on("connect_error", (err) => {console.log(`connect_error due to ${err.message}`)});
-// 	chatSocket.on("Connect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
-// 	chatSocket.on("Error", (err) => {console.log(`connect_error due to ${err.message}`)});
-// 	chatSocket.on("Reconnect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
-// 	chatSocket.on("msgToChannel", (msg:messageT) => {console.log(`message receive from ${msg.sender?.username}`)})      
-// }
 
 //////////////// GAME SOCKET /////////////////////
 
@@ -290,7 +282,6 @@ export function GameMenuHandler(
 			handleSession:any,
 			handleWaitingForOpponent:any)
 {
-	console.log(gameSocket)
 	gameSocket.on('activeGames',(availableLobbies:availableLobbiesT) => handleAvailableLobbies(availableLobbies))
 	gameSocket.on('goalScored', (players: any) => handleGoalScored(players));
 	gameSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, gameSocket));

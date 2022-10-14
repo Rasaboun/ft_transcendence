@@ -7,7 +7,7 @@ import "../game.css"
 import { GameData, GameState } from "../GameUtils/type"
 import PlayersScores from "./playerScores"
 
-const url: string = "http://localhost:${process.env.BACK_PORT}/users/profile/";
+const url: string = `${process.env.REACT_APP_BACK_ADDRESS}:${process.env.REACT_APP_BACK_PORT}/users/profile/`;
 
 type propsType = {
     gameData: GameData
@@ -21,10 +21,9 @@ export default function Score({ gameData }:propsType)
 		if (gameData.players[0].id !== "" && gameData.players[1].id !== "")
 		{
 			const getProfile = async (login:string) => {
-				const user = await axios.get<Iuser>(url, {params : {login:login}}).then((response) => {
-					return response.data;
-				});
-
+			const user = await getUserProfile(login);
+			if (!user)
+				return ;
 			const userPhoto = await getUserPhoto(login);
 			user.photoUrl = userPhoto;
 				setUsers((prevUser) => {prevUser.push(user)

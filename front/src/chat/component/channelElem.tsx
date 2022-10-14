@@ -232,7 +232,7 @@ export default function ChannelElem() {
   
 
   useEffect(() => {
-    initiateSocket("http://localhost:${process.env.REACT_APP_SOCKET_PORT}");
+    initiateSocket();
     setChatSocket(getChatSocket());
     setGameSocket(getGameSocket());
     if (chatSocket) {

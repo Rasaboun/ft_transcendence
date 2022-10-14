@@ -3,12 +3,26 @@ import { Friend, Iuser } from "../Utils/type";
 import { Buffer } from 'buffer'
 import Cookies from "js-cookie";
 import useLocalStorage from "../hooks/localStoragehook";
-export const backUrl = "http://localhost:3002"; 
+import { UsersIcon } from "@heroicons/react/outline";
+
+export const backUrl = `${process.env.REACT_APP_BACK_ADDRESS}:${process.env.REACT_APP_BACK_PORT}`;
+
+
 
 export enum UserStatus {
     offline,
     online,
     ingame,
+}
+
+export async function getUsers(login :string): Promise<Iuser[] | null>
+{
+    const url: string = backUrl + "/users/";
+    let users: Iuser[] = [];
+    await axios.get<Iuser[]>(url, {params: {login}}).then(res => {
+        users = res.data;
+    }).catch(e => console.log)
+    return users;
 }
 
 export async function getUserProfile(login :string): Promise<Iuser | null>
@@ -73,7 +87,6 @@ export async function getFriendship(callerLogin: string, targetLogin: string): P
     const url: string = backUrl + "/users/isFriend";
     
     const friendList = await axios.get(url, {params: {callerLogin, targetLogin}}).then(res => {
-        console.log(res.data)
         return res.data;
     })
 

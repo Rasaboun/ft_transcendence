@@ -8,7 +8,7 @@ export default function ErrorPage()
 	const navigate = useNavigate()
 	const {chatSocket, setChatSocket, setGameSocket, gameSocket} = useContext(SocketContext)
 	useEffect(() => {
-		initiateSocket("http://localhost:${process.env.SOCKET_PORT}")
+		initiateSocket()
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
 		chatSocket?.on("connect", () => {navigate(-1)})

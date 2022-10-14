@@ -97,7 +97,7 @@ export default function PrivChatElem()
   }, [messagesList]);
 
   useEffect(() => {
-    initiateSocket("http://localhost:${process.env.REACT_APP_SOCKET_PORT}");
+    initiateSocket();
     setChatSocket(getChatSocket());
     if (chatSocket) {
       chatHandlerPrivEl(

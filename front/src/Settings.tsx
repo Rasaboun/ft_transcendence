@@ -11,8 +11,7 @@ type settingsForm = {
 	username: string,
 	image: File,
 }
-
-const url: string = "http://localhost:3002/users/";
+;
 
 function QRcodeModal({ setOpen, setEnabled } : { setOpen: (value:boolean) => void, setEnabled: (value:boolean) => void })
 {

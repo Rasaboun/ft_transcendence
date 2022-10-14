@@ -4,8 +4,8 @@ import "./output.css";
 import { Link } from "react-router-dom";
 import { Iuser } from "./Utils/type";
 import "./index.css"
-
-const url: string = "http://localhost:${process.env.BACK_PORT}/users/";
+import { getUsers } from "./Requests/users";
+import useLocalStorage from "./hooks/localStoragehook";
 
 function sortUsers (a:Iuser, b:Iuser)
 {
@@ -31,17 +31,17 @@ function TabElement(props:any) {
 
 function Tabulation() {
   const [users, setUsers] = React.useState<Iuser[]>([]);
+  const { storage } = useLocalStorage("user");
 
   useEffect(() => {
-    axios
-      .get(url)
-      .then((response) => {
-        setUsers(response.data);
-        console.log(response);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      const fetchUsers = async () => {
+        
+        const usersData = await getUsers(storage.login);
+        if (!usersData)
+          return ;
+        setUsers(usersData);
+      }
+      fetchUsers();
   }, []);
 
   return (

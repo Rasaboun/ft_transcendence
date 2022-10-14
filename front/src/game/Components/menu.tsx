@@ -67,7 +67,7 @@ export default function Menu()
     }
 
 	useEffect(() => {
-        initiateSocket("http://localhost:${process.env.SOCKET_PORT}")
+        initiateSocket()
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
         if (parseInt(storage2) === GameState.Started)

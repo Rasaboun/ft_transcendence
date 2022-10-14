@@ -68,7 +68,7 @@ export default function App()
 	useEffect(() => {
 		if (getToken() != undefined)
 		{
-			initiateSocket("http://localhost:${process.env.SOCKET_PORT}")
+			initiateSocket()
 			setChatSocket(getChatSocket())
 			setGameSocket(getGameSocket())
 			appSocketRoutine(handleGameOver, handleError, handleConnectionError);
