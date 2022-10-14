@@ -44,15 +44,17 @@ export function getGameSocket()
 }
 
 export function appSocketRoutine(handleGameOver:any,
-								handleError:any) {
-	chatSocket.on("connect", () => {
-	})
-	chatSocket.on("connect_error", (err) => {console.log(`connect_error due to ${err.message}`)});
+								handleError:any,
+								handleConnectionError:any
+								) {
+
+	chatSocket.on("connect_error", (err) => {handleConnectionError()});
 	chatSocket.on("Connect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
 	chatSocket.on('error', (message:string) => handleError(message))	
 	chatSocket.on("Reconnect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
 	chatSocket.on("msgToChannel", (msg:messageT) => {console.log(`message receive from ${msg.sender?.username}`)})
 	gameSocket.on('gameOver', (winnerId: string) => handleGameOver(winnerId))
+	chatSocket.on('channelDeleted', (message:string) =>handleError(message))
 }
 
 export function createChannel(channelForm:channelFormT) {
@@ -80,8 +82,11 @@ export function getActiveChannels() {
 }
 
 export function getClientInfo(channelName:string) {
-	console.log("In client info", chatSocket.connected)
 	chatSocket?.emit("clientInfo", channelName);
+}
+
+export function getChannelInfo(channelName:string) {
+	chatSocket?.emit("channelInfo", channelName)
 }
 
 export function banUser(data: ActionOnUser) {
@@ -151,7 +156,7 @@ export function chatHandler(handleMessageReceived:any,
 							newOwner:any,
 							handleIsAlreadyAdmin:any,
 							handleChannelJoined:any,
-							handleConnected:any)
+							handleChannelInfo:any)
 {
 	chatSocket.on("msgToChannel", (msg:messageT) => handleMessageReceived(msg))      
 	chatSocket.on('channelDeleted', (message:string) => handleChannelDeleted(message))
@@ -161,6 +166,7 @@ export function chatHandler(handleMessageReceived:any,
 	chatSocket.on('addAdmin', (data: {target: string, channelInfo: ChannelT}) => handleAddAdmin(data))
 	chatSocket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
 	chatSocket.on('leftChannel', (channelInfo:ChannelT) => handleLeftChannel(channelInfo))
+	chatSocket.on('channelInfo', (info:ChannelT) => handleChannelInfo(info))
 	chatSocket.on('newOwner', (data: {target: string, channelInfo: ChannelT}) => newOwner(data))
 	chatSocket.on('isAlreadyAdmin', handleIsAlreadyAdmin)
 }
@@ -198,7 +204,7 @@ export function unblockInChat(chatName: string)
 
 export function privChatMenuHandler(
 	loadConnectedUser:any,
-	handlePrivChatJoined:any)
+	)
 {
 chatSocket.on("listOfConnectedUsers", (userList:{intraLogin: string, username: string}[]) => loadConnectedUser(userList));
 // chatSocket.on("joinedPrivChat", () => handlePrivChatJoined());

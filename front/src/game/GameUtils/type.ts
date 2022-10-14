@@ -1,6 +1,5 @@
 
 export enum GameState {
-  None,
 	Started,
 	Stopped,
 	Waiting,
@@ -42,6 +41,11 @@ export interface GameData{
   ball: Ball,
   state: GameState,
   winnerUsername: string
+}
+
+export interface DrawingSettings {
+  paddleHeight: number,
+  paddleWidth: number,
 }
 
 export interface GameSettings {

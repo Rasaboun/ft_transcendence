@@ -9,9 +9,9 @@ const url: string = "http://localhost:3002/users/";
 
 function sortUsers (a:Iuser, b:Iuser)
 {
-	if (b.victories != a.victories)
-		return (b.victories - a.victories)
-	return (a.defeats - b.defeats)
+	if (b.gameStats.victories != a.gameStats.victories)
+		return (b.gameStats.victories - a.gameStats.victories)
+	return (a.gameStats.defeats - b.gameStats.defeats)
 }
 
 function TabElement(props:any) {
@@ -21,10 +21,10 @@ function TabElement(props:any) {
         {props.rank}
       </th>
       <Link to={"/profile/" + props.user.intraLogin}>
-    	<td className="py-4 px-6">{props.user.username}</td>
+    	  <td className="py-4 px-6">{props.user.username}</td>
       </Link>
-      <td className="py-4 px-6">{props.user.victories}</td>
-      <td className="py-4 px-6">{props.user.defeats}</td>
+      <td className="py-4 px-6">{props.user.gameStats.victories}</td>
+      <td className="py-4 px-6">{props.user.gameStats.defeats}</td>
     </tr>
   );
 }
@@ -75,7 +75,7 @@ function Tabulation() {
 
 export default function Dashboard() {
   return (
-    <div id="Dashboard" className="flex-1 h-3/4">
+    <div id="Dashboard" className="flex-1 h-3/4 h-screen">
       <header className="page-header shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <h1 className="page-title">Dashboard</h1>

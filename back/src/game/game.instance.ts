@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/core/injector/module";
 import { string } from "joi";
+import { matchDto } from "src/match/dto/match.dto";
 import { Lobby } from "./lobby/lobby";
 import { GameData, GameMode, GameSettings, GameState, Player } from "./types/game.type";
 import { getMiniModeSettings, getNormalModeSettings, initGameData } from "./utils/game.settings";
@@ -59,7 +60,6 @@ export class GameInstance
 		{
 			if (nextPos.x - this.gameData.ball.radius < this.settings.paddleWidth)
 			{
-				 //this.updateBall(this.gameData.ball.x, this.gameData.ball.y, (Math.random() * Math.PI) / 2 - Math.PI / 4);
 				return true;
 			}
 		}
@@ -73,7 +73,7 @@ export class GameInstance
 		{
 			if (nextPos.x + this.gameData.ball.radius > this.settings.width - this.settings.paddleWidth)
 			{
-				return true;//return this.updateBall(this.gameData.ball.x, this.gameData.ball.y, (Math.random() * Math.PI) / 2 - Math.PI / 4 + Math.PI);
+				return true;
 			}
 		}
 		return false;
@@ -92,7 +92,6 @@ export class GameInstance
         {
 			const nextPos = {	x: this.gameData.ball.x + this.gameData.ball.delta.x,
 								y: this.gameData.ball.y + this.gameData.ball.delta.y };
-			//console.log("Players", this.gameData.players);
             if (this.checkGoals(nextPos) == true)
             {
 				this.handleGoal(nextPos)
@@ -101,7 +100,16 @@ export class GameInstance
 			else
 			{
 				if (this.ballHitsLeftPaddel(nextPos) || this.ballHitsRightPaddel(nextPos))
-					this.gameData.ball.delta.x *= -1;
+				{
+					if (this.gameData.nbHits < this.settings.maxHits)
+					{
+						this.gameData.ball.delta.x *= -1.05;
+						this.gameData.nbHits++;
+					}
+					else
+						this.gameData.ball.delta.x *= -1;
+
+				}
 				else if (this.ballHitsTopOrBottom(nextPos))
 					this.gameData.ball.delta.y *= -1;
 
@@ -112,7 +120,7 @@ export class GameInstance
             
         }
 		if (this.gameData.state != GameState.Stopped)
-			setTimeout(() => this.gameLoop(), 30);
+			setTimeout(() => this.gameLoop(), 10);
 
     }
 
@@ -194,6 +202,16 @@ export class GameInstance
 	public getGameData()
 	{
 		return {gameData: this.gameData, gameSettings: this.settings};
+	}
+
+	public getResultData(): matchDto
+	{
+		return {
+			playerOneLogin: this.gameData.players[0].id,
+			playerTwoLogin: this.gameData.players[1].id,
+			playerOneScore: this.gameData.players[0].score,
+			playerTwoScore: this.gameData.players[1].score,
+		}
 	}
 
     public playersId(): string[]

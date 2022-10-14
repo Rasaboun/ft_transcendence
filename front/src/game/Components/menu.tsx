@@ -8,6 +8,7 @@ import { SocketContext } from '../../Context/socketContext';
 import { GameMenuHandler, getActiveGames, getChatSocket, getGameSocket, initiateSocket, joinQueue, Menucleaner, spectacteGame } from '../../Utils/socketManager';
 import GameRadioForm from '../../Elements/radioFormElem';
 import RadioFormElem from '../../Elements/radioFormElem';
+import Loader from '../../Elements/loader';
 
 let socket:Socket
 
@@ -41,7 +42,6 @@ export default function Menu()
 	}
     
     const handleSession = (sessionInfo:{ sessionId:string, roomId:string }, sock:Socket) => {
-		console.log("In session menu", sessionInfo)
 		if (sock)
 		{
 			setStorage("sessionId", sessionInfo.sessionId);
@@ -56,7 +56,6 @@ export default function Menu()
     }
 
     const handleWaitingForOpponent = () => {
-        console.log("Received waiting");
         navigate("game")
     }
 
@@ -73,6 +72,7 @@ export default function Menu()
 		setGameSocket(getGameSocket())
         if (parseInt(storage2) === GameState.Started)
             navigate("game")
+
         if (gameSocket)
         {
             getActiveGames()
@@ -83,7 +83,7 @@ export default function Menu()
                 handleWaitingForOpponent)
         }
         return (() => Menucleaner(handleAvailableLobbies, handleGoalScored))
-    }, [])
+    }, [gameSocket?.connected])
 
     const lobbiesElements:any = availableLobbies?.map((elem) => 
     <LobbyItem key={elem.lobbyId} 
@@ -92,7 +92,6 @@ export default function Menu()
         spectateMode={spectateMode}
         />)
 
-    console.log("gameMode", gameMode)
     return (
         <div>
             <form className="channel-form" onSubmit={handleSubmit}>
@@ -102,7 +101,9 @@ export default function Menu()
                 </button>
 				</form>           
             <ul>
-                {lobbiesElements}
+                <Loader condition={availableLobbies !== undefined}>
+                    {lobbiesElements}
+                </Loader>
             </ul>
         </div>
     )

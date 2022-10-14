@@ -4,12 +4,17 @@ import { Repository } from "typeorm";
 import { Channel } from "src/typeorm";
 import { ActionOnUser, ChannelClient, ChannelModes, CreateChannel, InviteClient, Message, SetChannelPassword } from "../types/channel.type";
 import * as bcrypt from 'bcrypt';
+import { UsersService } from "src/users/users.service";
 @Injectable()
 export class ChannelsService {
-    @InjectRepository(Channel)
-    private channelRepository: Repository<Channel>
     
     private readonly saltRounds: number = 10;
+	
+    constructor(
+		@InjectRepository(Channel)
+        private channelRepository: Repository<Channel>,
+		private readonly usersService: UsersService,
+	) {}
 
     findAll() {
         return this.channelRepository.find();
@@ -56,6 +61,9 @@ export class ChannelsService {
             throw new NotFoundException(`Client ${clientId} is not member of channel ${channelName}`);
         
         channel.clients.splice(userIndex , 1);
+        const inviteIndex = channel.inviteList.indexOf(clientId);
+        if (inviteIndex >= 0)
+            channel.inviteList.splice(inviteIndex , 1);
         await this.channelRepository.update(channel.id, channel);
     }
 
@@ -272,6 +280,7 @@ export class ChannelsService {
         const channel: Channel = await this.findOneById(channelName);
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
+        console.log(password, channel.password);
         return bcrypt.compareSync(password, channel.password);
 
     }
@@ -314,13 +323,25 @@ export class ChannelsService {
         return index == -1 ? false : true;
     }
 
-    async getMessages(channelName: string) {
+    async updateMessages(channelName: string)
+    {
         const channel: Channel = await this.findOneById(channelName);
+        if (channel == undefined)
+            throw new NotFoundException("This channel does not exist");
+        
+        let clients: Map<string, string> = new Map<string, string>();
 
-        if (!channel)
-            throw new NotFoundException("Channel not found");
+        for (const user of channel.clients)
+        {
+            const userInDb = await this.usersService.findOneByIntraLogin(user.id);
+            clients.set(userInDb.intraLogin, userInDb.username);
+        }
 
-        return channel.messages;
+        for (let i = 0; i < channel.messages.length; i++)
+        {
+            channel.messages[i].sender.username = clients.get(channel.messages[i].sender.login);
+        }
+        await this.channelRepository.update(channel.id, channel);
     }
 
     async getClientMessages(channelName: string, clientId: string): Promise<Message[]>
@@ -328,6 +349,7 @@ export class ChannelsService {
         const channel: Channel = await this.findOneById(channelName);
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
+        await this.updateMessages(channelName);
 
         const index = this.getClientIndex(channel.clients, clientId);
         if (index == -1)
@@ -337,7 +359,14 @@ export class ChannelsService {
         let firstMessage = 0;
         while (firstMessage < channel.messages.length && joinedDate > new Date(channel.messages[firstMessage].date))
             firstMessage++;
-        return channel.messages.slice(firstMessage);
+        let messagesList: Message[] = [];
+        const blockList = (await this.usersService.findOneByIntraLogin(clientId)).blockedUsers;
+        for (let i = firstMessage; i < channel.messages.length; i++)
+        {
+            if (blockList.indexOf(channel.messages[i].sender.login) == -1)
+                messagesList.push(channel.messages[i]);
+        }
+        return messagesList;
 
     }
 

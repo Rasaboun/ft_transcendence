@@ -4,6 +4,7 @@ import './output.css';
 import reportWebVitals from './reportWebVitals';
 import App from './App';
 import { SocketContextProvider } from './Context/socketContext';
+import { BrowserRouter } from 'react-router-dom';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -14,7 +15,9 @@ rootdiv?.classList.add("flex-col");
 rootdiv?.classList.add("h-screen");
 root.render(
 	<SocketContextProvider>
-		<App />
+		<BrowserRouter>
+			<App />
+		</BrowserRouter>
 	</SocketContextProvider>
 );
 

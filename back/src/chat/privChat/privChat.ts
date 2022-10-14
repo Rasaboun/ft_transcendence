@@ -33,7 +33,7 @@ export class PrivChat
 		return res;
 	}
 
-    public sendMessage(msg: Message) { console.log("sending to", this.name); this.server.to(this.name).emit("msgToPrivChat", msg)}
+    public sendMessage(msg: Message) { this.server.to(this.name).emit("msgToPrivChat", msg)}
 
 	public getRoomId(login: string)
 	{

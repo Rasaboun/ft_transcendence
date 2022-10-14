@@ -4,7 +4,7 @@ import { createUserDto } from 'src/users/dto/createUser.dto';
 import { User } from 'src/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import { UserStatus } from './type/users.type';
+import { Friend, initGameStats, MatchInfo, UserStatus } from './type/users.type';
 import { PhotoService } from './photo/photo.service';
 import { Photo } from 'src/typeorm/Photo';
 
@@ -27,11 +27,14 @@ export class UsersService {
       
         const caller = await this.findOneByIntraLogin(callerLogin);
         
-        caller.blockedUsers.push(targetLogin);
-        await this.userRepository.update(
-            caller.id,
-            caller,
-            )
+        if (caller.blockedUsers.indexOf(targetLogin) == -1)
+        {
+            caller.blockedUsers.push(targetLogin);
+            await this.userRepository.update(
+                caller.id,
+                caller,
+                )
+        }
     }
 
     async unblockUser(callerLogin: string, targetLogin: string) {
@@ -95,6 +98,7 @@ export class UsersService {
         }
 
         const newUser = this.userRepository.create(userDto);
+        newUser.gameStats = initGameStats();
         return await this.userRepository.save(newUser);
     }
     
@@ -110,20 +114,28 @@ export class UsersService {
             await this.userRepository.delete(username);
     }
 
-    async updateGameStats(players)
+    async updateGameStats(matchInfo: MatchInfo)
     {
-        const winner = await this.findOneByIntraLogin(players.winnerLogin);
-        const loser = await this.findOneByIntraLogin(players.loserLogin);
+        const winner = await this.findOneByIntraLogin(matchInfo.winnerLogin);
+        const loser = await this.findOneByIntraLogin(matchInfo.loserLogin);
 
-        winner.victories++;
-        winner.nbGames++;
+        winner.gameStats.victories++;
+        winner.gameStats.nbGames++;
+        winner.gameStats.goalsScored += matchInfo.winnerScore;
+        winner.gameStats.goalsTaken += matchInfo.loserScore;
+        if (winner.status == UserStatus.ingame)
+            winner.status = UserStatus.online;
         await this.userRepository.update(
             winner.id,
             winner
         );
 
-        loser.defeats++;
-        loser.nbGames++;
+        loser.gameStats.defeats++;
+        loser.gameStats.nbGames++;
+        loser.gameStats.goalsScored += matchInfo.loserScore;
+        loser.gameStats.goalsTaken += matchInfo.winnerScore;
+        if (loser.status == UserStatus.ingame)
+            loser.status = UserStatus.online;
         await this.userRepository.update(
             loser.id,
             loser
@@ -194,6 +206,36 @@ export class UsersService {
         await this.userRepository.update(user.id, user);
     }
 
+    async addFriend(login: string, newFriendLogin: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        if (!user)
+            return ;
+        user.friendList.push(newFriendLogin);
+        await this.userRepository.update(user.id, user);
+
+    }
+
+    async removeFriend(login: string, friendLogin: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        if (!user)
+            return ;
+        const index = user.friendList.indexOf(friendLogin);
+        if (index == -1)
+            return ;
+        user.friendList.splice(index, 1);
+        await this.userRepository.update(user.id, user);
+        return await this.getFriends(login);
+
+    }
+
+    async isFriend(callerLogin: string, targetLogin: string)
+    {
+        const caller = await this.findOneByIntraLogin(callerLogin);
+        return caller.friendList.indexOf(targetLogin) == -1 ? false : true;
+    }
+
     async getUserUsername(login: string): Promise<string> {
 
         const user = await this.findOneByIntraLogin(login);
@@ -213,10 +255,42 @@ export class UsersService {
         await this.userRepository.update(user.id, user);
     }
 
+    async getUserChatId(login: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        return user.chatId;
+    }
+
+    async setUserChatId(login: string, newChat: string | null)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        user.chatId = newChat;
+        await this.userRepository.update(user.id, user);
+    }
+    
+
     async getUserRoomId(login: string)
     {
         const user = await this.findOneByIntraLogin(login);
         return user.roomId;
     }
 
+    async getFriends(login: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+        if (!user)
+            return ;
+        let friends: Friend[] = [];
+        
+        for(const friendLogin of user.friendList)
+        {
+            const friend = await this.findOneByIntraLogin(friendLogin);
+            friends.push({
+                login: friend.intraLogin,
+                username: friend.username,
+                status: friend.status,
+            })
+        }
+        return friends;
+    }
 }

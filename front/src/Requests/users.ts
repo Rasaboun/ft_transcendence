@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Iuser } from "../Utils/type";
+import { Friend, Iuser } from "../Utils/type";
 import { Buffer } from 'buffer'
 import Cookies from "js-cookie";
 import useLocalStorage from "../hooks/localStoragehook";
@@ -57,6 +57,30 @@ export async function getUserPhoto(login: string): Promise<string>
     return photo;
 }
 
+export async function getUserFriends(login: string): Promise<Friend[]>
+{
+    const url: string = backUrl + "/users/friendList";
+    
+    const friendList = await axios.get(url, {params: {login}}).then(res => {
+        return res.data;
+    })
+
+    return friendList;
+}
+
+export async function getFriendship(callerLogin: string, targetLogin: string): Promise<boolean>
+{
+    const url: string = backUrl + "/users/isFriend";
+    
+    const friendList = await axios.get(url, {params: {callerLogin, targetLogin}}).then(res => {
+        console.log(res.data)
+        return res.data;
+    })
+
+    return friendList;
+}
+
+
 export async function setUserStatus(login: string, status: UserStatus)
 {
     const url: string = backUrl + "/users/status";
@@ -85,19 +109,35 @@ export async function setUserPhoto(login: string, photo: File)
     }).catch(e => console.log)
 }
 
+export async function addFriend(login: string, friendLogin: string)
+{
+    const url: string = backUrl + "/users/friend";
 
-export async function blockUser(callerlogin: string, targetLogin: string)
+    await axios.put(url, {login, friendLogin}).then(res => {
+    }).catch(e => console.log)
+}
+
+export async function removeFriend(login: string, friendLogin: string)
+{
+    const url: string = backUrl + "/users/friend";
+
+    return await axios.delete(url, {data: {login, friendLogin}}).then(res => {
+        return res.data;
+    }).catch(e => console.log)
+}
+
+export async function blockUser(callerLogin: string, targetLogin: string)
 {
     const url: string = backUrl + "/users/block";
-    await axios.put(url, {callerlogin, targetLogin}).then(res => {
+    await axios.put(url, {callerLogin, targetLogin}).then(res => {
 
     }).catch(e => console.log)
 }
 
-export async function unblockUser(callerlogin: string, targetLogin: string)
+export async function unblockUser(callerLogin: string, targetLogin: string)
 {
     const url: string = backUrl + "/users/unblock";
-    await axios.put(url, {callerlogin, targetLogin}).then(res => {
+    await axios.put(url, {callerLogin, targetLogin}).then(res => {
 
     }).catch(e => console.log)
 }
@@ -133,6 +173,15 @@ export async function disableTwoFactorAuthentication(callerLogin: string)
    
     }).catch(e => console.log)
 
+}
+export async function isInBlocklist(callerLogin: string, targetLogin: string)
+{
+    const url: string = backUrl + "/users/isblocked";
+    const isBlocked: boolean = await axios.get(url, {params: {callerLogin, targetLogin}}).then(res => {
+        return res.data
+    }).catch(e => console.log)
+
+    return isBlocked;
 }
 
 export async function submitTwoFactorAuthentication(code: string)

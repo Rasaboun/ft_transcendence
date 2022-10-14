@@ -114,7 +114,7 @@ function TabSettings() {
 			setDisplayedImage(URL.createObjectURL(img))
 		setForm((prevForm) => ({
 			...prevForm,
-			[e.target.name] : img,
+			[e.target.name] : img ? img : e.target.value
 		}))
 	}
 
@@ -125,8 +125,10 @@ function TabSettings() {
 	}
 
 	const submitFormData = async () => {
+		console.log(form.username, defaultValue.username)
 		if (form.username !== defaultValue.username)
 		{
+			console.log("username settings", form.username)
 			setUsername(storage.login, form.username)
 			setStorage("user", {...storage, username: form.username})
 		}
@@ -154,18 +156,40 @@ function TabSettings() {
 			</div>
 			<div className="border-t border-gray-200">
 			<dl>
-				<div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-				<dt className="text-sm font-medium text-gray-500">Full name</dt>
-				<dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-					Rayane Saboundji
-				</dd>
-				</div>
 				<div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
 				<dt className="text-sm font-medium text-gray-500">Login</dt>
 				
 				<dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
 					{storage.login}
 				</dd>
+				</div>
+				<div className="bg-white flex justify-between mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 px-4 py-5">
+					<dt className="text-sm font-medium text-gray-500">Two Factor Authentication</dt>
+					
+					<dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+						{
+							!enabled ?
+							<ControlledPopup setEnabled={setEnabled}/> :
+								// <Popup
+								// closeOnDocumentClick
+								// open={open}
+								// onClose={closeModal}
+								// trigger={
+									
+											
+																	
+								// 	<QRcodeModal setOpen={setOpen}/>
+									
+								// </Popup> :
+								<button
+								type="button"
+								className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
+								onClick={() => handleDisableTwoAuth()}
+								>
+									<p> Disable </p>
+								</button>
+						}
+					</dd>
 				</div>
 				<div className="bg-white flex justify-between mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 px-4 py-5">
 					<dt className="text-sm font-medium text-gray-500">Two Factor Authentication</dt>
@@ -235,7 +259,7 @@ function TabSettings() {
 				</div>
 			</dl>
 				{
-					//JSON.stringify(form) !== JSON.stringify(defaultValue) &&
+					JSON.stringify(form) !== JSON.stringify(defaultValue) &&
 						<button
 							type="button"
 							className="inline-flex items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 focus:outline-none"
@@ -256,7 +280,7 @@ function TabSettings() {
 
 export default function Settings() {
   return (
-	<div id="setting-page" className="flex-1">
+	<div id="setting-page" className="flex-1 h-screen">
 		<header className="page-header shadow">
 			<div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
 				<h1 className="page-title">Settings</h1>

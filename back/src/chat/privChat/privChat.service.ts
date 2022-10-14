@@ -70,11 +70,24 @@ export class PrivChatService {
 		await this.chatRepository.update(chat.id, chat);
 	}
 
-	async getMessageList(chatId: number): Promise<Message[]>
+	async getMessageList(chatName: string, callerLogin: string): Promise<Message[]>
 	{
-		const chat = await this.findOneById(chatId);
+		const chat = await this.findOneByName(chatName)
 		if (!chat)
 			throw new NotFoundException("Chat not found");
+		if (chat.blockedList.length > 0 && chat.blockedList.indexOf(callerLogin) == -1)
+			return [];
+		const firstUser = await this.usersService.findOneByIntraLogin(chat.firstUserLogin);
+		const secondUser = await this.usersService.findOneByIntraLogin(chat.secondUserLogin);
+
+		for (let i = 0; i < chat.messages.length; i++)
+		{
+			if (chat.messages[i].sender.login == firstUser.intraLogin)
+				chat.messages[i].sender.username = firstUser.username;
+			else
+				chat.messages[i].sender.username = secondUser.username;
+		}
+		await this.chatRepository.update(chat.id, chat);
 		return (chat.messages);
 	}
 
@@ -119,6 +132,20 @@ export class PrivChatService {
 		return chat.firstUserLogin;
 	}
 
+	async updateBlockedList(chat: PrivChat)
+	{
+		if (await this.usersService.isBlocked(chat.firstUserLogin, chat.secondUserLogin) && chat.blockedList.indexOf(chat.secondUserLogin) == -1)
+			chat.blockedList.push(chat.secondUserLogin);
+		else if (await this.usersService.isBlocked(chat.secondUserLogin, chat.firstUserLogin) && chat.blockedList.indexOf(chat.firstUserLogin) == -1)
+			chat.blockedList.push(chat.firstUserLogin);
+		
+		if (!await this.usersService.isBlocked(chat.firstUserLogin, chat.secondUserLogin) && chat.blockedList.indexOf(chat.secondUserLogin) != -1)
+			chat.blockedList.splice(chat.blockedList.indexOf(chat.secondUserLogin), 1);
+		else if (!await this.usersService.isBlocked(chat.secondUserLogin, chat.firstUserLogin) && chat.blockedList.indexOf(chat.firstUserLogin) != -1)
+			chat.blockedList.splice(chat.blockedList.indexOf(chat.firstUserLogin), 1);
+		
+	}
+
 	async getChatInfo(chatName: string, callerLogin: string): Promise<privChatInfo>
 	{
 		try
@@ -126,13 +153,15 @@ export class PrivChatService {
 			const chat = await this.findOneByName(chatName);
 			const otherLogin = callerLogin == chat.firstUserLogin ? chat.secondUserLogin : chat.firstUserLogin;
 			const secondUser = await this.usersService.findOneByIntraLogin(otherLogin);
+			await this.updateBlockedList(chat);
+			await this.chatRepository.update(chat.id, chat);
 			return {
 				name: chat.name,
 				otherLogin: secondUser.intraLogin,
 				otherUsername: secondUser.username,
 				isBlocked: chat.blockedList.length > 0 ? true : false,
 				blockedList: chat.blockedList,
-				messages: chat.messages,
+				messages:  await this.getMessageList(chat.name, callerLogin),
 			}
 
 		}

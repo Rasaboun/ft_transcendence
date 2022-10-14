@@ -25,7 +25,8 @@ export interface Ball {
 export interface GameData{
   players: Player[],
   ball: Ball,
-  state: GameState
+  state: GameState,
+  nbHits: number,
 }
 
 export interface GameSettings {
@@ -33,7 +34,8 @@ export interface GameSettings {
   paddleWidth:	number,
   paddleHeight:	number,
   width: number,
-  height: number,  
+  height: number,
+  maxHits: number,  
 }
 
 export interface GameOptions {

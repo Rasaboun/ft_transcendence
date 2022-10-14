@@ -1,14 +1,12 @@
 import { useContext, useEffect, useState } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { setAuthToken } from "./authPage/authUtils/AuthUtils";
 import Login from "./authPage/component/LogPage";
 import Chat from "./Chat";
-import { ChatContextProvider } from "./chat/ChatContext/chatContext";
 import { SocketContext } from "./Context/socketContext";
 import Dashboard from "./Dashboard";
 import Footer from "./Footer";
 import StarWars from "./StarWars";
-import { GameContextProvider } from "./game/GameContext/gameContext";
 import Home from "./Home";
 import useLocalStorage from "./hooks/localStoragehook";
 import NavBar from "./NavBar";
@@ -22,6 +20,8 @@ import ErrorAlert from "./Elements/error";
 import LoginNavBar from "./LoginNavBar";
 import Cookies from "js-cookie";
 import TwoFactorAuth from "./2factorAuth";
+import Friends from "./Friends";
+import ErrorPage from "./404";
 
 const token = localStorage.getItem("token");
 if (token) {
@@ -30,6 +30,7 @@ if (token) {
 
 export default function App()
 {
+	const navigate = useNavigate()
 	const {chatSocket, setChatSocket, gameSocket, setGameSocket} = useContext(SocketContext)
 	const { storage2 } = useLocalStorage("user");
 	const [alert, setAlert] = useState({
@@ -50,10 +51,15 @@ export default function App()
 		console.log(message)
 	}
 
+	function handleConnectionError ()
+	{
+		navigate("NotFound")
+	}
+
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			setAlert({isShow:false, msg: ""})
-		  }, 70000);
+		  }, 2000);
 		  return () => clearTimeout(timer);
 	}, [alert])
 
@@ -65,12 +71,12 @@ export default function App()
 			initiateSocket("http://localhost:8002")
 			setChatSocket(getChatSocket())
 			setGameSocket(getGameSocket())
-			appSocketRoutine(handleGameOver, handleError);
+			appSocketRoutine(handleGameOver, handleError, handleConnectionError);
 		}
 	}, [getToken()])
 
     return (				
-		<BrowserRouter>
+		<div>
 			{
 				alert.isShow &&
 					<ErrorAlert errorMsg={alert.msg}/>
@@ -83,20 +89,12 @@ export default function App()
 				<Route element={<PrivateRoute/>}>
 					<Route path="/" element={<Home/> }/>
 					<Route path="Dashboard" element={<Dashboard/> }/>
+					<Route path="Friends" element={<Friends/> }/>
 					<Route path="About" element={<StarWars/> }/>
-					<Route path="Chat/*" element=
-					{
-						<ChatContextProvider>
-							<Chat/>
-						</ChatContextProvider>
-					}/>
-					<Route path="Pong/*" element=
-					{
-						<GameContextProvider>
-							<Pong/>
-						</GameContextProvider>
-					}/>
+					<Route path="Chat/*" element={<Chat/>}/>
+					<Route path="Pong/*" element={<Pong/>}/>
 					<Route path="Settings" element={<Settings/>}/>
+					<Route path="NotFound" element={<ErrorPage/>}/>
 					<Route path="/Profile/:login" element={<Profile/>}/>
 				</Route>
 					<Route path="/Login" element={<Login/> }/>
@@ -104,7 +102,7 @@ export default function App()
 				
 				</Routes>
 			<Footer/>
-		</BrowserRouter>
+		</div>
 		
     )
 }

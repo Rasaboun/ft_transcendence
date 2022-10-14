@@ -2,14 +2,13 @@ import React, {useState, useEffect, useRef, useContext} from "react"
 import Score from "../Elements/score"
 import * as utils from "../GameUtils/GameUtils"
 import "../game.css"
-import { GameSettings, GameData, GameState, Ball} from "../GameUtils/type"
+import { GameSettings, GameData, GameState, Ball, DrawingSettings} from "../GameUtils/type"
 // import {ThreeDots} from "react-loader-spinner";
 import { Socket } from 'socket.io-client'
 import useLocalStorage from "../../hooks/localStoragehook"
 import { GameCleaner, GameRoutineHandler, getChatSocket, getGameSocket, initiateSocket, leftPong, loadGame, playerMoved, startGame } from "../../Utils/socketManager"
 import { SocketContext } from "../../Context/socketContext"
 import { useNavigate } from "react-router-dom"
-import { sendGameResult } from "../../Requests/match"
 
 let canvas:HTMLCanvasElement;
 
@@ -21,7 +20,11 @@ export default function Game()
 	const { gameSocket, setChatSocket, setGameSocket } = useContext(SocketContext)
 	let context: CanvasRenderingContext2D;
 	const canvasRef = useRef<HTMLCanvasElement>(null);
-	
+	const [ballRadius, setBallRadius] = useState<number>(10);
+	const [drawingSettings, setDrawingSettings] = useState<DrawingSettings>({
+		paddleWidth: 20,
+		paddleHeight: 200,
+	});
 	const [gameData, setGameData] = useState<GameData>({
 		players: [{
 			id: "",
@@ -47,25 +50,14 @@ export default function Game()
 
 	const [gameSettings, setGameSettings] = useState<GameSettings>({
 		scoreToWin: 5,
-		paddleWidth: 50,
-		paddleHeight: 50,
+		paddleWidth: 20,
+		paddleHeight: 200,
 		width: 1920,
 		height: 1080,
 	});
 
 	const handleWait = () => {
 		setStorage("gameState", GameState.Waiting)
-	}
-
-	async function sendData()
-	{	
-		let gameInfoToSend:any = {
-			playerOneLogin: gameData.players[0].id,
-			playerTwoLogin: gameData.players[1].id,
-			playerOneScore: gameData.players[0].score.toString(),
-			playerTwoScore: gameData.players[1].score.toString(),
-		}
-		sendGameResult(gameInfoToSend);
 	}
 
 	function initializeGame()
@@ -99,12 +91,15 @@ export default function Game()
 		})
 		setGameSettings({
 			scoreToWin: 5,
-			paddleWidth: 20,
-			paddleHeight: utils.toScale(200, canvas.height / 1080),
+			paddleWidth: 50,
+			paddleHeight: 200,
 			width: 1920,
 			height: 1080,
 		})
-		//setGameState(GameState.Waiting)
+		setDrawingSettings({
+			paddleHeight: utils.toScale(200, canvas.height / 1080),
+			paddleWidth: utils.toScale(20, canvas.width / 1920),
+		})
 	}
 
 	const updateGame = (data: {gameData: GameData, gameSettings: GameSettings }) =>
@@ -137,9 +132,10 @@ export default function Game()
 			scoreToWin: data.gameSettings.scoreToWin,
 			width: data.gameSettings.width,
 			height: data.gameSettings.height,
-			paddleHeight: utils.toScale(data.gameSettings.paddleHeight, canvas.height / 1080),
-			paddleWidth: utils.toScale(data.gameSettings.paddleWidth, canvas.width / 1920),
+			paddleHeight:  data.gameSettings.paddleHeight,
+			paddleWidth: data.gameSettings.paddleWidth,
 		}))
+		handleResize();
 
 	}
 
@@ -154,10 +150,12 @@ export default function Game()
 
 	const handleGameData = (data: {gameData: GameData, gameSettings: GameSettings }) => {
 		updateGame(data);
+		setStorage("gameState", data.gameData.state);
 	}
 
 	const handleGameReady = (data: {gameData: GameData, gameSettings: GameSettings }) => {
 		updateGame(data);
+		handleResize();
 		startGame()
 		setStorage("gameState", GameState.Started)
 	}
@@ -177,6 +175,13 @@ export default function Game()
 				return {...player, score: scores.player2}
 			}),
 		}));
+	}
+
+	const scaleBallRadius = (ballRadius: number) => {
+		const diagLen = Math.sqrt((canvas.width ** 2) + (canvas.height ** 2));
+		const ratio = diagLen / (Math.sqrt((gameSettings.width ** 2) + (gameSettings.height ** 2))) * 0.01;
+		let radius = diagLen * ratio;
+		setBallRadius(radius);
 	}
 
 	const handleUpdateBall = (ball:Ball) => {
@@ -222,6 +227,12 @@ export default function Game()
 	const handleResize = () => {
 		canvas.height = utils.getCanvasDiv().height
 		canvas.width = utils.getCanvasDiv().width;
+		setDrawingSettings({
+			paddleHeight: utils.toScale(gameSettings.paddleHeight, canvas.height / 1080),
+			paddleWidth: utils.toScale(gameSettings.paddleWidth, canvas.width / 1920),
+		})
+		scaleBallRadius(ballRadius);
+		
 	}
 
 	function handleMouseMove(event:React.MouseEvent<HTMLCanvasElement>)
@@ -231,10 +242,10 @@ export default function Game()
 		{
 			let value: number = event.clientY - utils.getCanvasDiv().y;
 
-			if (value + (gameSettings.paddleHeight / 2) >= canvas.height)
-				value = canvas.height - (gameSettings.paddleHeight / 2);
-			else if (value - (gameSettings.paddleHeight / 2) <= 0)
-				value = gameSettings.paddleHeight / 2;
+			if (value + (drawingSettings.paddleHeight / 2) >= canvas.height)
+				value = canvas.height - (drawingSettings.paddleHeight / 2);
+			else if (value - (drawingSettings.paddleHeight / 2) <= 0)
+				value = drawingSettings.paddleHeight / 2;
 			value = utils.toScale(value, gameSettings.height / canvas.height);
 			playerMoved(value)	
 		}
@@ -246,8 +257,6 @@ export default function Game()
 
 	function draw() {
 		const context  = canvas.getContext("2d")!;
-
-
 		if (!context)
 			return ;
 		context.clearRect(
@@ -258,17 +267,17 @@ export default function Game()
 		);
 		context.beginPath();
 		context.fillRect(0,
-			gameData.players[0].pos -  gameSettings.paddleHeight / 2,
-			gameSettings.paddleWidth,
-			gameSettings.paddleHeight);
+			gameData.players[0].pos -  drawingSettings.paddleHeight / 2,
+			drawingSettings.paddleWidth,
+			drawingSettings.paddleHeight);
 
-		context.fillRect(canvas.width - gameSettings.paddleWidth,
-			gameData.players[1].pos - gameSettings.paddleHeight / 2,
-			gameSettings.paddleWidth,
-			gameSettings.paddleHeight);
+		context.fillRect(canvas.width - drawingSettings.paddleWidth,
+			gameData.players[1].pos - drawingSettings.paddleHeight / 2,
+			drawingSettings.paddleWidth,
+			drawingSettings.paddleHeight);
 
 		context.fillStyle = "white";
-		context?.arc(gameData.ball.x, gameData.ball.y, gameData.ball.radius, 0, 2 * Math.PI)
+		context?.arc(gameData.ball.x, gameData.ball.y, ballRadius, 0, 2 * Math.PI)
 
 		context?.fill();
 		context?.closePath();
@@ -318,7 +327,8 @@ export default function Game()
 		if (!context)
 			return ;
 		
-		handleResize();
+		canvas.height = utils.getCanvasDiv().height
+		canvas.width = utils.getCanvasDiv().width;
 		initializeGame();
 		window.addEventListener('resize', handleResize);
 		return (() => {	leftPong()
@@ -338,10 +348,6 @@ export default function Game()
 		if (parseInt(storage2) === GameState.Started || parseInt(storage2) === GameState.Spectacte)
 		{
 			draw()
-		}
-		if (parseInt(storage2) === GameState.Stopped && storage.login == gameData.players[0].id)
-		{
-			sendData();
 		}
 	}, [gameData])
 
