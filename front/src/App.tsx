@@ -73,7 +73,7 @@ export default function App()
 	}, [storage])
 
     return (				
-		<div>
+		<div className="flex flex-col">
 			{
 				alert.isShow &&
 					<ErrorAlert errorMsg={alert.msg}/>
