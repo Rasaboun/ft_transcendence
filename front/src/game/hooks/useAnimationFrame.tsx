@@ -12,7 +12,7 @@ export default function useAnimationFrame(uptdateGame:any)
     
     function animation(time:number)
     {
-      if (previousTimeRef.current != undefined) {
+      if (previousTimeRef.current !== undefined) {
         const deltaTime = time - previousTimeRef.current;
         uptdateGame(deltaTime)
       }

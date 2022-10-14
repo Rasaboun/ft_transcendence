@@ -1,5 +1,5 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
-import { blockInChat, chatHandlerPrivEl, getChatInfo, getChatSocket, initiateSocket,  joinPrivChat,  sendPrivMessage, unblockInChat } from "../../Utils/socketManager";
+import { blockInChat, chatHandlerPrivEl, getChatSocket, initiateSocket,  joinPrivChat,  sendPrivMessage, unblockInChat } from "../../Utils/socketManager";
 import Message from "../Elements/message";
 import { messageT, MessageTypes, privChatInfo } from "../ChatUtils/chatType";
 
@@ -13,7 +13,7 @@ import Loader from "../../Elements/loader";
 
 export default function PrivChatElem()
 {
-    const {chatSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
+    const { chatSocket, setChatSocket } = useContext(SocketContext)
     const Locationstate = useLocation().state as {chatName: string}
     const lastMessageRef = useRef<HTMLDivElement | null>(null)
     const {storage} = useLocalStorage("user")
@@ -31,7 +31,7 @@ export default function PrivChatElem()
 
     const handleSubmitPrivMessage = (e:React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (form.message != "" && privChat)
+        if (form.message !== "" && privChat)
         {
             sendPrivMessage({chatName: privChat.name, content: form.message})
         }
@@ -67,7 +67,7 @@ export default function PrivChatElem()
   const getBlockedSentence = () => {
     if (!isBlocked) return "";
         const blockedList: string[] = privChat!.blockedList;
-    if (blockedList.length == 2 || blockedList.indexOf(storage.login) == -1) {
+    if (blockedList.length === 2 || blockedList.indexOf(storage.login) === -1) {
       return "You blocked this user";
     }
     return "This user blocked you";

@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import axios from "axios";
 import "./output.css";
 import { Link } from "react-router-dom";
 import { Iuser } from "./Utils/type";
@@ -9,7 +8,7 @@ import useLocalStorage from "./hooks/localStoragehook";
 
 function sortUsers (a:Iuser, b:Iuser)
 {
-	if (b.gameStats.victories != a.gameStats.victories)
+	if (b.gameStats.victories !== a.gameStats.victories)
 		return (b.gameStats.victories - a.gameStats.victories)
 	return (a.gameStats.defeats - b.gameStats.defeats)
 }
@@ -44,7 +43,7 @@ function Tabulation() {
         setUsers(usersData);
       }
       fetchUsers();
-  }, []);
+  }, [storage.login]);
 
   return (
     <div className="relative h-full overflow-y-scroll shadow-md sm:rounded-lg">

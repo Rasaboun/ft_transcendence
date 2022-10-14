@@ -1,4 +1,3 @@
-import axios from "axios"
 import { useEffect, useState } from "react"
 import useLocalStorage from "../../hooks/localStoragehook"
 import { getUserPhoto, getUserProfile } from "../../Requests/users"
@@ -6,8 +5,6 @@ import { Iuser } from "../../Utils/type"
 import "../game.css"
 import { GameData, GameState } from "../GameUtils/type"
 import PlayersScores from "./playerScores"
-
-const url: string = `${process.env.REACT_APP_BACK_ADDRESS}:${process.env.REACT_APP_BACK_PORT}/users/profile/`;
 
 type propsType = {
     gameData: GameData
@@ -34,7 +31,8 @@ export default function Score({ gameData }:propsType)
 			getProfile(gameData.players[1].id)
 		}
 		
-	}, [gameData.players[0].id, gameData.players[1].id])
+	}, [gameData.players, gameData.players[0].id, gameData.players[1].id])
+	
 	const PlayerScoreElem = users.map((elem, idx) =>
 		<PlayersScores key={idx} username={elem.username}
 			image={elem.photoUrl}

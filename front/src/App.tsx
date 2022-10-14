@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import { setAuthToken } from "./authPage/authUtils/AuthUtils";
 import Login from "./authPage/component/LogPage";
 import Chat from "./Chat";
@@ -31,7 +31,7 @@ if (token) {
 export default function App()
 {
 	const navigate = useNavigate()
-	const {chatSocket, setChatSocket, gameSocket, setGameSocket} = useContext(SocketContext)
+	const { setChatSocket, setGameSocket} = useContext(SocketContext)
 	const { storage2 } = useLocalStorage("user");
 	const [alert, setAlert] = useState({
 		isShow: false,
@@ -66,7 +66,7 @@ export default function App()
 
 
 	useEffect(() => {
-		if (getToken() != undefined)
+		if (getToken() !== undefined)
 		{
 			initiateSocket()
 			setChatSocket(getChatSocket())

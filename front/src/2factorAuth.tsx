@@ -24,7 +24,7 @@ export default function TwoFactorAuth()
 	}
 
     useEffect(() => {
-        if (Cookies.get('login') == undefined)
+        if (Cookies.get('login') === undefined)
             navigate('/Login');
         if (Cookies.get('token'))
             navigate('/Home');

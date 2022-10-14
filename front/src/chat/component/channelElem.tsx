@@ -27,8 +27,6 @@ import MessageInput from "./MessageInput";
 import { SocketContext } from "../../Context/socketContext";
 import InviteMessage from "../Elements/InviteMessage";
 import Loader from "../../Elements/loader";
-import { Disclosure } from "@headlessui/react";
-import { channel } from "diagnostics_channel";
 
 export default function ChannelElem() {
   const { storage, setStorage } = useLocalStorage("user");
@@ -73,7 +71,7 @@ export default function ChannelElem() {
   const handleMessageReceived = (msg: messageT) => {
 
     const blockedUsers: string[] = storage.blockedUsers;
-    if (blockedUsers.indexOf(msg.sender!.login) != -1)
+    if (blockedUsers.indexOf(msg.sender!.login) !== -1)
       return ;
     
     setMessagesList((oldMessagesList) =>
@@ -96,7 +94,7 @@ export default function ChannelElem() {
   };
 
   const handleLeftChannel = (data: {login: string, channelInfo: ChannelT}) => {
-    if (data.login == storage.login)
+    if (data.login === storage.login)
     {
       leaveChannel(data.channelInfo.channelId);
       navigate("/chat");
@@ -105,7 +103,7 @@ export default function ChannelElem() {
   };
 
   const handleChannelJoined = (data: {clientId: string; channelInfo: ChannelT; }) => {
-    if (data.channelInfo.channelId != channelInfo?.channelId)
+    if (data.channelInfo.channelId !== channelInfo?.channelId)
     {
       updateSocket(data.channelInfo.channelId);
       getChannelInfo(data.channelInfo?.channelId);
@@ -216,15 +214,6 @@ export default function ChannelElem() {
       />
     )
   );
-
-  function isStateOk(obj: any): obj is {ChannelName:string} {
-    return (
-      typeof obj === 'object' &&
-      obj !== null &&
-      'ChannelName' in obj
-    );
-  }
-  
 
   useEffect(() => {
     initiateSocket();

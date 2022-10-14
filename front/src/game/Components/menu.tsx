@@ -6,11 +6,8 @@ import { useNavigate } from "react-router-dom";
 import useLocalStorage from '../../hooks/localStoragehook'
 import { SocketContext } from '../../Context/socketContext';
 import { GameMenuHandler, getActiveGames, getChatSocket, getGameSocket, initiateSocket, joinQueue, Menucleaner, spectacteGame } from '../../Utils/socketManager';
-import GameRadioForm from '../../Elements/radioFormElem';
 import RadioFormElemPong from '../../Elements/radioFormElemPong';
 import Loader from '../../Elements/loader';
-
-let socket:Socket
 
 export default function Menu()
 {
@@ -50,10 +47,6 @@ export default function Menu()
 			//socket.userID = userID;
 		}
 	}
-
-    const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-		setGameMode(parseFloat(e.target.value))
-    }
 
     const handleWaitingForOpponent = () => {
         navigate("game")
