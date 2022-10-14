@@ -77,7 +77,7 @@ function Tabulation() {
 
 export default function Dashboard() {
   return (
-    <div id="Dashboard" className="flex-1 h-3/4 h-screen">
+    <div id="Dashboard" className="flex-1 h-screen">
       <header className="page-header shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <h1 className="page-title">Dashboard</h1>

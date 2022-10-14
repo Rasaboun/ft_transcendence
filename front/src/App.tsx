@@ -102,7 +102,7 @@ export default function App()
 					<Route path="/TwofactorAuth" element={<TwoFactorAuth/> }/>
 				
 				</Routes>
-			<Footer/>
+			{/* <Footer/> */}
 		
 		
 		</div>
