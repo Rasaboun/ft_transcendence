@@ -1,11 +1,12 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import JwtAuthGuard from 'src/auth/guards/jwt.strategy.guard';
 //import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
 import { Match } from 'src/typeorm';
+import { LoginDto } from 'src/users/dto/users.dto';
 import { matchDto } from './dto/match.dto';
 import { MatchService } from './match.service';
 
-//@UseGuards(AuthenticatedGuard)
-//@UseFilters(AuthFilter)
+@UseGuards(JwtAuthGuard)
 @Controller('match')
 export class MatchController {
     constructor(private readonly matchService: MatchService) {}
@@ -16,7 +17,7 @@ export class MatchController {
     }
 
     @Get('user')
-    getMatchesByLogin(@Query() dto: {login: string}): Promise<Match[]> {
+    getMatchesByLogin(@Query() dto: LoginDto): Promise<Match[]> {
         return this.matchService.getMatchesByLogin(dto.login);
     }
 

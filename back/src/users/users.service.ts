@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createUserDto } from 'src/users/dto/createUser.dto';
 import { User } from 'src/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Friend, initGameStats, MatchInfo, UserStatus } from './type/users.type';
 import { PhotoService } from './photo/photo.service';
@@ -142,6 +142,27 @@ export class UsersService {
         );
     }
 
+    async setTwoFactorAuthenticationSecret(secret: string, userId: number)
+    {
+        await this.userRepository.update(userId, {twoFactorAuthenticationSecret: secret});
+    }
+
+    async enableTwoFactorAuthentication(login: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+
+        user.isTwoFactorAuthenticationEnabled = true;
+        await this.userRepository.update(user.id, user);
+    }
+
+    async disableTwoFactorAuthentication(login: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+
+        user.isTwoFactorAuthenticationEnabled = false;
+        await this.userRepository.update(user.id, user);
+    }
+
     async setUserStatus(login: string, status: UserStatus)
     {
         const user = await this.findOneByIntraLogin(login);
@@ -167,7 +188,7 @@ export class UsersService {
         const photo = await this.photoService.addPhoto(imageBuffer, filename);
         user.photoId = photo.id;
         await this.userRepository.update(user.id, user);
-        return photo;
+        return user
     }
 
     async getUserPhoto(login: string): Promise<Photo> {

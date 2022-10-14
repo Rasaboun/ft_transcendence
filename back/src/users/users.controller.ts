@@ -1,36 +1,15 @@
 import { Body, Controller, Delete, Get, Header, Param, ParseIntPipe, Post, Put, Query, Res, StreamableFile, UploadedFile, UseFilters, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { extname } from 'path'
-//import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
-import { diskStorage } from 'multer'
 import { User } from 'src/typeorm';
-import { blockUserDto, createUserDto, friendDto, updatePhotoDto, updateStatusDto, updateUsernameDto } from './dto/users.dto';
+import { blockUserDto, createUserDto, friendDto, LoginDto, updatePhotoDto, updateStatusDto, updateUsernameDto } from './dto/users.dto';
 import { UserStatus } from './type/users.type';
 import { UsersService } from './users.service';
-import { Readable } from 'typeorm/platform/PlatformTools';
-import { Observable, of } from 'rxjs';
-import { join } from 'path';
+import JwtAuthGuard from 'src/auth/guards/jwt.strategy.guard';
 
-export const editFileName = (req, file, callback) => {
-    const name = file.originalname.split('.')[0];
-    const fileExtName = extname(file.originalname);
-    const randomName = Array(4)
-        .fill(null)
-        .map(() => Math.round(Math.random() * 16).toString(16))
-        .join('');
-    callback(null, `${name}--${randomName}${fileExtName}`);
-}
-
-//@UseGuards(AuthenticatedGuard)
-//@UseFilters(AuthFilter)
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
-
-    @Post('create')
-    createUser(@Body() userDto: createUserDto): Promise<User> {
-        return this.usersService.createUser(userDto);
-    }
 
     @Put('block')
     blockUser(@Body() dto: blockUserDto)
@@ -53,9 +32,9 @@ export class UsersController {
     @UseInterceptors(
         FileInterceptor('photo')
     )
-    setUserPhoto(@UploadedFile() photo, @Body() dto: {login: string}) {
+    async setUserPhoto(@UploadedFile() photo, @Body() dto: LoginDto) {
         
-        this.usersService.setUserPhoto(dto.login, photo.buffer, photo.originalname);
+        await this.usersService.setUserPhoto(dto.login, photo.buffer, photo.originalname);
     }
 
     @Put('username')
@@ -81,8 +60,8 @@ export class UsersController {
 
 
     @Get('profile')
-    async findOneBylogin(@Query() query: {login: string}, @Res() res) {
-        let user = await this.usersService.findOneByIntraLogin(query.login);
+    async findOneBylogin(@Query() dto: LoginDto, @Res() res) {
+        const user = await this.usersService.findOneByIntraLogin(dto.login);
         return res.status(200).contentType('text/html').send(user);
     }
 
@@ -93,12 +72,12 @@ export class UsersController {
     }
 
     @Get('status')
-    async getUserStatus(@Query() dto: {login: string}): Promise<UserStatus> {
+    async getUserStatus(@Query() dto: LoginDto): Promise<UserStatus> {
         return await this.usersService.getUserStatus(dto.login);
     }
 
     @Get('photo')
-    async getUserPhoto(@Query() dto: {login: string}, @Res({ passthrough: true }) res) {
+    async getUserPhoto(@Query() dto: LoginDto, @Res({ passthrough: true }) res) {
         const photo = await this.usersService.getUserPhoto(dto.login);
 
         res.set({
@@ -109,13 +88,12 @@ export class UsersController {
     }
 
     @Get('username')
-    async getUserUsername(@Query() dto: {login: string}): Promise<string> {
+    async getUserUsername(@Query() dto: LoginDto): Promise<string> {
         return await this.usersService.getUserUsername(dto.login);
     }
 
     @Get('friendList')
     async getFriendList(@Query() dto: {login: string}) {
-        console.log(dto);
         return await this.usersService.getFriends(dto.login);
     }
 

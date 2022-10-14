@@ -6,6 +6,7 @@ import {
   getClientInfo,
   getGameSocket,
   initiateSocket,
+  leaveChannel,
   sendMessage,
 } from "../../Utils/socketManager";
 import Message from "../Elements/message";
@@ -26,6 +27,7 @@ import { SocketContext } from "../../Context/socketContext";
 import InviteMessage from "../Elements/InviteMessage";
 import Loader from "../../Elements/loader";
 import { Disclosure } from "@headlessui/react";
+import { channel } from "diagnostics_channel";
 
 export default function ChannelElem() {
   const { storage, setStorage } = useLocalStorage("user");
@@ -68,9 +70,11 @@ export default function ChannelElem() {
   };
 
   const handleMessageReceived = (msg: messageT) => {
+
     const blockedUsers: string[] = storage.blockedUsers;
     if (blockedUsers.indexOf(msg.sender!.login) != -1)
       return ;
+    
     setMessagesList((oldMessagesList) =>
       oldMessagesList === undefined ? [msg] : [...oldMessagesList, msg]
     );
@@ -90,8 +94,14 @@ export default function ChannelElem() {
     );
   };
 
-  const handleLeftChannel = (channelInfo: ChannelT) => {
-    setStorage("channel", channelInfo);
+  const handleLeftChannel = (data: {login: string, channelInfo: ChannelT}) => {
+    console.log('left channel', data);
+    if (data.login == storage.login)
+    {
+      leaveChannel(data.channelInfo.channelId);
+      navigate("/chat");
+    }
+    setStorage("channel", data.channelInfo);
   };
 
   const handleChannelJoined = (data: {
@@ -121,7 +131,6 @@ export default function ChannelElem() {
   };
 
   const handleClientInfo = (data: ClientInfoT) => {
-    console.log("data Client info", data);
     setUserState({
       isOwner: data.isOwner,
       isAdmin: data.isAdmin,

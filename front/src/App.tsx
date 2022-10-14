@@ -18,19 +18,20 @@ import { appSocketRoutine, getChatSocket, getGameSocket, initiateSocket } from "
 import { getToken } from "./Utils/utils";
 import ErrorAlert from "./Elements/error";
 import LoginNavBar from "./LoginNavBar";
+import Cookies from "js-cookie";
+import TwoFactorAuth from "./2factorAuth";
 import Friends from "./Friends";
 import ErrorPage from "./404";
 
 const token = localStorage.getItem("token");
 if (token) {
-     setAuthToken(token);
+    setAuthToken(JSON.parse(token));
 }
 
 export default function App()
 {
 	const navigate = useNavigate()
 	const {chatSocket, setChatSocket, gameSocket, setGameSocket} = useContext(SocketContext)
-	const { storage, setStorage } = useLocalStorage("token");
 	const { storage2 } = useLocalStorage("user");
 	const [alert, setAlert] = useState({
 		isShow: false,
@@ -43,7 +44,7 @@ export default function App()
 			msg: message
 		})
 	}
-
+	
 	function handleGameOver(winnerId: string)
 	{
 		const message = winnerId === storage2.login ? "YOU WIN" : "YOU LOSE"
@@ -62,15 +63,17 @@ export default function App()
 		  return () => clearTimeout(timer);
 	}, [alert])
 
+
+
 	useEffect(() => {
-		if (getToken())
+		if (getToken() != undefined)
 		{
 			initiateSocket("http://localhost:${process.env.SOCKET_PORT}")
 			setChatSocket(getChatSocket())
 			setGameSocket(getGameSocket())
 			appSocketRoutine(handleGameOver, handleError, handleConnectionError);
 		}
-	}, [storage])
+	}, [getToken()])
 
     return (				
 		<div>
@@ -78,7 +81,7 @@ export default function App()
 				alert.isShow &&
 					<ErrorAlert errorMsg={alert.msg}/>
 			}
-			{storage ? 
+			{Cookies.get('token') && storage2 ? 
 				<NavBar /> :
 				<LoginNavBar/>
 			}
@@ -95,8 +98,9 @@ export default function App()
 					<Route path="/Profile/:login" element={<Profile/>}/>
 				</Route>
 					<Route path="/Login" element={<Login/> }/>
+					<Route path="/TwofactorAuth" element={<TwoFactorAuth/> }/>
 				
-			</Routes>
+				</Routes>
 			<Footer/>
 		</div>
 		

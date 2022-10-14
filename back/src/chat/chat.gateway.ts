@@ -40,7 +40,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	async handleConnection(client: Socket){
-		 console.log(`Client ${client.handshake.auth.login} joined chat socket`);
+		console.log(`Client ${client.handshake.auth.login} joined chat socket`);
 		await this.authService.initializeSocket(client as AuthenticatedSocket);
 		await this.channelManager.joinChannels(client as AuthenticatedSocket);
 		await this.privChatManager.joinPrivChats(client as AuthenticatedSocket);
@@ -74,6 +74,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try
 		{
 			await this.channelManager.leaveChannel(client, channelName);
+			client.leave(channelName);
+			await this.userService.setUserChatId(client.login, null);
+
 			console.log(`Client ${client.id} left channel ${channelName}`)
 		}
 		catch (error) { client.emit('error', error.message ) }
@@ -85,6 +88,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try {
 			const channel = await this.channelManager.createChannel(client, data);
 			channel.addClient(client.login, client.roomId);
+			await this.userService.setUserChatId(client.login, data.name);
 			this.server.emit('activeChannels', this.channelManager.getActiveChannels());
 		}
 		catch (error) { return client.emit('error', error.message)}
@@ -154,7 +158,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try
 		{
-			console.log("channelInfo")
 			await this.channelManager.sendChannelInfo(client, channelName);
 		}
 		catch (error) { client.emit('error', error.message ) }
@@ -225,7 +228,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
-
 
 	@SubscribeMessage('joinPrivateChat')
 	async joinPrivChat(client: AuthenticatedSocket, targetLogin: string)

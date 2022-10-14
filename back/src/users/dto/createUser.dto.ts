@@ -8,7 +8,7 @@ export class createUserDto {
     username: string;
 
     @IsNotEmpty()
-    password: string;
+    photoUrl: string;
 
     @IsNotEmpty()
     roomId: string;

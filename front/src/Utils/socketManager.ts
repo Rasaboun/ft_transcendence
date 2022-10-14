@@ -12,6 +12,7 @@ export async function initiateSocket(url:string)
 	let token = getToken();
 	if (!token)
 		return;
+	console.log("Token", token);
 	token = JSON.parse(token);	
 	if (!chatSocket)
 	{
@@ -51,7 +52,6 @@ export function appSocketRoutine(handleGameOver:any,
 	chatSocket.on("Connect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
 	chatSocket.on('error', (message:string) => handleError(message))	
 	chatSocket.on("Reconnect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
-	chatSocket.on("msgToChannel", (msg:messageT) => {console.log(`message receive from ${msg.sender?.username}`)})
 	gameSocket.on('gameOver', (winnerId: string) => handleGameOver(winnerId))
 	chatSocket.on('channelDeleted', (message:string) =>handleError(message))
 }
@@ -157,14 +157,14 @@ export function chatHandler(handleMessageReceived:any,
 							handleChannelJoined:any,
 							handleChannelInfo:any)
 {
-	chatSocket.on("msgToChannel", (msg:messageT) => handleMessageReceived(msg))      
+	chatSocket.on("msgToChannel", (msg:messageT) => {handleMessageReceived(msg)})      
 	chatSocket.on('channelDeleted', (message:string) => handleChannelDeleted(message))
 	chatSocket.on('clientInfo', (data:ClientInfoT) => handleClientInfo(data))
 	chatSocket.on('bannedFromChannel', (data:ActionOnUser) => handleBannedFromChannel(data))
 	chatSocket.on('mutedInChannel', (data:ActionOnUser) => handleMutedFromChannel(data))
 	chatSocket.on('addAdmin', (data: {target: string, channelInfo: ChannelT}) => handleAddAdmin(data))
 	chatSocket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
-	chatSocket.on('leftChannel', (channelInfo:ChannelT) => handleLeftChannel(channelInfo))
+	chatSocket.on('leftChannel', (data: {login: string, channelInfo:ChannelT}) => {console.log('received left');handleLeftChannel(data)})
 	chatSocket.on('channelInfo', (info:ChannelT) => handleChannelInfo(info))
 	chatSocket.on('newOwner', (data: {target: string, channelInfo: ChannelT}) => newOwner(data))
 	chatSocket.on('isAlreadyAdmin', handleIsAlreadyAdmin)
