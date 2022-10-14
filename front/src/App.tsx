@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Socket } from "socket.io-client";
 import { setAuthToken } from "./authPage/authUtils/AuthUtils";
 import Login from "./authPage/component/LogPage";
 import Chat from "./Chat";
@@ -18,7 +17,7 @@ import { PrivateRoute } from "./PrivateRoute";
 import Settings from "./Settings";
 import Profile from "./Profile";
 import { appSocketRoutine, getChatSocket, getGameSocket, initiateSocket } from "./Utils/socketManager";
-import { getToken, isLogged } from "./Utils/utils";
+import { getToken } from "./Utils/utils";
 import ErrorAlert from "./Elements/error";
 import LoginNavBar from "./LoginNavBar";
 import Cookies from "js-cookie";
@@ -32,7 +31,6 @@ if (token) {
 export default function App()
 {
 	const {chatSocket, setChatSocket, gameSocket, setGameSocket} = useContext(SocketContext)
-	const [ logged , setLogged ] = useState(false);
 	const { storage2 } = useLocalStorage("user");
 	const [alert, setAlert] = useState({
 		isShow: false,
@@ -104,7 +102,7 @@ export default function App()
 					<Route path="/Login" element={<Login/> }/>
 					<Route path="/TwofactorAuth" element={<TwoFactorAuth/> }/>
 				
-			</Routes>
+				</Routes>
 			<Footer/>
 		</BrowserRouter>
 		

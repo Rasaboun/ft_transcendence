@@ -45,13 +45,13 @@ export class AuthController {
             return ;
         }
   
-        // if (req.user.isTwoFactorAuthenticationEnabled)
-        // {
-        //     res.cookie('login', req.user.intraLogin);   
-        //     res.redirect('http://localhost:3000/TwofactorAuth');
-        //     console.log('in callback');
-        //     return ;
-        // }
+        if (req.user.isTwoFactorAuthenticationEnabled)
+        {
+            res.cookie('login', req.user.intraLogin);   
+            res.redirect('http://localhost:3000/TwofactorAuth');
+            console.log('in callback');
+            return ;
+        }
 
         const cookie = await this.authService.getCookieWithJwtAccessToken(req.user.intraLogin);
   
@@ -87,18 +87,21 @@ export class AuthController {
     }
 
     @Post('submit2fa')
-    async submit(@Res() res, @Req() req, @Body() dto: TwoFactorAuthenticationDto)
+    async submit(@Body() dto: TwoFactorAuthenticationDto)
     {
         const isCodeValid = await this.authService.isTwoFactorAuthenticationCodeValid(dto.code, dto.login);
 
         if (!isCodeValid)
             throw new UnauthorizedException('Wrong authentication code');
 
-        const cookie = await this.authService.getCookieWithJwtAccessToken(dto.login);
+        const jwtToken = await this.authService.getJwtToken(dto.login);
         
-        res.setHeader('Set-Cookie', cookie);
+        return jwtToken;
+    }
+
+    @Get('navigate')
+    async navigate(@Res() res)
+    { 
         res.redirect('http://localhost:3000/');
-        console.log('returning');
-        return true;
     }
 }

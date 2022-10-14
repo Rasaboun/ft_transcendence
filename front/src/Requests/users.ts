@@ -136,19 +136,15 @@ export async function disableTwoFactorAuthentication(callerLogin: string)
 
 }
 
-export async function submitTwoFactorAuthentication(callerLogin: string, code: string)
+export async function submitTwoFactorAuthentication(code: string)
 {
 
     const url: string = backUrl + "/auth/submit2fa";
     const login = Cookies.get('login');
 
     console.log('before req');
-    const ret = await axios.post(url, {login: callerLogin, code}).then(res => {
-        console.log('inside req');
-        return true
-    }).catch((e) => console.log(e))
-    console.log('after req');
-    if (ret == true)
-        return true;
-    return false;
+    const ret = await axios.post(url, {login, code}).then(res => {
+        return res.data;
+    }).catch()
+    return ret;
 }

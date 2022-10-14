@@ -13,7 +13,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     ) {
         super({
             jwtFromRequest: ExtractJwt.fromExtractors([(request: Request) => {
-                console.log('token', request?.headers.token);
                 if (typeof(request?.headers.token) == "string")
                    return request?.headers.token
                 return null

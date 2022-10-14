@@ -19,35 +19,24 @@ export default function Home() {
   
 	const {setStorage} = useLocalStorage();
   const { storage } = useLocalStorage("user");
-  const navigate = useNavigate();
-  const state = useLocation().state as boolean;
 
   useEffect(() => {
       if (!storage)
       {
         const token = Cookies.get("token");
-        console.log("token", token);
-      if (token)
-      {
-          const userData: userType = jwt_decode(token);
-          
-          console.log('in useffect', userData);
-          if (userData.twoAuthEnabled)
-          {
-            console.log('in navigate');
-            navigate('TwoFactorAuth');
-            return ;
-          }
-          console.log("UserData", userData);
-          setStorage("user", {
-            login: userData.login,
-            username: userData.username,
-            image: userData.image,
-            twoAuthEnabled: userData.twoAuthEnabled,
-          });
-          setStorage("token", token);
-          setAuthToken(token);
-      }
+        if (token)
+        {
+            const userData: userType = jwt_decode(token);
+            
+            setStorage("user", {
+              login: userData.login,
+              username: userData.username,
+              image: userData.image,
+              twoAuthEnabled: userData.twoAuthEnabled,
+            });
+            setStorage("token", token);
+            setAuthToken(token);
+        }
     }
   }, [])
   
