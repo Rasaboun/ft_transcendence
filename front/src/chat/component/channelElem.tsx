@@ -95,7 +95,6 @@ export default function ChannelElem() {
   };
 
   const handleLeftChannel = (data: {login: string, channelInfo: ChannelT}) => {
-    console.log('left channel', data);
     if (data.login == storage.login)
     {
       leaveChannel(data.channelInfo.channelId);
@@ -108,7 +107,6 @@ export default function ChannelElem() {
     clientId: string;
     channelInfo: ChannelT;
   }) => {
-    console.log(data.channelInfo)
     if (data.channelInfo.channelId != channelInfo?.channelId)
     {
       getChannelInfo(data.channelInfo?.channelId);
@@ -126,7 +124,6 @@ export default function ChannelElem() {
   };
 
   const handleChannelDeleted = (message: string) => {
-    console.log("In channeldeleted");
     navigate("/chat");
   };
 
@@ -159,7 +156,6 @@ export default function ChannelElem() {
   };
 
   const handleBannedFromChannel = (data: ActionOnUser) => {
-    console.log("Banned data", data);
     const message =
       data.targetId === storage.login
         ? "You have been banned from the chat"
@@ -250,7 +246,6 @@ export default function ChannelElem() {
         handleChannelInfo
       );
     }
-      console.log(Locationstate)
       getChannelInfo(Locationstate.channelName);
       getClientInfo(Locationstate.channelName);
   }, [chatSocket?.connected]);

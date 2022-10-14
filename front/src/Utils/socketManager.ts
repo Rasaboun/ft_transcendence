@@ -9,10 +9,10 @@ let gameSocket:Socket
 
 export async function initiateSocket(url:string)
 {
+	console.log('in initiate socket');
 	let token = getToken();
 	if (!token)
 		return;
-	console.log("Token", token);
 	token = JSON.parse(token);	
 	if (!chatSocket)
 	{
