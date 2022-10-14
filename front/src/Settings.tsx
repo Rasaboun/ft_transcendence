@@ -128,8 +128,18 @@ function TabSettings() {
 		if (form.username !== defaultValue.username)
 		{
 			console.log("username settings", form.username)
-			setUsername(storage.login, form.username)
-			setStorage("user", {...storage, username: form.username})
+			const taken = await setUsername(storage.login, form.username)
+			if (taken)
+			{
+				setForm((prevForm) => ({
+						...prevForm,
+						username : "This user is already taken"
+					}))
+			}
+			else
+			{
+				setStorage("user", {...storage, username: form.username})
+			}
 		}
 		if (form.image !== defaultValue.image)
 		{
@@ -169,45 +179,6 @@ function TabSettings() {
 						{
 							!enabled ?
 							<ControlledPopup setEnabled={setEnabled}/> :
-								// <Popup
-								// closeOnDocumentClick
-								// open={open}
-								// onClose={closeModal}
-								// trigger={
-									
-											
-																	
-								// 	<QRcodeModal setOpen={setOpen}/>
-									
-								// </Popup> :
-								<button
-								type="button"
-								className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
-								onClick={() => handleDisableTwoAuth()}
-								>
-									<p> Disable </p>
-								</button>
-						}
-					</dd>
-				</div>
-				<div className="bg-white flex justify-between mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 px-4 py-5">
-					<dt className="text-sm font-medium text-gray-500">Two Factor Authentication</dt>
-					
-					<dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-						{
-							!enabled ?
-							<ControlledPopup setEnabled={setEnabled}/> :
-								// <Popup
-								// closeOnDocumentClick
-								// open={open}
-								// onClose={closeModal}
-								// trigger={
-									
-											
-																	
-								// 	<QRcodeModal setOpen={setOpen}/>
-									
-								// </Popup> :
 								<button
 								type="button"
 								className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"

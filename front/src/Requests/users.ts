@@ -105,9 +105,11 @@ export async function setUserStatus(login: string, status: UserStatus)
 export async function setUsername(login: string, username: string)
 {
     const url: string = backUrl + "/users/username";
+    let taken = false;
     await axios.put(url, {login, username}).then(res => {
+    }).catch(e => {taken = true})
 
-    }).catch(e => console.log)
+    return taken;
 }
 
 export async function setUserPhoto(login: string, photo: File)
@@ -205,6 +207,6 @@ export async function submitTwoFactorAuthentication(code: string)
 
     const ret = await axios.post(url, {login, code}).then(res => {
         return res.data;
-    }).catch()
+    }).catch(e => console.log)
     return ret;
 }

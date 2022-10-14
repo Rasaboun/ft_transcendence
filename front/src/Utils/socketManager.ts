@@ -9,6 +9,7 @@ let gameSocket:Socket
 
 export async function initiateSocket()
 {
+	console.log('in initiate socket');
 	let token = getToken();
 	if (!token)
 		return;
@@ -128,6 +129,10 @@ export function getUsers()
 	chatSocket?.emit("loadConnectedUsers");
 }
 
+export function updateSocket(channelName: string)
+{
+	chatSocket?.emit("updateSocket", channelName);
+}
 
 export function sendInvitation(data:{channelName: string, mode: GameMode}) {
 	chatSocket?.emit("sendInvitation", data);

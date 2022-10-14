@@ -20,9 +20,11 @@ function TabElement(props:any) {
       <th scope="row" className="py-4 px-6 font-medium text-gray-900">
         {props.rank}
       </th>
+      <td>
       <Link to={"/profile/" + props.user.intraLogin}>
-    	  <td className="py-4 px-6">{props.user.username}</td>
+    	  <p className="py-4 px-6">{props.user.username}</p>
       </Link>
+      </td>
       <td className="py-4 px-6">{props.user.gameStats.victories}</td>
       <td className="py-4 px-6">{props.user.gameStats.defeats}</td>
     </tr>

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createUserDto } from 'src/users/dto/createUser.dto';
 import { User } from 'src/typeorm';
@@ -85,9 +85,7 @@ export class UsersService {
 
     findOneByUsername(username: string){
 
-        if (isNaN(Number(username)))
-            return this.userRepository.findOneBy({ username });
-        return this.findOneById(Number(username));
+        return this.userRepository.findOneBy({ username });
     }
 
     async createUser(userDto: createUserDto): Promise<User> {
@@ -202,6 +200,10 @@ export class UsersService {
         const user = await this.findOneByIntraLogin(login);
         if (!user)
             return ;
+        const targetUser = await this.findOneByUsername(newUsername);
+        console.log("target user", targetUser);
+        if (targetUser)
+            throw new ForbiddenException("Username already taken");
         user.username = newUsername;
         await this.userRepository.update(user.id, user);
     }

@@ -75,8 +75,9 @@ export default function App()
 		}
 	}, [getToken()])
 
-    return (				
-		<div>
+    return (
+				
+		<div className="flex flex-col">
 			{
 				alert.isShow &&
 					<ErrorAlert errorMsg={alert.msg}/>
@@ -102,7 +103,8 @@ export default function App()
 				
 				</Routes>
 			<Footer/>
-		</div>
 		
+		
+		</div>
     )
 }

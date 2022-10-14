@@ -1,28 +1,37 @@
 import Cookies from "js-cookie";
-import { useState } from "react";
-import useLocalStorage from "./hooks/localStoragehook";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { backUrl, submitTwoFactorAuthentication } from "./Requests/users";
 
 export default function TwoFactorAuth()
 {
     const [code, setCode] = useState<string>("")
+    const navigate = useNavigate();
 
 	const sendCode = async () => {
-            
+        
+
         const jwtToken = await submitTwoFactorAuthentication(code);
         if (!jwtToken)
             setCode("Invalid code");
 		else
         {
-            Cookies.set('token', jwtToken, { expires: 60000});
+            Cookies.set('token', jwtToken, { expires: 1});
             
             window.open(backUrl + "/auth/navigate", "_self"); 
             
         }
 	}
 
+    useEffect(() => {
+        if (Cookies.get('login') == undefined)
+            navigate('/Login');
+        if (Cookies.get('token'))
+            navigate('/Home');
+    })
+
     return (
-        <div className="flex flex-col justify-center items-center">
+        <div className="flex flex-col h-screen justify-center items-center">
             <input className="border border-indigo-300 rounded-md text-sm shadow-sm disabled:bg-indigo-50 disabled:text-indigo-500 disabled:border-indigo-200 disabled:shadow-none"
                 type="text"
                 name="code"

@@ -21,6 +21,7 @@ export default function LoginElem ()
 		gameSocket?.close()
 		localStorage.clear()
 		Cookies.remove("token");
+		Cookies.remove("login");
 	}, [])
 	return (
 		<div className="flex h-screen">

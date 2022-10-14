@@ -82,6 +82,20 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		catch (error) { client.emit('error', error.message ) }
 	}
 
+	@SubscribeMessage('updateSocket')
+	async updateSocket(client: AuthenticatedSocket, channelName: string)
+	{
+		try
+		{
+			if (client.chatId && channelName && client.chatId != channelName)
+			{
+				client.leave(client.chatId);
+				client.chatId = channelName;
+			}
+		}
+		catch (error) { client.emit('error', error.message ) }
+	}
+
 	@SubscribeMessage('createChannel')
 	async createChannel(client: AuthenticatedSocket, data: CreateChannel)
 	{

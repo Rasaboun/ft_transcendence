@@ -30,7 +30,7 @@ export default function InviteMessage({className, message}:MessagePropsT)
             </h4>}
 			{message.content}
 			<br/>
-            <button onClick={() => handleJoinInvitation()} className="button-action">join Invitation</button>
+            <button onClick={() => handleJoinInvitation()} className="focus:outline-none text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-2.5 py-1 my-2 mx-2">join Invitation</button>
         </div>
     )
 }

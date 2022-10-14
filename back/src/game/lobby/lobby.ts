@@ -120,6 +120,7 @@ export class Lobby
 
     public async sendToUsers(event: string, data: any)
     {
+
         this.clients.forEach((roomId, clientLogin) => {
             this.server.to(roomId).emit(event, data);
         })
@@ -129,6 +130,8 @@ export class Lobby
     {
         const winnerUsername = await this.lobbyManager.getPlayerUsername(winnerLogin);
         await this.lobbyManager.storeResult(this.gameInstance.getResultData())
+        console.log('Sending gameover');
+        console.log('nb clients', this.clients.size);
         this.sendToUsers('gameOver', winnerUsername);
         this.destroy();
     }

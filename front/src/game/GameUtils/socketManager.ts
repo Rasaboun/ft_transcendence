@@ -92,7 +92,7 @@ export function GameRoutineHandler(handleWait:any,
 	socket.on('gameData', (data: {gameData: GameData, gameSettings: GameSettings}) => handlegameData(data))
 	socket.on('goalScored', (scores: {player1: number, player2: number}) => handleGoalScored(scores))
 	socket.on('spectateSuccess', (data: {gameData: GameData, gameSettings: GameSettings }) => handleSpectateSuccess(data))
-	socket.on('gameOver', (winnerId: string) => handleGameOver(winnerId))
+	socket.on('gameOver', (winnerId: string) =>{		console.log('received gameover'); handleGameOver(winnerId)})
 	socket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, socket));
 
 }
