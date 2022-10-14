@@ -19,9 +19,10 @@ export default function ErrorPage()
 			display: "flex",
 			justifyContent: "center",
 			alignItems: "center",
-			padding: "400px",
-			fontSize: "150px",
-			color: "blue"
+			padding: "10%",
+			fontSize: "100px",
+			color: "blue",
+			textAlign: "center"
 		}}>
 			404 not found
 		</div>
