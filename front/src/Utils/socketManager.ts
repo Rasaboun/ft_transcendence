@@ -81,8 +81,11 @@ export function getActiveChannels() {
 }
 
 export function getClientInfo(channelName:string) {
-	console.log("In client info for channel", channelName)
 	chatSocket?.emit("clientInfo", channelName);
+}
+
+export function getChannelInfo(channelName:string) {
+	chatSocket?.emit("channelInfo", channelName)
 }
 
 export function banUser(data: ActionOnUser) {
@@ -152,7 +155,7 @@ export function chatHandler(handleMessageReceived:any,
 							newOwner:any,
 							handleIsAlreadyAdmin:any,
 							handleChannelJoined:any,
-							handleConnected:any)
+							handleChannelInfo:any)
 {
 	chatSocket.on("msgToChannel", (msg:messageT) => handleMessageReceived(msg))      
 	chatSocket.on('channelDeleted', (message:string) => handleChannelDeleted(message))
@@ -162,6 +165,7 @@ export function chatHandler(handleMessageReceived:any,
 	chatSocket.on('addAdmin', (data: {target: string, channelInfo: ChannelT}) => handleAddAdmin(data))
 	chatSocket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
 	chatSocket.on('leftChannel', (channelInfo:ChannelT) => handleLeftChannel(channelInfo))
+	chatSocket.on('channelInfo', (info:ChannelT) => handleChannelInfo(info))
 	chatSocket.on('newOwner', (data: {target: string, channelInfo: ChannelT}) => newOwner(data))
 	chatSocket.on('isAlreadyAdmin', handleIsAlreadyAdmin)
 }
@@ -199,7 +203,7 @@ export function unblockInChat(chatName: string)
 
 export function privChatMenuHandler(
 	loadConnectedUser:any,
-	handlePrivChatJoined:any)
+	)
 {
 chatSocket.on("listOfConnectedUsers", (userList:{intraLogin: string, username: string}[]) => loadConnectedUser(userList));
 // chatSocket.on("joinedPrivChat", () => handlePrivChatJoined());

@@ -78,21 +78,31 @@ function UserProfile({ user, photo, login, isFriend, setIsFriend, isBlocked, set
         </h1>
 
         <div className="flex">
-          <p className="mb-1 font-mono text-gray">Wins: {user.victories}</p>
+          <p className="mb-1 font-mono text-gray">Wins: {user.gameStats.victories}</p>
         </div>  
         <div className="flex">
-          <p className="mb-1 font-mono text-gray">Looses: {user.nbGames - user.victories}</p>
+          <p className="mb-1 font-mono text-gray">Looses: {user.gameStats.defeats}</p>
         </div>
         <div className="flex">
-          <p className="mb-1 font-mono text-gray">Haut-Fait: {user.nbGames - user.victories >= user.victories ? "NUL GERMAIN" : "MONSTRUEUX"}</p>
+          <p className="mb-1 font-mono text-gray">Rate: {user.gameStats.victories && ((user.gameStats.victories / user.gameStats.nbGames) * 100).toFixed(2)}%</p>
         </div>
         <div className="flex">
+          <p className="mb-1 font-mono text-gray">Goal Scored: {user.gameStats.goalsScored}</p>
+        </div>
+        
+        <div className="flex">
+          <p className="mb-1 font-mono text-gray">Goal Conceded: {user.gameStats.goalsTaken}</p>
+        </div>
+        <div className="flex">
+          <p className="mb-1 font-mono text-gray">Goal/Games: {(user.gameStats.goalsScored / user.gameStats.nbGames).toFixed(2)}</p>
+        </div>
+         <div className="flex">
           <p className="mb-1 font-mono text-gray">Status: {getStatus(user.status)}</p>
         </div>
           {
             user.intraLogin !== login &&
             <div className="flex flex-col">
-              <button className="font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 bg-green" onClick={() => handleFriendBtn()}>{friendBtnText}</button>
+              <button className="bg-green" onClick={() => handleFriendBtn()}>{friendBtnText}</button>
               <button className="bg-red-500" onClick={() => handleBlockBtn()}>{blockBtnText}</button>
             </div>
           }
@@ -151,7 +161,7 @@ export default function Profile() {
   }, [login]);
 
   return (
-    <div id="Profile" className="flex-1">
+    <div id="Profile" className="flex-1 h-screen">
       <header className="page-header shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <h1 className="page-title">Profile</h1>

@@ -154,6 +154,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		try
 		{
+			console.log("channelInfo")
 			await this.channelManager.sendChannelInfo(client, channelName);
 		}
 		catch (error) { client.emit('error', error.message ) }

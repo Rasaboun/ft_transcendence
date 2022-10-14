@@ -1,6 +1,7 @@
 import React, { useRef, useContext, useEffect, useState } from "react";
 import {
   chatHandler,
+  getChannelInfo,
   getChatSocket,
   getClientInfo,
   getGameSocket,
@@ -16,7 +17,7 @@ import {
   MessageTypes,
   UserStateT,
 } from "../ChatUtils/chatType";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import InfoMessage from "../Elements/InfoMessage";
 import ChannelBoard from "../Elements/channelBoard";
 import useLocalStorage from "../../hooks/localStoragehook";
@@ -28,11 +29,10 @@ import { Disclosure } from "@headlessui/react";
 
 export default function ChannelElem() {
   const { storage, setStorage } = useLocalStorage("user");
-  const { storage2 } = useLocalStorage("channel");
   const navigate = useNavigate();
+  const Locationstate = useLocation().state as {channelName: string}
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
-  const { chatSocket, setChatSocket, setGameSocket, setNotification } =
-    useContext(SocketContext);
+  const { chatSocket, setChatSocket, setGameSocket } = useContext(SocketContext);
   const [form, setForm] = useState({
     message: "",
     invite: "",
@@ -40,6 +40,7 @@ export default function ChannelElem() {
   });
   const [messagesList, setMessagesList] = useState<messageT[]>();
   const [userState, setUserState] = useState<UserStateT>();
+  const [channelInfo, setChannelInfo] = useState<ChannelT>();
   const [mutedTime, setMutedTime] = useState(0);
 
   const scrollToBottom = () => {
@@ -56,8 +57,8 @@ export default function ChannelElem() {
   const handleSubmitMessage = (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (form.message !== "") {
-      sendMessage(storage2!.channelId, form.message);
+    if (form.message !== "" && channelInfo) {
+      sendMessage(channelInfo.channelId, form.message);
     }
 
     setForm((oldForm) => ({
@@ -97,8 +98,12 @@ export default function ChannelElem() {
     clientId: string;
     channelInfo: ChannelT;
   }) => {
-    console.log(data.channelInfo);
-    setStorage("channel", data.channelInfo);
+    console.log(data.channelInfo)
+    if (data.channelInfo.channelId != channelInfo?.channelId)
+    {
+      getChannelInfo(data.channelInfo?.channelId);
+      getClientInfo(data.channelInfo?.channelId);
+    }
   };
 
   const handleIsAlreadyAdmin = () => {
@@ -123,14 +128,16 @@ export default function ChannelElem() {
       isMuted: data.isMuted,
       unmuteDate: data.unmuteDate,
     });
-    if (data.messages?.length !== 0) {
-      setMessagesList(data.messages);
-    }
+    setMessagesList(data.messages);
     if (data.unmuteDate !== 0)
       setMutedTime(
         Math.trunc(data.unmuteDate / 1000 - new Date().getTime() / 1000)
       );
   };
+
+  const handleChannelInfo = (info:ChannelT) => {
+    setChannelInfo(info)
+  }
 
   const handleAddAdmin = (data: { target: string; channelInfo: ChannelT }) => {
     setStorage("channel", data.channelInfo);
@@ -180,15 +187,6 @@ export default function ChannelElem() {
     }
   };
 
-  const handleConnected = () => {
-    console.log("handleConnected");
-    const channel = storage2;
-    if (channel) {
-      console.log(channel);
-      getClientInfo(channel.channelId);
-    }
-  };
-
   const messageElem = messagesList?.map((elem, index) =>
     elem.type === MessageTypes.Info ? (
       <InfoMessage key={index} message={elem} />
@@ -215,8 +213,16 @@ export default function ChannelElem() {
     )
   );
 
+  function isStateOk(obj: any): obj is {ChannelName:string} {
+    return (
+      typeof obj === 'object' &&
+      obj !== null &&
+      'ChannelName' in obj
+    );
+  }
+  
+
   useEffect(() => {
-    const channel = storage2;
     initiateSocket("http://localhost:8002");
     setChatSocket(getChatSocket());
     setGameSocket(getGameSocket());
@@ -232,11 +238,13 @@ export default function ChannelElem() {
         upgradeToOwner,
         handleIsAlreadyAdmin,
         handleChannelJoined,
-        handleConnected
+        handleChannelInfo
       );
     }
-    if (channel) getClientInfo(channel.channelId);
-  }, [chatSocket]);
+      console.log(Locationstate)
+      getChannelInfo(Locationstate.channelName);
+      getClientInfo(Locationstate.channelName);
+  }, [chatSocket?.connected]);
 
   useEffect(() => {
     scrollToBottom();
@@ -253,26 +261,26 @@ export default function ChannelElem() {
   }, [mutedTime]);
 
   return (
-    <Loader condition={chatSocket?.connected}>
-      <div className="flex flex-col-reverse md:flex-row">
-        
-          <ChannelBoard userState={userState} />
-        
-        <div className="chat-right bg-indigo-50">
-          <div className="h-96 ">
-            <div className="message-container">
-              {messageElem}
-              <div ref={lastMessageRef} />
-            </div>
-          </div>
-          <MessageInput
-            mutedTime={mutedTime}
-            handleChange={handleChange}
-            handleSubmitMessage={handleSubmitMessage}
-            value={form.message}
-          />
-        </div>
-      </div>
-    </Loader>
+	<Loader condition={chatSocket?.connected && channelInfo !== undefined}>
+		<div className="flex flex-col-reverse md:flex-row">
+			
+			<ChannelBoard userState={userState} channel={channelInfo} setChannelInfo={setChannelInfo}/>
+			
+			<div className="chat-right bg-indigo-50">
+			<div className="h-96 ">
+				<div className="message-container">
+				{messageElem}
+				<div ref={lastMessageRef} />
+				</div>
+			</div>
+			<MessageInput
+				mutedTime={mutedTime}
+				handleChange={handleChange}
+				handleSubmitMessage={handleSubmitMessage}
+				value={form.message}
+			/>
+			</div>
+		</div>
+	</Loader>
   );
 }

@@ -126,8 +126,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (!client.lobby)
 			return ;
 		client.lobby.startGame();
-		this.updatePlayersStatus(client.lobby, UserStatus.ingame);
-		
+		this.updatePlayersStatus(client.lobby, UserStatus.ingame);		
 	}
 
 	@SubscribeMessage('playerMoved')

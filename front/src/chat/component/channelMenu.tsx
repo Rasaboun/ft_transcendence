@@ -43,12 +43,15 @@ export default function ChannelMenu()
 	}
 
 	const handleChannelJoined = (data:{clientId:string, channelInfo:ChannelT}) => {
-        console.log(storage.login, data.clientId)
 		if (storage.login === data.clientId)
 		{
 			console.log(data.channelInfo)
 			setStorage("channel", data.channelInfo)
-			navigate("/chat/message")
+			navigate("/chat/message", {
+				state: {
+					channelName: data.channelInfo.channelId
+				}
+			})
 		}
 	}
 	
@@ -56,23 +59,9 @@ export default function ChannelMenu()
 		navigate("/chat/privMessage");
 	}
 
-    
-
-	const handleError = (message:string) => {
-		setErrorMsg({
-			isShow: true,
-			msg: message
-		})
-	}
-
 	const handleInvitation = (message:string) => {
 		window.alert(message)
 	}
-
-	const handleJoinPrivateChat = (intraLogin:string) => {
-		joinPrivChat(intraLogin);
-		navigate("/chat/privMessage");
-	}	
 
 	const loadConnectedUser = (connectedUsers:connectedUsersT[])=>
 	{
@@ -108,22 +97,11 @@ export default function ChannelMenu()
 				channel={elem}
 				handleJoinChannel={handleJoinChannel}
 				/>
-		</ChatListElem>
+			</ChatListElem>
 		
 	))
 	
 	
-	/*<div style={{
-            padding: "1em",
-            border: "1px solid black",
-			borderRadius: "5px",
-        }}>
-		<h6>Frank Erod</h6>
-
-		connected since : 18:30
-	</div>;
-	*/
-
     return (
 		
         <div >

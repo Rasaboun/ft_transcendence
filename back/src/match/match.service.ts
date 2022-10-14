@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Match } from 'src/typeorm';
+import { MatchInfo } from 'src/users/type/users.type';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { matchDto } from './dto/match.dto';
@@ -33,23 +34,33 @@ export class MatchService {
     async matchResult(matchDto: matchDto) {
         const newMatch = this.matchRepository.create(matchDto);
 
-        let players: { winnerLogin: string, loserLogin: string} =
-                    { winnerLogin: "", loserLogin: ""}
+        let matchInfo: MatchInfo = {
+                     winnerLogin: "", loserLogin: "",
+                     winnerScore: 0, loserScore: 0,
+                    }
 
         if (matchDto.playerOneScore > matchDto.playerTwoScore)
         {
-            players.winnerLogin = matchDto.playerOneLogin;
+            matchInfo.winnerLogin = matchDto.playerOneLogin;
+            matchInfo.winnerScore = matchDto.playerOneScore;
+
             newMatch.winnerLogin = matchDto.playerOneLogin;
-            players.loserLogin = matchDto.playerTwoLogin;
+
+            matchInfo.loserLogin = matchDto.playerTwoLogin;
+            matchInfo.loserScore = matchDto.playerTwoScore;
         }
         else 
         {
-            players.winnerLogin = matchDto.playerTwoLogin;
+            matchInfo.winnerLogin = matchDto.playerTwoLogin;
+            matchInfo.winnerScore = matchDto.playerTwoScore;
+
             newMatch.winnerLogin = matchDto.playerTwoLogin;
-            players.loserLogin = matchDto.playerOneLogin;
+
+            matchInfo.loserLogin = matchDto.playerOneLogin;
+            matchInfo.loserScore = matchDto.playerOneScore;
         }
 
-        this.userService.updateGameStats(players);
+        await this.userService.updateGameStats(matchInfo);
         return this.matchRepository.save(newMatch);
     }
 }
