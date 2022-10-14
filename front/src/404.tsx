@@ -15,7 +15,7 @@ export default function ErrorPage()
 		gameSocket?.on("connect", () => {navigate(-1)})
 	}, [chatSocket?.connected, gameSocket?.connected])
 	return (
-		<div className="flex-1" style={{
+		<div className="flex-1 h-screen" style={{
 			display: "flex",
 			justifyContent: "center",
 			alignItems: "center"

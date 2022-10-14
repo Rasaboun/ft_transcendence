@@ -44,7 +44,7 @@ export default function Home() {
   
 
   return (
-    <div id="Home" className="flex-1">
+    <div id="Home" className="flex-1 h-screen">
       <header className="page-header shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <h1 className="page-title">

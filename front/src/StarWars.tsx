@@ -9,7 +9,7 @@ export default function StarWars() {
 
 
   return (
-    <main className="w-full">
+    <main className="w-full h-screen">
     <div className="stars"></div>
     <div className="twinkling"></div> 
    

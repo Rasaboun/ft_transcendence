@@ -31,7 +31,7 @@ export default function TwoFactorAuth()
     })
 
     return (
-        <div className="flex flex-col justify-center items-center">
+        <div className="flex flex-col h-screen justify-center items-center">
             <input className="border border-indigo-300 rounded-md text-sm shadow-sm disabled:bg-indigo-50 disabled:text-indigo-500 disabled:border-indigo-200 disabled:shadow-none"
                 type="text"
                 name="code"
