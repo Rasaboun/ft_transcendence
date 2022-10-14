@@ -121,7 +121,6 @@ export async function enableTwoFactorAuthentication(callerLogin: string, code: s
     const ret = await axios.post(url, {login: callerLogin, code}).then(res => {
         return true;
     }).catch((e) => console.log(e))
-    console.log("ret", ret);
     if (ret == true)
         return true;
     return false;
@@ -142,7 +141,6 @@ export async function submitTwoFactorAuthentication(code: string)
     const url: string = backUrl + "/auth/submit2fa";
     const login = Cookies.get('login');
 
-    console.log('before req');
     const ret = await axios.post(url, {login, code}).then(res => {
         return res.data;
     }).catch()

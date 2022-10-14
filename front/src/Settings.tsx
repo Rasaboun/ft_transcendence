@@ -14,7 +14,7 @@ type settingsForm = {
 
 const url: string = "http://localhost:3002/users/";
 
-function QRcodeModal()
+function QRcodeModal({ setOpen, setEnabled } : { setOpen: (value:boolean) => void, setEnabled: (value:boolean) => void })
 {
 	const { storage, setStorage } = useLocalStorage("user")
 	const [qrCode, setQrCode] = useState<string | undefined>(undefined)
@@ -23,7 +23,6 @@ function QRcodeModal()
 	useEffect(() => {
 		const getQrCode = async () => {
 			const qrCode:string = await generateQrCode(storage.login);
-			console.log(storage.login);
 			setQrCode(qrCode);
 			setStorage("user", {...storage, twoAuthEnabled: true});
 		}
@@ -33,16 +32,19 @@ function QRcodeModal()
 	const sendCode = () => {
 		const isCodeValid = async () => {
 			const valid:boolean = await enableTwoFactorAuthentication(storage.login, code);
-			console.log("isvalid", valid);
 			if (!valid)
 				setCode("Invalide code");
-			
-			setStorage("user", {...storage, twoAuthEnabled: true});
+			else
+			{
+				setOpen(false);
+				setStorage("user", {...storage, twoAuthEnabled: true});
+				setEnabled(true);
+			}
 		}
 		isCodeValid();
 	}
 
-	return (
+	return ( 
 		qrCode ?
 			<div className="flex flex-col justify-center items-center">
 				<img src={qrCode} alt="qrCode" />
@@ -59,14 +61,34 @@ function QRcodeModal()
 					>Send Code</button>
 			</div> :
 			<div>
-				no QRCODE
+				<h1>Error: QRCode did not load</h1>
 			</div>
 	);
 }
 
+const ControlledPopup = ({  setEnabled } : { setEnabled: (value:boolean) => void }) => {
+	const [open, setOpen] = useState(false);
+	const closeModal = () => setOpen(false);
+	return (
+	  <div>
+		<button type="button" onClick={() => setOpen(o => !o)} className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none">
+			<p> Enable </p>
+		</button>
+		<Popup open={open} closeOnDocumentClick onClose={closeModal}>
+		  <div className="modal">
+			<a onClick={closeModal}>
+			  X
+			</a>
+			<QRcodeModal setOpen={setOpen} setEnabled={setEnabled}/>
+		  </div>
+		</Popup>
+	  </div>
+	);
+  };
+
 function TabSettings() {
-	const [qrCode, setQrCode] = useState<string | undefined>(undefined)
 	const { storage, setStorage } = useLocalStorage("user")
+	const [ enabled, setEnabled] = useState<boolean>(storage.twoAuthEnabled)
 	const { setImage } = useContext(SocketContext)
 	const defaultValue:settingsForm = {username : storage.username, image: storage.image}
 	const [editable, setEditable] = useState(false)
@@ -75,6 +97,7 @@ function TabSettings() {
 	const toggle = () => {
 		setEditable((prevEditable) => !prevEditable)
 	}
+	
 
 
 
@@ -98,6 +121,7 @@ function TabSettings() {
 	const handleDisableTwoAuth = async () => {
 		await disableTwoFactorAuthentication(storage.login);
 		setStorage("user", {...storage, twoAuthEnabled: false})
+		setEnabled(false);
 	}
 
 	const submitFormData = async () => {
@@ -108,7 +132,6 @@ function TabSettings() {
 		}
 		if (form.image !== defaultValue.image)
 		{
-			console.log(form.image)
 
 			await setUserPhoto(storage.login, form.image)
 			//const newPhoto = await getUserPhoto(storage.login);
@@ -117,6 +140,9 @@ function TabSettings() {
 		}
 	}
 
+	useEffect(() => {
+
+	})
 	return (
 	<div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
 		<div className=" px-4 py-6 sm:px-0">
@@ -146,17 +172,19 @@ function TabSettings() {
 					
 					<dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
 						{
-							!storage.twoAuthEnabled ?
-								<Popup trigger={
-											<button
-											type="button"
-											className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
-											>
-												<p> Enable </p>
-											</button>} modal nested
-										>											
-									<QRcodeModal/>
-								</Popup> :
+							!enabled ?
+							<ControlledPopup setEnabled={setEnabled}/> :
+								// <Popup
+								// closeOnDocumentClick
+								// open={open}
+								// onClose={closeModal}
+								// trigger={
+									
+											
+																	
+								// 	<QRcodeModal setOpen={setOpen}/>
+									
+								// </Popup> :
 								<button
 								type="button"
 								className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"

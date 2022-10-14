@@ -23,7 +23,7 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @Get('logout')
     logout(@Req() req) {
-        console.log(req);
+        
     }
    
 
@@ -49,7 +49,6 @@ export class AuthController {
         {
             res.cookie('login', req.user.intraLogin);   
             res.redirect('http://localhost:3000/TwofactorAuth');
-            console.log('in callback');
             return ;
         }
 

@@ -78,7 +78,6 @@ export class AuthService {
             username: user.username,
             twoAuthEnabled: user.isTwoFactorAuthenticationEnabled,
         }
-        console.log('payload', payload);
         const token = this.jwtService.sign(payload);
 
         return `token=${token}; Path=/; Max-Age=${this.configService.get('JWT_LIFETIME')}s`;
@@ -99,7 +98,6 @@ export class AuthService {
 
     async generatorTwoFactorAuthenticationSecret(login: string)
     {
-        console.log("login", login)
         const user = await this.userService.findOneByIntraLogin(login);
 
         const secret = authenticator.generateSecret();
@@ -115,14 +113,12 @@ export class AuthService {
 
     async pipeQrCodeStream(stream: Response, otpauthUrl: string)
     {
-        console.log("otpAuthUrl", otpauthUrl);
         return toFileStream(stream, otpauthUrl);
     }
 
     async isTwoFactorAuthenticationCodeValid(twoFactorAuthenticationCode: string, login: string)
     {
         const user = await this.userService.findOneByIntraLogin(login);
-        console.log("user", user.isTwoFactorAuthenticationEnabled, user.twoFactorAuthenticationSecret);
         return authenticator.verify({
             token: twoFactorAuthenticationCode,
             secret: user.twoFactorAuthenticationSecret,
