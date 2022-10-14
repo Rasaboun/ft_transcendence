@@ -1,6 +1,5 @@
 
 export enum GameState {
-  None,
 	Started,
 	Stopped,
 	Waiting,
