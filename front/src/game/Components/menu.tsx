@@ -7,7 +7,7 @@ import useLocalStorage from '../../hooks/localStoragehook'
 import { SocketContext } from '../../Context/socketContext';
 import { GameMenuHandler, getActiveGames, getChatSocket, getGameSocket, initiateSocket, joinQueue, Menucleaner, spectacteGame } from '../../Utils/socketManager';
 import GameRadioForm from '../../Elements/radioFormElem';
-import RadioFormElem from '../../Elements/radioFormElem';
+import RadioFormElemPong from '../../Elements/radioFormElemPong';
 import Loader from '../../Elements/loader';
 
 let socket:Socket
@@ -95,7 +95,7 @@ export default function Menu()
     return (
         <div>
             <form className="channel-form" onSubmit={handleSubmit}>
-                <RadioFormElem choice={gameMode} setChoice={setGameMode} options={["Normal", "Mini", "Speed"]}/>
+                <RadioFormElemPong choice={gameMode} setChoice={setGameMode} options={["Normal", "Mini", "Speed"]}/>
                 <button type="submit" className="text-white bg-gradient-to-r from-indigo-500 via-indigo-600 to-indigo-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-indigo-300 dark:focus:ring-indigo-800 shadow-lg shadow-indigo-500/50 dark:shadow-lg dark:shadow-indigo-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2" >
                     Start Game
                 </button>

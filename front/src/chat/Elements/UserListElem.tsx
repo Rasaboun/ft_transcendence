@@ -165,7 +165,7 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
             setChoice={setGameMode}
             options={["Normal", "Mini", "Speed"]}
           />
-          <button type="submit" className="button-action">
+          <button type="submit" className="focus:outline-none text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-2.5 py-1 my-2 mx-2">
             Invite
           </button>
         </form>

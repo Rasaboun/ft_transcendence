@@ -361,25 +361,25 @@ export default function Game()
 		}}>
 			{
 			parseInt(storage2) === GameState.Waiting &&
-				<div className="game-display ">
-					<h1 style={{
-						color: "white"
-					}}>Waiting for Player</h1>
+				<div className="flex justify-center items-center mx-5 bg-indigo-300 border border-8 border-indigo-200 rounded-lg">
+					<h1 className=" text-indigo-600" >Waiting for Player</h1>
 				</div>
 					
 			}
 			{
 				parseInt(storage2) === GameState.Stopped && clearCanvas() &&
-				<div className="game-display">
+				<div className="flex justify-center items-center mx-5 bg-indigo-300 border border-8 border-indigo-200 rounded-lg">
 					{(storage.login === gameData.winnerUsername) ? "YOU WON" : 
 					(((gameData.players[0].id === storage.login || gameData.players[1].id === storage.login)) ?
 						"YOU LOST" : `${gameData.winnerUsername} WON`)}
 					{}
 					</div>
 			}
+		
 		<canvas className="pong" ref={canvasRef} onMouseMove={handleMouseMove}/>
 		<Score gameData={gameData}/>
 		</div>
+		
 	);
 	
 }

@@ -42,9 +42,9 @@ export default function Score({ gameData }:propsType)
 			score={gameData.players[idx].score}
 			className={idx === 0 ? "float-left" : "float-right"}/>)
     return (
-        <div className=" px-4 py-6 sm:px-0">
+        <div className=" mx-4 my-6 sm:px-0">
 			
-			<div className="border-2 bg-indigo-200 border-line border-gray-200 rounded-lg h-96">
+			<div className="border-2 bg-indigo-200 border-line border-gray-200 rounded-lg max-h-96">
 			{
 				gameData.players.length === 2 &&
 				(parseInt(storage) === GameState.Started || parseInt(storage) === GameState.Spectacte) &&
