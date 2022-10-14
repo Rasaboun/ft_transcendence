@@ -84,7 +84,7 @@ function UserProfile({ user, photo, login, isFriend, setIsFriend, isBlocked, set
           <p className="mb-1 font-mono text-gray">Looses: {user.gameStats.defeats}</p>
         </div>
         <div className="flex">
-          <p className="mb-1 font-mono text-gray">Rate: {user.gameStats.victories && (user.gameStats.victories / user.gameStats.nbGames) * 100}%</p>
+          <p className="mb-1 font-mono text-gray">Rate: {user.gameStats.victories && ((user.gameStats.victories / user.gameStats.nbGames) * 100).toFixed(2)}%</p>
         </div>
         <div className="flex">
           <p className="mb-1 font-mono text-gray">Goal Scored: {user.gameStats.goalsScored}</p>
@@ -94,7 +94,7 @@ function UserProfile({ user, photo, login, isFriend, setIsFriend, isBlocked, set
           <p className="mb-1 font-mono text-gray">Goal Conceded: {user.gameStats.goalsTaken}</p>
         </div>
         <div className="flex">
-          <p className="mb-1 font-mono text-gray">Goal/Games: {(user.gameStats.goalsScored / user.gameStats.nbGames)}</p>
+          <p className="mb-1 font-mono text-gray">Goal/Games: {(user.gameStats.goalsScored / user.gameStats.nbGames).toFixed(2)}</p>
         </div>
          <div className="flex">
           <p className="mb-1 font-mono text-gray">Status: {getStatus(user.status)}</p>

@@ -106,7 +106,7 @@ export default function ChannelBoard({userState, channel, setChannelInfo}:PropsT
 			elem.isAdmin && !elem.isOwner && adminsList.push(elem)
 			!elem.isAdmin && !elem.isOwner && othersList.push(elem)
 		})
-	}, [])
+	}, [channel?.clients])
     
     channel?.clients?.forEach((elem:ClientElem, index:number) => {
         elem.isOwner && ownerList.push(elem)

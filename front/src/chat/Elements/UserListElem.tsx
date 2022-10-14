@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useLocalStorage from "../../hooks/localStoragehook";
 import { ClientElem, UserStateT } from "../ChatUtils/chatType";
 import {
@@ -11,6 +11,8 @@ import {
 import GameRadioForm from "../../Elements/radioFormElem";
 import { GameMode } from "../../game/GameUtils/type";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { getUserPhoto } from "../../Requests/users";
+import Loader from "../../Elements/loader";
 type UserElemPropsT = {
   client: ClientElem;
   userState?: UserStateT;
@@ -22,6 +24,7 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
   const { storage2 } = useLocalStorage("user");
   const [gameMode, setGameMode] = useState(GameMode.Normal);
   const [isHover, setIsHover] = useState<boolean>(false);
+  const [image, setImage] = useState<string>();
   const [form, setForm] = useState({
     banTime: "",
     muteTime: "",
@@ -31,6 +34,17 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
     ban: false,
     invite: false,
   });
+
+  useEffect(() => {
+    const getImage = async () =>
+    {
+      const userImg = await getUserPhoto(client.login)
+      setImage(userImg);
+
+    }
+    getImage()
+
+  }, [image])
 
   const handleOnMouseOver = () => {
     setIsHover(true);
@@ -112,20 +126,20 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
   };
 
   return (
+    <Loader condition={image !== undefined}>
     <div
       className="flex items-center justify-between mx-4"
       onMouseOver={handleOnMouseOver} /* onMouseLeave={handleMouseLeave}*/
     >
-      <div className="flex items-center">
-        <img
-          className="user-img"
-          src="https://i.imgur.com/vNHtbSz.png"
-          alt="user profil"
-        />
-
-        <Link to={"/profile/" + client.login}>{client.username}</Link>
+      
+        <Link to={"/profile/" + client.login}>
+          <div className="flex items-center">
+            <img className="user-img" src={image} alt="user profile photo"/>
+            {client.username}
+          </div>
+        </Link>
         {client.isMuted && "🔇"}
-      </div>
+      
       {isHover && storage2.login !== client.login && !isSelected.invite && (
         <button onClick={() => handleInviteToGame()}>
           <svg
@@ -242,5 +256,6 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
         </div>
       )}
     </div>
+    </Loader>
   );
 }

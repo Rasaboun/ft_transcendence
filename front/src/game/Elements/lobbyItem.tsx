@@ -5,6 +5,7 @@ import { getUsername, getUserPhoto, getUserProfile } from '../../Requests/users'
 import { Iuser } from '../../Utils/type';
 import PlayersIngame from './playersIngame';
 import { buttonClass } from '../../Utils/utils';
+import Loader from '../../Elements/loader';
 
 export default function LobbyItem(props:LobbiesInfoT)
 {
@@ -31,17 +32,19 @@ export default function LobbyItem(props:LobbiesInfoT)
 			className={idx === 0 ? "float-left" : "float-right"}/>)
 
     return (
-        <div style={{
-            padding: "1em",
-            borderBottom: "1px solid black"
-        }}>
-            <div>
-                {PlayersIngameElem}
-            </div>         
-            <Link  to="game" state={{socket : "socket"}}>
-                	<button  className={buttonClass} onClick={() => props.spectateMode(props.lobbyId)}>VIEW</button>
+		<Loader condition={users.length === 2}>
+			<div style={{
+				padding: "1em",
+				borderBottom: "1px solid black"
+				}}>
+				<div>
+					{PlayersIngameElem}
+				</div>         
+				<Link  to="game" state={{socket : "socket"}}>
+						<button  className={buttonClass} onClick={() => props.spectateMode(props.lobbyId)}>VIEW</button>
 
-            </Link>
-        </div>
+				</Link>
+			</div>
+		</Loader>	
     )
 }

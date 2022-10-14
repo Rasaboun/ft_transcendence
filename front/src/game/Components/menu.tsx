@@ -8,6 +8,7 @@ import { SocketContext } from '../../Context/socketContext';
 import { GameMenuHandler, getActiveGames, getChatSocket, getGameSocket, initiateSocket, joinQueue, Menucleaner, spectacteGame } from '../../Utils/socketManager';
 import GameRadioForm from '../../Elements/radioFormElem';
 import RadioFormElem from '../../Elements/radioFormElem';
+import Loader from '../../Elements/loader';
 
 let socket:Socket
 
@@ -100,7 +101,9 @@ export default function Menu()
                 </button>
 				</form>           
             <ul>
-                {lobbiesElements}
+                <Loader condition={availableLobbies !== undefined}>
+                    {lobbiesElements}
+                </Loader>
             </ul>
         </div>
     )
