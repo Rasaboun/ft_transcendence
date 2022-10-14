@@ -354,7 +354,7 @@ export default function Game()
 	return (
 		<div id="canvasDiv" style={{
 			maxHeight: "50vh"
-		}} className="flex flex-col">
+		}}>
 			{
 			parseInt(storage2) === GameState.Waiting &&
 				<div className="flex justify-center items-center mx-5 bg-indigo-300 border border-8 border-indigo-200 rounded-lg">
@@ -371,9 +371,11 @@ export default function Game()
 					{}
 					</div>
 			}
+		
 		<canvas className="pong" ref={canvasRef} onMouseMove={handleMouseMove}/>
 		<Score gameData={gameData}/>
 		</div>
+		
 	);
 	
 }

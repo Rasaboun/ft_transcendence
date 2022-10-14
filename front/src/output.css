@@ -645,6 +645,11 @@ video {
   margin-right: 1.25rem;
 }
 
+.my-6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
 .mt-2 {
   margin-top: 0.5rem;
 }
@@ -695,6 +700,14 @@ video {
 
 .ml-5 {
   margin-left: 1.25rem;
+}
+
+.mt-auto {
+  margin-top: auto;
+}
+
+.mt-5 {
+  margin-top: 1.25rem;
 }
 
 .block {
@@ -761,33 +774,12 @@ video {
   height: 25%;
 }
 
-.h-2\/4 {
-  height: 50%;
-}
-
-.h-3\/6 {
-  height: 50%;
-}
-
 .max-h-48 {
   max-height: 12rem;
 }
 
-.max-h-full {
-  max-height: 100%;
-}
-
 .max-h-96 {
   max-height: 24rem;
-}
-
-.max-h-screen {
-  max-height: 100vh;
-}
-
-.max-h-min {
-  max-height: -webkit-min-content;
-  max-height: min-content;
 }
 
 .w-full {
@@ -824,10 +816,6 @@ video {
 
 .w-4\/5 {
   width: 80%;
-}
-
-.w-3\/4 {
-  width: 75%;
 }
 
 .max-w-7xl {
@@ -914,10 +902,6 @@ video {
   justify-content: space-around;
 }
 
-.justify-items-center {
-  justify-items: center;
-}
-
 .space-x-1 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-x-reverse: 0;
   margin-right: calc(0.25rem * var(--tw-space-x-reverse));
@@ -942,10 +926,6 @@ video {
 
 .self-end {
   align-self: flex-end;
-}
-
-.justify-self-center {
-  justify-self: center;
 }
 
 .overflow-auto {
@@ -1033,11 +1013,6 @@ video {
   border-color: rgb(209 213 219 / var(--tw-border-opacity));
 }
 
-.border-indigo-900 {
-  --tw-border-opacity: 1;
-  border-color: rgb(49 46 129 / var(--tw-border-opacity));
-}
-
 .bg-indigo-400 {
   --tw-bg-opacity: 1;
   background-color: rgb(129 140 248 / var(--tw-bg-opacity));
@@ -1106,11 +1081,6 @@ video {
 .bg-indigo-500 {
   --tw-bg-opacity: 1;
   background-color: rgb(99 102 241 / var(--tw-bg-opacity));
-}
-
-.bg-black {
-  --tw-bg-opacity: 1;
-  background-color: rgb(0 0 0 / var(--tw-bg-opacity));
 }
 
 .bg-gradient-to-r {
@@ -1360,16 +1330,6 @@ video {
 .text-indigo-800 {
   --tw-text-opacity: 1;
   color: rgb(55 48 163 / var(--tw-text-opacity));
-}
-
-.text-black {
-  --tw-text-opacity: 1;
-  color: rgb(0 0 0 / var(--tw-text-opacity));
-}
-
-.text-indigo-500 {
-  --tw-text-opacity: 1;
-  color: rgb(99 102 241 / var(--tw-text-opacity));
 }
 
 .text-indigo-600 {

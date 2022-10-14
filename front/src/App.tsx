@@ -72,7 +72,8 @@ export default function App()
 		}
 	}, [storage])
 
-    return (				
+    return (
+				
 		<div className="flex flex-col">
 			{
 				alert.isShow &&
@@ -98,7 +99,8 @@ export default function App()
 				
 			</Routes>
 			<Footer/>
-		</div>
 		
+		
+		</div>
     )
 }
