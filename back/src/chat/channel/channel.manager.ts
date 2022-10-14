@@ -111,22 +111,26 @@ export class ChannelManager
             {
                 if (channel.isPasswordProtected() && !await this.channelsService.checkPassword(channel.id, data.password))
                     throw new ForbiddenException("Wrong channel password");
+                if (client.chatId)
+                    client.leave(client.chatId);
                 client.join(channel.id);
                 this.server.to(client.roomId).emit("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
 
-                //client.emit("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});                 
+   
                 return ;
             }
             if (channel.isPrivate() && !(await this.channelsService.isInvited(data.channelName, client.login)))
                 throw new ForbiddenException("You are not invited to this channel");
 
-            await this.channelsService.addClient(data.channelName, client.login, data.password) //change to real id
-
+            await this.channelsService.addClient(data.channelName, client.login, data.password) 
             const user = await this.userService.findOneByIntraLogin(client.login);
             await this.sendInfoMessage(client, channel.id, `${user.username} joined the channel`);
 
-            channel.addClient(client.login, client.roomId);
+            if (client.chatId)
+                client.leave(client.chatId);
             client.join(channel.id);
+            this.server.to(client.roomId).emit("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
+            channel.addClient(client.login, client.roomId);
             channel.sendToUsers("joinedChannel", {clientId: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))}, client.roomId);
         }
         catch (error) { throw error }
@@ -152,13 +156,15 @@ export class ChannelManager
             if (channel == undefined)
                 throw new NotFoundException("This channel does not exist anymore");
             
+            if (channel.isClient(client.login) == false)
+                return ;
             await this.channelsService.removeClient(channelName, client.login);
             channel.removeClient(client.login);
 
             const user = await this.userService.findOneByIntraLogin(client.login);
             await this.sendInfoMessage(client, channel.id, `${user.username} left the channel`);
 
-            channel.sendToUsers("leftChannel", channel.getInfo(await this.getChannelClients(channel.id)));
+            channel.sendToUsers("leftChannel", {login: client.login, channelInfo: channel.getInfo(await this.getChannelClients(channel.id))});
             if (channel.getNbClients() == 0)
             {
                 await this.deleteChannel(channelName);
@@ -195,6 +201,15 @@ export class ChannelManager
         } catch (error) { throw error }
     }
 
+    // public async makeSocketsLeave(channelName: string, login: string)
+    // {
+    //     const sockets = await this.server.in(channelName).fetchSockets();
+
+    //     sockets.forEach((socket as Au) => {
+    //         if (socket.login)
+    //     })
+    // }
+
     public async deleteChannel(channelId: string)
     {
         const channel: Channel = this.channels.get(channelId);
@@ -219,6 +234,7 @@ export class ChannelManager
     {
         try
         {
+            console.log('Message received');
             const channel: Channel = this.channels.get(channelId);
             
             if (channel == undefined)
@@ -241,6 +257,7 @@ export class ChannelManager
                 type: MessageTypes.Message,
             };
 
+            console.log('Send message');
             channel.sendMessage(message);
             await this.channelsService.addMessage(channelId, message);
         }
@@ -451,7 +468,6 @@ export class ChannelManager
     {
         try
         {
-            console.log("kkjgkdfjgkljdfl")
             const channel = this.channels.get(channelName);
             if (channel == undefined)
                 throw new NotFoundException("This channel does not exist");

@@ -78,6 +78,8 @@ export class AuthService {
         const payload = {
             login: user.intraLogin,
             username: user.username,
+            roomId: user.roomId,
+            blockedUsers: user.blockedUsers,
             twoAuthEnabled: user.isTwoFactorAuthenticationEnabled,
         }
         const token = this.jwtService.sign(payload);
@@ -92,6 +94,8 @@ export class AuthService {
         const payload = {
             login: user.intraLogin,
             username: user.username,
+            roomId: user.roomId,
+            blockedUsers: user.blockedUsers,
             twoAuthEnabled: user.isTwoFactorAuthenticationEnabled,
         }
         return this.jwtService.sign(payload);
@@ -132,6 +136,7 @@ export class AuthService {
     {
         const token = client.handshake.auth.token
         const tokenData: TokenPayload = this.jwtService.decode(token) as TokenPayload;
+
 
         if (!tokenData)
             return ;
