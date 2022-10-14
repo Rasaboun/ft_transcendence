@@ -35,7 +35,7 @@ function HoverNavBar(location: String) {
       .getElementById(other.name + "burger")
       ?.classList.remove("bg-indigo-400");
   }
-
+  
   document
     .getElementById(location.replace("/", ""))
     ?.classList.add("bg-indigo-400");
@@ -50,26 +50,13 @@ export default function NavBar() {
   const { image } = useContext(SocketContext);
   const {
     chatSocket,
-    gameSocket,
     setChatSocket,
     setGameSocket,
-    notification,
-    setNotification,
   } = useContext(SocketContext);
-
-  const handleChatNotification = () => {
-    setNotification(true);
-    navigation = navigation.map((element, idx) => {
-      if (idx === 1) return { ...element, notification: notification };
-      return element;
-    });
-    console.log(notification);
-  };
 
   useEffect(() => {
     // Mettre à jour le titre du document en utilisant l'API du navigateur
 
-    document.getElementById("notification")?.classList.add(profileColor[1]);
     HoverNavBar(location.pathname);
     const getPhoto = async () => {
       const file = await getUserPhoto(storage.login);
@@ -79,10 +66,7 @@ export default function NavBar() {
     initiateSocket("http://localhost:8002");
     setChatSocket(getChatSocket());
     setGameSocket(getGameSocket());
-    if (chatSocket) {
-      chatSocket.on("msgToChannel", () => handleChatNotification());
-    }
-  }, [image, chatSocket?.connected, notification]);
+  }, [image, location.pathname]);
 
   return (
     <>
@@ -152,14 +136,6 @@ export default function NavBar() {
                             id={item.name}
                           >
                             {item.name}
-                            {item.notification && (
-                              <span
-                                id="notification"
-                                className="bg-red-400 top-0
-                            left-100 absolute  w-3.5 h-3.5 border-2
-                            border-gray rounded-full"
-                              ></span>
-                            )}
                           </Link>
                         ))}
                       </div>
@@ -182,21 +158,6 @@ export default function NavBar() {
                             />
                           </div>
                         </Menu.Button>
-                        <span
-                          id="notification"
-                          className="top-0 left-7 absolute  w-3.5 h-3.5 border-2 border-gray rounded-full"
-                          onClick={() => {
-                            for (let i of profileColor) {
-                              let notif =
-                                document.getElementById("notification");
-                              notif?.classList.remove(i);
-                            }
-                            let notif = document.getElementById("notification");
-                            notif?.classList.add(profileColor[index]);
-                            index =
-                              index >= profileColor.length - 1 ? 0 : index + 1;
-                          }}
-                        ></span>
                       </div>
                       <Transition
                         as={Fragment}
