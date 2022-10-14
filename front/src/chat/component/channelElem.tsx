@@ -8,6 +8,7 @@ import {
   initiateSocket,
   leaveChannel,
   sendMessage,
+  updateSocket,
 } from "../../Utils/socketManager";
 import Message from "../Elements/message";
 import {
@@ -103,12 +104,10 @@ export default function ChannelElem() {
     setStorage("channel", data.channelInfo);
   };
 
-  const handleChannelJoined = (data: {
-    clientId: string;
-    channelInfo: ChannelT;
-  }) => {
+  const handleChannelJoined = (data: {clientId: string; channelInfo: ChannelT; }) => {
     if (data.channelInfo.channelId != channelInfo?.channelId)
     {
+      updateSocket(data.channelInfo.channelId);
       getChannelInfo(data.channelInfo?.channelId);
       getClientInfo(data.channelInfo?.channelId);
     }

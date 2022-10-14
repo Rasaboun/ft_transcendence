@@ -126,6 +126,10 @@ export function getUsers()
 	chatSocket?.emit("loadConnectedUsers");
 }
 
+export function updateSocket(channelName: string)
+{
+	chatSocket?.emit("updateSocket", channelName);
+}
 
 export function sendInvitation(data:{channelName: string, mode: GameMode}) {
 	chatSocket?.emit("sendInvitation", data);

@@ -8,7 +8,6 @@ type MessageInputPropsT = {
 };
 
 export default function MessageInput(props: MessageInputPropsT) {
-  console.log("mutedTime", props.mutedTime);
   return (
     <form className="flex flex-row" onSubmit={props.handleSubmitMessage}>
       <input
