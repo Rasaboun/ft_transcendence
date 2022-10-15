@@ -47,7 +47,7 @@ export function getGameSocket()
 }
 
 
-export function appSocketRoutine(handleGameOver:any,
+export function appSocketRoutine(
 								handleError:any,
 								handleConnectionError:any,
 								userNotFound:any
@@ -60,7 +60,6 @@ export function appSocketRoutine(handleGameOver:any,
 	chatSocket.on("Connect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
 	chatSocket.on('error', (message:string) => handleError(message))	
 	chatSocket.on("Reconnect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
-	gameSocket.on('gameOver', (winnerId: string) => handleGameOver(winnerId))
 	chatSocket.on('channelDeleted', (message:string) =>handleError(message))
 }
 
@@ -212,7 +211,6 @@ export function privChatMenuHandler(
 	)
 {
 chatSocket.on("listOfConnectedUsers", (userList:{intraLogin: string, username: string}[]) => loadConnectedUser(userList));
-// chatSocket.on("joinedPrivChat", () => handlePrivChatJoined());
 }
 
 export function chatHandlerPrivEl(handlePrivMessageReceived:any,

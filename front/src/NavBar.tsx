@@ -51,7 +51,6 @@ export default function NavBar() {
   } = useContext(SocketContext);
 
   useEffect(() => {
-    // Mettre à jour le titre du document en utilisant l'API du navigateur
 
     HoverNavBar(location.pathname);
     const getPhoto = async () => {
@@ -139,7 +138,7 @@ export default function NavBar() {
                     </div>
                   </div>
                   <p className="text-line hidden sm:block text-white">
-                    ft_transcendance
+                    ft_transcendence
                   </p>
                   <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                     {/* Profile dropdown */}

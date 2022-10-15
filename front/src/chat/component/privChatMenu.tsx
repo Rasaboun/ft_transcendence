@@ -52,8 +52,8 @@ export default function PrivChatMenu()
 
     return (
 		
-        <div>
-			<h1 style={{ fontSize: "20px", margin: "40px" }}> <strong> Users connected and open to chat with you:</strong></h1>
+        <div className="text-center">
+			<h1 className="text-lg font-bold"> You can start a chat with:</h1>
 			{users}
 		</div>
     )

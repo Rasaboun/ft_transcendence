@@ -8,6 +8,4 @@ export enum messageState
 export interface Message {
   senderId: number,
   mess: string,
-  // recievedSeen: number, // add an enum ? @bditte
-  // timeSent: Date
 }

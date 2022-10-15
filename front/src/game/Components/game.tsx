@@ -3,7 +3,6 @@ import Score from "../Elements/score"
 import * as utils from "../GameUtils/GameUtils"
 import "../game.css"
 import { GameSettings, GameData, GameState, Ball, DrawingSettings} from "../GameUtils/type"
-// import {ThreeDots} from "react-loader-spinner";
 import { Socket } from 'socket.io-client'
 import useLocalStorage from "../../hooks/localStoragehook"
 import { GameCleaner, GameRoutineHandler, getChatSocket, getGameSocket, initiateSocket, leftPong, loadGame, playerMoved, startGame } from "../../Utils/socketManager"
@@ -120,11 +119,7 @@ export default function Game()
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			ball: data.gameData.ball,
-			players: newPlayers, //oldGameData.players.map((player, index) => {
-			// 	if (index === 0)
-			// 		return {...player, id: data.gameData.players[index].id, pos: utils.toScale(gameData.players[0].pos, canvas.height / gameSettings.height)}
-			// 	return {...player, id: data.gameData.players[index].id, pos: utils.toScale(gameData.players[1].pos, canvas.height / gameSettings.height)}
-			// }),
+			players: newPlayers,
 			state: data.gameData.state,
 		}))
 		setGameSettings((oldGameSettings) => ({

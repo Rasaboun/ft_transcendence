@@ -1,8 +1,5 @@
-import { v4 } from "uuid";
 import { Server } from "socket.io";
 import { Message } from "../types/channel.type";
-import { StringRegexOptions } from "joi";
-import { privChatInfo } from "../types/privChat.type";
 
 export class PrivChat
 {
@@ -14,13 +11,6 @@ export class PrivChat
 	public addClient(clientLogin: string, roomId: string)
 	{
 		this.clients.set(clientLogin, roomId);
-	}
-
-    public sendToUsers(event: string, data: any)
-	{
-		// add this a fct to send to single user
-		// this.server.to(this.id).emit(event, data);
-		
 	}
 
 	public getOtherLogin(callerLogin: string)
@@ -45,7 +35,4 @@ export class PrivChat
 		return this.clients.get(login) == undefined ? false : true;
 	}
 
-	// a function should be looking for new connections and potential connections
-	// need a function to list online persons 
-	// 
 }

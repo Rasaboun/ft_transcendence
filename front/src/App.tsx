@@ -31,7 +31,7 @@ export default function App()
 {
 	const navigate = useNavigate()
 	const { setChatSocket, setGameSocket} = useContext(SocketContext)
-	const { storage2 } = useLocalStorage("user");
+	const { storage } = useLocalStorage("user");
 	const [alert, setAlert] = useState({
 		isShow: false,
 		msg: ""
@@ -43,12 +43,7 @@ export default function App()
 			msg: message
 		})
 	}
-	
-	function handleGameOver(winnerId: string)
-	{
-		const message = winnerId === storage2.login ? "YOU WIN" : "YOU LOSE"
-		console.log(message)
-	}
+
 
 	function handleConnectionError ()
 	{
@@ -75,7 +70,7 @@ export default function App()
 			initiateSocket()
 			setChatSocket(getChatSocket())
 			setGameSocket(getGameSocket())
-			appSocketRoutine(handleGameOver, handleError, handleConnectionError, userNotFound);
+			appSocketRoutine(handleError, handleConnectionError, userNotFound);
 		}
 
 		// eslint-disable-next-line
@@ -88,7 +83,7 @@ export default function App()
 				alert.isShow &&
 					<ErrorAlert errorMsg={alert.msg}/>
 			}
-			{Cookies.get('token') && storage2 ? 
+			{Cookies.get('token') && storage ? 
 				<NavBar /> :
 				<LoginNavBar/>
 			}

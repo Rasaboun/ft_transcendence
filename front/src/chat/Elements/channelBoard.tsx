@@ -18,6 +18,7 @@ export default function ChannelBoard({userState, channel, setChannelInfo}:PropsT
     let othersList: ClientElem[] = [];
     const {storage} = useLocalStorage("user");
     const navigate = useNavigate()
+    const [open, setOpen] = useState(false);
     const [form, setForm] = useState({
         message:"",
         invite:"",
@@ -182,7 +183,7 @@ export default function ChannelBoard({userState, channel, setChannelInfo}:PropsT
           <UserListElem key={index} client={elem} userState={userState} />
         ))}
 
-        {adminsList.length !== 0 && <h2>Admin</h2>}
+        {adminsList.length !== 0 && <h2>Admins</h2>}
         {adminsList.map((elem: ClientElem, index: number) => (
           <UserListElem key={index} client={elem} userState={userState} />
         ))}

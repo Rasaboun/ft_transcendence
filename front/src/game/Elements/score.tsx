@@ -32,7 +32,7 @@ export default function Score({ gameData }:propsType)
 		}
 		
 		// eslint-disable-next-line
-	}, [gameData.players, gameData.players[0].id, gameData.players[1].id])
+	}, [gameData.players[0].id, gameData.players[1].id])
 	
 	const PlayerScoreElem = users.map((elem, idx) =>
 		<PlayersScores key={idx} username={elem.username}

@@ -80,6 +80,12 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
       targetId: client.login,
       duration: parseInt(form.banTime),
     });
+
+    setIsSelected(() => ({
+      ban: false,
+      mute: false,
+      invite: false,
+    }));
   };
 
   const handleSubmitMute = (e: React.ChangeEvent<HTMLFormElement>) => {
@@ -89,11 +95,15 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
       targetId: client.login,
       duration: parseInt(form.muteTime),
     });
+    setIsSelected(() => ({
+      ban: false,
+      mute: false,
+      invite: false,
+    }));
   };
 
   const handleSubmitGameMode = (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
-    //INITED ID ?
     createLobby({ inviteMode: true, mode: gameMode });
     sendInvitation({ channelName: storage!.channelId, mode: gameMode });
     navigate("/Pong/game");

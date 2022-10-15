@@ -23,7 +23,6 @@ export class PrivChatManager
 
 	@WebSocketServer()
 	public server: Server;
-	// array of private chat or users, only thing that counts is the users online
 	private readonly privateChats: Map<string, PrivChat> = new Map<string, PrivChat>();
 
 	public async initPrivChats()

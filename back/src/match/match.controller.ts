@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import JwtAuthGuard from 'src/auth/guards/jwt.strategy.guard';
-//import { AuthenticatedGuard } from 'src/auth/guards/auth.guard';
 import { Match } from 'src/typeorm';
 import { LoginDto } from 'src/users/dto/users.dto';
 import { matchDto } from './dto/match.dto';
