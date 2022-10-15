@@ -25,7 +25,6 @@ export class IntraStrategy extends PassportStrategy(Strategy, 'intra') {
 
         const dto: createUserDto = {
           intraLogin: profile.username,
-          username: profile.username,
           photoUrl: profile.photos[0].value,
           roomId: v4()
         }

@@ -1,25 +1,28 @@
-import { useContext, useState } from "react"
+import Cookies from "js-cookie";
+import { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { SocketContext } from "./Context/socketContext"
 import useLocalStorage from "./hooks/localStoragehook"
-import { setUsername, setUserPhoto } from "./Requests/users"
+import { backUrl, setUserPhoto, submitFirstRegistration } from "./Requests/users"
+import { validUsername } from "./Utils/utils";
 
 type settingsForm = {
 	username: string,
 	image: File | undefined,
 }
 
-function TabSettings() {
+function LoginForm() {
+    const navigate = useNavigate();
+
 	const { storage, setStorage } = useLocalStorage("user")
 	const { setImage } = useContext(SocketContext)
-	const [editable, setEditable] = useState(false)
-	const [displayedImage, setDisplayedImage] = useState(storage.image)
+	const [error, setError] = useState(false)
+	const [errorMessage, setErrorMessage] = useState("");
+	const [displayedImage, setDisplayedImage] = useState(storage?.image)
 	const [form, setForm] = useState<settingsForm>({
         username: "",
         image: undefined
     })
-	const toggle = () => {
-		setEditable((prevEditable) => !prevEditable)
-	}
 	
 
 
@@ -42,18 +45,37 @@ function TabSettings() {
 	}
 
 	const submitFormData = async () => {
-		console.log("username settings", form.username)
-			const taken = await setUsername(storage.login, form.username)
-			if (taken)
+
+			setError(false);
+			if (!validUsername(form.username))
 			{
+				setError(true);
+				setErrorMessage("Invalid username")
+				console.log('invalid');
 				setForm((prevForm) => ({
-						...prevForm,
-						username : "This user is already taken"
-					}))
+					...prevForm,
+					username : ""
+				}))
+				return ;
+			}
+
+			const jwtToken = await submitFirstRegistration(form.username)
+			if (!jwtToken)
+			{
+				console.log('taken');
+				setError(true);
+				setErrorMessage("Username already taken")
+				setForm((prevForm) => ({
+					...prevForm,
+					username : ""
+				}))
 			}
 			else
 			{
-				setStorage("user", {...storage, username: form.username})
+				Cookies.set('token', jwtToken, { expires: 1});
+				
+				window.open(backUrl + "/auth/navigate", "_self"); 
+				
 			}
 		if (form.image !== undefined)
 		{
@@ -63,6 +85,12 @@ function TabSettings() {
 		}
 	}
 
+    useEffect(() => {
+        if (Cookies.get('login') === undefined)
+            navigate('/Login');
+        if (Cookies.get('token'))
+            navigate('/Home');
+    })
 
 	return (
 	<div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -70,7 +98,7 @@ function TabSettings() {
 		<div className="bg-indigo-200 shadow overflow-hidden sm:rounded-lg">
 			<div className="px-4 py-5 sm:px-6">
 			<h3 className="text-lg leading-6 font-medium text-gray-900">
-				Choose Your information
+				Choose your username
 			</h3>
 			</div>
 			<div className="border-t border-gray-200">
@@ -83,44 +111,25 @@ function TabSettings() {
 					name="username"
 					value={form.username}
 					onChange={handleChange}
-					disabled={!editable}
-					className="w-1/6 border border-indigo-300 rounded-md text-sm shadow-sm disabled:bg-indigo-50 disabled:text-indigo-500 disabled:border-indigo-200 disabled:shadow-none"
+					className="w-3/6 border border-indigo-300 rounded-md text-sm shadow-sm disabled:bg-indigo-50 disabled:text-indigo-500 disabled:border-indigo-200 disabled:shadow-none"
 					></input>
+					{
+						error && (
+							<p style={{ color: "rgb(255, 0, 0)" }}>
+								{ errorMessage }
+							</p>
+						)
+					}
 					<button
 					type="button"
 					className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
-					onClick={() => toggle()}
+					onClick={() => submitFormData()}
 					>
-					<svg
-						className="w-4 h-4 fill-current mr-2"
-						viewBox="0 0 20 20"
-					>
-						<path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
-					</svg>
-					<p>Edit</p>
+					<p>Validate</p>
 					</button>
 				</dd>
 				</div>
-				<div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-				<dt className="text-sm font-medium text-gray-500">Avatar</dt>
-				<dd className="flex mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 justify-between">
-					<img className="h-10 w-10" src={displayedImage} alt="" />
-					<input className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"
-						type="file"
-						name="image"
-						accept="image/*"
-						onChange={handleChange}>
-					</input>
-				</dd>
-				</div>
 			</dl>
-                <button
-                    type="button"
-                    className="inline-flex items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 focus:outline-none"
-                    onClick={() => submitFormData()}
-                    >
-                    <p>Valid Info</p>
-                </button>
 			</div>
 			
 		</div>
@@ -139,12 +148,12 @@ export default function FirstRegistration() {
       <header className="page-header shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <h1 className="page-title">
-            Account Registred
+            Welcome
           </h1>
         </div>
       </header>
       <main>
-        <TabSettings/>
+        <LoginForm/>
       </main>
     </div>
   );

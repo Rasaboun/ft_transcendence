@@ -13,6 +13,8 @@ export default function ErrorPage()
 		setGameSocket(getGameSocket())
 		chatSocket?.on("connect", () => {navigate(-1)})
 		gameSocket?.on("connect", () => {navigate(-1)})
+
+		// eslint-disable-next-line
 	}, [chatSocket?.connected, gameSocket?.connected])
 	return (
 		<div className="flex-1 h-screen" style={{

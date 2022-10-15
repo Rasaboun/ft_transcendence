@@ -22,6 +22,7 @@ export default function LoginElem ()
 		localStorage.clear()
 		Cookies.remove("token");
 		Cookies.remove("login");
+		// eslint-disable-next-line
 	}, [])
 	return (
 		<div className="flex h-screen" style={{ width: "100%", display: "flex", alignItems:"center", justifyContent: "center" }}>

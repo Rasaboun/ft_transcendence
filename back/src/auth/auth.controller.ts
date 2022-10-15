@@ -9,7 +9,7 @@ import { UsersService } from 'src/users/users.service';
 import JwtAuthGuard from './guards/jwt.strategy.guard';
 import { read } from 'fs';
 import { TokenPayload } from './types/auth.type';
-import { LoginDto } from 'src/users/dto/users.dto';
+import { FirstLoginDto, LoginDto } from 'src/users/dto/users.dto';
 import { optional } from 'joi';
 import { ConfigService } from '@nestjs/config';
 
@@ -38,13 +38,19 @@ export class AuthController {
     @Get('callback')
     async register(@Request() req, @Res() res)
     { 
-        const user = req.user;
         if (req.user == null)
         {
             res.redirect(`${process.env.FRONT_ADDRESS}:${process.env.FRONT_PORT}/login`);  
             return ;
         }
   
+        if (req.user.username == null)
+        {
+            res.cookie('login', req.user.intraLogin); 
+            res.redirect(`${process.env.FRONT_ADDRESS}:${process.env.FRONT_PORT}/firstRegistration`);  
+            return ;
+        }
+
         if (req.user.isTwoFactorAuthenticationEnabled)
         {
             res.cookie('login', req.user.intraLogin); 
@@ -57,6 +63,17 @@ export class AuthController {
         res.setHeader('Set-Cookie', cookie);
         res.redirect(`${process.env.FRONT_ADDRESS}:${process.env.FRONT_PORT}`);
 
+    }
+
+    @Post('firstLogin')
+    async firstLogin(@Body() dto: FirstLoginDto)
+    {
+        await this.userService.setUserUsername(dto.login, dto.username);
+        console.log('valid username');
+        
+        const jwtToken = await this.authService.getJwtToken(dto.login);
+        
+        return jwtToken;
     }
 
     @Post('generate2fa')

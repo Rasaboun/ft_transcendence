@@ -46,7 +46,6 @@ export default function NavBar() {
   const { storage, setStorage } = useLocalStorage("user");
   const { image } = useContext(SocketContext);
   const {
-    chatSocket,
     setChatSocket,
     setGameSocket,
   } = useContext(SocketContext);
@@ -63,6 +62,7 @@ export default function NavBar() {
     initiateSocket();
     setChatSocket(getChatSocket());
     setGameSocket(getGameSocket());
+		// eslint-disable-next-line
   }, [image, location.pathname]);
 
   return (

@@ -44,6 +44,7 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
     }
     getImage()
 
+		// eslint-disable-next-line
   }, [image])
 
   const handleOnMouseOver = () => {
@@ -122,7 +123,7 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
       
         <Link to={"/profile/" + client.login}>
           <div className="flex items-center">
-            <img className="user-img" src={image} alt="user profile photo"/>
+            <img className="user-img" src={image} alt="user profile"/>
             {client.username}
           </div>
         </Link>

@@ -182,7 +182,7 @@ export async function disableTwoFactorAuthentication(callerLogin: string)
     const url: string = backUrl + "/auth/disable2fa";
     await axios.post(url, {login: callerLogin}).then(res => {
    
-    }).catch(e => console.log)
+    }).catch(e => console.log(e))
 
 }
 export async function isInBlocklist(callerLogin: string, targetLogin: string)
@@ -190,7 +190,7 @@ export async function isInBlocklist(callerLogin: string, targetLogin: string)
     const url: string = backUrl + "/users/isblocked";
     const isBlocked: boolean = await axios.get(url, {params: {callerLogin, targetLogin}}).then(res => {
         return res.data
-    }).catch(e => console.log)
+    }).catch(e => console.log(e))
 
     return isBlocked;
 }
@@ -200,9 +200,26 @@ export async function submitTwoFactorAuthentication(code: string)
 
     const url: string = backUrl + "/auth/submit2fa";
     const login = Cookies.get('login');
-
-    const ret = await axios.post(url, {login, code}).then(res => {
+    let token = null;
+    token = await axios.post(url, {login, code}).then(res => {
         return res.data;
-    }).catch(e => console.log)
-    return ret;
+    }).catch(e => console.log(e))
+
+    return token;
+}
+
+export async function submitFirstRegistration(username: string)
+{
+
+    const url: string = backUrl + "/auth/firstLogin";
+    const login = Cookies.get('login');
+    console.log('login', login);
+    console.log('username', username);
+    let token = null;
+    token = await axios.post(url, {login, username}).then(res => {
+        return res.data;
+    }).catch(e => console.log(e))
+    
+    return token;
+
 }

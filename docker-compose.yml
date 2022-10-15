@@ -21,7 +21,7 @@ services:
     env_file:
       - ./.env
     container_name: front
-    command:  npm run start --silent
+    command:  npm run start 
     volumes: 
         - ./front:/app
         - /app/node_modules
@@ -53,7 +53,7 @@ services:
     volumes: 
         - ./back:/app
         - /app/node_modules
-    command:  npm run start --silent
+    command:  npm run start:dev
     environment:
       POSTGRES_HOST: database
     networks:

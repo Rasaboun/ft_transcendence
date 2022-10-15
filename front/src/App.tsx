@@ -20,6 +20,7 @@ import Cookies from "js-cookie";
 import TwoFactorAuth from "./2factorAuth";
 import Friends from "./Friends";
 import ErrorPage from "./404";
+import FirstRegistration from "./firstRegistration";
 
 const token = localStorage.getItem("token");
 if (token) {
@@ -76,6 +77,8 @@ export default function App()
 			setGameSocket(getGameSocket())
 			appSocketRoutine(handleGameOver, handleError, handleConnectionError, userNotFound);
 		}
+
+		// eslint-disable-next-line
 	}, [getToken()])
 
     return (
@@ -102,6 +105,7 @@ export default function App()
 				</Route>
 					<Route path="/Login" element={<Login/> }/>
 					<Route path="/TwofactorAuth" element={<TwoFactorAuth/> }/>
+					<Route path="/FirstRegistration" element={<FirstRegistration/> }/>
 				
 				</Routes>
 		

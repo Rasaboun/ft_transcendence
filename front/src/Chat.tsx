@@ -66,8 +66,8 @@ function Channel() {
 export default function Chat() {
 	const { setNotification } = useContext(SocketContext);
 	useEffect(() => {
-		console.log("CHAT")
         setNotification(false)
+		// eslint-disable-next-line
 	}, [])
 	return (
 	<div id="Chat" className="flex-1 h-screen m-auto">

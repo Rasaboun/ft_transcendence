@@ -76,6 +76,7 @@ export default function Menu()
                 handleWaitingForOpponent)
         }
         return (() => Menucleaner(handleAvailableLobbies, handleGoalScored))
+		// eslint-disable-next-line
     }, [gameSocket?.connected])
 
     const lobbiesElements:any = availableLobbies?.map((elem) => 

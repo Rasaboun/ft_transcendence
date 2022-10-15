@@ -38,6 +38,7 @@ export default function PrivChatMenu()
 		setGameSocket(getGameSocket())
 		getUsers();
 		privChatMenuHandler(loadConnectedUsers)	
+		// eslint-disable-next-line
 	}, [])
 
 	const users = connectedUsers?.map((elem, ind) => {

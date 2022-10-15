@@ -31,6 +31,7 @@ export default function Score({ gameData }:propsType)
 			getProfile(gameData.players[1].id)
 		}
 		
+		// eslint-disable-next-line
 	}, [gameData.players, gameData.players[0].id, gameData.players[1].id])
 	
 	const PlayerScoreElem = users.map((elem, idx) =>

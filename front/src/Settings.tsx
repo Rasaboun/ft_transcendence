@@ -26,6 +26,7 @@ function QRcodeModal({ setOpen, setEnabled } : { setOpen: (value:boolean) => voi
 			setStorage("user", {...storage, twoAuthEnabled: true});
 		}
 		getQrCode();
+		// eslint-disable-next-line
 	}, [])
 
 	const sendCode = () => {
@@ -75,7 +76,7 @@ const ControlledPopup = ({  setEnabled } : { setEnabled: (value:boolean) => void
 		</button>
 		<Popup open={open} closeOnDocumentClick onClose={closeModal}>
 		  <div className="modal">
-			<a onClick={closeModal}>
+			<a href="close" onClick={closeModal}>
 			  X
 			</a>
 			<QRcodeModal setOpen={setOpen} setEnabled={setEnabled}/>
@@ -124,7 +125,6 @@ function TabSettings() {
 	}
 
 	const submitFormData = async () => {
-		console.log(form.username, defaultValue.username)
 		if (form.username !== defaultValue.username)
 		{
 			console.log("username settings", form.username)
@@ -145,8 +145,6 @@ function TabSettings() {
 		{
 
 			await setUserPhoto(storage.login, form.image)
-			//const newPhoto = await getUserPhoto(storage.login);
-			//setStorage("user", {...storage, image : newPhoto} )
 			setImage(URL.createObjectURL(form.image));
 		}
 	}

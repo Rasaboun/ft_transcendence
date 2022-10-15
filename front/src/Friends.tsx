@@ -47,6 +47,7 @@ export default function Friends() {
 			setFriends(friendList);
 		};	
 		getFriends()
+		// eslint-disable-next-line
 	}, [])
 		  const FriendListELem = friends?.map((elem, idx) => 
 		  	<FriendsProfile key={idx} friend={elem} login={storage.login} setFriends={setFriends}/>)

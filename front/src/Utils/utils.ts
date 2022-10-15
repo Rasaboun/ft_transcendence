@@ -34,3 +34,10 @@ export function getStatus(status:UserStatus)
                       "InGame";
 	return userStatus;
 }
+
+export function validUsername(username: string)
+{
+	if (username.indexOf(' ') >= 0 || username.length == 0 || username.length > 20)
+		return false;
+	return true;
+}

@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { Disclosure } from '@headlessui/react'
 import { Link, useLocation } from "react-router-dom";
 import logo from './42-logo.png';
-import useLocalStorage from './hooks/localStoragehook';
 
 let navigation = [
   { name: 'Dashboard', href: '#', current: false},
@@ -30,6 +29,7 @@ export default function LoginNavBar() {
   useEffect(() => {    // Mettre à jour le titre du document en utilisant l'API du navigateur    
     document.getElementById("notification")?.classList.add(profileColor[1]);
     HoverNavBar(location.pathname);
+		// eslint-disable-next-line
   }, []);
   
   return (
