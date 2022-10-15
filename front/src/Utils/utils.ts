@@ -37,7 +37,7 @@ export function getStatus(status:UserStatus)
 
 export function validUsername(username: string)
 {
-	if (username.indexOf(' ') >= 0 || username.length == 0 || username.length > 20)
+	if (username.indexOf(' ') >= 0 || username.length === 0 || username.length > 20)
 		return false;
 	return true;
 }

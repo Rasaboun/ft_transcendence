@@ -1,9 +1,7 @@
 import Cookies from "js-cookie";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { SocketContext } from "./Context/socketContext"
-import useLocalStorage from "./hooks/localStoragehook"
-import { backUrl, setUserPhoto, submitFirstRegistration } from "./Requests/users"
+import { backUrl, submitFirstRegistration } from "./Requests/users"
 import { validUsername } from "./Utils/utils";
 
 type settingsForm = {
@@ -14,34 +12,16 @@ type settingsForm = {
 function LoginForm() {
     const navigate = useNavigate();
 
-	const { storage, setStorage } = useLocalStorage("user")
-	const { setImage } = useContext(SocketContext)
 	const [error, setError] = useState(false)
 	const [errorMessage, setErrorMessage] = useState("");
-	const [displayedImage, setDisplayedImage] = useState(storage?.image)
 	const [form, setForm] = useState<settingsForm>({
         username: "",
         image: undefined
     })
 	
 
-
-
-	const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-		let img:any;
-		if (e.target.files && e.target.files[0]) {
-			img = e.target.files[0];
-			if (img.size >= 5242880)
-			{
-				return 
-			}
-		}
-		if (img)
-			setDisplayedImage(URL.createObjectURL(img))
-		setForm((prevForm) => ({
-			...prevForm,
-			[e.target.name] : img ? img : e.target.value
-		}))
+	const handleChange = () => {
+		setError(false);
 	}
 
 	const submitFormData = async () => {
@@ -51,7 +31,6 @@ function LoginForm() {
 			{
 				setError(true);
 				setErrorMessage("Invalid username")
-				console.log('invalid');
 				setForm((prevForm) => ({
 					...prevForm,
 					username : ""
@@ -62,7 +41,6 @@ function LoginForm() {
 			const jwtToken = await submitFirstRegistration(form.username)
 			if (!jwtToken)
 			{
-				console.log('taken');
 				setError(true);
 				setErrorMessage("Username already taken")
 				setForm((prevForm) => ({
@@ -77,12 +55,6 @@ function LoginForm() {
 				window.open(backUrl + "/auth/navigate", "_self"); 
 				
 			}
-		if (form.image !== undefined)
-		{
-
-			await setUserPhoto(storage.login, form.image)
-			setImage(URL.createObjectURL(form.image));
-		}
 	}
 
     useEffect(() => {
