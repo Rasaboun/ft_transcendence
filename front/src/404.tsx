@@ -8,14 +8,14 @@ export default function ErrorPage()
 	const navigate = useNavigate()
 	const {chatSocket, setChatSocket, setGameSocket, gameSocket} = useContext(SocketContext)
 	useEffect(() => {
-		initiateSocket("http://localhost:8002")
+		initiateSocket()
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
 		chatSocket?.on("connect", () => {navigate(-1)})
 		gameSocket?.on("connect", () => {navigate(-1)})
 	}, [chatSocket?.connected, gameSocket?.connected])
 	return (
-		<div className="flex-1" style={{
+		<div className="flex-1 h-screen" style={{
 			display: "flex",
 			justifyContent: "center",
 			alignItems: "center",

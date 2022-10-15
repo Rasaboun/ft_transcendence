@@ -6,17 +6,17 @@ export default function useLocalStorage(key?:string) {
 		return undefined
 	const storageString = localStorage.getItem(key);
 	let storage;
-	if (storageString != null || storageString != undefined) 
-		storage = JSON.parse(storageString);
+	if (storageString !== null || storageString !== undefined) 
+		storage = JSON.parse(storageString!);
 	else
 		storage = undefined
 	return storage
   };
 
   const [storage, setStorage] = useState();
-
+  
   const saveStorage = (key:string, data:any) => {
-    localStorage.setItem(key , JSON.stringify(data));
+    localStorage.setItem(key, JSON.stringify(data));
     setStorage(data);
   };
 

@@ -3,15 +3,13 @@ import axios from "axios";
 import "./output.css";
 import { useParams } from "react-router-dom";
 import { Imatch, Iuser, UserStatus } from "./Utils/type";
-import { addFriend, blockUser, getFriendship, getUserPhoto, isInBlocklist, removeFriend, unblockUser } from "./Requests/users";
+import { addFriend, blockUser, getFriendship, getUserPhoto, getUserProfile, isInBlocklist, removeFriend, unblockUser } from "./Requests/users";
 import { getStatus } from "./Utils/utils";
 import { getUserMatches } from "./Requests/match";
 import { backUrl } from "./Requests/users";
 import MatchTab from "./Elements/matchTab";
 import useLocalStorage from "./hooks/localStoragehook";
 
-const url: string = "http://localhost:3002/users/profile/";
-const matchUrl: string = "http://localhost:3002/match/user/";
 
 type UserPropsT = {
 	user: Iuser,
@@ -94,7 +92,7 @@ function UserProfile({ user, photo, login, isFriend, setIsFriend, isBlocked, set
           <p className="mb-1 font-mono text-gray">Goal Conceded: {user.gameStats.goalsTaken}</p>
         </div>
         <div className="flex">
-          <p className="mb-1 font-mono text-gray">Goal/Games: {(user.gameStats.goalsScored / user.gameStats.nbGames).toFixed(2)}</p>
+          <p className="mb-1 font-mono text-gray">Goal/Games: {user.gameStats.nbGames && (user.gameStats.goalsScored / user.gameStats.nbGames).toFixed(2)}</p>
         </div>
          <div className="flex">
           <p className="mb-1 font-mono text-gray">Status: {getStatus(user.status)}</p>
@@ -114,10 +112,9 @@ function UserProfile({ user, photo, login, isFriend, setIsFriend, isBlocked, set
 export default function Profile() {
 	const { login } = useParams()
   const { storage, setStorage } = useLocalStorage("user");
-	const [user, setUser] = React.useState<Iuser>();
 	const [matches, setMatches] = React.useState<Imatch[]>();
 	const data = {login : login}
-
+	const [user, setUser] = React.useState<Iuser>();
   const [photo, setPhoto] = useState<string>();
   const [isFriend, setIsFriend] = useState<boolean>();
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
@@ -125,12 +122,13 @@ export default function Profile() {
   useEffect(() => {
     if (login)
     {
-      const getProfile = async () => {
-        const user = await axios.get<Iuser>(url, {params : {login:login}}).then((response) => {
-          return response.data;
-          
-        });
-        setUser(user);
+        const getProfile = async () => {
+        const userData = await getUserProfile(login);
+        
+        if (!userData)
+          return ;
+
+        setUser(userData);
         
         const friendship = await getFriendship(storage.login, login);
         setIsFriend(friendship);
@@ -142,10 +140,10 @@ export default function Profile() {
       }
         const getMatch = async () => {
 			    const url: string = backUrl + "/match/user";
-   			  const matches = await axios.get<Imatch[]>(url, {params: {login:login}}).then(res => {
-        		return res.data;
-			  })
-			  setMatches(matches);
+   			  const history  = await getUserMatches(storage.login);
+          if (!history)
+            return ;
+			  setMatches(history);
     	}
          
       const getPhoto = async () => {

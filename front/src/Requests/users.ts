@@ -1,12 +1,28 @@
 import axios from "axios";
 import { Friend, Iuser } from "../Utils/type";
 import { Buffer } from 'buffer'
-export const backUrl = "http://localhost:3002"; 
+import Cookies from "js-cookie";
+import useLocalStorage from "../hooks/localStoragehook";
+import { UsersIcon } from "@heroicons/react/outline";
+
+export const backUrl = `${process.env.REACT_APP_BACK_ADDRESS}:${process.env.REACT_APP_BACK_PORT}`;
+
+
 
 export enum UserStatus {
     offline,
     online,
     ingame,
+}
+
+export async function getUsers(login :string): Promise<Iuser[] | null>
+{
+    const url: string = backUrl + "/users/";
+    let users: Iuser[] = [];
+    await axios.get<Iuser[]>(url, {params: {login}}).then(res => {
+        users = res.data;
+    }).catch(e => console.log)
+    return users;
 }
 
 export async function getUserProfile(login :string): Promise<Iuser | null>
@@ -49,8 +65,7 @@ export async function getUserPhoto(login: string): Promise<string>
         var bytes = new Uint8Array(Buffer.from(res.data.imageBuffer, 'base64'));
         var base64Flag = 'data:image/;base64,';
         bytes.forEach((b) => binary += String.fromCharCode(b));
-        return base64Flag +  window.btoa(binary);
-        
+        return base64Flag +  window.btoa(binary);     
     })
 
     return photo;
@@ -72,7 +87,6 @@ export async function getFriendship(callerLogin: string, targetLogin: string): P
     const url: string = backUrl + "/users/isFriend";
     
     const friendList = await axios.get(url, {params: {callerLogin, targetLogin}}).then(res => {
-        console.log(res.data)
         return res.data;
     })
 
@@ -91,9 +105,11 @@ export async function setUserStatus(login: string, status: UserStatus)
 export async function setUsername(login: string, username: string)
 {
     const url: string = backUrl + "/users/username";
+    let taken = false;
     await axios.put(url, {login, username}).then(res => {
+    }).catch(e => {taken = true})
 
-    }).catch(e => console.log)
+    return taken;
 }
 
 export async function setUserPhoto(login: string, photo: File)
@@ -141,6 +157,38 @@ export async function unblockUser(callerLogin: string, targetLogin: string)
     }).catch(e => console.log)
 }
 
+export async function generateQrCode(login: string)
+{
+    const url: string = backUrl + "/auth/generate2fa";
+    const qrcode = await axios.post(url, {login}, {
+        responseType: 'blob',
+    }).then(res => {
+        return res.data;
+    }).catch(e => console.log)
+
+    return URL.createObjectURL(qrcode);
+}
+
+export async function enableTwoFactorAuthentication(callerLogin: string, code: string): Promise<boolean> {
+    const url: string = backUrl + "/auth/enable2fa";
+
+    let isCodeValid = false;
+    const ret = await axios.post(url, {login: callerLogin, code}).then(res => {
+        return true;
+    }).catch((e) => console.log(e))
+    if (ret == true)
+        return true;
+    return false;
+}
+
+export async function disableTwoFactorAuthentication(callerLogin: string)
+{
+    const url: string = backUrl + "/auth/disable2fa";
+    await axios.post(url, {login: callerLogin}).then(res => {
+   
+    }).catch(e => console.log)
+
+}
 export async function isInBlocklist(callerLogin: string, targetLogin: string)
 {
     const url: string = backUrl + "/users/isblocked";
@@ -151,5 +199,14 @@ export async function isInBlocklist(callerLogin: string, targetLogin: string)
     return isBlocked;
 }
 
+export async function submitTwoFactorAuthentication(code: string)
+{
 
+    const url: string = backUrl + "/auth/submit2fa";
+    const login = Cookies.get('login');
 
+    const ret = await axios.post(url, {login, code}).then(res => {
+        return res.data;
+    }).catch(e => console.log)
+    return ret;
+}

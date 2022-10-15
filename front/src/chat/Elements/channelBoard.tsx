@@ -40,7 +40,6 @@ export default function ChannelBoard({userState, channel, setChannelInfo}:PropsT
         e.preventDefault()
         if (form.password !== "")
         {
-			console.log(form.password)
             setChannelPassword(
             {
                 channelName: channel!.channelId,

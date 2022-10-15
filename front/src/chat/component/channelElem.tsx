@@ -6,7 +6,9 @@ import {
   getClientInfo,
   getGameSocket,
   initiateSocket,
+  leaveChannel,
   sendMessage,
+  updateSocket,
 } from "../../Utils/socketManager";
 import Message from "../Elements/message";
 import {
@@ -25,7 +27,6 @@ import MessageInput from "./MessageInput";
 import { SocketContext } from "../../Context/socketContext";
 import InviteMessage from "../Elements/InviteMessage";
 import Loader from "../../Elements/loader";
-import { Disclosure } from "@headlessui/react";
 
 export default function ChannelElem() {
   const { storage, setStorage } = useLocalStorage("user");
@@ -68,9 +69,11 @@ export default function ChannelElem() {
   };
 
   const handleMessageReceived = (msg: messageT) => {
+
     const blockedUsers: string[] = storage.blockedUsers;
-    if (blockedUsers.indexOf(msg.sender!.login) != -1)
+    if (blockedUsers.indexOf(msg.sender!.login) !== -1)
       return ;
+    
     setMessagesList((oldMessagesList) =>
       oldMessagesList === undefined ? [msg] : [...oldMessagesList, msg]
     );
@@ -90,17 +93,19 @@ export default function ChannelElem() {
     );
   };
 
-  const handleLeftChannel = (channelInfo: ChannelT) => {
-    setStorage("channel", channelInfo);
+  const handleLeftChannel = (data: {login: string, channelInfo: ChannelT}) => {
+    if (data.login === storage.login)
+    {
+      leaveChannel(data.channelInfo.channelId);
+      navigate("/chat");
+    }
+    setStorage("channel", data.channelInfo);
   };
 
-  const handleChannelJoined = (data: {
-    clientId: string;
-    channelInfo: ChannelT;
-  }) => {
-    console.log(data.channelInfo)
-    if (data.channelInfo.channelId != channelInfo?.channelId)
+  const handleChannelJoined = (data: {clientId: string; channelInfo: ChannelT; }) => {
+    if (data.channelInfo.channelId !== channelInfo?.channelId)
     {
+      updateSocket(data.channelInfo.channelId);
       getChannelInfo(data.channelInfo?.channelId);
       getClientInfo(data.channelInfo?.channelId);
     }
@@ -116,12 +121,10 @@ export default function ChannelElem() {
   };
 
   const handleChannelDeleted = (message: string) => {
-    console.log("In channeldeleted");
     navigate("/chat");
   };
 
   const handleClientInfo = (data: ClientInfoT) => {
-    console.log("data Client info", data);
     setUserState({
       isOwner: data.isOwner,
       isAdmin: data.isAdmin,
@@ -150,7 +153,6 @@ export default function ChannelElem() {
   };
 
   const handleBannedFromChannel = (data: ActionOnUser) => {
-    console.log("Banned data", data);
     const message =
       data.targetId === storage.login
         ? "You have been banned from the chat"
@@ -213,17 +215,8 @@ export default function ChannelElem() {
     )
   );
 
-  function isStateOk(obj: any): obj is {ChannelName:string} {
-    return (
-      typeof obj === 'object' &&
-      obj !== null &&
-      'ChannelName' in obj
-    );
-  }
-  
-
   useEffect(() => {
-    initiateSocket("http://localhost:8002");
+    initiateSocket();
     setChatSocket(getChatSocket());
     setGameSocket(getGameSocket());
     if (chatSocket) {
@@ -241,7 +234,6 @@ export default function ChannelElem() {
         handleChannelInfo
       );
     }
-      console.log(Locationstate)
       getChannelInfo(Locationstate.channelName);
       getClientInfo(Locationstate.channelName);
   }, [chatSocket?.connected]);

@@ -201,9 +201,10 @@ export default function Game()
 
 	function handleGameOver(winnerUsername: string)
 	{
+		console.log('gameOver', winnerUsername);
 		setGameData((oldGameData) => ({
 			...oldGameData,
-			//state: GameState.Stopped
+			state: GameState.Stopped
 		}))
 		setGameData((oldGameData) => ({
 			...oldGameData,
@@ -303,10 +304,12 @@ export default function Game()
 	}
 
 	useEffect(() => {
-		initiateSocket("http://localhost:8002")
-		setChatSocket(getChatSocket())
-		setGameSocket(getGameSocket())
-		
+		if (!gameSocket)
+		{
+			initiateSocket()
+			setChatSocket(getChatSocket())
+			setGameSocket(getGameSocket())
+		}
 		canvas = canvasRef.current!;
 
 		if (!canvas)

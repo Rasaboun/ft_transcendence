@@ -1,3 +1,4 @@
+import { Navigate, useNavigate } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client'
 import { ActionOnUser, AddAdminT, channelFormT, ChannelT, ChatInfoT, ClientInfoT, InviteClientT, JoinChannelT, messageT, sendMessageDto, SetChannelPasswordT } from '../chat/ChatUtils/chatType';
 import { availableLobbiesT, Ball, gameCollionInfoT, GameData, GameMode, GameOptions, GameSettings, Player, playerT } from '../game/GameUtils/type';
@@ -7,11 +8,15 @@ let socket:Socket
 let chatSocket:Socket
 let gameSocket:Socket
 
-export async function initiateSocket(url:string)
+export async function initiateSocket()
 {
+	console.log('in initiate socket');
 	let token = getToken();
 	if (!token)
 		return;
+	console.log("Token", token);
+	const url = `${process.env.REACT_APP_BACK_ADDRESS}:${process.env.REACT_APP_SOCKET_PORT}`
+	console.log('connecting on ', url);
 	token = JSON.parse(token);	
 	if (!chatSocket)
 	{
@@ -42,16 +47,20 @@ export function getGameSocket()
 	return gameSocket
 }
 
+
 export function appSocketRoutine(handleGameOver:any,
 								handleError:any,
-								handleConnectionError:any
+								handleConnectionError:any,
+								userNotFound:any
 								) {
 
 	chatSocket.on("connect_error", (err) => {handleConnectionError()});
+
+	chatSocket.on('UserNotFound', (err) => {userNotFound()});
+	
 	chatSocket.on("Connect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
 	chatSocket.on('error', (message:string) => handleError(message))	
 	chatSocket.on("Reconnect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
-	chatSocket.on("msgToChannel", (msg:messageT) => {console.log(`message receive from ${msg.sender?.username}`)})
 	gameSocket.on('gameOver', (winnerId: string) => handleGameOver(winnerId))
 	chatSocket.on('channelDeleted', (message:string) =>handleError(message))
 }
@@ -126,6 +135,10 @@ export function getUsers()
 	chatSocket?.emit("loadConnectedUsers");
 }
 
+export function updateSocket(channelName: string)
+{
+	chatSocket?.emit("updateSocket", channelName);
+}
 
 export function sendInvitation(data:{channelName: string, mode: GameMode}) {
 	chatSocket?.emit("sendInvitation", data);
@@ -157,14 +170,14 @@ export function chatHandler(handleMessageReceived:any,
 							handleChannelJoined:any,
 							handleChannelInfo:any)
 {
-	chatSocket.on("msgToChannel", (msg:messageT) => handleMessageReceived(msg))      
+	chatSocket.on("msgToChannel", (msg:messageT) => {handleMessageReceived(msg)})      
 	chatSocket.on('channelDeleted', (message:string) => handleChannelDeleted(message))
 	chatSocket.on('clientInfo', (data:ClientInfoT) => handleClientInfo(data))
 	chatSocket.on('bannedFromChannel', (data:ActionOnUser) => handleBannedFromChannel(data))
 	chatSocket.on('mutedInChannel', (data:ActionOnUser) => handleMutedFromChannel(data))
 	chatSocket.on('addAdmin', (data: {target: string, channelInfo: ChannelT}) => handleAddAdmin(data))
 	chatSocket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
-	chatSocket.on('leftChannel', (channelInfo:ChannelT) => handleLeftChannel(channelInfo))
+	chatSocket.on('leftChannel', (data: {login: string, channelInfo:ChannelT}) => {console.log('received left');handleLeftChannel(data)})
 	chatSocket.on('channelInfo', (info:ChannelT) => handleChannelInfo(info))
 	chatSocket.on('newOwner', (data: {target: string, channelInfo: ChannelT}) => newOwner(data))
 	chatSocket.on('isAlreadyAdmin', handleIsAlreadyAdmin)
@@ -176,7 +189,6 @@ export function chatHandler(handleMessageReceived:any,
 
 
 export function getChatInfo(chatName: string){
-	console.log("sending info");
 	chatSocket?.emit('getPrivChatInfo', chatName);
 }
 
@@ -218,15 +230,6 @@ export function chatHandlerPrivEl(handlePrivMessageReceived:any,
 	chatSocket.on('privChatInfo', (data:ChatInfoT) => handleChatInfo(data))
 }
 
-// export function appSocketRoutine(handleSession:any) {
-// 	chatSocket.on('connection', (chatSocket) => {console.log('a user connected on chatSocket', chatSocket)});
-// 	chatSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, chatSocket));
-// 	chatSocket.on("connect_error", (err) => {console.log(`connect_error due to ${err.message}`)});
-// 	chatSocket.on("Connect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
-// 	chatSocket.on("Error", (err) => {console.log(`connect_error due to ${err.message}`)});
-// 	chatSocket.on("Reconnect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
-// 	chatSocket.on("msgToChannel", (msg:messageT) => {console.log(`message receive from ${msg.sender?.username}`)})      
-// }
 
 //////////////// GAME SOCKET /////////////////////
 
@@ -290,7 +293,6 @@ export function GameMenuHandler(
 			handleSession:any,
 			handleWaitingForOpponent:any)
 {
-	console.log(gameSocket)
 	gameSocket.on('activeGames',(availableLobbies:availableLobbiesT) => handleAvailableLobbies(availableLobbies))
 	gameSocket.on('goalScored', (players: any) => handleGoalScored(players));
 	gameSocket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, gameSocket));

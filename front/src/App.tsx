@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import { setAuthToken } from "./authPage/authUtils/AuthUtils";
 import Login from "./authPage/component/LogPage";
 import Chat from "./Chat";
@@ -18,19 +18,20 @@ import { appSocketRoutine, getChatSocket, getGameSocket, initiateSocket } from "
 import { getToken } from "./Utils/utils";
 import ErrorAlert from "./Elements/error";
 import LoginNavBar from "./LoginNavBar";
+import Cookies from "js-cookie";
+import TwoFactorAuth from "./2factorAuth";
 import Friends from "./Friends";
 import ErrorPage from "./404";
 
 const token = localStorage.getItem("token");
 if (token) {
-     setAuthToken(token);
+    setAuthToken(JSON.parse(token));
 }
 
 export default function App()
 {
 	const navigate = useNavigate()
-	const {chatSocket, setChatSocket, gameSocket, setGameSocket} = useContext(SocketContext)
-	const { storage, setStorage } = useLocalStorage("token");
+	const { setChatSocket, setGameSocket} = useContext(SocketContext)
 	const { storage2 } = useLocalStorage("user");
 	const [alert, setAlert] = useState({
 		isShow: false,
@@ -43,7 +44,7 @@ export default function App()
 			msg: message
 		})
 	}
-
+	
 	function handleGameOver(winnerId: string)
 	{
 		const message = winnerId === storage2.login ? "YOU WIN" : "YOU LOSE"
@@ -55,6 +56,11 @@ export default function App()
 		navigate("NotFound")
 	}
 
+	const userNotFound = () => {
+		console.log('In usernotfound');
+		navigate('/Login');
+	}
+	
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			setAlert({isShow:false, msg: ""})
@@ -62,15 +68,17 @@ export default function App()
 		  return () => clearTimeout(timer);
 	}, [alert])
 
+
+
 	useEffect(() => {
-		if (getToken())
+		if (getToken() !== undefined)
 		{
-			initiateSocket("http://localhost:8002")
+			initiateSocket()
 			setChatSocket(getChatSocket())
 			setGameSocket(getGameSocket())
-			appSocketRoutine(handleGameOver, handleError, handleConnectionError);
+			appSocketRoutine(handleGameOver, handleError, handleConnectionError, userNotFound);
 		}
-	}, [storage])
+	}, [getToken()])
 
     return (
 				
@@ -79,7 +87,7 @@ export default function App()
 				alert.isShow &&
 					<ErrorAlert errorMsg={alert.msg}/>
 			}
-			{storage ? 
+			{Cookies.get('token') && storage2 ? 
 				<NavBar /> :
 				<LoginNavBar/>
 			}
@@ -96,9 +104,10 @@ export default function App()
 					<Route path="/Profile/:login" element={<Profile/>}/>
 				</Route>
 					<Route path="/Login" element={<Login/> }/>
+					<Route path="/TwofactorAuth" element={<TwoFactorAuth/> }/>
 				
-			</Routes>
-			<Footer/>
+				</Routes>
+			{/* <Footer/> */}
 		
 		
 		</div>

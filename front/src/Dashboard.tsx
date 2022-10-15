@@ -1,15 +1,14 @@
 import React, { useEffect } from "react";
-import axios from "axios";
 import "./output.css";
 import { Link } from "react-router-dom";
 import { Iuser } from "./Utils/type";
 import "./index.css"
-
-const url: string = "http://localhost:3002/users/";
+import { getUsers } from "./Requests/users";
+import useLocalStorage from "./hooks/localStoragehook";
 
 function sortUsers (a:Iuser, b:Iuser)
 {
-	if (b.gameStats.victories != a.gameStats.victories)
+	if (b.gameStats.victories !== a.gameStats.victories)
 		return (b.gameStats.victories - a.gameStats.victories)
 	return (a.gameStats.defeats - b.gameStats.defeats)
 }
@@ -33,18 +32,18 @@ function TabElement(props:any) {
 
 function Tabulation() {
   const [users, setUsers] = React.useState<Iuser[]>([]);
+  const { storage } = useLocalStorage("user");
 
   useEffect(() => {
-    axios
-      .get(url)
-      .then((response) => {
-        setUsers(response.data);
-        console.log(response);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
+      const fetchUsers = async () => {
+        
+        const usersData = await getUsers(storage.login);
+        if (!usersData)
+          return ;
+        setUsers(usersData);
+      }
+      fetchUsers();
+  }, [storage.login]);
 
   return (
     <div className="relative h-full overflow-y-scroll shadow-md sm:rounded-lg">
@@ -77,7 +76,7 @@ function Tabulation() {
 
 export default function Dashboard() {
   return (
-    <div id="Dashboard" className="flex-1 h-3/4 h-screen">
+    <div id="Dashboard" className="flex-1 h-screen">
       <header className="page-header shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <h1 className="page-title">Dashboard</h1>

@@ -1,18 +1,14 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import entities from './typeorm';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { PassportModule } from '@nestjs/passport';
-import { DataSource } from "typeorm"
 import { MatchModule } from './match/match.module';
 import { ChatModule } from './chat/chat.module';
 import { GameModule } from './game/game.module';
-import { PrivChat } from './chat/privChat/privChat';
 import { MulterModule } from '@nestjs/platform-express';
+import { JwtStrategy } from './auth/stategy/jwt.strategy';
 
 @Module({
   imports: [
@@ -22,7 +18,7 @@ import { MulterModule } from '@nestjs/platform-express';
     UsersModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: process.env.DB_ADDR,
       port: Number(process.env.DB_PORT),
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
@@ -33,20 +29,12 @@ import { MulterModule } from '@nestjs/platform-express';
   MulterModule.register({
     dest: process.env.UPLOAD_PATH,
   }),
-  PassportModule.register({ session: true }),
   MatchModule,
   AuthModule,
   ChatModule,
   GameModule
   ],
-  controllers: [AppController],
-  providers: [AppService],
-  exports: [AppService]
-})
-export class AppModule{
-    constructor(private dataSource: DataSource) {}
+  providers: [JwtStrategy],
   
-    getDataSource() {
-      return this.dataSource;
-    }
-}
+})
+export class AppModule{}

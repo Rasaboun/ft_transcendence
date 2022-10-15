@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createUserDto } from 'src/users/dto/createUser.dto';
 import { User } from 'src/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Friend, initGameStats, MatchInfo, UserStatus } from './type/users.type';
 import { PhotoService } from './photo/photo.service';
@@ -76,6 +76,8 @@ export class UsersService {
     }
 
     async findOneByIntraLogin(login: string) {
+        if (!login)
+            return ;
         return await this.userRepository.findOne({
             where: [
                 { intraLogin: login},
@@ -85,9 +87,7 @@ export class UsersService {
 
     findOneByUsername(username: string){
 
-        if (isNaN(Number(username)))
-            return this.userRepository.findOneBy({ username });
-        return this.findOneById(Number(username));
+        return this.userRepository.findOneBy({ username });
     }
 
     async createUser(userDto: createUserDto): Promise<User> {
@@ -142,8 +142,31 @@ export class UsersService {
         );
     }
 
+    async setTwoFactorAuthenticationSecret(secret: string, userId: number)
+    {
+        await this.userRepository.update(userId, {twoFactorAuthenticationSecret: secret});
+    }
+
+    async enableTwoFactorAuthentication(login: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+
+        user.isTwoFactorAuthenticationEnabled = true;
+        await this.userRepository.update(user.id, user);
+    }
+
+    async disableTwoFactorAuthentication(login: string)
+    {
+        const user = await this.findOneByIntraLogin(login);
+
+        user.isTwoFactorAuthenticationEnabled = false;
+        await this.userRepository.update(user.id, user);
+    }
+
     async setUserStatus(login: string, status: UserStatus)
     {
+        if (!login)
+            return ;
         const user = await this.findOneByIntraLogin(login);
         if (!user)
             return ;
@@ -167,7 +190,7 @@ export class UsersService {
         const photo = await this.photoService.addPhoto(imageBuffer, filename);
         user.photoId = photo.id;
         await this.userRepository.update(user.id, user);
-        return photo;
+        return user
     }
 
     async getUserPhoto(login: string): Promise<Photo> {
@@ -181,6 +204,10 @@ export class UsersService {
         const user = await this.findOneByIntraLogin(login);
         if (!user)
             return ;
+        const targetUser = await this.findOneByUsername(newUsername);
+        console.log("target user", targetUser);
+        if (targetUser)
+            throw new ForbiddenException("Username already taken");
         user.username = newUsername;
         await this.userRepository.update(user.id, user);
     }

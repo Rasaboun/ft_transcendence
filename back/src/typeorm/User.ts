@@ -14,8 +14,15 @@ export class User {
     @Column()
     username: string;
 
-    @Column()
-    password: string;
+    @Column({
+        nullable: true,
+    })
+    twoFactorAuthenticationSecret?: string;
+
+    @Column({
+        default: false,
+    })
+    isTwoFactorAuthenticationEnabled: boolean;
 
     @JoinColumn({name: 'photoId'})
     @OneToOne(

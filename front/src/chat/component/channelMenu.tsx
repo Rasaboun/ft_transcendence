@@ -43,6 +43,7 @@ export default function ChannelMenu()
 	}
 
 	const handleChannelJoined = (data:{clientId:string, channelInfo:ChannelT}) => {
+		console.log('Channel joined', data);
 		if (storage.login === data.clientId)
 		{
 			console.log(data.channelInfo)
@@ -70,7 +71,7 @@ export default function ChannelMenu()
 
 	useEffect(() => {
 
-		initiateSocket("http://localhost:8002")
+		initiateSocket()
 		setChatSocket(getChatSocket())
 		setGameSocket(getGameSocket())
 		getActiveChannels()

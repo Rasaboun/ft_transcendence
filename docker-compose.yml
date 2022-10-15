@@ -1,0 +1,69 @@
+version: "3.8"
+
+services:
+  database:
+    container_name: "database"
+    image: postgres:latest
+    volumes:
+      - data:/var/lib/postgresql/data
+    ports:
+      - 5434:${DB_PORT}
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    networks:
+      - ft_transcendance
+
+  front:
+    build:
+        context: ./front
+    env_file:
+      - ./.env
+    container_name: front
+    command:  npm run start
+    volumes: 
+        - ./front:/app
+        - /app/node_modules
+    expose:
+      - ${BACK_PORT}
+      - ${SOCKET_PORT}
+    ports:
+      - ${FRONT_PORT}:${FRONT_PORT}
+    networks:
+      - ft_transcendance
+
+  back:
+    build:
+        context: ./back
+    restart: always
+    env_file:
+      - ./.env
+    container_name: back
+    volumes: 
+        - ./back:/app
+        - /app/node_modules
+    expose:
+      - ${DB_PORT}
+      - 5434
+      - ${BACK_PORT}
+    ports:
+      - ${BACK_PORT}:${BACK_PORT}
+      - ${SOCKET_PORT}:${SOCKET_PORT}
+    volumes: 
+        - ./back:/app
+        - /app/node_modules
+    command:  npm run start:dev
+    environment:
+      POSTGRES_HOST: database
+    networks:
+      - ft_transcendance
+    depends_on:
+      - dev-db
+
+volumes:
+  data:
+
+networks:
+  ft_transcendance:
+    driver: bridge

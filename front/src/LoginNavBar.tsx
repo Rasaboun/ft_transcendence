@@ -38,7 +38,7 @@ export default function LoginNavBar() {
   useEffect(() => {    // Mettre à jour le titre du document en utilisant l'API du navigateur    
     document.getElementById("notification")?.classList.add(profileColor[1]);
     HoverNavBar(location.pathname);
-  });
+  }, []);
   
   return (
     <>

@@ -1,12 +1,19 @@
 import { HttpService } from '@nestjs/axios';
-import { BadRequestException, Injectable, StreamableFile, UnauthorizedException } from '@nestjs/common';
+import {  Injectable,  NotFoundException,  UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthenticatedSocket, TokenPayload } from 'src/auth/types/auth.type';
+import { createUserDto } from 'src/users/dto/createUser.dto';
 import { UsersService } from 'src/users/users.service';
+import { toFileStream } from 'qrcode';
 import { v4 } from 'uuid';
 import { join } from 'path';
 import { createReadStream } from 'fs';
 import { catchError, firstValueFrom, map } from 'rxjs';
+import { User } from 'src/typeorm';
+import { authenticator } from 'otplib';
+import { Response } from 'express';
+import { Long } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
 import { UserStatus } from 'src/users/type/users.type';
 
 
@@ -16,19 +23,17 @@ export class AuthService {
                 private readonly userService: UsersService,
                 private readonly jwtService: JwtService,
                 private readonly httpService: HttpService,
+                private readonly configService: ConfigService,
                 ) {}
 
-    async validateUser(details) {
-        const user = await this.userService.findOneByIntraLogin(details.intraLogin);
+    async validateUser(intraLogin: string) {
+        const user = await this.userService.findOneByIntraLogin(intraLogin);
 
-        if (user && user.password == details.password)
-        {
-            return user
-        }
-        return (null);
+        return user;
     }
 
-    async signup(dto: {username: string, password: string}) {
+    async signup(dto: createUserDto)
+    {
         if (await this.userService.findOneByIntraLogin(dto.username))
         {
             throw new UnauthorizedException("User already exists");
@@ -36,20 +41,16 @@ export class AuthService {
         dto = {
             ...dto,
         }
-        await this.userService.createUser({
-                            intraLogin: dto.username,
-                            roomId: v4(),
-                            ...dto
-                        })
+        await this.userService.createUser(dto)
         const response = await this.httpService.axiosRef({
-            url: 'https://cdn.intra.42.fr/users/bditte.jpg',
+            url: dto.photoUrl,
             method: 'GET',
             responseType: 'arraybuffer',
         });
         const imageBuffer = Buffer.from(response.data, 'binary')
-        this.userService.setUserPhoto(dto.username, imageBuffer, "default");
-        return true;
+        return await this.userService.setUserPhoto(dto.username, imageBuffer, "default");    
     }
+
 
     async login(dto: any)
     {
@@ -69,19 +70,86 @@ export class AuthService {
             }
         }
     }
+    
+    async getCookieWithJwtAccessToken(userLogin: string)
+    {
+        const user = await this.userService.findOneByIntraLogin(userLogin);
+
+        const payload = {
+            login: user.intraLogin,
+            username: user.username,
+            roomId: user.roomId,
+            blockedUsers: user.blockedUsers,
+            twoAuthEnabled: user.isTwoFactorAuthenticationEnabled,
+        }
+        const token = this.jwtService.sign(payload);
+
+        return `token=${token}; Path=/; Max-Age=${this.configService.get('JWT_LIFETIME')}s`;
+    }
+
+    async getJwtToken(userLogin: string)
+    {
+        const user = await this.userService.findOneByIntraLogin(userLogin);
+
+        const payload = {
+            login: user.intraLogin,
+            username: user.username,
+            roomId: user.roomId,
+            blockedUsers: user.blockedUsers,
+            twoAuthEnabled: user.isTwoFactorAuthenticationEnabled,
+        }
+        return this.jwtService.sign(payload);
+
+    }
+
+    async generatorTwoFactorAuthenticationSecret(login: string)
+    {
+        const user = await this.userService.findOneByIntraLogin(login);
+
+        const secret = authenticator.generateSecret();
+
+        const otpauthUrl = authenticator.keyuri(user.intraLogin, process.env.TWO_FACTOR_AUTHENTIATION_APP_NAME, secret);
+
+        await this.userService.setTwoFactorAuthenticationSecret(secret, user.id);
+
+        return {
+            secret, otpauthUrl
+        }
+    }
+
+    async pipeQrCodeStream(stream: Response, otpauthUrl: string)
+    {
+        return toFileStream(stream, otpauthUrl);
+    }
+
+    async isTwoFactorAuthenticationCodeValid(twoFactorAuthenticationCode: string, login: string)
+    {
+        const user = await this.userService.findOneByIntraLogin(login);
+        return authenticator.verify({
+            token: twoFactorAuthenticationCode,
+            secret: user.twoFactorAuthenticationSecret,
+        })
+    }
+
 
     async initializeSocket(client: AuthenticatedSocket)
     {
         const token = client.handshake.auth.token
         const tokenData: TokenPayload = this.jwtService.decode(token) as TokenPayload;
 
-        
+
+        if (!tokenData)
+            return ;
+            
+        const user = await this.userService.findOneByIntraLogin(tokenData.login);
+        if (!user)
+            throw new NotFoundException();
+
         client.login = tokenData.login;
         client.roomId = tokenData.roomId;
         client.lobby = null;
-        client.lobbyId = await this.userService.getUserLobby(client.login);
-        client.chatId = await this.userService.getUserChatId(client.login);
-        console.log("Joining roomId:", client.roomId);
+        client.lobbyId = user.lobbyId;
+        client.chatId = user.chatId;
         client.join(client.roomId);
         await this.userService.setUserStatus(client.login, UserStatus.online);
         

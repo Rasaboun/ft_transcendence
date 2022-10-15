@@ -7,13 +7,14 @@ import { Routes, Route, Link, useLocation } from "react-router-dom";
 import logo from "./42-logo.png";
 import profile from "./profile.png";
 import useLocalStorage from "./hooks/localStoragehook";
-import { getUserPhoto } from "./Requests/users";
+import Cookies from "js-cookie";
 import { SocketContext } from "./Context/socketContext";
 import {
   getChatSocket,
   getGameSocket,
   initiateSocket,
 } from "./Utils/socketManager";
+import { getUserPhoto } from './Requests/users';
 
 let navigation = [
   { name: "Dashboard", href: "#", current: false, notification: false },
@@ -63,7 +64,7 @@ export default function NavBar() {
       setStorage("user", { ...storage, image: file });
     };
     getPhoto();
-    initiateSocket("http://localhost:8002");
+    initiateSocket();
     setChatSocket(getChatSocket());
     setGameSocket(getGameSocket());
   }, [image, location.pathname]);
