@@ -43,7 +43,7 @@ services:
     ports:
       - ${BACK_PORT}:${BACK_PORT}
       - ${SOCKET_PORT}:${SOCKET_PORT}
-    command:  npm run start:dev
+    command:  npm run start
     environment:
       POSTGRES_HOST: database
     networks:

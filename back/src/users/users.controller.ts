@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Header, Param, ParseIntPipe, Post, Put, Query, Res, StreamableFile, UploadedFile, UseFilters, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Header, Param, ParseIntPipe, Post, Put, Query, Res, StreamableFile, UploadedFile, UseFilters, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { User } from 'src/typeorm';
 import { blockUserDto, createUserDto, friendDto, LoginDto, updatePhotoDto, updateStatusDto, updateUsernameDto } from './dto/users.dto';
@@ -61,6 +61,8 @@ export class UsersController {
     @Get('profile')
     async findOneBylogin(@Query() dto: LoginDto, @Res() res) {
         const user = await this.usersService.findOneByIntraLogin(dto.login);
+        if (!user)
+            throw new NotFoundException("No such user");
         return res.status(200).contentType('text/html').send(user);
     }
 
@@ -78,7 +80,8 @@ export class UsersController {
     @Get('photo')
     async getUserPhoto(@Query() dto: LoginDto, @Res({ passthrough: true }) res) {
         const photo = await this.usersService.getUserPhoto(dto.login);
-
+        if (!photo)
+            throw new NotFoundException("No such user");
         res.set({
             'Content-Disposition': `inline; filename="${photo.filename}"`,
             'Content-Type': 'image/*'

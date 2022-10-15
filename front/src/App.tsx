@@ -96,11 +96,11 @@ export default function App()
 					<Route path="Settings" element={<Settings/>}/>
 					<Route path="NotFound" element={<ErrorPage/>}/>
 					<Route path="/Profile/:login" element={<Profile/>}/>
+					<Route element={<ErrorPage/>}/>
 				</Route>
 					<Route path="/Login" element={<Login/> }/>
 					<Route path="/TwofactorAuth" element={<TwoFactorAuth/> }/>
-					<Route path="/FirstRegistration" element={<FirstRegistration/> }/>
-				
+					<Route path="/FirstRegistration" element={<FirstRegistration/> }/>	
 				</Routes>
 		
 		

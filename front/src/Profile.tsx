@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./output.css";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate} from "react-router-dom";
 import { Imatch, Iuser} from "./Utils/type";
 import { addFriend, blockUser, getFriendship, getUserPhoto, getUserProfile, isInBlocklist, removeFriend, unblockUser } from "./Requests/users";
 import { getStatus } from "./Utils/utils";
@@ -113,6 +113,7 @@ export default function Profile() {
 	const [matches, setMatches] = React.useState<Imatch[]>();
 	const [user, setUser] = React.useState<Iuser>();
   const [photo, setPhoto] = useState<string>();
+  const navigate = useNavigate();
   const [isFriend, setIsFriend] = useState<boolean>();
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
 
@@ -123,7 +124,10 @@ export default function Profile() {
         const userData = await getUserProfile(login);
         
         if (!userData)
+        {
+          navigate('/NotFound')
           return ;
+        }
 
         setUser(userData);
         
@@ -145,6 +149,11 @@ export default function Profile() {
       const getPhoto = async () => {
         
         const file  = await getUserPhoto(login);
+        if (file === "")
+        {
+          navigate('/NotFound')
+          return ;
+        }
         setPhoto(file);
       }
       

@@ -19,7 +19,7 @@ export async function getUsers(login :string): Promise<Iuser[] | null>
     let users: Iuser[] = [];
     await axios.get<Iuser[]>(url, {params: {login}}).then(res => {
         users = res.data;
-    }).catch(e => console.log)
+    }).catch(e => console.log(e))
     return users;
 }
 
@@ -29,7 +29,7 @@ export async function getUserProfile(login :string): Promise<Iuser | null>
     let user: Iuser | null = null;
     await axios.get<Iuser>(url, {params: {login}}).then(res => {
         user = res.data;
-    }).catch(e => console.log)
+    }).catch(e => console.log(e))
     return user;
 }
 
@@ -39,7 +39,7 @@ export async function getUsername(login: string): Promise<string>
     const url: string = backUrl + "/users/username";
     await axios.get<string>(url, {params: {login}}).then(res => {
        username = res.data;
-    }).catch(e => console.log)
+    }).catch(e => console.log(e))
     return username;
 }
 
@@ -49,22 +49,22 @@ export async function getUserStatus(login: string)
     const url: string = backUrl + "/users/status";
     await axios.get<UserStatus>(url, {params: {login}}).then(res => {
         status = res.data;
-    }).catch(e => console.log)
+    }).catch(e => console.log(e))
     return status;
 }
 
 export async function getUserPhoto(login: string): Promise<string>
 {
     const url: string = backUrl + "/users/photo";
-    const photo = await axios.get(url, {params: {login}}).then(res => {
+    let photo: string = "";
+    await axios.get(url, {params: {login}}).then(res => {
        
-
         var binary = '';
         var bytes = new Uint8Array(Buffer.from(res.data.imageBuffer, 'base64'));
         var base64Flag = 'data:image/;base64,';
         bytes.forEach((b) => binary += String.fromCharCode(b));
-        return base64Flag +  window.btoa(binary);     
-    })
+        photo = base64Flag +  window.btoa(binary);   
+    }).catch(e => console.log(e))
 
     return photo;
 }
@@ -75,7 +75,7 @@ export async function getUserFriends(login: string): Promise<Friend[]>
     
     const friendList = await axios.get(url, {params: {login}}).then(res => {
         return res.data;
-    })
+    }).catch(e => console.log(e))
 
     return friendList;
 }
@@ -86,7 +86,7 @@ export async function getFriendship(callerLogin: string, targetLogin: string): P
     
     const friendList = await axios.get(url, {params: {callerLogin, targetLogin}}).then(res => {
         return res.data;
-    })
+    }).catch(e => console.log(e))
 
     return friendList;
 }

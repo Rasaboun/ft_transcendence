@@ -192,6 +192,8 @@ export class UsersService {
     async getUserPhoto(login: string): Promise<Photo> {
 
         const user = await this.findOneByIntraLogin(login);
+        if (!user)
+            return ;
         return await this.photoService.getPhotoById(user.photoId);
     }
 
