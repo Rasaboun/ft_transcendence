@@ -1,3 +1,4 @@
+import { Navigate, useNavigate } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client'
 import { ActionOnUser, AddAdminT, channelFormT, ChannelT, ChatInfoT, ClientInfoT, InviteClientT, JoinChannelT, messageT, sendMessageDto, SetChannelPasswordT } from '../chat/ChatUtils/chatType';
 import { availableLobbiesT, Ball, gameCollionInfoT, GameData, GameMode, GameOptions, GameSettings, Player, playerT } from '../game/GameUtils/type';
@@ -46,12 +47,17 @@ export function getGameSocket()
 	return gameSocket
 }
 
+
 export function appSocketRoutine(handleGameOver:any,
 								handleError:any,
-								handleConnectionError:any
+								handleConnectionError:any,
+								userNotFound:any
 								) {
 
 	chatSocket.on("connect_error", (err) => {handleConnectionError()});
+
+	chatSocket.on('UserNotFound', (err) => {userNotFound()});
+	
 	chatSocket.on("Connect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
 	chatSocket.on('error', (message:string) => handleError(message))	
 	chatSocket.on("Reconnect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});

@@ -35,10 +35,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async handleConnection(client: AuthenticatedSocket){
 		
 		console.log(`Client ${client.id} joined pong socket`);
-		await this.authService.initializeSocket(client as AuthenticatedSocket);
-		if (client.lobbyId)
-			client.lobby = this.lobbyManager.getLobby(client.lobbyId);
-		await this.lobbyManager.joinLobbies(client as AuthenticatedSocket);
+		try
+		{
+			await this.authService.initializeSocket(client as AuthenticatedSocket);
+			if (client.lobbyId)
+				client.lobby = this.lobbyManager.getLobby(client.lobbyId);
+			await this.lobbyManager.joinLobbies(client as AuthenticatedSocket);
+		}
+		catch ( error ) { client.emit('UserNotFound')}
 		
 	}
 

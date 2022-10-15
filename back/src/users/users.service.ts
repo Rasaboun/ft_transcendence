@@ -76,6 +76,8 @@ export class UsersService {
     }
 
     async findOneByIntraLogin(login: string) {
+        if (!login)
+            return ;
         return await this.userRepository.findOne({
             where: [
                 { intraLogin: login},
@@ -163,6 +165,8 @@ export class UsersService {
 
     async setUserStatus(login: string, status: UserStatus)
     {
+        if (!login)
+            return ;
         const user = await this.findOneByIntraLogin(login);
         if (!user)
             return ;

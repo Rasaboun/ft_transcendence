@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import {  Injectable,  UnauthorizedException } from '@nestjs/common';
+import {  Injectable,  NotFoundException,  UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthenticatedSocket, TokenPayload } from 'src/auth/types/auth.type';
 import { createUserDto } from 'src/users/dto/createUser.dto';
@@ -140,12 +140,16 @@ export class AuthService {
 
         if (!tokenData)
             return ;
+            
+        const user = await this.userService.findOneByIntraLogin(tokenData.login);
+        if (!user)
+            throw new NotFoundException();
+
         client.login = tokenData.login;
         client.roomId = tokenData.roomId;
         client.lobby = null;
-        client.lobbyId = await this.userService.getUserLobby(client.login);
-        client.chatId = await this.userService.getUserChatId(client.login);
-        console.log("Joining roomId:", client.roomId);
+        client.lobbyId = user.lobbyId;
+        client.chatId = user.chatId;
         client.join(client.roomId);
         await this.userService.setUserStatus(client.login, UserStatus.online);
         

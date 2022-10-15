@@ -1,6 +1,6 @@
 import { Strategy } from 'passport-42';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { createUserDto } from 'src/users/dto/createUser.dto';
 import { Profile } from 'passport';

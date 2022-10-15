@@ -56,6 +56,11 @@ export default function App()
 		navigate("NotFound")
 	}
 
+	const userNotFound = () => {
+		console.log('In usernotfound');
+		navigate('/Login');
+	}
+	
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			setAlert({isShow:false, msg: ""})
@@ -71,7 +76,7 @@ export default function App()
 			initiateSocket()
 			setChatSocket(getChatSocket())
 			setGameSocket(getGameSocket())
-			appSocketRoutine(handleGameOver, handleError, handleConnectionError);
+			appSocketRoutine(handleGameOver, handleError, handleConnectionError, userNotFound);
 		}
 	}, [getToken()])
 

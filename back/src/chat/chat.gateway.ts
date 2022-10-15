@@ -40,10 +40,15 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	async handleConnection(client: Socket){
-		console.log(`Client ${client.handshake.auth.login} joined chat socket`);
-		await this.authService.initializeSocket(client as AuthenticatedSocket);
-		await this.channelManager.joinChannels(client as AuthenticatedSocket);
-		await this.privChatManager.joinPrivChats(client as AuthenticatedSocket);
+
+		try
+		{
+			console.log(`Client ${client.handshake.auth.login} joined chat socket`);
+			await this.authService.initializeSocket(client as AuthenticatedSocket);
+			await this.channelManager.joinChannels(client as AuthenticatedSocket);
+			await this.privChatManager.joinPrivChats(client as AuthenticatedSocket);
+		}
+		catch ( error ) { client.emit('UserNotFound') }
 	}
 
 	async handleDisconnect(client: AuthenticatedSocket) {
