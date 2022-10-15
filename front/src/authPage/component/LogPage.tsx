@@ -24,9 +24,15 @@ export default function LoginElem ()
 		Cookies.remove("login");
 	}, [])
 	return (
-		<div className="flex h-screen">
+		<div className="flex h-screen" style={{ width: "100%", display: "flex", alignItems:"center", justifyContent: "center" }}>
 			<div className="m-auto">
-				<button className="bg-violet-300" onClick={() => handleSubmit()}>
+				<button className="bg-violet-300" onClick={() => handleSubmit()} 
+				style={{ backgroundColor: "rgb(110, 44, 231)",
+							color: "white", 
+							width: "200px", 
+							height: "100px",
+							fontSize: "20px",
+							borderRadius: "20px"}}>
 					LOGIN
 				</button>
 			</div>
