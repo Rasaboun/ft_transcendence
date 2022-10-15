@@ -1,9 +1,6 @@
-/* This example requires Tailwind CSS v2.0+ */
-import React, {useState, useEffect} from 'react';
-import { Fragment } from 'react'
-import { Disclosure, Menu, Transition } from '@headlessui/react'
-import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
-import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { useEffect } from 'react';
+import { Disclosure } from '@headlessui/react'
+import { Link, useLocation } from "react-router-dom";
 import logo from './42-logo.png';
 import useLocalStorage from './hooks/localStoragehook';
 
@@ -13,11 +10,7 @@ let navigation = [
   { name: 'Pong', href: '#', current: false},
 ]
 let profileColor = ["bg-green-400", "bg-red-400", "bg-gray-400"]
-let index = 0;
 
-function classNames(...classes: string[] ) {
-  return classes.filter(Boolean).join(' ')
-}
 
 function HoverNavBar(location :String){
  
@@ -33,7 +26,6 @@ function HoverNavBar(location :String){
 
 export default function LoginNavBar() {
   const location = useLocation();
-  const { storage } = useLocalStorage("user")
   
   useEffect(() => {    // Mettre à jour le titre du document en utilisant l'API du navigateur    
     document.getElementById("notification")?.classList.add(profileColor[1]);

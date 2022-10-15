@@ -1,4 +1,3 @@
-import React from 'react';
 import LoginElem from './authPage/component/LogPage';
 import './output.css';
 import './index.css'
@@ -13,13 +12,11 @@ export default function Login() {
 		</header>
 		<main>
 			<div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-			{/* Replace with your Chat */}
 				<div className=" px-4 py-6 sm:px-0">
 				<div className="flex border-4 border-dashed border-gray-200 rounded-lg h-96">
 						<LoginElem/>
 				</div>
 				</div>
-				{/* /End replace */}
 			</div>
 		</main>
 	</div>

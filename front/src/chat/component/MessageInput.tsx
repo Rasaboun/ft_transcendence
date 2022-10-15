@@ -1,5 +1,3 @@
-import React, { useEffect, useState } from "react";
-
 type MessageInputPropsT = {
   mutedTime: number;
   value: string;

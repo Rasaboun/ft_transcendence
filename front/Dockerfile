@@ -1,4 +1,7 @@
 FROM node:lts
 WORKDIR /app
-COPY package*.json ./
+COPY . .
 RUN npm install
+RUN ls 
+RUN ls /app
+RUN npm run build

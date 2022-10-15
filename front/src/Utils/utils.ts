@@ -1,7 +1,6 @@
-import { Iuser, UserStatus } from "./type";
+import { UserStatus } from "./type";
 
 import Cookies from "js-cookie";
-import useLocalStorage from "../hooks/localStoragehook";
 
 export function getSession()
 {
@@ -21,7 +20,7 @@ export function getSession()
 export function getToken(): string | undefined
 {
 	const token = Cookies.get("token");
-	if (token == undefined || token == null)
+	if (token === undefined || token === null)
 		return undefined
 	return `"${token}"`;
 }

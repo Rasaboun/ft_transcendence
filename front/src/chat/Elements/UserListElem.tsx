@@ -10,7 +10,7 @@ import {
 } from "../../Utils/socketManager";
 import GameRadioForm from "../../Elements/radioFormElem";
 import { GameMode } from "../../game/GameUtils/type";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getUserPhoto } from "../../Requests/users";
 import Loader from "../../Elements/loader";
 type UserElemPropsT = {
@@ -50,18 +50,6 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
     setIsHover(true);
   };
 
-  const handleMouseLeave = () => {
-    setIsHover(false);
-    setIsSelected((oldSelected) => ({
-      mute: false,
-      ban: false,
-      invite: false,
-    }));
-    setForm((oldSelected) => ({
-      banTime: "",
-      muteTime: "",
-    }));
-  };
 
   const handleBan = () => {
     setIsSelected((oldSelected) => ({

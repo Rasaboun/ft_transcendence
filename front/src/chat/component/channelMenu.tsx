@@ -1,24 +1,15 @@
-import React, { useContext, useEffect, useState } from "react";
+import  { useContext, useEffect, useState } from "react";
 
-import { chatMenuHandler, createChannel, getActiveChannels, getChatSocket, getGameSocket, initiateSocket, joinChannel, joinPrivChat} from "../../Utils/socketManager";
-import { channelFormT, ChannelModes, ChannelT, connectedUsersT, JoinChannelT, privChatP } from "../ChatUtils/chatType";
-import { ChatContext } from "../ChatContext/chatContext";
+import { chatMenuHandler, getActiveChannels, getChatSocket, getGameSocket, initiateSocket, joinChannel } from "../../Utils/socketManager";
+import {  ChannelT,  JoinChannelT } from "../ChatUtils/chatType";
 import { useNavigate } from "react-router-dom";
 import ChannelItem from "../Elements/channelItem";
 import useLocalStorage from "../../hooks/localStoragehook";
-import { Socket } from "socket.io-client";
 import { SocketContext } from "../../Context/socketContext";
-import { getSession } from "../../Utils/utils";
-import PrivChatItem from "../Elements/privChatItem";
-import { Tab } from "@headlessui/react";
-import RadioFormElem from "../../Elements/radioFormElem";
 import ChatListElem from "../../Elements/ListElem";
 import ChannelFormElem from "../Elements/channelFormElem";
 import Loader from "../../Elements/loader";
 
-function classNames(...classes:any[]) {
-	return classes.filter(Boolean).join(' ')
-  }
 
 export default function ChannelMenu()
 {
@@ -27,7 +18,6 @@ export default function ChannelMenu()
 	const navigate = useNavigate();
 	const {chatSocket, setChatSocket, setGameSocket} = useContext(SocketContext)
 	const [channels, setChannels] = useState<ChannelT[]>()
-	const [connectedUsers, setConnectedUsers] = useState<connectedUsersT[]>()
 	const [errorMsg, setErrorMsg] = useState({
 		isShow: false,
 		msg: ""
@@ -55,18 +45,9 @@ export default function ChannelMenu()
 			})
 		}
 	}
-	
-	const handlePrivChatJoined = (intraLogin: string) => {
-		navigate("/chat/privMessage");
-	}
 
 	const handleInvitation = (message:string) => {
 		window.alert(message)
-	}
-
-	const loadConnectedUser = (connectedUsers:connectedUsersT[])=>
-	{
-		setConnectedUsers(connectedUsers);
 	}
 
 	useEffect(() => {
@@ -77,9 +58,9 @@ export default function ChannelMenu()
 		getActiveChannels()
 		chatMenuHandler(handleActiveChannels,
 			handleChannelJoined,
-			handleInvitation,
-			loadConnectedUser,
-			handlePrivChatJoined)
+			handleInvitation,)
+		
+	// eslint-disable-next-line
 	}, [])
 
 	useEffect(() => {

@@ -1,6 +1,5 @@
 import React from 'react'
-import { Link } from "react-router-dom";
-import { connectedUsersT, privChatP } from '../ChatUtils/chatType';
+import { connectedUsersT } from '../ChatUtils/chatType';
 type PrivChatPropsT = {
     user: connectedUsersT,
     handleJoinPrivChat: ( data:connectedUsersT) => void;
@@ -8,18 +7,8 @@ type PrivChatPropsT = {
 
 export default function PrivChatItem({ user, handleJoinPrivChat }:PrivChatPropsT  )
 {
-    const handleSubmit = (e:React.ChangeEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        handleJoinPrivChat(user)
-    }
-    
-    const handleTest=()=>
-    {
-        //rien se passe
-        console.log("function blocks the other");
-        console.log("BUTTON DOES NOT WORK");
-    }
-
+     
+   
     return (
         <div className="channel-item relative p-3 hover:bg-indigo-100 rounded-lg">
             <div className="flex flex-row">

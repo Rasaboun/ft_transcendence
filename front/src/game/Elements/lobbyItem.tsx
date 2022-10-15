@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {LobbiesInfoT} from "../GameUtils/type"
 import { Link } from "react-router-dom";
-import { getUsername, getUserPhoto, getUserProfile } from '../../Requests/users';
-import { Iuser } from '../../Utils/type';
+import { getUsername, getUserPhoto } from '../../Requests/users';
 import PlayersIngame from './playersIngame';
 import { buttonClass } from '../../Utils/utils';
 import Loader from '../../Elements/loader';
@@ -24,6 +23,7 @@ export default function LobbyItem(props:LobbiesInfoT)
 			getProfile(props.playersId[1])
 		}
 		
+	// eslint-disable-next-line
 	}, [props.playersId[0], props.playersId[1]])
 
     const PlayersIngameElem = users.map((elem, idx) => 

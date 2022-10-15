@@ -5,8 +5,6 @@ import Login from "./authPage/component/LogPage";
 import Chat from "./Chat";
 import { SocketContext } from "./Context/socketContext";
 import Dashboard from "./Dashboard";
-import Footer from "./Footer";
-import StarWars from "./StarWars";
 import Home from "./Home";
 import useLocalStorage from "./hooks/localStoragehook";
 import NavBar from "./NavBar";
@@ -96,7 +94,6 @@ export default function App()
 					<Route path="/" element={<Home/> }/>
 					<Route path="Dashboard" element={<Dashboard/> }/>
 					<Route path="Friends" element={<Friends/> }/>
-					<Route path="About" element={<StarWars/> }/>
 					<Route path="Chat/*" element={<Chat/>}/>
 					<Route path="Pong/*" element={<Pong/>}/>
 					<Route path="Settings" element={<Settings/>}/>
@@ -107,7 +104,6 @@ export default function App()
 					<Route path="/TwofactorAuth" element={<TwoFactorAuth/> }/>
 				
 				</Routes>
-			{/* <Footer/> */}
 		
 		
 		</div>

@@ -315,6 +315,7 @@ export default function Game()
 		if (!canvas)
 			return ;
 
+		// eslint-disable-next-line
 		context = canvas.getContext("2d")!;
 		GameRoutineHandler(handleWait,
 			handleUpdateBall,
@@ -346,12 +347,13 @@ export default function Game()
 							handleGameOver,
 							handleSession)})
 	}, [gameSocket?.connected])
-
+	
 	useEffect(() => {
 		if (parseInt(storage2) === GameState.Started || parseInt(storage2) === GameState.Spectacte)
 		{
 			draw()
 		}
+		// eslint-disable-next-line
 	}, [gameData])
 
 	return (

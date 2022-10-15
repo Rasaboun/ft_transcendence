@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import "./output.css";
 import { useParams } from "react-router-dom";
-import { Imatch, Iuser, UserStatus } from "./Utils/type";
+import { Imatch, Iuser} from "./Utils/type";
 import { addFriend, blockUser, getFriendship, getUserPhoto, getUserProfile, isInBlocklist, removeFriend, unblockUser } from "./Requests/users";
 import { getStatus } from "./Utils/utils";
 import { getUserMatches } from "./Requests/match";

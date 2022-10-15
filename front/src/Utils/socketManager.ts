@@ -1,4 +1,3 @@
-import { Navigate, useNavigate } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client'
 import { ActionOnUser, AddAdminT, channelFormT, ChannelT, ChatInfoT, ClientInfoT, InviteClientT, JoinChannelT, messageT, sendMessageDto, SetChannelPasswordT } from '../chat/ChatUtils/chatType';
 import { availableLobbiesT, Ball, gameCollionInfoT, GameData, GameMode, GameOptions, GameSettings, Player, playerT } from '../game/GameUtils/type';
@@ -146,16 +145,11 @@ export function sendInvitation(data:{channelName: string, mode: GameMode}) {
 
 export function chatMenuHandler(handleActiveChannels:any,
 								handleChannelJoined:any,
-								handleInvitation:any,
-								loadConnectedUser:any,
-								handlePrivChatJoined:any)
+								handleInvitation:any,)
 {
-	//console.log(`Server is down`);
 	chatSocket.on('activeChannels', (channels:ChannelT) => handleActiveChannels(channels));
 	chatSocket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
 	chatSocket.on('InvitedToChannel', (message:string) => handleInvitation(message))
-	chatSocket.on("listOfConnectedUsers", (userList:{intraLogin: string, username: string}[]) => loadConnectedUser(userList));
-	// chatSocket.on("joinedPrivChat", () => handlePrivChatJoined());
 }
 
 export function chatHandler(handleMessageReceived:any,

@@ -1,5 +1,4 @@
 import "../game.css"
-import { Player } from "../GameUtils/type"
 
 type propsType = {
     username: string

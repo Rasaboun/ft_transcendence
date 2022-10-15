@@ -1,13 +1,11 @@
 /* This example requires Tailwind CSS v2.0+ */
-import React, { useState, useEffect, useContext } from "react";
+import { useEffect, useContext } from "react";
 import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
+import {  MenuIcon, XIcon } from "@heroicons/react/outline";
+import {  Link, useLocation } from "react-router-dom";
 import logo from "./42-logo.png";
-import profile from "./profile.png";
 import useLocalStorage from "./hooks/localStoragehook";
-import Cookies from "js-cookie";
 import { SocketContext } from "./Context/socketContext";
 import {
   getChatSocket,
@@ -22,8 +20,6 @@ let navigation = [
   { name: "Pong", href: "#", current: false, notification: false },
   { name: "Friends", href: "#", current: false, notification: false },
 ];
-let profileColor = ["bg-green-400", "bg-red-400", "bg-gray-400"];
-let index = 0;
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");

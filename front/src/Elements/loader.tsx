@@ -1,6 +1,4 @@
-import { ReactFragment } from 'react';
 import { BallTriangle } from 'react-loader-spinner'
-import { Socket } from 'socket.io-client';
 import "../index.css"
 
 type PropsT = {

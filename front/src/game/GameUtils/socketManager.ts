@@ -40,37 +40,12 @@ export function spectacteGame(id:string)
 	socket?.emit("spectacteGame", id);
 }
 
-// export function listenGame(handleWait:any,
-// 							handleStart:any,
-// 							handleUpdate:any,
-// 							handleGameResult:any,
-// 							handleError:any)
-// {
-// 	socket.on("connect", () => {
-// 		socket.on('watingForOpponent', handleWait)
-// 		socket.on('gameReady', (id:string) => handleStart(id))
-// 		socket.on('collisionUpdate', () => sendCollisionInfo({
-// 			player1PaddleZone: utils.getPaddleContactZone("player1"),
-// 			player2PaddleZone: utils.getPaddleContactZone("player2"),
-// 			ballZone: utils.getContactZone(),
-// 			borderZone: utils.getContactZone(),
-// 			innerHeight: window.innerHeight,
-// 			innerWidth: window.innerWidth
-// 		}))
-// 		socket.on('stateUpdate',(updateInfo:updateInfoT) => handleUpdate(updateInfo))
-// 		socket.on('Result',(winnerId:string) => handleGameResult(winnerId))
-// 		socket.on('lobbyNotFound',(errorMessage:string) => handleError(errorMessage))
-// 		//newSocket.on('goalScored', (idScorer:string) => handleGoal(idScorer))
-		
-// 	})
-// }
 
 export function GameMenuHandler(handleAvailableLobbies:any, handleGoalScored:any, handleSession:any)
 {
 	socket.on("connect", () => {
 		socket.on('activeGames',(availableLobbies:availableLobbiesT) => handleAvailableLobbies(availableLobbies))
 		})
-		//socket.on('goalScored', (scores: {player1: number, player2: number}) => handleGoalScored(scores));
 		socket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, socket));
 
 }

@@ -4,12 +4,7 @@ import PrivChatElem from './chat/component/privChatElem';
 import './output.css';
 import "./index.css"
 
-
-
-
-import { useState } from 'react'
 import { Tab } from '@headlessui/react'
-import { channel } from 'diagnostics_channel';
 import ChannelMenu from './chat/component/channelMenu';
 import ChannelElem from './chat/component/channelElem';
 import PrivChatMenu from './chat/component/privChatMenu';
@@ -83,17 +78,14 @@ export default function Chat() {
 		</header>
 		<main>
 			<div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-				{/* <div className='border-4 border-dashed border-gray-200 rounded-lg h-96'> */}
+				
 				<Routes>
 					{<Route path="/" element={<Channel/>}/> }
 					<Route path="/message" element={<ChannelElem/>}/>
 					<Route path="/privMessage" element={<PrivChatElem/>}/>
 				</Routes>
-				{/* </div> */}
-				{/* Replace with your Chat */}
 				<div className=" px-4 py-6 sm:px-0">
 	      </div>
-				{/* /End replace */}
 			</div>
 		</main>
     </div>

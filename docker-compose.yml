@@ -21,7 +21,7 @@ services:
     env_file:
       - ./.env
     container_name: front
-    command:  npm run start -s
+    command:  npm run start --silent
     volumes: 
         - ./front:/app
         - /app/node_modules

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import useLocalStorage from "./hooks/localStoragehook";
 import "./output.css";
 import "./index.css"
-import { disableTwoFactorAuthentication, enableTwoFactorAuthentication, generateQrCode, getUserPhoto, setUsername, setUserPhoto } from "./Requests/users";
+import { disableTwoFactorAuthentication, enableTwoFactorAuthentication, generateQrCode, setUsername, setUserPhoto } from "./Requests/users";
 import { SocketContext } from "./Context/socketContext";
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
