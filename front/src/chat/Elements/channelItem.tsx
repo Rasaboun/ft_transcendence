@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { Link } from "react-router-dom";
 import { buttonClass } from '../../Utils/utils';
 import { ChannelModes, ChannelT, JoinChannelT } from '../ChatUtils/chatType';
 
@@ -23,7 +22,6 @@ export default function ChannelItem({channel, handleJoinChannel}:ChannelPropsT)
         if (password !== "")
         {
             data = {channelName:channel.channelId, password}
-            console.log(password)
 			handleJoinChannel(data)
         }
         setPassword("")
@@ -52,7 +50,7 @@ export default function ChannelItem({channel, handleJoinChannel}:ChannelPropsT)
                         </button>
                     </form> :
                 <button className={buttonClass} onClick={() =>
-                    !(channel.mode == ChannelModes.Password) ? 
+                    !(channel.mode === ChannelModes.Password) ? 
                         handleJoinChannel({channelName:channel.channelId}) :
                         setDisplayPassInput(true)
                     }>

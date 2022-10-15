@@ -34,7 +34,7 @@ export class AuthService {
 
     async signup(dto: createUserDto)
     {
-        if (await this.userService.findOneByIntraLogin(dto.username))
+        if (await this.userService.findOneByIntraLogin(dto.intraLogin))
         {
             throw new UnauthorizedException("User already exists");
         }
@@ -48,7 +48,7 @@ export class AuthService {
             responseType: 'arraybuffer',
         });
         const imageBuffer = Buffer.from(response.data, 'binary')
-        return await this.userService.setUserPhoto(dto.username, imageBuffer, "default");    
+        return await this.userService.setUserPhoto(dto.intraLogin, imageBuffer, "default");    
     }
 
 
@@ -74,7 +74,9 @@ export class AuthService {
     async getCookieWithJwtAccessToken(userLogin: string)
     {
         const user = await this.userService.findOneByIntraLogin(userLogin);
-
+        if (!user)
+            return ;
+        
         const payload = {
             login: user.intraLogin,
             username: user.username,

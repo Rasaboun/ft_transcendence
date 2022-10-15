@@ -33,9 +33,7 @@ export class Lobby
         client.join(this.id);
         client.lobbyId = this.id;
         client.lobby = this;
-        
-        console.log(`Client ${client.login} joined`, this.id)
-        
+                
         if (this.nbPlayers < 2)
         {
             this.gameInstance.addPlayer(client.login);
@@ -130,8 +128,7 @@ export class Lobby
     {
         const winnerUsername = await this.lobbyManager.getPlayerUsername(winnerLogin);
         await this.lobbyManager.storeResult(this.gameInstance.getResultData())
-        console.log('Sending gameover');
-        console.log('nb clients', this.clients.size);
+    
         this.sendToUsers('gameOver', winnerUsername);
         this.destroy();
     }

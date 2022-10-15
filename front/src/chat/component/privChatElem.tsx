@@ -107,6 +107,7 @@ export default function PrivChatElem()
       );
     }
     joinPrivChat(Locationstate.chatName)
+		// eslint-disable-next-line
   }, [chatSocket?.connected]);
 
   return (

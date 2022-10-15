@@ -16,13 +16,19 @@
   background-color: 	rgb(199 210 254);;
 
 }
-
+.home-title {
+	color: white;
+ 	 text-shadow:
+	-0.5px -1.5px 0 #000,  
+		0.5px -0.5px 0 #000,
+		-0.5px 0.5px 0 #000,
+		0.5px 0.5px 0 #000;
+}
 .text-line{
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 	.base {
-		background: url("starwarsbg.jpeg");
 		background-size: cover;
 		overflow: hidden;
 		color: #fbff0e;

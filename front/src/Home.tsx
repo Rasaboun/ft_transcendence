@@ -1,11 +1,11 @@
 import Cookies from "js-cookie";
-import React, { useEffect } from "react";
+import  { useEffect } from "react";
 import useLocalStorage from "./hooks/localStoragehook";
 import "./output.css";
 import jwt_decode from 'jwt-decode'
 import { setAuthToken } from "./authPage/authUtils/AuthUtils";
-import { useLocation, useNavigate } from "react-router-dom";
-
+import {  homeButtonClass } from "./Utils/utils";
+import {  Link } from "react-router-dom";
 export type userType = {
   username: string,
   login: string,
@@ -28,7 +28,7 @@ export default function Home() {
         if (token)
         {
             const userData: userType = jwt_decode(token);
-            
+  
             setStorage("user", {
               login: userData.login,
               username: userData.username,
@@ -40,6 +40,7 @@ export default function Home() {
             setAuthToken(token);
         }
     }
+		// eslint-disable-next-line
   }, [])
   
 
@@ -54,11 +55,17 @@ export default function Home() {
       </header>
       <main>
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          {/* Replace with your Chat */}
           <div className=" px-4 py-6 sm:px-0">
-            <div className="border-4 border-dashed border-gray-200 rounded-lg h-96"></div>
+            <div className="home-title text-center grid h-screen place-items-center bg-red text-8xl h-96">
+              <p className="text-[80px] underline underline-offset-3 text-grey border-solid">ft_transcendence</p>
+            </div>
+            <Link to='/Chat'>
+              <button className={`${homeButtonClass} float-left`}>Start chatting</button>
+            </Link>
+            <Link to='/Pong'>
+              <button className={`${homeButtonClass} float-right`}>Start playing</button>
+            </Link>
           </div>
-          {/* /End replace */}
         </div>
       </main>
     </div>

@@ -67,15 +67,15 @@ export class ChannelManager
                 data.password = "";
 
             this.channels.set(channel.id, channel);
-            await this.channelsService.createChannel( //change to just the name
+            await this.channelsService.createChannel( 
                 {
                     name: data.name,
                     mode: data.mode,
                     password: data.password,
-                    ownerId: client.login, //change to real id
+                    ownerId: client.login, 
                 });
-            await this.channelsService.addClient(channel.id, client.login, data.password); //change to real id
-            await this.channelsService.addAdmin(channel.id, client.login); //change to real id
+            await this.channelsService.addClient(channel.id, client.login, data.password); 
+            await this.channelsService.addAdmin(channel.id, client.login); 
 
             if (client.chatId)
                 client.leave(client.chatId);
@@ -106,7 +106,6 @@ export class ChannelManager
                 throw new ForbiddenException(`You are banned from this channel for ${Math.trunc(timeBanned)} seconds`);
 
             }
-            //check password
             if ((await this.channelsService.isClient(channel.id, client.login)))
             {
                 if (channel.isPasswordProtected() && !await this.channelsService.checkPassword(channel.id, data.password))
@@ -168,8 +167,6 @@ export class ChannelManager
             if (channel.getNbClients() == 0)
             {
                 await this.deleteChannel(channelName);
-                //this.channels.delete(channelName);
-                //await this.channelsService.deleteChannel(channelName);
                 return ;
             }
             if (channel.owner != client.login)
@@ -193,7 +190,6 @@ export class ChannelManager
                 })
             }
             channel.owner = newOwnerUsername
-            //add new owner in admin
             await this.channelsService.setNewOwner(channelName, newOwnerUsername);
             channel.sendToUsers("newOwner", {target: newOwnerUsername, channelInfo: channel.getInfo(await this.getChannelClients(channel.id)) });
         
@@ -201,14 +197,6 @@ export class ChannelManager
         } catch (error) { throw error }
     }
 
-    // public async makeSocketsLeave(channelName: string, login: string)
-    // {
-    //     const sockets = await this.server.in(channelName).fetchSockets();
-
-    //     sockets.forEach((socket as Au) => {
-    //         if (socket.login)
-    //     })
-    // }
 
     public async deleteChannel(channelId: string)
     {
@@ -222,7 +210,6 @@ export class ChannelManager
         this.channelsService.deleteChannel(channelId);
 
         const clientsSockets = await this.server.in(channelId).fetchSockets();
-        console.log(`Channel got deleted with ${clientsSockets.length} clients`);
         clientsSockets.forEach((socket) => {
             socket.leave(channelId);
         })
@@ -234,7 +221,6 @@ export class ChannelManager
     {
         try
         {
-            console.log('Message received');
             const channel: Channel = this.channels.get(channelId);
             
             if (channel == undefined)
@@ -257,7 +243,6 @@ export class ChannelManager
                 type: MessageTypes.Message,
             };
 
-            console.log('Send message');
             channel.sendMessage(message);
             await this.channelsService.addMessage(channelId, message);
         }
@@ -354,6 +339,8 @@ export class ChannelManager
             }
             await this.channelsService.addAdmin(data.channelName, data.clientId);
             channel.sendToUsers("addAdmin", {target: data.clientId, channelInfo: channel.getInfo(await this.getChannelClients(channel.id)) });
+            this.server.to(channel.id).emit('channelInfo', channel.getInfo(await this.getChannelClients(channel.id)))
+
         }
         catch (error) {
             throw error;
@@ -372,7 +359,7 @@ export class ChannelManager
             if (!target)
                 throw new NotFoundException("This user does not exist");
             data.clientId = target.intraLogin;
-            // Send notification ?
+
             await this.channelsService.inviteClient(data);
         } catch (error) {
             throw error;

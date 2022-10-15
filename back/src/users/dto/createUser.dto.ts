@@ -3,9 +3,6 @@ import { IsAlpha, IsNotEmpty, IsNumber, IsNumberString, IsString } from "class-v
 export class createUserDto {
     @IsNotEmpty()
     intraLogin: string;
-    
-    @IsNotEmpty()
-    username: string;
 
     @IsNotEmpty()
     photoUrl: string;

@@ -1,5 +1,4 @@
 import React, { useState } from "react"
-import { Socket } from 'socket.io-client'
 import { ChannelT } from "../ChatUtils/chatType"
 
 type ChatContextType = {

@@ -11,7 +11,10 @@ export class User {
     @Column()
     intraLogin: string;
 
-    @Column()
+    @Column({
+        nullable: true,
+        default: null,
+    })
     username: string;
 
     @Column({

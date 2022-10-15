@@ -1,8 +1,6 @@
 import { UserStatus } from "src/users/type/users.type";
 import { Message } from "./channel.type";
-/**
- * PRIVCHAT PART
- */
+
 
 export type newPrivChatDto = {
     firstUserLogin: string;

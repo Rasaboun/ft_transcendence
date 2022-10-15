@@ -92,11 +92,7 @@ export class UsersService {
 
     async createUser(userDto: createUserDto): Promise<User> {
 
-        while (await this.findOneByUsername(userDto.username))
-        {
-            userDto.username += '_' // Edits username if already in use
-        }
-
+    
         const newUser = this.userRepository.create(userDto);
         newUser.gameStats = initGameStats();
         return await this.userRepository.save(newUser);
@@ -196,6 +192,8 @@ export class UsersService {
     async getUserPhoto(login: string): Promise<Photo> {
 
         const user = await this.findOneByIntraLogin(login);
+        if (!user)
+            return ;
         return await this.photoService.getPhotoById(user.photoId);
     }
 
@@ -205,7 +203,6 @@ export class UsersService {
         if (!user)
             return ;
         const targetUser = await this.findOneByUsername(newUsername);
-        console.log("target user", targetUser);
         if (targetUser)
             throw new ForbiddenException("Username already taken");
         user.username = newUsername;

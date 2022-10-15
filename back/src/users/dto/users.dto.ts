@@ -71,3 +71,14 @@ export class LoginDto {
     @IsString()
     login: string;
 }
+
+
+export class FirstLoginDto {
+    @IsNotEmpty()
+    @IsString()
+    login: string;
+
+    @IsNotEmpty()
+    @IsString()
+    username: string;
+}

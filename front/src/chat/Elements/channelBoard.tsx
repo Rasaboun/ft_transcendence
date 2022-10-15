@@ -105,6 +105,7 @@ export default function ChannelBoard({userState, channel, setChannelInfo}:PropsT
 			elem.isAdmin && !elem.isOwner && adminsList.push(elem)
 			!elem.isAdmin && !elem.isOwner && othersList.push(elem)
 		})
+		// eslint-disable-next-line
 	}, [channel?.clients])
     
     channel?.clients?.forEach((elem:ClientElem, index:number) => {
@@ -181,7 +182,7 @@ export default function ChannelBoard({userState, channel, setChannelInfo}:PropsT
           <UserListElem key={index} client={elem} userState={userState} />
         ))}
 
-        {adminsList.length !== 0 && <h2>Admin</h2>}
+        {adminsList.length !== 0 && <h2>Admins</h2>}
         {adminsList.map((elem: ClientElem, index: number) => (
           <UserListElem key={index} client={elem} userState={userState} />
         ))}

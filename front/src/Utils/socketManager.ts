@@ -1,4 +1,3 @@
-import { Navigate, useNavigate } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client'
 import { ActionOnUser, AddAdminT, channelFormT, ChannelT, ChatInfoT, ClientInfoT, InviteClientT, JoinChannelT, messageT, sendMessageDto, SetChannelPasswordT } from '../chat/ChatUtils/chatType';
 import { availableLobbiesT, Ball, gameCollionInfoT, GameData, GameMode, GameOptions, GameSettings, Player, playerT } from '../game/GameUtils/type';
@@ -10,13 +9,10 @@ let gameSocket:Socket
 
 export async function initiateSocket()
 {
-	console.log('in initiate socket');
 	let token = getToken();
 	if (!token)
 		return;
-	console.log("Token", token);
 	const url = `${process.env.REACT_APP_BACK_ADDRESS}:${process.env.REACT_APP_SOCKET_PORT}`
-	console.log('connecting on ', url);
 	token = JSON.parse(token);	
 	if (!chatSocket)
 	{
@@ -48,7 +44,7 @@ export function getGameSocket()
 }
 
 
-export function appSocketRoutine(handleGameOver:any,
+export function appSocketRoutine(
 								handleError:any,
 								handleConnectionError:any,
 								userNotFound:any
@@ -61,7 +57,6 @@ export function appSocketRoutine(handleGameOver:any,
 	chatSocket.on("Connect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
 	chatSocket.on('error', (message:string) => handleError(message))	
 	chatSocket.on("Reconnect_failed", (err) => {console.log(`connect_error due to ${err.message}`)});
-	gameSocket.on('gameOver', (winnerId: string) => handleGameOver(winnerId))
 	chatSocket.on('channelDeleted', (message:string) =>handleError(message))
 }
 
@@ -146,16 +141,11 @@ export function sendInvitation(data:{channelName: string, mode: GameMode}) {
 
 export function chatMenuHandler(handleActiveChannels:any,
 								handleChannelJoined:any,
-								handleInvitation:any,
-								loadConnectedUser:any,
-								handlePrivChatJoined:any)
+								handleInvitation:any,)
 {
-	//console.log(`Server is down`);
 	chatSocket.on('activeChannels', (channels:ChannelT) => handleActiveChannels(channels));
 	chatSocket.on('joinedChannel', ({clientId, channelInfo}) => handleChannelJoined({clientId, channelInfo}))
 	chatSocket.on('InvitedToChannel', (message:string) => handleInvitation(message))
-	chatSocket.on("listOfConnectedUsers", (userList:{intraLogin: string, username: string}[]) => loadConnectedUser(userList));
-	// chatSocket.on("joinedPrivChat", () => handlePrivChatJoined());
 }
 
 export function chatHandler(handleMessageReceived:any,
@@ -204,7 +194,6 @@ export function sendPrivMessage(data: sendMessageDto)
 
 export function blockInChat(chatName: string)
 {
-	console.log("Blocking in", chatName);
 	chatSocket?.emit('blockUser', chatName);
 }
 
@@ -218,7 +207,6 @@ export function privChatMenuHandler(
 	)
 {
 chatSocket.on("listOfConnectedUsers", (userList:{intraLogin: string, username: string}[]) => loadConnectedUser(userList));
-// chatSocket.on("joinedPrivChat", () => handlePrivChatJoined());
 }
 
 export function chatHandlerPrivEl(handlePrivMessageReceived:any,

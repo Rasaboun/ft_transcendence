@@ -8,7 +8,7 @@ export async function getUserMatches(login: string): Promise<Imatch[] | null>
     let matchs: Imatch[] = [];
     await axios.get<Imatch[]>(url, {params: {login}}).then(res => {
         matchs = res.data;
-    }).catch(e => console.log)
+    }).catch(e => console.log(e))
 
     return matchs;
 }
@@ -18,7 +18,7 @@ export async function getAllMatches()
     const url: string = backUrl + "/match/user";
     const res = await axios.get(url, ).then(res => {
         return res.data;
-    }).catch(e => console.log)
+    }).catch(e => console.log(e))
 
     return res;
 }

@@ -10,7 +10,7 @@ import {
 } from "../../Utils/socketManager";
 import GameRadioForm from "../../Elements/radioFormElem";
 import { GameMode } from "../../game/GameUtils/type";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getUserPhoto } from "../../Requests/users";
 import Loader from "../../Elements/loader";
 type UserElemPropsT = {
@@ -44,24 +44,13 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
     }
     getImage()
 
+		// eslint-disable-next-line
   }, [image])
 
   const handleOnMouseOver = () => {
     setIsHover(true);
   };
 
-  const handleMouseLeave = () => {
-    setIsHover(false);
-    setIsSelected((oldSelected) => ({
-      mute: false,
-      ban: false,
-      invite: false,
-    }));
-    setForm((oldSelected) => ({
-      banTime: "",
-      muteTime: "",
-    }));
-  };
 
   const handleBan = () => {
     setIsSelected((oldSelected) => ({
@@ -91,6 +80,12 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
       targetId: client.login,
       duration: parseInt(form.banTime),
     });
+
+    setIsSelected(() => ({
+      ban: false,
+      mute: false,
+      invite: false,
+    }));
   };
 
   const handleSubmitMute = (e: React.ChangeEvent<HTMLFormElement>) => {
@@ -100,18 +95,22 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
       targetId: client.login,
       duration: parseInt(form.muteTime),
     });
+    setIsSelected(() => ({
+      ban: false,
+      mute: false,
+      invite: false,
+    }));
   };
 
   const handleSubmitGameMode = (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
-    //INITED ID ?
     createLobby({ inviteMode: true, mode: gameMode });
     sendInvitation({ channelName: storage!.channelId, mode: gameMode });
     navigate("/Pong/game");
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log();
+
     setForm((oldForm) => ({
       ...oldForm,
       [e.target.name]: e.target.value,
@@ -134,7 +133,7 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
       
         <Link to={"/profile/" + client.login}>
           <div className="flex items-center">
-            <img className="user-img" src={image} alt="user profile photo"/>
+            <img className="user-img" src={image} alt="user profile"/>
             {client.username}
           </div>
         </Link>

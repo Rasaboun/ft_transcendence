@@ -1,8 +1,7 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import Loader from "./Elements/loader";
 import useLocalStorage from "./hooks/localStoragehook";
-import { backUrl, getUserFriends, removeFriend } from "./Requests/users";
+import {  getUserFriends, removeFriend } from "./Requests/users";
 import { Friend } from "./Utils/type";
 import { getStatus } from "./Utils/utils";
 import "./App.css"
@@ -15,7 +14,6 @@ type FriendPropsT = {
 function FriendsProfile({ friend, login, setFriends } : FriendPropsT) { 
 	const handleClick = async () => {
 		const newFriends = await removeFriend(login, friend.login)
-		console.log("newFriends", newFriends)
 		setFriends(newFriends)
 	}
 
@@ -49,6 +47,7 @@ export default function Friends() {
 			setFriends(friendList);
 		};	
 		getFriends()
+		// eslint-disable-next-line
 	}, [])
 		  const FriendListELem = friends?.map((elem, idx) => 
 		  	<FriendsProfile key={idx} friend={elem} login={storage.login} setFriends={setFriends}/>)

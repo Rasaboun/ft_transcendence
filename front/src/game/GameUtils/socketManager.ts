@@ -6,9 +6,7 @@ let socket:Socket
 export function initiateSocket(url:string, setSocket:any, sessioninfo?:{sessionId:string, roomId:string}, login?:string)
 {
 	socket = io(url, { autoConnect: false });
-	console.log(socket)
 	setSocket(socket)
-	console.log("sessionInfo", sessioninfo);
 	if (sessioninfo)
 		socket.auth = sessioninfo;
 	else
@@ -36,41 +34,15 @@ export function startGame()
 
 export function spectacteGame(id:string)
 {
-	console.log('Emit spectacte');
 	socket?.emit("spectacteGame", id);
 }
 
-// export function listenGame(handleWait:any,
-// 							handleStart:any,
-// 							handleUpdate:any,
-// 							handleGameResult:any,
-// 							handleError:any)
-// {
-// 	socket.on("connect", () => {
-// 		socket.on('watingForOpponent', handleWait)
-// 		socket.on('gameReady', (id:string) => handleStart(id))
-// 		socket.on('collisionUpdate', () => sendCollisionInfo({
-// 			player1PaddleZone: utils.getPaddleContactZone("player1"),
-// 			player2PaddleZone: utils.getPaddleContactZone("player2"),
-// 			ballZone: utils.getContactZone(),
-// 			borderZone: utils.getContactZone(),
-// 			innerHeight: window.innerHeight,
-// 			innerWidth: window.innerWidth
-// 		}))
-// 		socket.on('stateUpdate',(updateInfo:updateInfoT) => handleUpdate(updateInfo))
-// 		socket.on('Result',(winnerId:string) => handleGameResult(winnerId))
-// 		socket.on('lobbyNotFound',(errorMessage:string) => handleError(errorMessage))
-// 		//newSocket.on('goalScored', (idScorer:string) => handleGoal(idScorer))
-		
-// 	})
-// }
 
 export function GameMenuHandler(handleAvailableLobbies:any, handleGoalScored:any, handleSession:any)
 {
 	socket.on("connect", () => {
 		socket.on('activeGames',(availableLobbies:availableLobbiesT) => handleAvailableLobbies(availableLobbies))
 		})
-		//socket.on('goalScored', (scores: {player1: number, player2: number}) => handleGoalScored(scores));
 		socket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, socket));
 
 }
@@ -92,7 +64,7 @@ export function GameRoutineHandler(handleWait:any,
 	socket.on('gameData', (data: {gameData: GameData, gameSettings: GameSettings}) => handlegameData(data))
 	socket.on('goalScored', (scores: {player1: number, player2: number}) => handleGoalScored(scores))
 	socket.on('spectateSuccess', (data: {gameData: GameData, gameSettings: GameSettings }) => handleSpectateSuccess(data))
-	socket.on('gameOver', (winnerId: string) =>{		console.log('received gameover'); handleGameOver(winnerId)})
+	socket.on('gameOver', (winnerId: string) =>{		; handleGameOver(winnerId)})
 	socket.on("session", (sessionInfo:{sessionId:string, userId:string}) => handleSession(sessionInfo, socket));
 
 }

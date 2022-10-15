@@ -2,10 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import useLocalStorage from "./hooks/localStoragehook";
 import "./output.css";
 import "./index.css"
-import { disableTwoFactorAuthentication, enableTwoFactorAuthentication, generateQrCode, getUserPhoto, setUsername, setUserPhoto } from "./Requests/users";
+import { disableTwoFactorAuthentication, enableTwoFactorAuthentication, generateQrCode, setUsername, setUserPhoto } from "./Requests/users";
 import { SocketContext } from "./Context/socketContext";
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
+import { validUsername } from "./Utils/utils";
 
 type settingsForm = {
 	username: string,
@@ -18,6 +19,8 @@ function QRcodeModal({ setOpen, setEnabled } : { setOpen: (value:boolean) => voi
 	const { storage, setStorage } = useLocalStorage("user")
 	const [qrCode, setQrCode] = useState<string | undefined>(undefined)
 	const [code, setCode] = useState<string>("")
+	const [error, setError] = useState(false)
+	const [errorMessage, setErrorMessage] = useState("");
 	
 	useEffect(() => {
 		const getQrCode = async () => {
@@ -26,13 +29,17 @@ function QRcodeModal({ setOpen, setEnabled } : { setOpen: (value:boolean) => voi
 			setStorage("user", {...storage, twoAuthEnabled: true});
 		}
 		getQrCode();
+		// eslint-disable-next-line
 	}, [])
 
 	const sendCode = () => {
 		const isCodeValid = async () => {
 			const valid:boolean = await enableTwoFactorAuthentication(storage.login, code);
 			if (!valid)
-				setCode("Invalide code");
+			{
+				setError(true);
+				setErrorMessage('Wrong code');
+			}
 			else
 			{
 				setOpen(false);
@@ -47,6 +54,13 @@ function QRcodeModal({ setOpen, setEnabled } : { setOpen: (value:boolean) => voi
 		qrCode ?
 			<div className="flex flex-col justify-center items-center">
 				<img src={qrCode} alt="qrCode" />
+				{
+						error && (
+							<p style={{ color: "rgb(255, 0, 0)" }}>
+								{ errorMessage }
+							</p>
+						)
+				}
 				<input className="border border-indigo-300 rounded-md text-sm shadow-sm disabled:bg-indigo-50 disabled:text-indigo-500 disabled:border-indigo-200 disabled:shadow-none"
 					type="text"
 					name="code"
@@ -67,7 +81,7 @@ function QRcodeModal({ setOpen, setEnabled } : { setOpen: (value:boolean) => voi
 
 const ControlledPopup = ({  setEnabled } : { setEnabled: (value:boolean) => void }) => {
 	const [open, setOpen] = useState(false);
-	const closeModal = () => setOpen(false);
+	const closeModal = () => {setOpen(false); setEnabled(false)};
 	return (
 	  <div>
 		<button type="button" onClick={() => setOpen(o => !o)} className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none">
@@ -75,9 +89,6 @@ const ControlledPopup = ({  setEnabled } : { setEnabled: (value:boolean) => void
 		</button>
 		<Popup open={open} closeOnDocumentClick onClose={closeModal}>
 		  <div className="modal">
-			<a onClick={closeModal}>
-			  X
-			</a>
 			<QRcodeModal setOpen={setOpen} setEnabled={setEnabled}/>
 		  </div>
 		</Popup>
@@ -91,6 +102,9 @@ function TabSettings() {
 	const { setImage } = useContext(SocketContext)
 	const defaultValue:settingsForm = {username : storage.username, image: storage.image}
 	const [editable, setEditable] = useState(false)
+	const [error, setError] = useState(false)
+	const [errorMessage, setErrorMessage] = useState("");
+
 	const [displayedImage, setDisplayedImage] = useState(storage.image)
 	const [form, setForm] = useState<settingsForm>(defaultValue)
 	const toggle = () => {
@@ -102,6 +116,8 @@ function TabSettings() {
 
 	const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
 		let img:any;
+
+		setError(false);
 		if (e.target.files && e.target.files[0]) {
 			img = e.target.files[0];
 			if (img.size >= 5242880)
@@ -124,17 +140,30 @@ function TabSettings() {
 	}
 
 	const submitFormData = async () => {
-		console.log(form.username, defaultValue.username)
+
+		setError(false);
+		if (!validUsername(form.username))
+		{
+			setError(true);
+			setErrorMessage("Invalid username")
+			setForm((prevForm) => ({
+				...prevForm,
+				username : ""
+			}))
+			return ;
+		}
+
 		if (form.username !== defaultValue.username)
 		{
-			console.log("username settings", form.username)
 			const taken = await setUsername(storage.login, form.username)
 			if (taken)
 			{
+				setError(true);
+				setErrorMessage("Username already taken")
 				setForm((prevForm) => ({
-						...prevForm,
-						username : "This user is already taken"
-					}))
+					...prevForm,
+					username : ""
+				}))
 			}
 			else
 			{
@@ -145,8 +174,6 @@ function TabSettings() {
 		{
 
 			await setUserPhoto(storage.login, form.image)
-			//const newPhoto = await getUserPhoto(storage.login);
-			//setStorage("user", {...storage, image : newPhoto} )
 			setImage(URL.createObjectURL(form.image));
 		}
 	}
@@ -200,6 +227,13 @@ function TabSettings() {
 					disabled={!editable}
 					className="w-1/6 border border-indigo-300 rounded-md text-sm shadow-sm disabled:bg-indigo-50 disabled:text-indigo-500 disabled:border-indigo-200 disabled:shadow-none"
 					></input>
+					{
+						error && (
+							<p style={{ color: "rgb(255, 0, 0)" }}>
+								{ errorMessage }
+							</p>
+						)
+					}
 					<button
 					type="button"
 					className="inline-flex justify-between items-center text-white bg-indigo-800 hover:bg-indigo-900 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 mb-2 focus:outline-none"

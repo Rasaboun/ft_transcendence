@@ -5,8 +5,6 @@ import Login from "./authPage/component/LogPage";
 import Chat from "./Chat";
 import { SocketContext } from "./Context/socketContext";
 import Dashboard from "./Dashboard";
-import Footer from "./Footer";
-import StarWars from "./StarWars";
 import Home from "./Home";
 import useLocalStorage from "./hooks/localStoragehook";
 import NavBar from "./NavBar";
@@ -22,6 +20,7 @@ import Cookies from "js-cookie";
 import TwoFactorAuth from "./2factorAuth";
 import Friends from "./Friends";
 import ErrorPage from "./404";
+import FirstRegistration from "./firstRegistration";
 
 const token = localStorage.getItem("token");
 if (token) {
@@ -32,7 +31,7 @@ export default function App()
 {
 	const navigate = useNavigate()
 	const { setChatSocket, setGameSocket} = useContext(SocketContext)
-	const { storage2 } = useLocalStorage("user");
+	const { storage } = useLocalStorage("user");
 	const [alert, setAlert] = useState({
 		isShow: false,
 		msg: ""
@@ -44,12 +43,7 @@ export default function App()
 			msg: message
 		})
 	}
-	
-	function handleGameOver(winnerId: string)
-	{
-		const message = winnerId === storage2.login ? "YOU WIN" : "YOU LOSE"
-		console.log(message)
-	}
+
 
 	function handleConnectionError ()
 	{
@@ -57,7 +51,6 @@ export default function App()
 	}
 
 	const userNotFound = () => {
-		console.log('In usernotfound');
 		navigate('/Login');
 	}
 	
@@ -76,8 +69,10 @@ export default function App()
 			initiateSocket()
 			setChatSocket(getChatSocket())
 			setGameSocket(getGameSocket())
-			appSocketRoutine(handleGameOver, handleError, handleConnectionError, userNotFound);
+			appSocketRoutine(handleError, handleConnectionError, userNotFound);
 		}
+
+		// eslint-disable-next-line
 	}, [getToken()])
 
     return (
@@ -87,7 +82,7 @@ export default function App()
 				alert.isShow &&
 					<ErrorAlert errorMsg={alert.msg}/>
 			}
-			{Cookies.get('token') && storage2 ? 
+			{Cookies.get('token') && storage ? 
 				<NavBar /> :
 				<LoginNavBar/>
 			}
@@ -96,18 +91,17 @@ export default function App()
 					<Route path="/" element={<Home/> }/>
 					<Route path="Dashboard" element={<Dashboard/> }/>
 					<Route path="Friends" element={<Friends/> }/>
-					<Route path="About" element={<StarWars/> }/>
 					<Route path="Chat/*" element={<Chat/>}/>
 					<Route path="Pong/*" element={<Pong/>}/>
 					<Route path="Settings" element={<Settings/>}/>
 					<Route path="NotFound" element={<ErrorPage/>}/>
 					<Route path="/Profile/:login" element={<Profile/>}/>
+					<Route element={<ErrorPage/>}/>
 				</Route>
 					<Route path="/Login" element={<Login/> }/>
 					<Route path="/TwofactorAuth" element={<TwoFactorAuth/> }/>
-				
+					<Route path="/FirstRegistration" element={<FirstRegistration/> }/>	
 				</Routes>
-			{/* <Footer/> */}
 		
 		
 		</div>

@@ -23,7 +23,6 @@ export class PrivChatManager
 
 	@WebSocketServer()
 	public server: Server;
-	// array of private chat or users, only thing that counts is the users online
 	private readonly privateChats: Map<string, PrivChat> = new Map<string, PrivChat>();
 
 	public async initPrivChats()
@@ -65,7 +64,7 @@ export class PrivChatManager
 			client.join(chat.name);
 			client.chatId = chat.name;
 			const chatInfo: privChatInfo = await this.privChatService.getChatInfo(chat.name, client.login);
-			console.log("chat info in joined", chatInfo);
+	
 			this.server.to(client.roomId).emit('joinedPrivChat', chatInfo);
 			return chat.name;
 		}

@@ -34,7 +34,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	async handleConnection(client: AuthenticatedSocket){
 		
-		console.log(`Client ${client.id} joined pong socket`);
 		try
 		{
 			await this.authService.initializeSocket(client as AuthenticatedSocket);
@@ -48,7 +47,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	handleDisconnect(client: AuthenticatedSocket) {
 		this.lobbyManager.terminateSocket(client);
-		console.log(`Client ${client.id} left pong socket`);
 		
 	}
 
@@ -72,7 +70,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async joiningQueue(client: AuthenticatedSocket, mode: GameMode)
 	{
 		await this.updateLobby(client);
-		console.log(`Client ${client.id} joined queue`)
 		await this.lobbyManager.joinQueue(client, mode);
 	}
 

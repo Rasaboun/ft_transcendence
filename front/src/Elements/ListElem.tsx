@@ -1,8 +1,3 @@
-
-function classNames(...classes:any[]) {
-	return classes.filter(Boolean).join(' ')
-}
-
 type PropsT = {
 	children: JSX.Element
 }

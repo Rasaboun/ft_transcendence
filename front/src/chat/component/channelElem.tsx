@@ -236,6 +236,7 @@ export default function ChannelElem() {
     }
       getChannelInfo(Locationstate.channelName);
       getClientInfo(Locationstate.channelName);
+      // eslint-disable-next-line
   }, [chatSocket?.connected]);
 
   useEffect(() => {

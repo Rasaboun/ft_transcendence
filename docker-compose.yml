@@ -13,7 +13,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     networks:
-      - ft_transcendance
+      - ft_transcendence
 
   front:
     build:
@@ -21,17 +21,13 @@ services:
     env_file:
       - ./.env
     container_name: front
-    command:  npm run start
-    volumes: 
-        - ./front:/app
-        - /app/node_modules
-    expose:
-      - ${BACK_PORT}
-      - ${SOCKET_PORT}
+    depends_on:
+      - back
+    command:  npm run start 
     ports:
       - ${FRONT_PORT}:${FRONT_PORT}
     networks:
-      - ft_transcendance
+      - ft_transcendence
 
   back:
     build:
@@ -40,24 +36,18 @@ services:
     env_file:
       - ./.env
     container_name: back
-    volumes: 
-        - ./back:/app
-        - /app/node_modules
+    depends_on:
+      - database
     expose:
-      - ${DB_PORT}
-      - 5434
       - ${BACK_PORT}
     ports:
       - ${BACK_PORT}:${BACK_PORT}
       - ${SOCKET_PORT}:${SOCKET_PORT}
-    volumes: 
-        - ./back:/app
-        - /app/node_modules
-    command:  npm run start:dev
+    command:  npm run start
     environment:
       POSTGRES_HOST: database
     networks:
-      - ft_transcendance
+      - ft_transcendence
     depends_on:
       - dev-db
 
@@ -65,5 +55,5 @@ volumes:
   data:
 
 networks:
-  ft_transcendance:
+  ft_transcendence:
     driver: bridge

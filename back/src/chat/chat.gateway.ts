@@ -43,7 +43,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 		try
 		{
-			console.log(`Client ${client.handshake.auth.login} joined chat socket`);
 			await this.authService.initializeSocket(client as AuthenticatedSocket);
 			await this.channelManager.joinChannels(client as AuthenticatedSocket);
 			await this.privChatManager.joinPrivChats(client as AuthenticatedSocket);
@@ -68,7 +67,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			await this.channelManager.joinChannel(client, data);
 			client.chatId = data.channelName;
 			await this.userService.setUserChatId(client.login, data.channelName);
-			console.log(`Client ${client.login} joined channel ${data.channelName}`)
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
@@ -81,8 +79,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			await this.channelManager.leaveChannel(client, channelName);
 			client.leave(channelName);
 			await this.userService.setUserChatId(client.login, null);
-
-			console.log(`Client ${client.id} left channel ${channelName}`)
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}
@@ -119,7 +115,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		try
 		{
 			await this.channelManager.deleteChannel(channelId);
-			console.log(`Client ${client.id} deleted channel ${channelId}`)
 		}
 		catch (error) { client.emit('error', error.message ) }
 
@@ -242,7 +237,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async inviteClient(client: AuthenticatedSocket, data: InviteClient)
 	{
 		try {
-			console.log("Invited client ", data.clientId);
 			await this.channelManager.inviteClient(client.login, data);
 		}
 		catch (error) { client.emit('error', error.message ) }
@@ -252,10 +246,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async joinPrivChat(client: AuthenticatedSocket, targetLogin: string)
 	{
 		try{
-			console.log(client.login," joining chat with", targetLogin);
 			const chatId = await this.privChatManager.joinPrivChat(client, targetLogin);
 			await this.userService.setUserChatId(client.login, chatId);
-			console.log("chatting with", targetLogin, "in roomId", chatId);
 		}
 		catch (error) { client.emit('error', error.message ) }
 	}

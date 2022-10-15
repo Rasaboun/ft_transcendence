@@ -1,6 +1,4 @@
-import React, { useContext, useState } from "react";
-import { SocketContext } from "../Context/socketContext";
-import {GameMode } from "../game/GameUtils/type";
+import React from "react";
 
 type PropsT = {
 	choice: any
