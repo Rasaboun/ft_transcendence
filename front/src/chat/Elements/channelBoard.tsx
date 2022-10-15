@@ -18,7 +18,6 @@ export default function ChannelBoard({userState, channel, setChannelInfo}:PropsT
     let othersList: ClientElem[] = [];
     const {storage} = useLocalStorage("user");
     const navigate = useNavigate()
-    const [open, setOpen] = useState(false);
     const [form, setForm] = useState({
         message:"",
         invite:"",
