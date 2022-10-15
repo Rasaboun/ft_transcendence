@@ -97,7 +97,6 @@ export class LobbyManager
             lobby = this.createLobby(options);
         }
         lobby.addClient(client);
-        console.log(`Client ${client.login} joined lobby ${lobby.id}`)
         await this.authService.updateLobby(client.login, lobby.id);
     }
 

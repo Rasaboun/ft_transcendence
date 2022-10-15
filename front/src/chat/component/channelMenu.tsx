@@ -33,10 +33,9 @@ export default function ChannelMenu()
 	}
 
 	const handleChannelJoined = (data:{clientId:string, channelInfo:ChannelT}) => {
-		console.log('Channel joined', data);
+		
 		if (storage.login === data.clientId)
 		{
-			console.log(data.channelInfo)
 			setStorage("channel", data.channelInfo)
 			navigate("/chat/message", {
 				state: {

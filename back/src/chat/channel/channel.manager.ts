@@ -210,7 +210,6 @@ export class ChannelManager
         this.channelsService.deleteChannel(channelId);
 
         const clientsSockets = await this.server.in(channelId).fetchSockets();
-        console.log(`Channel got deleted with ${clientsSockets.length} clients`);
         clientsSockets.forEach((socket) => {
             socket.leave(channelId);
         })
@@ -222,7 +221,6 @@ export class ChannelManager
     {
         try
         {
-            console.log('Message received');
             const channel: Channel = this.channels.get(channelId);
             
             if (channel == undefined)
@@ -245,7 +243,6 @@ export class ChannelManager
                 type: MessageTypes.Message,
             };
 
-            console.log('Send message');
             channel.sendMessage(message);
             await this.channelsService.addMessage(channelId, message);
         }

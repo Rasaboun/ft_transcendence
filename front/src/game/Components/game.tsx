@@ -196,7 +196,6 @@ export default function Game()
 
 	function handleGameOver(winnerUsername: string)
 	{
-		console.log('gameOver', winnerUsername);
 		setGameData((oldGameData) => ({
 			...oldGameData,
 			state: GameState.Stopped

@@ -213,8 +213,6 @@ export async function submitFirstRegistration(username: string)
 
     const url: string = backUrl + "/auth/firstLogin";
     const login = Cookies.get('login');
-    console.log('login', login);
-    console.log('username', username);
     let token = null;
     token = await axios.post(url, {login, username}).then(res => {
         return res.data;

@@ -22,7 +22,6 @@ export default function ChannelItem({channel, handleJoinChannel}:ChannelPropsT)
         if (password !== "")
         {
             data = {channelName:channel.channelId, password}
-            console.log(password)
 			handleJoinChannel(data)
         }
         setPassword("")

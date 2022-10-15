@@ -146,7 +146,6 @@ function TabSettings() {
 		{
 			setError(true);
 			setErrorMessage("Invalid username")
-			console.log('invalid');
 			setForm((prevForm) => ({
 				...prevForm,
 				username : ""
@@ -156,7 +155,6 @@ function TabSettings() {
 
 		if (form.username !== defaultValue.username)
 		{
-			console.log("username settings", form.username)
 			const taken = await setUsername(storage.login, form.username)
 			if (taken)
 			{

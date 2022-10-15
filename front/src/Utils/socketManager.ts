@@ -9,13 +9,10 @@ let gameSocket:Socket
 
 export async function initiateSocket()
 {
-	console.log('in initiate socket');
 	let token = getToken();
 	if (!token)
 		return;
-	console.log("Token", token);
 	const url = `${process.env.REACT_APP_BACK_ADDRESS}:${process.env.REACT_APP_SOCKET_PORT}`
-	console.log('connecting on ', url);
 	token = JSON.parse(token);	
 	if (!chatSocket)
 	{
@@ -197,7 +194,6 @@ export function sendPrivMessage(data: sendMessageDto)
 
 export function blockInChat(chatName: string)
 {
-	console.log("Blocking in", chatName);
 	chatSocket?.emit('blockUser', chatName);
 }
 

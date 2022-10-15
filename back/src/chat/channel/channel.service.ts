@@ -280,7 +280,6 @@ export class ChannelsService {
         const channel: Channel = await this.findOneById(channelName);
         if (channel == undefined)
             throw new NotFoundException("This channel does not exist");
-        console.log(password, channel.password);
         return bcrypt.compareSync(password, channel.password);
 
     }

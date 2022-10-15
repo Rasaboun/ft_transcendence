@@ -44,7 +44,6 @@ export class UsersController {
 
     @Put('friend')
     addFriend(@Body() dto: friendDto) {
-        console.log("adding friend", dto);
         return this.usersService.addFriend(dto.login, dto.friendLogin);
     }
 

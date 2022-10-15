@@ -51,7 +51,6 @@ export default function App()
 	}
 
 	const userNotFound = () => {
-		console.log('In usernotfound');
 		navigate('/Login');
 	}
 	

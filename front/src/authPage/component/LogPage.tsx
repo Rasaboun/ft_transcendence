@@ -16,7 +16,6 @@ export default function LoginElem ()
 
 
 	useEffect(() => {
-		console.log(chatSocket, gameSocket)
 		chatSocket?.close()
 		gameSocket?.close()
 		localStorage.clear()

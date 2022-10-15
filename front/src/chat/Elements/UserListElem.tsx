@@ -110,7 +110,7 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log();
+
     setForm((oldForm) => ({
       ...oldForm,
       [e.target.name]: e.target.value,

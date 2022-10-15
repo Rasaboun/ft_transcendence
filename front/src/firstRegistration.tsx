@@ -21,7 +21,6 @@ function LoginForm() {
 	
 
 	const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-		console.log('username', form.username);
 		setForm((prevForm) => ({
 			...prevForm,
 			username : e.target.value

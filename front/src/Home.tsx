@@ -28,7 +28,7 @@ export default function Home() {
         if (token)
         {
             const userData: userType = jwt_decode(token);
-            console.log(userData);
+  
             setStorage("user", {
               login: userData.login,
               username: userData.username,

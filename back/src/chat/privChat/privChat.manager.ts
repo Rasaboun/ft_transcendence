@@ -64,7 +64,7 @@ export class PrivChatManager
 			client.join(chat.name);
 			client.chatId = chat.name;
 			const chatInfo: privChatInfo = await this.privChatService.getChatInfo(chat.name, client.login);
-			console.log("chat info in joined", chatInfo);
+	
 			this.server.to(client.roomId).emit('joinedPrivChat', chatInfo);
 			return chat.name;
 		}

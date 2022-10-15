@@ -69,7 +69,6 @@ export class AuthController {
     async firstLogin(@Body() dto: FirstLoginDto)
     {
         await this.userService.setUserUsername(dto.login, dto.username);
-        console.log('valid username');
         
         const jwtToken = await this.authService.getJwtToken(dto.login);
         
