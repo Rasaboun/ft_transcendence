@@ -45,7 +45,7 @@ export interface GameOptions {
 
 export enum GameMode {
   Normal,
-  Mini,
+  Slow,
   Speed,
 }
 

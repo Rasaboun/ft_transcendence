@@ -106,7 +106,7 @@ export type GameInfoT = {
 
 export enum GameMode {
   Normal,
-  Mini,
+  Slow,
   Speed,
 }
 export interface GameOptions {

@@ -474,8 +474,8 @@ export class ChannelManager
             
             let msg = `invites you to join a game. Mode: `;
             switch (data.mode) {
-                case GameMode.Mini:
-                    msg += "Mini.";
+                case GameMode.Slow:
+                    msg += "Slow.";
                     break;
                 case GameMode.Speed:
                     msg += "Speed.";

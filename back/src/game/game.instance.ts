@@ -1,9 +1,8 @@
 import { Module } from "@nestjs/core/injector/module";
-import { string } from "joi";
 import { matchDto } from "src/match/dto/match.dto";
 import { Lobby } from "./lobby/lobby";
 import { GameData, GameMode, GameSettings, GameState, Player } from "./types/game.type";
-import { getMiniModeSettings, getNormalModeSettings, initGameData } from "./utils/game.settings";
+import { getNormalModeSettings, initGameData } from "./utils/game.settings";
 
 
 export class GameInstance
@@ -15,18 +14,13 @@ export class GameInstance
 	{
         this.gameData = initGameData();
 
-		if (mode == GameMode.Normal)
+		this.settings = getNormalModeSettings();
+		if (mode == GameMode.Slow)
 		{
-			this.settings = getNormalModeSettings();
-		}
-		else if (mode == GameMode.Mini)
-		{
-			this.settings = getMiniModeSettings();
-			this.gameData.ball.radius = this.gameData.ball.radius / 4;
+			this.gameData.ball.speed /= 2;
 		}
 		else if (mode == GameMode.Speed)
 		{
-			this.settings = getNormalModeSettings();
 			this.gameData.ball.speed *= 2;
 		}
 	}

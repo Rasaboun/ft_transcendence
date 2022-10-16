@@ -14,19 +14,6 @@ export function getNormalModeSettings(): GameSettings
     }
 }
 
-export function getMiniModeSettings(): GameSettings
-{
-    return {
-        scoreToWin: scoreToWin,
-        paddleHeight: 50,
-        paddleWidth: 20,
-        width: 1920,    
-        height: 1080,
-        maxHits: 10,
-    }
-}
-
-
 export function initGameData(): GameData 
 {
     return {

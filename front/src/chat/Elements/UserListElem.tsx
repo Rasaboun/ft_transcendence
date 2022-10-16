@@ -162,7 +162,7 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
           <GameRadioForm
             choice={gameMode}
             setChoice={setGameMode}
-            options={["Normal", "Mini", "Speed"]}
+            options={["Normal", "Slow", "Speed"]}
           />
           <button type="submit" className="focus:outline-none text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-2.5 py-1 my-2 mx-2">
             Invite
