@@ -11,6 +11,6 @@ async function bootstrap() {
     origin: "*",});
   app.use(cookieParser());
 
-  await app.listen(3002);
+  await app.listen(process.env.BACK_PORT);
 }
 bootstrap();
