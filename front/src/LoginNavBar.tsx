@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
 import { Disclosure } from '@headlessui/react'
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import logo from './42-logo.png';
 
 let navigation = [
@@ -8,29 +7,11 @@ let navigation = [
   { name: 'Chat', href: '#', current: false},
   { name: 'Pong', href: '#', current: false},
 ]
-let profileColor = ["bg-green-400", "bg-red-400", "bg-gray-400"]
 
 
-function HoverNavBar(location :String){
- 
 
-  for (let other of navigation){
-      document.getElementById(other.name)?.classList.remove("bg-indigo-400");
-      document.getElementById(other.name + "burger")?.classList.remove("bg-indigo-400");
-  }
-
-  document.getElementById(location.replace('/',""))?.classList.add("bg-indigo-400");
-  document.getElementById(location.replace('/',"") + "burger")?.classList.add("bg-indigo-400");
-}
 
 export default function LoginNavBar() {
-  const location = useLocation();
-  
-  useEffect(() => {    // Mettre à jour le titre du document en utilisant l'API du navigateur    
-    document.getElementById("notification")?.classList.add(profileColor[1]);
-    HoverNavBar(location.pathname);
-		// eslint-disable-next-line
-  }, []);
   
   return (
     <>

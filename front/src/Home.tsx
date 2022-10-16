@@ -57,7 +57,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className=" px-4 py-6 sm:px-0">
             <div className="text-center grid h-screen place-items-center bg-red text-8xl h-96">
-              <p className="home-title text-[80px] text-grey border-solid">ft_transcendence</p>
+              <p className="home-title text-4xl sm:text-7xl text-grey border-solid">ft_transcendence</p>
             </div>
             <Link to='/Chat'>
               <button className={`${homeButtonClass} float-left`}>Start chatting</button>

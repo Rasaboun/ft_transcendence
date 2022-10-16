@@ -33,12 +33,17 @@ function HoverNavBar(location: String) {
       ?.classList.remove("bg-indigo-400");
   }
   
-  document
+  if (location.replace("/", "").length !== 0)
+  {
+    document
     .getElementById(location.replace("/", ""))
     ?.classList.add("bg-indigo-400");
+  }
   document
-    .getElementById(location.replace("/", "") + "burger")
-    ?.classList.add("bg-indigo-400");
+  .getElementById(location.replace("/", "") + "burger")
+  ?.classList.add("bg-indigo-400");
+  console.log(location.replace("/", "") + "burger")
+  
 }
 
 export default function NavBar() {
