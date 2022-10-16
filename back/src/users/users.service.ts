@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { Friend, initGameStats, MatchInfo, UserStatus } from './type/users.type';
 import { PhotoService } from './photo/photo.service';
 import { Photo } from 'src/typeorm/Photo';
-
+import { IsNull, Not } from "typeorm";
 
 @Injectable()
 export class UsersService {
@@ -64,7 +64,11 @@ export class UsersService {
     }
 
     findAll(): Promise<User[]> {
-        return this.userRepository.find();
+        return this.userRepository.find({
+            where : [
+                {username: Not(IsNull()) }
+            ]
+        });
     }
 
     findOneById(id: number) {

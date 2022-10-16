@@ -54,7 +54,6 @@ export interface GameSettings {
   paddleHeight:	number,
   width: number,
   height: number,
-  
 }
 
 export type ballInfoT = {

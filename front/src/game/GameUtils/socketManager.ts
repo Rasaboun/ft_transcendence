@@ -60,7 +60,7 @@ export function GameRoutineHandler(handleWait:any,
 	socket.on('waitingForOpponent', handleWait)
 	socket.on('updateBall', (ball:Ball) => handleUpdateBall(ball))
 	socket.on('updatePaddle', ({playerId, newPos}) => updatePaddle(playerId, newPos))
-	socket.on('gameReady', (data: {gameData: GameData, gameSettings: GameSettings}) => handleGameReady(data))
+	socket.on('gameReady', (data: {gameData: GameData, gameSettings: GameSettings, mode: GameMode}) => handleGameReady(data))
 	socket.on('gameData', (data: {gameData: GameData, gameSettings: GameSettings}) => handlegameData(data))
 	socket.on('goalScored', (scores: {player1: number, player2: number}) => handleGoalScored(scores))
 	socket.on('spectateSuccess', (data: {gameData: GameData, gameSettings: GameSettings }) => handleSpectateSuccess(data))

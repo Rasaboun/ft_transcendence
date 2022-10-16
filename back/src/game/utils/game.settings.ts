@@ -1,4 +1,4 @@
-import { GameData, GameSettings, GameState } from "../types/game.type";
+import { GameData, GameMode, GameSettings, GameState } from "../types/game.type";
 
 const scoreToWin = 5;
 

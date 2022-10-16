@@ -1,8 +1,10 @@
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useLocalStorage from "./hooks/localStoragehook";
 import { backUrl, submitFirstRegistration } from "./Requests/users"
 import { validUsername } from "./Utils/utils";
+import { setAuthToken } from "./authPage/authUtils/AuthUtils";
 
 type settingsForm = {
 	username: string,
@@ -14,6 +16,7 @@ function LoginForm() {
 
 	const [error, setError] = useState(false)
 	const [errorMessage, setErrorMessage] = useState("");
+	const { storage } = useLocalStorage("user");
 	const [form, setForm] = useState<settingsForm>({
         username: "",
         image: undefined
@@ -55,7 +58,7 @@ function LoginForm() {
 			else
 			{
 				Cookies.set('token', jwtToken, { expires: 1});
-				
+				setAuthToken(jwtToken);
 				window.open(backUrl + "/auth/navigate", "_self"); 
 				
 			}
@@ -64,8 +67,10 @@ function LoginForm() {
     useEffect(() => {
         if (Cookies.get('login') === undefined)
             navigate('/Login');
-        if (Cookies.get('token'))
+        if (Cookies.get('token') && storage)
+		{
             navigate('/Home');
+		}
     })
 
 	return (
