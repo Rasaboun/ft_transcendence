@@ -52,8 +52,6 @@ services:
       POSTGRES_HOST: database
     networks:
       - ft_transcendence
-    depends_on:
-      - dev-db
 
 volumes:
   data:
