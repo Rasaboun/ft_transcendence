@@ -26,12 +26,8 @@ services:
     depends_on:
       - back
     command:  npm run start 
-    volumes: 
-        - ./front:/app
-        - /app/node_modules
     expose:
-      - ${BACK_PORT}
-      - ${SOCKET_PORT}
+      - ${FRONT_PORT}
     ports:
       - ${FRONT_PORT}:${FRONT_PORT}
     networks:
@@ -46,17 +42,12 @@ services:
     container_name: back
     depends_on:
       - database
-    volumes: 
-        - ./back:/app
-        - /app/node_modules
     expose:
-      - ${DB_PORT}
-      - 5434
       - ${BACK_PORT}
     ports:
       - ${BACK_PORT}:${BACK_PORT}
       - ${SOCKET_PORT}:${SOCKET_PORT}
-    command:  npm run start:dev
+    command:  npm run start
     environment:
       POSTGRES_HOST: database
     networks:
