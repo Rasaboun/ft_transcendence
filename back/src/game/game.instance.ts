@@ -168,7 +168,7 @@ export class GameInstance
         this.gameData.players.push(newPlayer);
     }
 
-	public sendReady()	{ this.lobby.sendToUsers("gameReady", { gameData: this.gameData, gameSettings: this.settings }); }
+	public sendReady()	{ this.lobby.sendToUsers("gameReady",  { gameData: this.gameData, gameSettings: this.settings }); }
 
     public isPlayer(clientId: string): boolean
     {  

@@ -364,7 +364,7 @@ export default function Game()
 			{
 				parseInt(storage2) === GameState.Stopped && clearCanvas() &&
 				<div className="flex justify-center items-center mx-5 bg-indigo-300 border border-8 border-indigo-200 rounded-lg">
-					{(storage.login === gameData.winnerUsername) ? "YOU WON" : 
+					{(storage.username === gameData.winnerUsername) ? "YOU WON" : 
 					(((gameData.players[0].id === storage.login || gameData.players[1].id === storage.login)) ?
 						"YOU LOST" : `${gameData.winnerUsername} WON`)}
 					{}
