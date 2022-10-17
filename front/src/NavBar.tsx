@@ -42,7 +42,6 @@ function HoverNavBar(location: String) {
   document
   .getElementById(location.replace("/", "") + "burger")
   ?.classList.add("bg-indigo-400");
-  console.log(location.replace("/", "") + "burger")
   
 }
 

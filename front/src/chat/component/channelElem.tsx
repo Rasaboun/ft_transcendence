@@ -29,7 +29,7 @@ import InviteMessage from "../Elements/InviteMessage";
 import Loader from "../../Elements/loader";
 
 export default function ChannelElem() {
-  const { storage, setStorage } = useLocalStorage("user");
+  const { storage, } = useLocalStorage("user");
   const navigate = useNavigate();
   const Locationstate = useLocation().state as {channelName: string}
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
@@ -99,7 +99,8 @@ export default function ChannelElem() {
       leaveChannel(data.channelInfo.channelId);
       navigate("/chat");
     }
-    setStorage("channel", data.channelInfo);
+    
+    setChannelInfo(data.channelInfo)
   };
 
   const handleChannelJoined = (data: {clientId: string; channelInfo: ChannelT; }) => {
@@ -143,7 +144,8 @@ export default function ChannelElem() {
   }
 
   const handleAddAdmin = (data: { target: string; channelInfo: ChannelT }) => {
-    setStorage("channel", data.channelInfo);
+    
+    setChannelInfo(data.channelInfo)
     if (data.target === storage.login) {
       setUserState((oldUserState) => ({
         ...oldUserState!,

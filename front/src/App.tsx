@@ -51,6 +51,9 @@ export default function App()
 	}
 
 	const userNotFound = () => {
+		localStorage.clear()
+		Cookies.remove("token");
+		Cookies.remove("login");
 		navigate('/Login');
 	}
 	
