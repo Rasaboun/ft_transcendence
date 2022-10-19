@@ -16,7 +16,7 @@ export default function PrivChatElem()
     const { chatSocket, setChatSocket } = useContext(SocketContext)
     const Locationstate = useLocation().state as {chatName: string}
     const lastMessageRef = useRef<HTMLDivElement | null>(null)
-    const {storage} = useLocalStorage("user")
+    const {storage, setStorage} = useLocalStorage("user")
 	const [form, setForm] = useState({ message:"", })
     const [privChat, setPrivChat] = useState<privChatInfo>();
     const [messagesList, setMessagesList] = useState<messageT[]>()
@@ -89,6 +89,30 @@ export default function PrivChatElem()
     )
   );
 
+  const handleBlockButton = async () => {
+    
+    if (storage.blockedUsers.indexOf(privChat!.otherLogin) === -1)
+		{
+      blockInChat(privChat!.name)
+      let newBlocklist: string[] = storage.blockedUsers;
+      console.log("other login", privChat!.otherLogin);
+      newBlocklist.push(privChat!.otherLogin);
+			setStorage("user", {...storage, blockedUsers: newBlocklist})
+		}
+  }
+
+  const handleUnblockButton = async () => {
+    
+    if (storage.blockedUsers.indexOf(privChat!.otherLogin) >= 0)
+		{
+
+      unblockInChat(privChat!.name)
+      let newBlocklist: string[] = storage.blockedUsers;
+      newBlocklist.splice(storage.blockedUsers.indexOf(privChat!.otherLogin), 1);
+			setStorage("user", {...storage, blockedUsers: newBlocklist})
+		}
+  }
+
   const scrollToBottom = () => {
     lastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -118,7 +142,7 @@ export default function PrivChatElem()
           Chatting with : {privChat ? privChat.otherUsername : "Change this"}
         </h1>
       <div className="mr-2">
-        <button onClick={() => blockInChat(privChat!.name)}>
+        <button onClick={() => handleBlockButton()}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -134,7 +158,7 @@ export default function PrivChatElem()
             />
           </svg>
         </button>
-        <button onClick={() => unblockInChat(privChat!.name)}>
+        <button onClick={() => handleUnblockButton()}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
