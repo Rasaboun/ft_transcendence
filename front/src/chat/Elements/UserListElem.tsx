@@ -110,7 +110,13 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  
 
+    if (e.target.name === 'muteTime' || e.target.name === 'banTime')
+    {
+      if (parseInt(e.target.value) < 0)
+        return ;
+    }
     setForm((oldForm) => ({
       ...oldForm,
       [e.target.name]: e.target.value,
@@ -176,7 +182,7 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
               <input
                 type="number"
                 name="banTime"
-                min="0:00"
+                min="0"
                 max="1:00"
                 value={form.banTime}
                 onChange={handleChange}
@@ -191,7 +197,7 @@ export default function UserListElem({ client, userState }: UserElemPropsT) {
 			    className="w-10"
                 type="number"
                 name="muteTime"
-                min="0:00"
+                min="0"
                 max="1:00"
                 value={form.muteTime}
                 onChange={handleChange}

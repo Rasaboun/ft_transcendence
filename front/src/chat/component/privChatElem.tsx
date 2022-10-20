@@ -95,7 +95,6 @@ export default function PrivChatElem()
 		{
       blockInChat(privChat!.name)
       let newBlocklist: string[] = storage.blockedUsers;
-      console.log("other login", privChat!.otherLogin);
       newBlocklist.push(privChat!.otherLogin);
 			setStorage("user", {...storage, blockedUsers: newBlocklist})
 		}

@@ -126,7 +126,12 @@ function TabSettings() {
 			}
 		}
 		if (img)
+		{
+			const extension = img.name.split('.').slice(-1)[0];
+			if (extension !== 'jpg' && extension !== 'png' && extension !== 'jpeg')
+				return ;
 			setDisplayedImage(URL.createObjectURL(img))
+		}
 		setForm((prevForm) => ({
 			...prevForm,
 			[e.target.name] : img ? img : e.target.value
