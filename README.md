@@ -27,4 +27,15 @@ The authentication on the website had to be done using OAuth2 to log-in with you
 It was the first time I used an external API, and it gives a better understanding of whats happening under the hood when logging on other applications.
 
 ### User input validation
+​To check if user input is correct, NestJS provides Validation decorators.
 
+Paired with DTOs (Data Transfer Object), it is really powerful.
+
+It will reject any request not matching the decorators.
+
+## Contributors
+
+* <a href="https://github.com/Rasaboun">SABOUNDJI Rayane(rasaboun)</a> Frontend
+* <a href="https://github.com/meetchou">AMANFO Kwame(kamanfo)</a> Frontend
+* <a href="https://github.com/bditte">DITTE Baptiste(bditte)</a> Backend
+* <a href="https://github.com/adupav2000">DU-PAVILLON Alain(adu-pavi)</a> Docker 
