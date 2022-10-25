@@ -3,7 +3,7 @@ This is 42 last common core project.
 
 We had to do a website as a single page application in which you can play Pong but also chat with people in groupchat or private messages, invite them to play, look at their gamestats their current status.
 
-The real challenge as building a pretty big group project using language and frameworks we did know about.
+The real challenge was building a pretty big project as a group, using language and frameworks we did know about.
 
 Using ``Typescript`` and ``NestJS`` as backend framework was mandatory, and we chose to use ``React`` as frontend framework.
 
