@@ -5,7 +5,7 @@ We had to do a website as a single page application in which you can play Pong b
 
 The real challenge was building a pretty big project as a group, using language and frameworks we did know about.
 
-Using ``Typescript`` and ``NestJS`` as backend framework was mandatory, and we chose to use ``React`` as frontend framework.
+Using ``Typescript`` and ``NestJS`` as backend framework was mandatory, and we chose to use ``React`` as frontend framework with ``TailwindCSS``.
 
 ## Usage
 
